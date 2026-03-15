@@ -1,0 +1,116 @@
+name: CI -- StudioBrain Templates
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-templates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-templates:
+    name: Validate Templates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install validation tools
+        run: pip install pyyaml jsonschema
+
+      - name: Validate YAML frontmatter in templates
+        run: |
+          python -c "
+          import yaml
+          import os
+          import sys
+
+          errors = 0
+          for root, dirs, files in os.walk('templates'):
+              for f in files:
+                  if f.endswith('.md'):
+                      path = os.path.join(root, f)
+                      with open(path, 'r') as fh:
+                          content = fh.read()
+                      if content.startswith('---'):
+                          parts = content.split('---', 2)
+                          if len(parts) >= 3:
+                              try:
+                                  yaml.safe_load(parts[1])
+                                  print(f'OK: {path}')
+                              except yaml.YAMLError as e:
+                                  print(f'ERROR: {path}: {e}')
+                                  errors += 1
+
+          if errors > 0:
+              print(f'{errors} template(s) have invalid YAML')
+              sys.exit(1)
+          print('All templates valid')
+          "
+
+  validate-rules:
+    name: Validate Rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install validation tools
+        run: pip install pyyaml
+
+      - name: Validate rules files
+        run: |
+          python -c "
+          import os
+          import sys
+
+          rules_dir = 'rules'
+          if not os.path.exists(rules_dir):
+              print('No rules directory found')
+              sys.exit(0)
+
+          rule_files = [f for f in os.listdir(rules_dir) if f.endswith('.md')]
+          print(f'Found {len(rule_files)} rule files')
+
+          if len(rule_files) == 0:
+              print('WARNING: No rule files found in rules/')
+              sys.exit(1)
+
+          for f in rule_files:
+              path = os.path.join(rules_dir, f)
+              with open(path, 'r') as fh:
+                  content = fh.read()
+              if len(content.strip()) == 0:
+                  print(f'ERROR: Empty rule file: {path}')
+                  sys.exit(1)
+              print(f'OK: {path} ({len(content)} bytes)')
+
+          print('All rules valid')
+          "
+
+  validate-plugins:
+    name: Validate Plugins
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate plugin manifests
+        run: |
+          if [ -f "plugins/_plugins.json" ]; then
+            python3 -c "import json; json.load(open('plugins/_plugins.json'))" && echo "plugins/_plugins.json: valid JSON"
+          fi
+
+          for dir in plugins/*/; do
+            if [ -f "$dir/manifest.json" ]; then
+              python3 -c "import json; json.load(open('$dir/manifest.json'))" && echo "$dir/manifest.json: valid"
+            fi
+          done

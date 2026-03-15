@@ -1,0 +1,32 @@
+{
+  "name": "@studiobrain/templates",
+  "version": "0.1.0",
+  "description": "StudioBrain entity templates, generation rules, and plugin SDK",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "templates/",
+    "rules/",
+    "plugins/",
+    "index.js",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "validate": "python3 scripts/validate.py",
+    "lint": "echo 'No linting configured yet'",
+    "test": "echo 'No tests configured yet'"
+  },
+  "keywords": [
+    "studiobrain",
+    "templates",
+    "game-development",
+    "entity-types",
+    "plugins"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BiloxiStudios/studiobrain-templates.git"
+  },
+  "author": "Biloxi Studios Inc.",
+  "license": "UNLICENSED"
+}
