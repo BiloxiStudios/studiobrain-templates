@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+
+  .page-header {
+    max-width: 960px;
+    margin: 0 auto 28px;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-bg));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .page-title svg {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+  .page-subtitle {
+    color: var(--surface-base-text-secondary);
+    font-size: 15px;
+  }
+
+  .content { max-width: 960px; margin: 0 auto; }
+
+  /* Stats cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 18px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--surface-base-text);
+  }
+  .stat-value.blurple { color: var(--plugin-accent); }
+  .stat-value.green { color: var(--surface-success-border); }
+  .stat-value.red { color: var(--surface-error-border); }
+  .stat-value.amber { color: var(--surface-warning-border); }
+  .stat-sub {
+    font-size: 12px;
+    color: var(--surface-elevated-border);
+    margin-top: 2px;
+  }
+
+  /* Section layout */
+  .sections-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 720px) {
+    .sections-grid { grid-template-columns: 1fr; }
+  }
+
+  .section-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    border: 1px solid var(--surface-elevated-border);
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--surface-elevated-border);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .section-body {
+    padding: 16px 18px;
+  }
+
+  /* Webhook management */
+  .webhook-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .webhook-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .webhook-item:hover { border-color: var(--surface-elevated-border); }
+  .webhook-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--surface-base-text);
+    min-width: 80px;
+  }
+  .webhook-url-preview {
+    flex: 1;
+    font-size: 11px;
+    color: var(--surface-elevated-border);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .webhook-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-discord {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-discord:hover { background: var(--plugin-accent); }
+  .btn-discord:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-outline:hover { border-color: var(--plugin-accent); color: var(--plugin-accent); }
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-danger:hover { border-color: var(--surface-error-border); color: var(--surface-error-border); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+  /* Add webhook form */
+  .add-webhook-form {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 12px;
+  }
+  .add-webhook-form.visible { display: flex; }
+  .form-row {
+    display: flex;
+    gap: 8px;
+  }
+  .form-input {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2);
+  }
+  .form-input.mono {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+  }
+
+  /* Recent posts table */
+  .posts-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .posts-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--surface-elevated-border);
+    color: var(--surface-elevated-border);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .posts-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+    vertical-align: middle;
+  }
+  .posts-table tr:hover td { background: rgba(88, 101, 242, 0.04); }
+
+  .status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+  .status-dot.success { background: var(--surface-success-border); }
+  .status-dot.failed { background: var(--surface-error-border); }
+
+  .entity-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--plugin-accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .entity-link:hover { text-decoration: underline; }
+
+  .channel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    background: rgba(88, 101, 242, 0.1);
+    border-radius: 4px;
+    color: var(--plugin-accent);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .type-badge {
+    display: inline-flex;
+    padding: 2px 7px;
+    background: var(--surface-elevated-border);
+    border-radius: 4px;
+    color: var(--surface-base-text-secondary);
+    font-size: 10px;
+    text-transform: capitalize;
+  }
+
+  .date-cell {
+    white-space: nowrap;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px 16px;
+    color: var(--surface-elevated-border);
+    font-size: 13px;
+  }
+
+  /* Feedback / toast */
+  .feedback-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    display: none;
+    z-index: 999;
+    animation: slideUp 0.25s ease-out;
+  }
+  .feedback-toast.success {
+    display: block;
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: var(--surface-success-border);
+  }
+  .feedback-toast.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--surface-error-border);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.25);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Status indicator */
+  .plugin-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+  }
+  .status-led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--surface-success-border);
+  }
+  .status-led.disconnected { background: var(--surface-error-border); }
+</style>
+</head>
+<body>
+  <div class="page-header">
+    <h1 class="page-title">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="-webkit-text-fill-color: var(--plugin-accent);">
+        <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 13.83 13.83 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z"/>
+      </svg>
+      Discord Poster
+    </h1>
+    <p class="page-subtitle">Manage webhooks, view post history, and share your creative work to Discord channels.</p>
+  </div>
+
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Posts</div>
+        <div class="stat-value blurple" id="stat-total">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Posts Today</div>
+        <div class="stat-value green" id="stat-today">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Success Rate</div>
+        <div class="stat-value" id="stat-rate">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Most Posted</div>
+        <div class="stat-value amber" id="stat-top" style="font-size:16px;">--</div>
+        <div class="stat-sub" id="stat-top-count"></div>
+      </div>
+    </div>
+
+    <div class="sections-grid">
+      <!-- Webhook Management -->
+      <div class="section-card">
+        <div class="section-header">
+          Webhooks
+          <button class="btn btn-outline btn-sm" onclick="toggleAddForm()">+ Add</button>
+        </div>
+        <div class="section-body">
+          <div class="add-webhook-form" id="add-form">
+            <div class="form-row">
+              <input type="text" class="form-input" id="new-wh-name" placeholder="Channel name" style="max-width:140px;">
+              <input type="text" class="form-input mono" id="new-wh-url" placeholder="https://discord.com/api/webhooks/...">
+            </div>
+            <div class="form-row" style="justify-content: flex-end;">
+              <button class="btn btn-outline btn-sm" onclick="toggleAddForm()">Cancel</button>
+              <button class="btn btn-discord btn-sm" onclick="testAndAddWebhook()">Test &amp; Add</button>
+            </div>
+          </div>
+          <div class="webhook-list" id="webhook-list">
+            <div class="empty-state">Loading webhooks...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plugin Status -->
+      <div class="section-card">
+        <div class="section-header">
+          Plugin Status
+          <div class="plugin-status">
+            <div class="status-led" id="status-led"></div>
+            <span id="status-text">Checking...</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="webhook-item">
+              <span class="webhook-name">Version</span>
+              <span class="webhook-url-preview" id="info-version" style="font-family:inherit;">--</span>
+            </div>
+            <div class="webhook-item">
+              <span class="webhook-name">Webhooks</span>
+              <span class="webhook-url-preview" id="info-webhooks" style="font-family:inherit;">--</span>
+            </div>
+            <div class="webhook-item">
+              <span class="webhook-name">Auto-Create</span>
+              <span class="webhook-url-preview" id="info-auto-create" style="font-family:inherit;">--</span>
+            </div>
+            <div class="webhook-item">
+              <span class="webhook-name">Auto-Update</span>
+              <span class="webhook-url-preview" id="info-auto-update" style="font-family:inherit;">--</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Posts -->
+    <div class="section-card" style="margin-bottom:28px;">
+      <div class="section-header">
+        Recent Posts
+        <button class="btn btn-outline btn-sm" onclick="loadHistory()">Refresh</button>
+      </div>
+      <div class="section-body" style="padding:0;">
+        <div class="empty-state" id="posts-empty">Loading...</div>
+        <table class="posts-table" id="posts-table" style="display:none;">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Entity</th>
+              <th>Type</th>
+              <th>Channel</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="posts-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="feedback-toast" id="toast"></div>
+
+  <script>
+    const API = '/api/ext/discord-poster';
+
+    // -----------------------------------------------------------------------
+    // Toast notifications
+    // -----------------------------------------------------------------------
+    function showToast(msg, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'feedback-toast ' + type;
+      setTimeout(() => { toast.className = 'feedback-toast'; }, 3500);
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '--';
+      const d = new Date(iso);
+      const now = new Date();
+      const diff = now - d;
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' +
+             d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // -----------------------------------------------------------------------
+    // Load plugin status
+    // -----------------------------------------------------------------------
+    async function loadStatus() {
+      try {
+        const resp = await fetch(`${API}/`);
+        const data = await resp.json();
+
+        document.getElementById('status-led').className = 'status-led';
+        document.getElementById('status-text').textContent = 'Connected';
+        document.getElementById('info-version').textContent = data.version || '--';
+        document.getElementById('info-webhooks').textContent = data.webhooks_configured + ' configured';
+        document.getElementById('info-auto-create').textContent = data.auto_post_on_create ? 'Enabled' : 'Disabled';
+        document.getElementById('info-auto-update').textContent = data.auto_post_on_update ? 'Enabled' : 'Disabled';
+      } catch (err) {
+        document.getElementById('status-led').className = 'status-led disconnected';
+        document.getElementById('status-text').textContent = 'Disconnected';
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // Load stats
+    // -----------------------------------------------------------------------
+    async function loadStats() {
+      try {
+        const resp = await fetch(`${API}/stats`);
+        const data = await resp.json();
+
+        document.getElementById('stat-total').textContent = data.total_posts || 0;
+        document.getElementById('stat-today').textContent = data.posts_today || 0;
+
+        if (data.total_posts > 0) {
+          const rate = Math.round((data.successful / data.total_posts) * 100);
+          const el = document.getElementById('stat-rate');
+          el.textContent = rate + '%';
+          el.className = 'stat-value ' + (rate >= 90 ? 'green' : rate >= 50 ? 'amber' : 'red');
+        } else {
+          document.getElementById('stat-rate').textContent = '--';
+        }
+
+        if (data.most_posted) {
+          document.getElementById('stat-top').textContent = data.most_posted.entity;
+          document.getElementById('stat-top-count').textContent = data.most_posted.count + ' posts';
+        }
+      } catch (err) {
+        console.error('Failed to load stats:', err);
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // Webhooks
+    // -----------------------------------------------------------------------
+    async function loadWebhooks() {
+      try {
+        const resp = await fetch(`${API}/webhooks`);
+        const data = await resp.json();
+        const webhooks = data.webhooks || [];
+        const list = document.getElementById('webhook-list');
+
+        if (webhooks.length === 0) {
+          list.innerHTML = '<div class="empty-state">No webhooks configured. Add one above or configure in plugin settings.</div>';
+          return;
+        }
+
+        list.innerHTML = webhooks.map(wh => `
+          <div class="webhook-item">
+            <span class="webhook-name">${escHtml(wh.name)}</span>
+            <span class="webhook-url-preview">${escHtml(wh.url_preview)}</span>
+            <div class="webhook-actions">
+              <button class="btn btn-outline btn-sm" onclick="testWebhook('${escAttr(wh.url)}')">Test</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error('Failed to load webhooks:', err);
+      }
+    }
+
+    function escHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+    function escAttr(str) {
+      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function toggleAddForm() {
+      document.getElementById('add-form').classList.toggle('visible');
+    }
+
+    async function testWebhook(url) {
+      try {
+        const resp = await fetch(`${API}/test-webhook`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ webhook_url: url }),
+        });
+        if (resp.ok) {
+          showToast('Test message sent!', 'success');
+        } else {
+          const data = await resp.json();
+          showToast(data.detail || 'Test failed', 'error');
+        }
+      } catch (err) {
+        showToast('Network error: ' + err.message, 'error');
+      }
+    }
+
+    async function testAndAddWebhook() {
+      const name = document.getElementById('new-wh-name').value.trim() || 'Unnamed';
+      const url = document.getElementById('new-wh-url').value.trim();
+
+      if (!url) {
+        showToast('Please enter a webhook URL', 'error');
+        return;
+      }
+
+      if (!url.startsWith('https://discord.com/api/webhooks/') && !url.startsWith('https://discordapp.com/api/webhooks/')) {
+        showToast('URL does not look like a Discord webhook', 'error');
+        return;
+      }
+
+      // Test first
+      try {
+        const testResp = await fetch(`${API}/test-webhook`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ webhook_url: url }),
+        });
+        if (!testResp.ok) {
+          const data = await testResp.json();
+          showToast('Webhook test failed: ' + (data.detail || 'Unknown error'), 'error');
+          return;
+        }
+      } catch (err) {
+        showToast('Could not reach webhook: ' + err.message, 'error');
+        return;
+      }
+
+      // Webhook works -- show instructions for adding to settings
+      showToast(
+        'Webhook works! Add it to plugin settings: {"name":"' + name + '","url":"' + url.substring(0, 30) + '..."}',
+        'success'
+      );
+
+      document.getElementById('new-wh-name').value = '';
+      document.getElementById('new-wh-url').value = '';
+      toggleAddForm();
+    }
+
+    // -----------------------------------------------------------------------
+    // Recent posts
+    // -----------------------------------------------------------------------
+    async function loadHistory() {
+      try {
+        const resp = await fetch(`${API}/history?limit=50`);
+        const data = await resp.json();
+        const items = data.items || [];
+
+        if (items.length === 0) {
+          document.getElementById('posts-empty').style.display = 'block';
+          document.getElementById('posts-empty').textContent = 'No posts yet. Use the entity sidebar panel to post to Discord.';
+          document.getElementById('posts-table').style.display = 'none';
+          return;
+        }
+
+        document.getElementById('posts-empty').style.display = 'none';
+        document.getElementById('posts-table').style.display = 'table';
+
+        const tbody = document.getElementById('posts-tbody');
+        tbody.innerHTML = items.map(item => `
+          <tr>
+            <td class="date-cell">${formatDate(item.posted_at)}</td>
+            <td>
+              <span class="entity-link">${escHtml(item.entity_name || 'Unknown')}</span>
+            </td>
+            <td><span class="type-badge">${escHtml(item.entity_type || '?')}</span></td>
+            <td><span class="channel-badge"># ${escHtml(item.webhook_name || '?')}</span></td>
+            <td>
+              <span class="status-dot ${item.success ? 'success' : 'failed'}"></span>
+              ${item.success ? 'Sent' : 'Failed'}
+            </td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="repost('${escAttr(item.entity_type)}', '${escAttr(item.entity_id)}')">Re-post</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        document.getElementById('posts-empty').textContent = 'Failed to load history.';
+        console.error('Failed to load history:', err);
+      }
+    }
+
+    async function repost(entityType, entityId) {
+      try {
+        const resp = await fetch(`${API}/post`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_type: entityType,
+            entity_id: entityId,
+            include_image: true,
+          }),
+        });
+        if (resp.ok) {
+          showToast('Re-posted successfully!', 'success');
+          setTimeout(() => { loadHistory(); loadStats(); }, 500);
+        } else {
+          const data = await resp.json();
+          showToast(data.detail || 'Re-post failed', 'error');
+        }
+      } catch (err) {
+        showToast('Network error: ' + err.message, 'error');
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // Initialize
+    // -----------------------------------------------------------------------
+    loadStatus();
+    loadStats();
+    loadWebhooks();
+    loadHistory();
+  </script>
+</body>
+</html>

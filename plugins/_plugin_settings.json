@@ -1,0 +1,12 @@
+{
+  "plugins": {
+    "hello-world": {
+      "greeting": "Hello test",
+      "log_events": false
+    },
+    "comfyui-workflows": {},
+    "time-tracker": {
+      "default_billable": false
+    }
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "id": "jira-sync",
+  "name": "Jira Sync",
+  "version": "0.1.0",
+  "description": "Two-way sync between Studio entities and Jira issues. Map entity types to Jira projects, track production status via Jira workflows, and auto-create issues from entity lifecycle events.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "project-management",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "jira-dashboard",
+          "route": "/plugins/jira-sync",
+          "label": "Jira Sync",
+          "icon": "ticket",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "jira-link",
+          "label": "Jira Link",
+          "location": "entity-sidebar",
+          "icon": "external-link"
+        },
+        {
+          "id": "jira-details",
+          "label": "Jira Issue Details",
+          "location": "entity-tab",
+          "icon": "ticket"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "httpx>=0.25.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "network:external",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "jira_instance_url": {
+      "type": "string",
+      "label": "Jira Instance URL",
+      "description": "Your Atlassian Cloud URL (e.g., https://yourstudio.atlassian.net)",
+      "required": true,
+      "scope": "instance"
+    },
+    "auth_method": {
+      "type": "string",
+      "label": "Authentication Method",
+      "description": "Authentication method: api-token (Cloud), pat (Server/DC), oauth2",
+      "required": false,
+      "default": "api-token",
+      "scope": "instance"
+    },
+    "jira_email": {
+      "type": "string",
+      "label": "Jira Email",
+      "description": "Atlassian account email (for API token auth)",
+      "required": false,
+      "scope": "instance"
+    },
+    "jira_api_token": {
+      "type": "secret",
+      "label": "Jira API Token",
+      "description": "API token from id.atlassian.com/manage-profile/security/api-tokens",
+      "required": true,
+      "scope": "instance"
+    },
+    "default_project_key": {
+      "type": "string",
+      "label": "Default Jira Project Key",
+      "description": "Jira project key for new issues (e.g., SBAI, PROD)",
+      "required": true,
+      "scope": "instance"
+    },
+    "entity_type_mapping": {
+      "type": "string",
+      "label": "Entity-to-Issue Type Mapping (JSON)",
+      "description": "JSON mapping of entity types to Jira issue types, e.g., {\"character\": \"Story\", \"item\": \"Task\", \"quest\": \"Epic\"}",
+      "required": false,
+      "default": "{\"character\": \"Story\", \"location\": \"Story\", \"item\": \"Task\", \"quest\": \"Epic\", \"campaign\": \"Epic\"}",
+      "scope": "instance"
+    },
+    "status_field_mapping": {
+      "type": "string",
+      "label": "Status Field Mapping (JSON)",
+      "description": "JSON mapping of Studio production_status values to Jira transition names, e.g., {\"concept\": \"To Do\", \"modeling\": \"In Progress\", \"final\": \"Done\"}",
+      "required": false,
+      "default": "{\"draft\": \"To Do\", \"in_progress\": \"In Progress\", \"review\": \"In Review\", \"complete\": \"Done\"}",
+      "scope": "instance"
+    },
+    "auto_create_on_entity": {
+      "type": "boolean",
+      "label": "Auto-create Issue on Entity Create",
+      "description": "Automatically create a Jira issue when a new entity is created in Studio",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "auto_transition_on_status": {
+      "type": "boolean",
+      "label": "Auto-transition on Status Change",
+      "description": "Automatically transition the linked Jira issue when entity production_status changes",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    },
+    "sync_description": {
+      "type": "boolean",
+      "label": "Sync Entity Description to Issue",
+      "description": "Push entity markdown body as Jira issue description (converted to ADF)",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "link_field": {
+      "type": "string",
+      "label": "Entity Link Field",
+      "description": "Entity field name used to store the linked Jira issue key",
+      "required": false,
+      "default": "jira_issue_key",
+      "scope": "instance"
+    },
+    "labels": {
+      "type": "string",
+      "label": "Default Labels",
+      "description": "Comma-separated labels to apply to created issues",
+      "required": false,
+      "default": "city-of-brains,auto-created",
+      "scope": "instance"
+    },
+    "bidirectional_sync": {
+      "type": "boolean",
+      "label": "Bidirectional Sync (Webhook)",
+      "description": "Enable webhook listener for Jira-to-Studio sync (requires Jira webhook configuration)",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#0052CC"
+}

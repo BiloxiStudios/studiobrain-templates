@@ -1,0 +1,73 @@
+{
+  "id": "hello-world",
+  "name": "Hello World",
+  "version": "1.0.0",
+  "description": "A sample plugin demonstrating sidebar panels, entity tabs, pages, routes and event handlers",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "hello-dashboard",
+          "route": "/plugins/hello-world",
+          "label": "Hello World",
+          "icon": "hand-wave",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "entity-notes",
+          "label": "Plugin Notes",
+          "location": "entity-sidebar",
+          "icon": "message-square"
+        },
+        {
+          "id": "entity-stats",
+          "label": "Entity Stats",
+          "location": "entity-tab",
+          "icon": "bar-chart"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read"
+  ],
+  "settings_schema": {
+    "greeting": {
+      "type": "string",
+      "label": "Greeting Message",
+      "required": false,
+      "default": "Hello from the plugin system!",
+      "scope": "instance"
+    },
+    "log_events": {
+      "type": "boolean",
+      "label": "Log Entity Events",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    }
+  },
+  "data_schema": {
+    "note": {
+      "label": "Entity Note",
+      "fields": {
+        "text": "string",
+        "time": "datetime"
+      }
+    }
+  },
+  "accent_color": "var(--surface-primary-bg)"
+}

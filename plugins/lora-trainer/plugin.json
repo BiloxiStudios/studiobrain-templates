@@ -1,0 +1,115 @@
+{
+  "id": "lora-trainer",
+  "name": "LoRA Training Manager",
+  "version": "0.2.0",
+  "description": "Queue LoRA training jobs from entity portraits. Manage training datasets, configure training parameters, track progress, and link trained LoRAs back to character entities.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "ai-generation",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "lora-dashboard",
+          "route": "/plugins/lora-trainer",
+          "label": "LoRA Trainer",
+          "icon": "brain",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "lora-status",
+          "label": "LoRA Status",
+          "location": "entity-sidebar",
+          "icon": "cpu",
+          "entity_types": [
+            "character"
+          ]
+        },
+        {
+          "id": "training-dataset",
+          "label": "Training Dataset",
+          "location": "entity-tab",
+          "icon": "image",
+          "entity_types": [
+            "character"
+          ]
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "aiohttp>=3.9.0",
+      "pillow>=10.0.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "network:local",
+    "filesystem:read",
+    "filesystem:write",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "kohya_path": {
+      "type": "string",
+      "label": "Kohya ss-scripts Path",
+      "description": "Local path to the kohya_ss sd-scripts installation directory",
+      "required": false,
+      "default": "",
+      "scope": "instance"
+    },
+    "output_dir": {
+      "type": "string",
+      "label": "LoRA Output Directory",
+      "description": "Directory where trained LoRA model files (.safetensors) will be saved",
+      "required": true,
+      "default": "A:/Brains/_Generated/loras",
+      "scope": "instance"
+    },
+    "default_steps": {
+      "type": "number",
+      "label": "Default Training Steps",
+      "description": "Number of training steps per job",
+      "required": false,
+      "default": 1500,
+      "scope": "instance"
+    },
+    "default_lr": {
+      "type": "string",
+      "label": "Default Learning Rate",
+      "description": "Learning rate for training (e.g. 1e-4, 5e-5)",
+      "required": false,
+      "default": "1e-4",
+      "scope": "instance"
+    },
+    "default_rank": {
+      "type": "number",
+      "label": "Default LoRA Rank",
+      "description": "LoRA network rank (dimension). Higher = more expressive but larger file",
+      "required": false,
+      "default": 32,
+      "scope": "instance"
+    },
+    "gpu_id": {
+      "type": "number",
+      "label": "GPU Device ID",
+      "description": "CUDA device index to use for training (0 = first GPU)",
+      "required": false,
+      "default": 0,
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#F97316"
+}

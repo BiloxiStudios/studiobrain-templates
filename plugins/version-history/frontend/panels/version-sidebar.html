@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--surface-base-text);
+  }
+  .header-icon {
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--plugin-accent);
+  }
+  .count-badge {
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--plugin-accent);
+    padding: 2px 7px;
+    border-radius: 99px;
+  }
+
+  /* ---- Version list ---- */
+  .version-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .version-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: default;
+    transition: border-color 0.15s;
+    position: relative;
+  }
+  .version-item:hover { border-color: var(--surface-elevated-border); }
+
+  .v-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--surface-elevated-border);
+    margin-top: 5px;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .version-item:first-child .v-dot { background: var(--plugin-accent); }
+
+  .v-body { flex: 1; min-width: 0; }
+
+  .v-msg {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--surface-base-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .v-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 3px;
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+  }
+  .v-sha {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--plugin-accent);
+    font-size: 10px;
+  }
+  .v-time { color: var(--surface-base-text-secondary); }
+
+  .version-item:first-child {
+    border-color: rgba(59, 130, 246, 0.2);
+    background: rgba(30, 41, 59, 1);
+  }
+  .version-item:first-child .v-msg { color: var(--surface-base-text); }
+  .current-badge {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--plugin-accent);
+    background: rgba(59, 130, 246, 0.1);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ---- Footer ---- */
+  .footer {
+    margin-top: 10px;
+    text-align: center;
+  }
+  .view-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .view-all-btn:hover { border-color: var(--plugin-accent); color: var(--plugin-accent); }
+
+  /* ---- States ---- */
+  .state-box {
+    text-align: center;
+    padding: 20px 8px;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .state-box.error { color: var(--surface-error-border); }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/></svg>
+      </div>
+      Recent Versions
+    </div>
+    <span class="count-badge" id="count-badge" style="display:none;">0</span>
+  </div>
+
+  <div id="content">
+    <div class="state-box">
+      <div class="spinner"></div>
+      Loading...
+    </div>
+  </div>
+
+  <div class="footer" id="footer" style="display:none;">
+    <button class="view-all-btn" id="view-all-btn" onclick="viewAll()">
+      View full history
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+
+<script>
+  const API_BASE = '/api/ext/version-history';
+  const ctx = window.PLUGIN_CONTEXT || {};
+  const entityType = ctx.entityType || '';
+  const entityId = ctx.entityId || '';
+
+  async function loadRecent() {
+    if (!entityType || !entityId) {
+      document.getElementById('content').innerHTML =
+        '<div class="state-box">No entity selected.</div>';
+      return;
+    }
+
+    try {
+      const resp = await fetch(`${API_BASE}/history/${entityType}/${entityId}?limit=5`);
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      render(data.commits || [], data.total || 0);
+    } catch (e) {
+      document.getElementById('content').innerHTML =
+        `<div class="state-box error">${escHtml(e.message)}</div>`;
+    }
+  }
+
+  function render(commits, total) {
+    if (commits.length === 0) {
+      document.getElementById('content').innerHTML =
+        '<div class="state-box">No version history yet.</div>';
+      return;
+    }
+
+    document.getElementById('count-badge').textContent = total;
+    document.getElementById('count-badge').style.display = 'inline';
+
+    const html = '<div class="version-list">' + commits.map((c, i) => `
+      <div class="version-item">
+        <div class="v-dot"></div>
+        <div class="v-body">
+          <div class="v-msg">${escHtml(c.message)}</div>
+          <div class="v-meta">
+            <span class="v-sha">${c.sha.substring(0, 7)}</span>
+            <span class="v-time">${formatDate(c.date)}</span>
+            ${i === 0 ? '<span class="current-badge">latest</span>' : ''}
+          </div>
+        </div>
+      </div>
+    `).join('') + '</div>';
+
+    document.getElementById('content').innerHTML = html;
+
+    if (total > 5) {
+      document.getElementById('view-all-btn').textContent = `View all ${total} versions `;
+      document.getElementById('footer').style.display = 'block';
+    }
+  }
+
+  function viewAll() {
+    // Attempt to switch to the Version History tab if possible.
+    // The parent frame can listen for this message.
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'plugin:navigate-tab',
+        pluginId: 'version-history',
+        panelId: 'entity-history',
+      }, '*');
+    }
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMs / 3600000);
+    const diffDay = Math.floor(diffMs / 86400000);
+
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHr < 24) return `${diffHr}h ago`;
+    if (diffDay < 7) return `${diffDay}d ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  loadRecent();
+</script>
+</body>
+</html>

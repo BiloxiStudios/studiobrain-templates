@@ -1,0 +1,100 @@
+{
+  "id": "google-sheets-sync",
+  "name": "Google Sheets Sync",
+  "version": "0.1.0",
+  "description": "Two-way sync entity field data with Google Sheets for team spreadsheet workflows and bulk editing.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "data-integration",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "sheets-sync",
+          "route": "/plugins/google-sheets-sync",
+          "label": "Google Sheets",
+          "icon": "table",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "sheet-link",
+          "label": "Sheet Link",
+          "location": "entity-sidebar",
+          "icon": "sheet"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "google-auth>=2.23.0",
+      "google-api-python-client>=2.100.0",
+      "gspread>=5.12.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "network:external",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "google_credentials_json": {
+      "type": "secret",
+      "label": "Google Service Account JSON",
+      "description": "Contents of the service account credentials JSON file. Required for direct Google Sheets API access.",
+      "required": false,
+      "scope": "instance"
+    },
+    "spreadsheet_id": {
+      "type": "string",
+      "label": "Spreadsheet ID",
+      "description": "Google Sheets spreadsheet ID from the URL (the long string between /d/ and /edit)",
+      "required": false,
+      "scope": "instance"
+    },
+    "auto_sync": {
+      "type": "boolean",
+      "label": "Auto-Sync on Entity Changes",
+      "description": "Automatically sync entity data to the spreadsheet when entities are created, updated, or deleted",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "sync_interval_minutes": {
+      "type": "number",
+      "label": "Sync Interval (minutes)",
+      "description": "Minutes between automatic full syncs. 0 to disable periodic sync.",
+      "required": false,
+      "default": 30,
+      "scope": "instance"
+    },
+    "sync_direction": {
+      "type": "string",
+      "label": "Sync Direction",
+      "description": "Direction of sync (studio-to-sheets, sheets-to-studio, bidirectional)",
+      "required": false,
+      "default": "studio-to-sheets",
+      "scope": "instance"
+    },
+    "entity_types": {
+      "type": "string",
+      "label": "Entity Types to Sync",
+      "description": "Comma-separated entity types. Each type gets its own sheet tab.",
+      "required": false,
+      "default": "character,location,item",
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#34A853"
+}

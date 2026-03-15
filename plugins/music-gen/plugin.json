@@ -1,0 +1,113 @@
+{
+  "id": "music-gen",
+  "name": "Music Generator",
+  "version": "0.2.0",
+  "description": "Generate ambient music and character themes using Udio/Suno APIs. Attach tracks to locations, characters, and campaigns with a full music library.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "ai-generation",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "music-library",
+          "route": "/plugins/music-gen",
+          "label": "Music Library",
+          "icon": "music",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "music-player",
+          "label": "Theme Music",
+          "location": "entity-sidebar",
+          "icon": "volume-2"
+        },
+        {
+          "id": "music-studio",
+          "label": "Music Studio",
+          "location": "entity-tab",
+          "icon": "audio-waveform"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "httpx>=0.25.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "network:external",
+    "filesystem:write",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "provider": {
+      "type": "string",
+      "label": "Music Provider",
+      "description": "Music generation provider (suno, udio, musicgen-local)",
+      "required": true,
+      "default": "suno",
+      "scope": "instance"
+    },
+    "suno_api_key": {
+      "type": "secret",
+      "label": "Suno API Key",
+      "description": "Your Suno API key for music generation",
+      "required": false,
+      "scope": "instance"
+    },
+    "udio_api_key": {
+      "type": "secret",
+      "label": "Udio API Key",
+      "description": "Your Udio API key for music generation",
+      "required": false,
+      "scope": "instance"
+    },
+    "default_duration": {
+      "type": "number",
+      "label": "Default Duration (seconds)",
+      "description": "Default track length in seconds",
+      "required": false,
+      "default": 30,
+      "scope": "instance"
+    },
+    "default_genre": {
+      "type": "string",
+      "label": "Default Genre",
+      "description": "Default genre for generation (ambient, orchestral, electronic, etc.)",
+      "required": false,
+      "default": "ambient",
+      "scope": "instance"
+    },
+    "output_format": {
+      "type": "string",
+      "label": "Output Format",
+      "description": "Audio output format (mp3, wav)",
+      "required": false,
+      "default": "mp3",
+      "scope": "instance"
+    },
+    "auto_attach": {
+      "type": "boolean",
+      "label": "Auto-attach to Entity",
+      "description": "Automatically attach generated tracks to the entity",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    }
+  },
+  "accent_color": "#EC4899"
+}

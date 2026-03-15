@@ -1,0 +1,91 @@
+{
+  "id": "obsidian-vault",
+  "name": "Obsidian Vault Bridge",
+  "version": "1.0.0",
+  "description": "Export and sync entity markdown to an Obsidian vault with wikilinks, tags, and relationship graphs preserved.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "document-export",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "obsidian-vault",
+          "route": "/plugins/obsidian-vault",
+          "label": "Obsidian Vault",
+          "icon": "vault",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "obsidian-export",
+          "label": "Obsidian Export",
+          "location": "entity-sidebar",
+          "icon": "file-symlink"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "pyyaml"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "filesystem:read",
+    "filesystem:write"
+  ],
+  "settings_schema": {
+    "vault_path": {
+      "type": "string",
+      "label": "Obsidian Vault Path",
+      "description": "Absolute path to the Obsidian vault root",
+      "required": true,
+      "default": "",
+      "scope": "instance"
+    },
+    "auto_export": {
+      "type": "boolean",
+      "label": "Auto-export on Save",
+      "description": "Automatically export entities to the vault when they are saved",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "include_images": {
+      "type": "boolean",
+      "label": "Include Images",
+      "description": "Copy entity images to the vault's attachments folder",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "link_style": {
+      "type": "string",
+      "label": "Link Style",
+      "description": "How to format cross-references: wikilink ([[Name]]) or markdown ([Name](path))",
+      "required": false,
+      "default": "wikilink",
+      "scope": "user"
+    },
+    "folder_per_type": {
+      "type": "boolean",
+      "label": "Folder Per Entity Type",
+      "description": "Organize exported files into subfolders by entity type (Characters/, Factions/, etc.)",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    }
+  },
+  "accent_color": "#7C3AED"
+}

@@ -1,0 +1,440 @@
+{
+  "entity_type": "faction",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "Shield",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Faction ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "required": true,
+          "placeholder": "e.g., crimson_raiders",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores",
+          "column_span": 1
+        },
+        {
+          "key": "name",
+          "label": "Faction Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Crimson Raiders",
+          "column_span": 1
+        },
+        {
+          "key": "faction_type",
+          "label": "Faction Type",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "military", "label": "Military" },
+            { "value": "corporate", "label": "Corporate" },
+            { "value": "criminal", "label": "Criminal" },
+            { "value": "religious", "label": "Religious" },
+            { "value": "political", "label": "Political" },
+            { "value": "mercenary", "label": "Mercenary" },
+            { "value": "cult", "label": "Cult" },
+            { "value": "rebel", "label": "Rebel" },
+            { "value": "tribal", "label": "Tribal" },
+            { "value": "other", "label": "Other" }
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "active", "label": "Active" },
+            { "value": "defeated", "label": "Defeated" },
+            { "value": "disbanded", "label": "Disbanded" },
+            { "value": "reformed", "label": "Reformed" },
+            { "value": "underground", "label": "Underground" },
+            { "value": "archived", "label": "Archived" }
+          ]
+        },
+        {
+          "key": "power_level",
+          "label": "Power Level",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "minimal", "label": "Minimal" },
+            { "value": "low", "label": "Low" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "high", "label": "High" },
+            { "value": "dominant", "label": "Dominant" }
+          ]
+        },
+        {
+          "key": "member_count",
+          "label": "Member Count",
+          "ui_component": "number",
+          "column_span": 1,
+          "placeholder": "100"
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 3,
+          "placeholder": "Brief description of the faction's purpose and activities"
+        },
+        {
+          "key": "motto",
+          "label": "Motto/Slogan",
+          "ui_component": "text",
+          "column_span": 2,
+          "placeholder": "Faction motto or rallying cry"
+        }
+      ]
+    },
+    {
+      "id": "leadership",
+      "title": "Leadership & Hierarchy",
+      "icon": "Crown",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "leader",
+          "label": "Faction Leader",
+          "ui_component": "entity-multi-selector",
+          "column_span": 1,
+          "description": "The primary leader or commander of this faction.",
+          "reference_type": "character",
+          "relationship_types": [
+            { "value": "leader", "label": "Leader" },
+            { "value": "commander", "label": "Commander" },
+            { "value": "chief", "label": "Chief" },
+            { "value": "president", "label": "President" },
+            { "value": "boss", "label": "Boss" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for faction leader...",
+          "max_selections": 1
+        },
+        {
+          "key": "key_members",
+          "label": "Key Members",
+          "ui_component": "entity-multi-selector",
+          "column_span": 1,
+          "description": "Important members, officers, and lieutenants of the faction.",
+          "reference_type": "character",
+          "relationship_types": [
+            { "value": "lieutenant", "label": "Lieutenant" },
+            { "value": "officer", "label": "Officer" },
+            { "value": "specialist", "label": "Specialist" },
+            { "value": "advisor", "label": "Advisor" },
+            { "value": "enforcer", "label": "Enforcer" },
+            { "value": "member", "label": "Member" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for key faction members...",
+          "max_selections": 20
+        }
+      ]
+    },
+    {
+      "id": "territory_operations",
+      "title": "Territory & Operations",
+      "icon": "MapPin",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "headquarters",
+          "label": "Headquarters",
+          "ui_component": "entity-multi-selector",
+          "column_span": 1,
+          "description": "Primary base of operations for this faction.",
+          "reference_type": "location",
+          "relationship_types": [
+            { "value": "headquarters", "label": "Headquarters" },
+            { "value": "main_base", "label": "Main Base" },
+            { "value": "stronghold", "label": "Stronghold" },
+            { "value": "compound", "label": "Compound" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for headquarters location...",
+          "max_selections": 1
+        },
+        {
+          "key": "controlled_territories",
+          "label": "Controlled Territories",
+          "ui_component": "entity-multi-selector",
+          "column_span": 1,
+          "description": "Locations under this faction's control or influence.",
+          "reference_type": "location",
+          "relationship_types": [
+            { "value": "controls", "label": "Controls" },
+            { "value": "influences", "label": "Influences" },
+            { "value": "protects", "label": "Protects" },
+            { "value": "patrols", "label": "Patrols" },
+            { "value": "occupies", "label": "Occupies" },
+            { "value": "disputes", "label": "Disputes" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for controlled territories...",
+          "max_selections": 25
+        }
+      ]
+    },
+    {
+      "id": "faction_relationships",
+      "title": "Faction Relationships",
+      "icon": "Users",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "allies",
+          "label": "Allied Factions",
+          "ui_component": "entity-multi-selector",
+          "column_span": 1,
+          "description": "Factions that are allies, partners, or have positive relationships.",
+          "reference_type": "faction",
+          "relationship_types": [
+            { "value": "ally", "label": "Ally" },
+            { "value": "partner", "label": "Partner" },
+            { "value": "coalition", "label": "Coalition Member" },
+            { "value": "supporter", "label": "Supporter" },
+            { "value": "neutral_positive", "label": "Friendly Neutral" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for allied factions...",
+          "max_selections": 15
+        },
+        {
+          "key": "enemies",
+          "label": "Enemy Factions",
+          "ui_component": "entity-multi-selector",
+          "column_span": 1,
+          "description": "Factions that are enemies, rivals, or in active conflict.",
+          "reference_type": "faction",
+          "relationship_types": [
+            { "value": "enemy", "label": "Enemy" },
+            { "value": "rival", "label": "Rival" },
+            { "value": "hostile", "label": "Hostile" },
+            { "value": "war", "label": "At War" },
+            { "value": "competitor", "label": "Competitor" },
+            { "value": "neutral_negative", "label": "Unfriendly Neutral" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for enemy factions...",
+          "max_selections": 15
+        }
+      ]
+    },
+    {
+      "id": "resources_assets",
+      "title": "Resources & Assets",
+      "icon": "Building2",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "associated_brands",
+          "label": "Associated Brands",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "description": "Companies, brands, or organizations affiliated with this faction.",
+          "reference_type": "brand",
+          "relationship_types": [
+            { "value": "owns", "label": "Owns" },
+            { "value": "controls", "label": "Controls" },
+            { "value": "affiliated", "label": "Affiliated" },
+            { "value": "sponsors", "label": "Sponsors" },
+            { "value": "supplies", "label": "Supplies" },
+            { "value": "partner", "label": "Partner" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for associated brands...",
+          "max_selections": 20
+        },
+        {
+          "key": "funding_level",
+          "label": "Funding Level",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "poor", "label": "Poor" },
+            { "value": "limited", "label": "Limited" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "well_funded", "label": "Well Funded" },
+            { "value": "wealthy", "label": "Wealthy" }
+          ]
+        },
+        {
+          "key": "technology_level",
+          "label": "Technology Level",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "primitive", "label": "Primitive" },
+            { "value": "basic", "label": "Basic" },
+            { "value": "standard", "label": "Standard" },
+            { "value": "advanced", "label": "Advanced" },
+            { "value": "cutting_edge", "label": "Cutting Edge" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ideology_beliefs",
+      "title": "Ideology & Beliefs",
+      "icon": "Sword",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "ideology",
+          "label": "Ideology",
+          "ui_component": "text",
+          "column_span": 1,
+          "placeholder": "e.g., Authoritarian, Democratic, Anarchist"
+        },
+        {
+          "key": "core_beliefs",
+          "label": "Core Beliefs",
+          "ui_component": "textarea-array",
+          "column_span": 1,
+          "rows": 4,
+          "placeholder": "Enter core beliefs (one per line)"
+        },
+        {
+          "key": "goals",
+          "label": "Goals",
+          "ui_component": "textarea-array",
+          "column_span": 1,
+          "rows": 4,
+          "placeholder": "Enter faction goals (one per line)"
+        },
+        {
+          "key": "values",
+          "label": "Values",
+          "ui_component": "textarea-array",
+          "column_span": 1,
+          "rows": 3,
+          "placeholder": "Enter faction values (one per line)"
+        },
+        {
+          "key": "taboos",
+          "label": "Taboos",
+          "ui_component": "textarea-array",
+          "column_span": 1,
+          "rows": 3,
+          "placeholder": "Enter forbidden practices (one per line)"
+        }
+      ]
+    },
+    {
+      "id": "military_capabilities",
+      "title": "Military & Capabilities",
+      "icon": "Shield",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "military_force",
+          "label": "Military Force Size",
+          "ui_component": "number",
+          "column_span": 1,
+          "placeholder": "500"
+        },
+        {
+          "key": "equipment_quality",
+          "label": "Equipment Quality",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "poor", "label": "Poor" },
+            { "value": "adequate", "label": "Adequate" },
+            { "value": "good", "label": "Good" },
+            { "value": "excellent", "label": "Excellent" }
+          ]
+        },
+        {
+          "key": "influence_level",
+          "label": "Influence Level",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "minor", "label": "Minor" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "major", "label": "Major" },
+            { "value": "dominant", "label": "Dominant" }
+          ]
+        },
+        {
+          "key": "resource_level",
+          "label": "Resource Level",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "scarce", "label": "Scarce" },
+            { "value": "adequate", "label": "Adequate" },
+            { "value": "well-supplied", "label": "Well Supplied" },
+            { "value": "abundant", "label": "Abundant" }
+          ]
+        },
+        {
+          "key": "special_capabilities",
+          "label": "Special Capabilities",
+          "ui_component": "textarea-array",
+          "column_span": 2,
+          "rows": 3,
+          "placeholder": "Enter special capabilities (one per line)"
+        },
+        {
+          "key": "primary_resources",
+          "label": "Primary Resources",
+          "ui_component": "textarea-array",
+          "column_span": 2,
+          "rows": 3,
+          "placeholder": "Enter primary resources (one per line)"
+        }
+      ]
+    },
+    {
+      "id": "ai_context",
+      "title": "AI Generation Context",
+      "icon": "Building2",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "ai_faction_ethos",
+          "label": "Faction Ethos (AI Helper)",
+          "ui_component": "textarea",
+          "column_span": 1,
+          "rows": 2,
+          "placeholder": "Brief description of faction's spirit and values for AI generation"
+        },
+        {
+          "key": "ai_leadership_style",
+          "label": "Leadership Style (AI Helper)",
+          "ui_component": "textarea",
+          "column_span": 1,
+          "rows": 2,
+          "placeholder": "Description of how this faction leads and organizes for AI context"
+        },
+        {
+          "key": "ai_member_behavior",
+          "label": "Member Behavior (AI Helper)",
+          "ui_component": "textarea",
+          "column_span": 1,
+          "rows": 2,
+          "placeholder": "How faction members typically behave and interact for AI generation"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+---
+rule_id: assembly_constraints
+name: Asset Assembly Constraints
+description: Rules for asset layering, composition order, and visual assembly constraints
+version: "1.0"
+scope: core
+priority: medium
+applies_to:
+  - character
+  - location
+  - item
+
+rules:
+  - id: asm_001
+    category: layering
+    priority: high
+    rule: "Character asset layers must follow the canonical render order: background, body, clothing, accessories, effects"
+    validation_type: warning
+    applies_to: [character]
+
+  - id: asm_002
+    category: compatibility
+    priority: high
+    rule: "Asset variants must be tagged with their compatible body types to prevent mismatched compositions"
+    validation_type: error
+    applies_to: [character, item]
+
+  - id: asm_003
+    category: resolution
+    priority: medium
+    rule: "All asset files in an assembly set must use consistent resolution (same DPI/pixel density)"
+    validation_type: warning
+    applies_to: [character, location]
+
+  - id: asm_004
+    category: naming
+    priority: medium
+    rule: "Asset filenames must follow the pattern: {entity_id}_{layer}_{variant}.{ext}"
+    validation_type: warning
+    applies_to: [character, location, item]
+
+  - id: asm_005
+    category: completeness
+    priority: low
+    rule: "Each character should have at least a base body and default clothing layer defined"
+    validation_type: suggestion
+    applies_to: [character]
+
+defaults:
+  render_order: ["background", "body", "clothing", "accessories", "effects"]
+  default_resolution: "2048x2048"
+
+validation:
+  - "Are all asset layers present for a complete character assembly?"
+  - "Do asset variants have correct compatibility tags?"
+  - "Are all assets in the set at consistent resolution?"
+  - "Do filenames follow the naming convention?"

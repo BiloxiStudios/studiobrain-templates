@@ -1,0 +1,25 @@
+# Location Generation Rules
+# Used by the AI service when generating or expanding location entities.
+# Part of the starter-locations template pack.
+
+rule_id: starter-location-rules
+entity_type: location
+version: "1.0"
+
+generation_guidelines:
+  - "Every location should serve a narrative purpose — not just exist on a map"
+  - "Physical details should create atmosphere and reveal something about the world"
+  - "Consider who uses this space and how it shapes their behaviour"
+  - "History of the space matters — old damage, renovations, layers of ownership"
+  - "A location should feel like it existed before characters arrived and will exist after they leave"
+
+field_rules:
+  name:
+    instruction: "Name should be evocative and memorable. Consider local naming conventions."
+  description:
+    instruction: "2-3 paragraphs. First: physical appearance. Second: atmosphere/feel. Third: function in story."
+    max_words: 250
+  category:
+    instruction: "Choose the most specific category that fits. Avoid generic labels."
+
+tone: "atmospheric, specific, world-consistent"

@@ -1,0 +1,123 @@
+{
+  "id": "unreal-exporter",
+  "name": "Unreal Engine Exporter",
+  "version": "1.0.0",
+  "description": "Export entities as Unreal Engine DataAssets and DataTables. Generate C++ USTRUCT definitions, push data via UE REST API or direct file export with blueprint-ready structs and batch game data pipelines.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "3d-creative-tools",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "unreal-dashboard",
+          "route": "/plugins/unreal-exporter",
+          "label": "Unreal Exporter",
+          "icon": "gamepad-2",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "ue-export",
+          "label": "UE Export",
+          "location": "entity-sidebar",
+          "icon": "upload"
+        },
+        {
+          "id": "ue-preview",
+          "label": "UE Code Preview",
+          "location": "entity-tab",
+          "icon": "code"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "aiohttp>=3.9.0",
+      "pyyaml>=6.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "network:local",
+    "filesystem:read",
+    "filesystem:write"
+  ],
+  "settings_schema": {
+    "ue_project_path": {
+      "type": "string",
+      "label": "Unreal Project Path",
+      "description": "Path to the Unreal Engine project root (contains .uproject)",
+      "required": true,
+      "default": "",
+      "scope": "instance"
+    },
+    "ue_rest_api_url": {
+      "type": "string",
+      "label": "UE Remote Control URL",
+      "description": "URL of the Unreal Remote Control API (e.g. http://localhost:30010). Leave blank for file-only export.",
+      "required": false,
+      "default": "",
+      "scope": "instance"
+    },
+    "output_dir": {
+      "type": "string",
+      "label": "Output Directory",
+      "description": "Subdirectory under Content/ for exported assets (e.g., CityOfBrains/Data)",
+      "required": false,
+      "default": "CityOfBrains/Data",
+      "scope": "instance"
+    },
+    "module_name": {
+      "type": "string",
+      "label": "C++ Module Name",
+      "description": "Name of the Unreal C++ module for generated headers",
+      "required": false,
+      "default": "CityOfBrains",
+      "scope": "instance"
+    },
+    "generate_datatables": {
+      "type": "boolean",
+      "label": "Generate DataTables",
+      "description": "Also generate DataTable CSV exports alongside DataAssets",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    },
+    "struct_prefix": {
+      "type": "string",
+      "label": "Struct Prefix",
+      "description": "Prefix for generated C++ struct names (e.g., F or FCB_)",
+      "required": false,
+      "default": "F",
+      "scope": "instance"
+    },
+    "export_portraits": {
+      "type": "boolean",
+      "label": "Export Portraits as Textures",
+      "description": "Copy entity portraits to the project's Content/Textures folder",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "auto_reimport": {
+      "type": "boolean",
+      "label": "Auto-reimport in Editor",
+      "description": "Trigger asset reimport via Remote Control after export",
+      "required": false,
+      "default": false,
+      "scope": "user"
+    }
+  },
+  "accent_color": "#2196F3"
+}

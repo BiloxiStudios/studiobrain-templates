@@ -1,0 +1,13 @@
+{
+  "id": "starter-brands",
+  "name": "Starter: Brands",
+  "description": "Brand entity template for companies, products, and commercial entities in your world. Helps establish the commercial landscape and visual language of your setting.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "entity_types": ["brand"],
+  "categories": ["narrative", "game-dev", "world-building"],
+  "tags": ["brand", "company", "product", "commercial"],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": []
+}

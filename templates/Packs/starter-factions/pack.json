@@ -1,0 +1,13 @@
+{
+  "id": "starter-factions",
+  "name": "Starter: Factions",
+  "description": "Faction entity template for organisations, gangs, corporations, governments, and other groups in your world. Includes an example faction.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "entity_types": ["faction"],
+  "categories": ["narrative", "game-dev", "world-building"],
+  "tags": ["faction", "organisation", "group", "gang", "corporation"],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": []
+}

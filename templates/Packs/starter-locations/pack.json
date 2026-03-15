@@ -1,0 +1,13 @@
+{
+  "id": "starter-locations",
+  "name": "Starter: Locations & Districts",
+  "description": "Location and District entity templates for places in your world — buildings, neighbourhoods, landmarks. Includes example entries and AI generation rules.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "entity_types": ["location", "district"],
+  "categories": ["narrative", "game-dev", "world-building"],
+  "tags": ["location", "district", "place", "map", "world-building"],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": []
+}

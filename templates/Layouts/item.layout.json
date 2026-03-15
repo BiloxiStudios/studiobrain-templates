@@ -1,0 +1,228 @@
+{
+  "entity_type": "item",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "Package",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Item ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores",
+          "column_span": 1
+        },
+        {
+          "key": "name",
+          "label": "Item Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Neural Sword Mk2"
+        },
+        {
+          "key": "item_type",
+          "label": "Item Type",
+          "ui_component": "select",
+          "options": [
+            {"value": "weapon", "label": "Weapon"},
+            {"value": "consumable", "label": "Consumable"},
+            {"value": "key_item", "label": "Key Item"},
+            {"value": "material", "label": "Material"},
+            {"value": "collectible", "label": "Collectible"},
+            {"value": "cosmetic", "label": "Cosmetic"},
+            {"value": "currency", "label": "Currency"}
+          ]
+        },
+        {
+          "key": "category",
+          "label": "Category",
+          "ui_component": "text",
+          "placeholder": "melee, electronics, food, etc."
+        },
+        {
+          "key": "rarity",
+          "label": "Rarity",
+          "ui_component": "select",
+          "options": [
+            {"value": "common", "label": "Common"},
+            {"value": "uncommon", "label": "Uncommon"},
+            {"value": "rare", "label": "Rare"},
+            {"value": "epic", "label": "Epic"},
+            {"value": "legendary", "label": "Legendary"},
+            {"value": "unique", "label": "Unique"}
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "active", "label": "Active"},
+            {"value": "deprecated", "label": "Deprecated"},
+            {"value": "prototype", "label": "Prototype"},
+            {"value": "archived", "label": "Archived"},
+            {"value": "draft", "label": "Draft"}
+          ]
+        },
+        {
+          "key": "base_price",
+          "label": "Base Price",
+          "ui_component": "number",
+          "placeholder": "100"
+        },
+        {
+          "key": "weight",
+          "label": "Weight",
+          "ui_component": "text",
+          "placeholder": "2.5kg"
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 3,
+          "placeholder": "Detailed description of the item and its purpose"
+        },
+        {
+          "key": "tagline",
+          "label": "Tagline",
+          "ui_component": "text",
+          "column_span": 2,
+          "placeholder": "Short catchy description"
+        }
+      ]
+    },
+    {
+      "id": "brand_association",
+      "title": "Brand Association",
+      "icon": "Building2",
+      "description": "The brand that manufactures, produces, or is associated with this item.",
+      "columns": 1,
+      "fields": [
+        {
+          "key": "brand_id",
+          "label": "Brand",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "brand",
+          "max_selections": 1,
+          "show_relationship_selector": false,
+          "relationship_types": [
+            {"value": "manufacturer", "label": "Manufacturer"},
+            {"value": "distributor", "label": "Distributor"},
+            {"value": "retailer", "label": "Retailer"},
+            {"value": "sponsor", "label": "Sponsor"}
+          ],
+          "placeholder": "Search for associated brand..."
+        }
+      ]
+    },
+    {
+      "id": "availability",
+      "title": "Availability & Sources",
+      "icon": "MapPin",
+      "columns": 1,
+      "fields": [
+        {
+          "key": "spawn_locations",
+          "label": "Spawn Locations",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "location",
+          "max_selections": 10,
+          "show_relationship_selector": true,
+          "relationship_types": [
+            {"value": "spawns", "label": "Spawns Here"},
+            {"value": "common", "label": "Common Find"},
+            {"value": "rare", "label": "Rare Find"},
+            {"value": "hidden", "label": "Hidden Location"}
+          ],
+          "help": "Locations where this item can be found or appears naturally.",
+          "placeholder": "Search for spawn locations..."
+        },
+        {
+          "key": "vendors",
+          "label": "Vendors",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "max_selections": 15,
+          "show_relationship_selector": true,
+          "relationship_types": [
+            {"value": "sells", "label": "Sells"},
+            {"value": "trades", "label": "Trades"},
+            {"value": "crafts", "label": "Crafts"},
+            {"value": "repairs", "label": "Repairs"}
+          ],
+          "help": "Characters who sell this item.",
+          "placeholder": "Search for vendor characters..."
+        }
+      ]
+    },
+    {
+      "id": "game_mechanics",
+      "title": "Game Mechanics",
+      "icon": "Wrench",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "stack_size",
+          "label": "Stack Size",
+          "ui_component": "number",
+          "placeholder": "1"
+        },
+        {
+          "key": "max_stack_size",
+          "label": "Max Stack Size",
+          "ui_component": "number",
+          "placeholder": "1"
+        },
+        {
+          "key": "damage",
+          "label": "Damage (for weapons)",
+          "ui_component": "number",
+          "placeholder": "0"
+        },
+        {
+          "key": "defense",
+          "label": "Defense (for armor)",
+          "ui_component": "number",
+          "placeholder": "0"
+        }
+      ]
+    },
+    {
+      "id": "flags",
+      "title": "Item Flags",
+      "icon": "ToggleLeft",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "usable",
+          "label": "Usable",
+          "ui_component": "checkbox",
+          "group": "item_flags"
+        },
+        {
+          "key": "consumable",
+          "label": "Consumable",
+          "ui_component": "checkbox",
+          "group": "item_flags"
+        },
+        {
+          "key": "quest_item",
+          "label": "Quest Item",
+          "ui_component": "checkbox",
+          "group": "item_flags"
+        }
+      ]
+    },
+    {
+      "id": "comfyui",
+      "component": "entity-workflow-trigger"
+    }
+  ]
+}

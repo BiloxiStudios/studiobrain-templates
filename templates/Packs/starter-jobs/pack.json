@@ -1,0 +1,13 @@
+{
+  "id": "starter-jobs",
+  "name": "Starter: Jobs & Occupations",
+  "description": "Job entity template for occupations, roles, and professions in your world. Gives characters economic context and social placement.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "entity_types": ["job"],
+  "categories": ["narrative", "game-dev", "world-building"],
+  "tags": ["job", "occupation", "career", "role", "profession"],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": []
+}

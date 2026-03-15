@@ -1,0 +1,32 @@
+# Character Generation Rules
+# Used by the AI service when generating or expanding character entities.
+# Part of the starter-characters template pack.
+
+rule_id: starter-character-rules
+entity_type: character
+version: "1.0"
+
+generation_guidelines:
+  - "Characters should feel grounded and specific — avoid generic archetypes"
+  - "Give each character a clear want, a need (which they may not recognise), and a flaw"
+  - "Physical descriptions should be memorable details, not exhaustive lists"
+  - "Backstory should inform present behaviour, not just fill in history"
+  - "Relationships should create tension or contrast with other characters"
+
+field_rules:
+  name:
+    instruction: "Generate a full name appropriate to the world setting. Include a nickname if the character would have one."
+  age:
+    instruction: "Age should feel appropriate to the character's life experience and role. Most active protagonists are 18-45."
+    constraints:
+      min: 18
+      max: 85
+  backstory:
+    instruction: "Write 2-3 paragraphs. Focus on formative events that explain current behaviour. Avoid info-dumps."
+    max_words: 300
+  personality:
+    instruction: "Describe in 3-5 sentences. Focus on how they interact with others, not just adjectives."
+  goals:
+    instruction: "List 2-3 concrete goals. At least one should create conflict with other characters or factions."
+
+tone: "grounded, specific, world-consistent"

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .note-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+  }
+  .note-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 8px;
+  }
+  .btn-primary {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .notes-list {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .note-item {
+    padding: 8px 10px;
+    background: var(--surface-elevated-bg);
+    border-radius: 6px;
+    border-left: 3px solid var(--plugin-accent);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .note-time {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 4px;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    padding: 20px 0;
+    font-size: 12px;
+  }
+  .context-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--surface-elevated-bg);
+    border-radius: 99px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+</style>
+</head>
+<body>
+  <div class="header">Plugin Notes</div>
+
+  <div class="context-bar">
+    <span class="badge" id="entity-type-badge">Loading...</span>
+    <span class="badge" id="entity-id-badge">...</span>
+  </div>
+
+  <textarea class="note-input" id="note-input" placeholder="Add a note about this entity..."></textarea>
+  <button class="btn btn-primary" onclick="addNote()">Add Note</button>
+
+  <div class="notes-list" id="notes-list">
+    <div class="empty-state">No notes yet. Add one above!</div>
+  </div>
+
+  <script>
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const API = `/api/ext/${ctx.pluginId || 'hello-world'}`;
+
+    document.getElementById('entity-type-badge').textContent = ctx.entityType || 'unknown';
+    document.getElementById('entity-id-badge').textContent = ctx.entityId ? ctx.entityId.substring(0, 12) + '...' : 'new';
+
+    let notes = [];
+
+    function renderNotes() {
+      const list = document.getElementById('notes-list');
+      if (notes.length === 0) {
+        list.innerHTML = '<div class="empty-state">No notes yet. Add one above!</div>';
+        return;
+      }
+      list.innerHTML = notes.map(n => `
+        <div class="note-item">
+          ${n.text}
+          <div class="note-time">${new Date(n.time).toLocaleString()}</div>
+        </div>
+      `).join('');
+    }
+
+    async function loadNotes() {
+      try {
+        const params = new URLSearchParams({ entity_type: ctx.entityType, entity_id: ctx.entityId });
+        const res = await fetch(`${API}/notes?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          notes = data.notes || [];
+        }
+      } catch (e) {
+        console.error('Failed to load notes:', e);
+      }
+      renderNotes();
+    }
+
+    async function addNote() {
+      const input = document.getElementById('note-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      try {
+        const res = await fetch(`${API}/notes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entity_type: ctx.entityType, entity_id: ctx.entityId, text }),
+        });
+        if (res.ok) {
+          const note = await res.json();
+          notes.unshift(note);
+          input.value = '';
+          renderNotes();
+        }
+      } catch (e) {
+        console.error('Failed to add note:', e);
+      }
+    }
+
+    document.getElementById('note-input').addEventListener('keydown', e => {
+      if (e.ctrlKey && e.key === 'Enter') addNote();
+    });
+
+    loadNotes();
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "default": {
+    "name": "summary",
+    "description": "description",
+    "production_status": "status"
+  }
+}

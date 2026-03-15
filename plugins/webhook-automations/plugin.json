@@ -1,0 +1,90 @@
+{
+  "id": "webhook-automations",
+  "name": "Webhook Automations",
+  "version": "1.0.0",
+  "description": "Trigger external webhooks on entity events (created, updated, deleted). Compatible with Zapier, Make, n8n, and custom endpoints. Define rules, customize payloads, and track delivery logs with automatic retries.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "data-integration",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "webhook-automations",
+          "route": "/plugins/webhook-automations",
+          "label": "Webhooks",
+          "icon": "webhook",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "webhook-status",
+          "label": "Webhook Status",
+          "location": "entity-sidebar",
+          "icon": "radio-tower"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "httpx>=0.25.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "network:external",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "max_retries": {
+      "type": "number",
+      "label": "Max Retries",
+      "description": "Maximum number of retry attempts for failed webhook deliveries",
+      "required": false,
+      "default": 3,
+      "scope": "instance"
+    },
+    "retry_delay_seconds": {
+      "type": "number",
+      "label": "Retry Delay (seconds)",
+      "description": "Delay in seconds between retry attempts",
+      "required": false,
+      "default": 30,
+      "scope": "instance"
+    },
+    "log_retention_days": {
+      "type": "number",
+      "label": "Log Retention (days)",
+      "description": "Number of days to retain delivery logs before automatic cleanup",
+      "required": false,
+      "default": 30,
+      "scope": "instance"
+    },
+    "timeout_seconds": {
+      "type": "number",
+      "label": "Request Timeout (seconds)",
+      "description": "Timeout for outbound webhook HTTP requests",
+      "required": false,
+      "default": 10,
+      "scope": "instance"
+    },
+    "signing_secret": {
+      "type": "secret",
+      "label": "Signing Secret",
+      "description": "HMAC-SHA256 secret for signing webhook payloads (optional, sent as X-Webhook-Signature header)",
+      "required": false,
+      "scope": "instance"
+    }
+  },
+  "accent_color": "var(--surface-primary-bg)"
+}

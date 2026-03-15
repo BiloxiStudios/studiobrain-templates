@@ -1,0 +1,153 @@
+{
+  "id": "social-publisher",
+  "name": "Social Publisher",
+  "version": "0.2.0",
+  "description": "Publish entity cards, lore posts, and AI-generated art to X/Twitter, Instagram, Bluesky, and Threads with scheduling, templates, and cross-posting support.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "social-media",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "social-dashboard",
+          "route": "/plugins/social-publisher",
+          "label": "Social Publisher",
+          "icon": "share-2",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "quick-publish",
+          "label": "Quick Publish",
+          "location": "entity-sidebar",
+          "icon": "send"
+        },
+        {
+          "id": "publish-history",
+          "label": "Publish History",
+          "location": "entity-tab",
+          "icon": "history"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "tweepy>=4.14.0",
+      "httpx>=0.25.0",
+      "atproto>=0.0.46"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "network:external",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "twitter_api_key": {
+      "type": "secret",
+      "label": "X/Twitter API Key",
+      "required": false,
+      "scope": "instance"
+    },
+    "twitter_api_secret": {
+      "type": "secret",
+      "label": "X/Twitter API Secret",
+      "required": false,
+      "scope": "instance"
+    },
+    "twitter_access_token": {
+      "type": "secret",
+      "label": "X/Twitter Access Token",
+      "required": false,
+      "scope": "instance"
+    },
+    "twitter_access_secret": {
+      "type": "secret",
+      "label": "X/Twitter Access Secret",
+      "required": false,
+      "scope": "instance"
+    },
+    "bluesky_handle": {
+      "type": "string",
+      "label": "Bluesky Handle",
+      "description": "Your Bluesky handle (e.g. yourname.bsky.social)",
+      "required": false,
+      "scope": "instance"
+    },
+    "bluesky_app_password": {
+      "type": "secret",
+      "label": "Bluesky App Password",
+      "required": false,
+      "scope": "instance"
+    },
+    "instagram_access_token": {
+      "type": "secret",
+      "label": "Instagram Graph API Token",
+      "description": "Long-lived access token from Meta Business Suite",
+      "required": false,
+      "scope": "instance"
+    },
+    "instagram_business_id": {
+      "type": "string",
+      "label": "Instagram Business Account ID",
+      "required": false,
+      "scope": "instance"
+    },
+    "threads_access_token": {
+      "type": "secret",
+      "label": "Threads API Token",
+      "required": false,
+      "scope": "instance"
+    },
+    "threads_user_id": {
+      "type": "string",
+      "label": "Threads User ID",
+      "required": false,
+      "scope": "instance"
+    },
+    "default_hashtags": {
+      "type": "string",
+      "label": "Default Hashtags",
+      "description": "Comma-separated hashtags appended to all posts",
+      "required": false,
+      "default": "#CityOfBrains,#GameDev,#IndieGame",
+      "scope": "instance"
+    },
+    "auto_include_image": {
+      "type": "boolean",
+      "label": "Auto-Include Entity Image",
+      "description": "Automatically attach the entity's primary image to posts",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "auto_post_on_create": {
+      "type": "boolean",
+      "label": "Auto-Post on Entity Create",
+      "description": "Automatically publish to configured platforms when a new entity is created",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "auto_post_template": {
+      "type": "string",
+      "label": "Auto-Post Template ID",
+      "description": "Template to use for auto-posts (e.g. character-reveal, lore-drop)",
+      "required": false,
+      "default": "character-reveal",
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#1DA1F2"
+}

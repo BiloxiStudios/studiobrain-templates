@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Manager</title>
+<style>
+  :root {
+    --bg-primary: var(--surface-base-bg);
+    --bg-secondary: var(--surface-base-bg);
+    --bg-tertiary: var(--surface-elevated-bg);
+    --bg-hover: var(--surface-elevated-bg);
+    --bg-input: var(--surface-base-bg);
+    --text-primary: var(--surface-base-text);
+    --text-secondary: var(--surface-base-text-secondary);
+    --text-muted: var(--surface-base-text-secondary);
+    --accent: var(--plugin-accent);
+    --accent-hover: var(--surface-error-border);
+    --accent-dim: rgba(255, 0, 0, 0.12);
+    --border: var(--surface-elevated-border);
+    --border-focus: var(--surface-elevated-border);
+    --success: var(--surface-success-border);
+    --success-dim: rgba(46, 160, 67, 0.15);
+    --warning: var(--surface-warning-border);
+    --error: var(--surface-error-border);
+    --radius: 8px;
+    --radius-sm: 4px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 20px;
+  }
+
+  /* -- Header -- */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-header h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .yt-icon-lg {
+    width: 32px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .yt-icon-lg::after {
+    content: '';
+    width: 0; height: 0;
+    border-left: 9px solid white;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    margin-left: 2px;
+  }
+  .mode-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .mode-badge.mock {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+  .mode-badge.live {
+    background: var(--success-dim);
+    color: var(--success);
+  }
+
+  /* -- Tabs -- */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--text-primary); }
+  .tab-btn.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* -- Upload Form -- */
+  .form-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .form-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .form-row {
+    margin-bottom: 14px;
+  }
+  .form-row:last-child { margin-bottom: 0; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--border-focus);
+  }
+  .form-textarea { min-height: 90px; resize: vertical; }
+  .form-select { cursor: pointer; }
+
+  .form-row-inline {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .file-selector {
+    display: flex;
+    gap: 8px;
+  }
+  .file-selector .form-input { flex: 1; }
+  .file-selector button {
+    padding: 9px 14px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .file-selector button:hover { background: var(--bg-hover); }
+
+  .tag-input-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    min-height: 38px;
+    align-items: center;
+    cursor: text;
+  }
+  .tag-input-wrap:focus-within { border-color: var(--border-focus); }
+  .tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  .tag-pill .tag-remove {
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .tag-pill .tag-remove:hover { color: var(--accent); }
+  .tag-input-field {
+    border: none;
+    background: none;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    flex: 1;
+    min-width: 80px;
+  }
+
+  .autofill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(255, 0, 0, 0.25);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .autofill-btn:hover { background: rgba(255, 0, 0, 0.2); }
+
+  /* -- Progress Bar -- */
+  .progress-wrap {
+    display: none;
+    margin-top: 16px;
+  }
+  .progress-wrap.active { display: block; }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .progress-bar-outer {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  /* -- Action buttons -- */
+  .actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .btn-primary {
+    padding: 10px 24px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    padding: 10px 20px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-secondary:hover { background: var(--bg-hover); }
+
+  /* -- Video list -- */
+  .video-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .video-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.15s;
+  }
+  .video-row:hover { border-color: #444; }
+
+  .video-row-thumb {
+    width: 96px;
+    height: 54px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .video-row-thumb .play {
+    width: 0; height: 0;
+    border-left: 14px solid var(--text-muted);
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+  }
+
+  .video-row-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .video-row-title {
+    font-weight: 500;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .video-row-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .video-row-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  .status-badge.uploaded { background: var(--success-dim); color: var(--success); }
+  .status-badge.pending { background: rgba(210,153,34,0.15); color: var(--warning); }
+  .status-badge.failed { background: rgba(248,81,73,0.15); color: var(--error); }
+
+  .video-row-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-size: 14px;
+  }
+  .icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .icon-btn.danger:hover { color: var(--error); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state p { margin-top: 8px; font-size: 14px; }
+
+  /* -- Toast notification -- */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 1000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .toast.visible { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--error); }
+
+  .loading-inline {
+    color: var(--text-muted);
+    font-size: 13px;
+    padding: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="page-header">
+  <h1>
+    <span class="yt-icon-lg"></span>
+    Video Manager
+  </h1>
+  <span class="mode-badge mock" id="modeBadge">Mock Mode</span>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">Upload</button>
+  <button class="tab-btn" data-tab="linked" onclick="switchTab('linked')">Linked Videos</button>
+</div>
+
+<!-- Tab: Upload -->
+<div class="tab-content active" id="tab-upload">
+
+  <!-- Video Source -->
+  <div class="form-section">
+    <h3>&var(--surface-success-border); Video Source</h3>
+    <div class="form-row">
+      <label class="form-label">Video File Path</label>
+      <div class="file-selector">
+        <input type="text" class="form-input" id="videoPath" placeholder="A:\Brains\Characters\entity-id\assets\video.mp4">
+        <button onclick="browseAssets()">Browse Assets</button>
+      </div>
+    </div>
+    <div id="assetList" style="display:none; margin-top:10px;"></div>
+  </div>
+
+  <!-- Metadata -->
+  <div class="form-section">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h3 style="margin-bottom:0;">&var(--surface-info-border); Video Metadata</h3>
+      <button class="autofill-btn" onclick="autoFillMetadata()">
+        &#9733; Auto-Fill from Entity
+      </button>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-input" id="videoTitle" placeholder="Video title">
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="videoDesc" placeholder="Video description..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Tags (press Enter to add)</label>
+      <div class="tag-input-wrap" id="tagWrap" onclick="document.getElementById('tagField').focus()">
+        <input type="text" class="tag-input-field" id="tagField" placeholder="Add a tag...">
+      </div>
+    </div>
+
+    <div class="form-row-inline">
+      <div class="form-row">
+        <label class="form-label">Privacy</label>
+        <select class="form-select" id="videoPrivacy">
+          <option value="unlisted">Unlisted</option>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="videoCategory">
+          <option value="Gaming">Gaming</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Film & Animation">Film & Animation</option>
+          <option value="Music">Music</option>
+          <option value="Education">Education</option>
+          <option value="Science & Technology">Science & Technology</option>
+          <option value="People & Blogs">People & Blogs</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Thumbnail Path (optional)</label>
+      <input type="text" class="form-input" id="thumbnailPath" placeholder="Path to thumbnail image">
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label">
+      <span id="progressLabel">Uploading...</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar"></div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn-primary" id="uploadBtn" onclick="startUpload()">Upload to YouTube</button>
+    <button class="btn-secondary" onclick="resetForm()">Clear</button>
+  </div>
+</div>
+
+<!-- Tab: Linked Videos -->
+<div class="tab-content" id="tab-linked">
+  <div id="linkedContent">
+    <div class="loading-inline">Loading linked videos...</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = '/api/ext/youtube-manager';
+let currentTags = [];
+
+// -- Entity context --
+function getEntityContext() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    entityType: params.get('entity_type') || params.get('entityType') || 'character',
+    entityId: params.get('entity_id') || params.get('entityId') || '',
+  };
+}
+const ctx = getEntityContext();
+
+// -- Tabs --
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${tabId}`));
+  if (tabId === 'linked') loadLinkedVideos();
+}
+
+// -- Tags --
+document.getElementById('tagField').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = this.value.trim().replace(/,/g, '');
+    if (val && !currentTags.includes(val)) {
+      currentTags.push(val);
+      renderTags();
+    }
+    this.value = '';
+  }
+  if (e.key === 'Backspace' && !this.value && currentTags.length) {
+    currentTags.pop();
+    renderTags();
+  }
+});
+
+function renderTags() {
+  const wrap = document.getElementById('tagWrap');
+  const input = document.getElementById('tagField');
+  wrap.querySelectorAll('.tag-pill').forEach(p => p.remove());
+  currentTags.forEach((t, i) => {
+    const pill = document.createElement('span');
+    pill.className = 'tag-pill';
+    pill.innerHTML = `${escapeHtml(t)} <span class="tag-remove" onclick="removeTag(${i})">&#215;</span>`;
+    wrap.insertBefore(pill, input);
+  });
+}
+
+function removeTag(idx) {
+  currentTags.splice(idx, 1);
+  renderTags();
+}
+
+// -- Browse entity asset videos --
+async function browseAssets() {
+  if (!ctx.entityId) {
+    showToast('No entity context available', 'error');
+    return;
+  }
+  const container = document.getElementById('assetList');
+  container.style.display = 'block';
+  container.innerHTML = '<div class="loading-inline">Scanning assets...</div>';
+
+  try {
+    const resp = await fetch(`${API_BASE}/asset-videos/${ctx.entityType}/${ctx.entityId}`);
+    const data = await resp.json();
+    const vids = data.videos || [];
+
+    if (vids.length === 0) {
+      container.innerHTML = '<div class="loading-inline">No video files found in entity assets.</div>';
+      return;
+    }
+
+    container.innerHTML = vids.map(v => `
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--bg-tertiary);border-radius:4px;margin-bottom:4px;cursor:pointer;"
+           onclick="document.getElementById('videoPath').value='${v.path.replace(/\\/g, '\\\\')}'; document.getElementById('assetList').style.display='none';">
+        <span style="color:var(--accent);">&#9654;</span>
+        <span style="flex:1;font-size:13px;">${escapeHtml(v.filename)}</span>
+        <span style="font-size:11px;color:var(--text-muted);">${v.size_mb} MB</span>
+      </div>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = `<div class="loading-inline">Error: ${err.message}</div>`;
+  }
+}
+
+// -- Auto-fill metadata from entity --
+async function autoFillMetadata() {
+  if (!ctx.entityId) {
+    showToast('No entity context available', 'error');
+    return;
+  }
+
+  try {
+    const resp = await fetch(`${API_BASE}/generate-metadata/${ctx.entityType}/${ctx.entityId}`, { method: 'POST' });
+    const data = await resp.json();
+
+    document.getElementById('videoTitle').value = data.title || '';
+    document.getElementById('videoDesc').value = data.description || '';
+    currentTags = data.tags || [];
+    renderTags();
+
+    showToast('Metadata auto-filled from entity', 'success');
+  } catch (err) {
+    showToast('Failed to generate metadata: ' + err.message, 'error');
+  }
+}
+
+// -- Upload --
+async function startUpload() {
+  const videoPath = document.getElementById('videoPath').value.trim();
+  const title = document.getElementById('videoTitle').value.trim();
+
+  if (!videoPath) { showToast('Select a video file first', 'error'); return; }
+  if (!title) { showToast('Enter a video title', 'error'); return; }
+
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar = document.getElementById('progressBar');
+  const progressPercent = document.getElementById('progressPercent');
+  const progressLabel = document.getElementById('progressLabel');
+  progressWrap.classList.add('active');
+
+  // Simulate progress
+  let progress = 0;
+  const progressInterval = setInterval(() => {
+    progress = Math.min(progress + Math.random() * 15, 90);
+    progressBar.style.width = progress + '%';
+    progressPercent.textContent = Math.round(progress) + '%';
+  }, 300);
+
+  try {
+    const body = {
+      entity_type: ctx.entityType,
+      entity_id: ctx.entityId,
+      video_path: videoPath,
+      title: title,
+      description: document.getElementById('videoDesc').value,
+      tags: currentTags,
+      privacy: document.getElementById('videoPrivacy').value,
+      category: document.getElementById('videoCategory').value,
+      thumbnail_path: document.getElementById('thumbnailPath').value || null,
+    };
+
+    const resp = await fetch(`${API_BASE}/upload`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+
+    clearInterval(progressInterval);
+
+    if (data.success) {
+      progressBar.style.width = '100%';
+      progressPercent.textContent = '100%';
+      progressLabel.textContent = 'Upload complete!';
+      progressBar.style.background = 'var(--success)';
+      showToast(`Video uploaded successfully${data.mode === 'mock' ? ' (Mock)' : ''}`, 'success');
+    } else {
+      throw new Error(data.detail || 'Upload failed');
+    }
+  } catch (err) {
+    clearInterval(progressInterval);
+    progressBar.style.width = '100%';
+    progressBar.style.background = 'var(--error)';
+    progressLabel.textContent = 'Upload failed';
+    showToast('Upload failed: ' + err.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Upload to YouTube';
+}
+
+// -- Linked videos --
+async function loadLinkedVideos() {
+  const container = document.getElementById('linkedContent');
+
+  if (!ctx.entityId) {
+    container.innerHTML = '<div class="empty-state"><p>No entity context detected.</p></div>';
+    return;
+  }
+
+  try {
+    const resp = await fetch(`${API_BASE}/videos/${ctx.entityType}/${ctx.entityId}`);
+    const data = await resp.json();
+    const videos = data.videos || [];
+
+    if (videos.length === 0) {
+      container.innerHTML = '<div class="empty-state"><p>No videos linked to this entity yet.</p></div>';
+      return;
+    }
+
+    container.innerHTML = `<div class="video-grid">${videos.map(v => videoRow(v)).join('')}</div>`;
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><p>Error loading videos: ${err.message}</p></div>`;
+  }
+}
+
+function videoRow(v) {
+  const statusClass = v.status || 'pending';
+  const dateStr = v.created_at ? new Date(v.created_at).toLocaleDateString() : '';
+  return `
+    <div class="video-row">
+      <div class="video-row-thumb"><span class="play"></span></div>
+      <div class="video-row-info">
+        <div class="video-row-title">${escapeHtml(v.title)}</div>
+        <div class="video-row-meta">
+          <span class="status-badge ${statusClass}">${statusClass}${v.mock ? ' (mock)' : ''}</span>
+          <span>${escapeHtml(v.privacy || 'unlisted')}</span>
+          <span>${dateStr}</span>
+        </div>
+      </div>
+      <div class="video-row-actions">
+        ${v.youtube_url ? `<a class="icon-btn" href="${v.youtube_url}" target="_blank" title="Open on YouTube">&#8599;</a>` : ''}
+        <button class="icon-btn danger" onclick="deleteVideo('${v.id}')" title="Remove">&var(--surface-accent-bg);</button>
+      </div>
+    </div>`;
+}
+
+async function deleteVideo(id) {
+  if (!confirm('Remove this video from tracking? (Will not delete from YouTube)')) return;
+  try {
+    await fetch(`${API_BASE}/videos/${id}`, { method: 'DELETE' });
+    showToast('Video removed', 'success');
+    loadLinkedVideos();
+  } catch (err) {
+    showToast('Failed to delete: ' + err.message, 'error');
+  }
+}
+
+// -- Utilities --
+function resetForm() {
+  document.getElementById('videoPath').value = '';
+  document.getElementById('videoTitle').value = '';
+  document.getElementById('videoDesc').value = '';
+  document.getElementById('thumbnailPath').value = '';
+  currentTags = [];
+  renderTags();
+  document.getElementById('progressWrap').classList.remove('active');
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressBar').style.background = 'var(--accent)';
+  document.getElementById('assetList').style.display = 'none';
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} visible`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('visible'), 3500);
+}
+
+// -- Init --
+async function init() {
+  try {
+    const resp = await fetch(`${API_BASE}/`);
+    const data = await resp.json();
+    const badge = document.getElementById('modeBadge');
+    if (data.mode === 'live') {
+      badge.textContent = 'Live';
+      badge.className = 'mode-badge live';
+    } else {
+      badge.textContent = 'Mock Mode';
+      badge.className = 'mode-badge mock';
+    }
+  } catch (e) {
+    // silent
+  }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+  .header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header svg { width: 20px; height: 20px; color: var(--plugin-accent); }
+
+  /* -- Status badges -- */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .status-todo       { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); }
+  .status-todo .dot  { background: var(--surface-base-text-secondary); }
+  .status-inprogress       { background: var(--surface-base-bg); color: var(--surface-info-text-secondary); }
+  .status-inprogress .dot  { background: var(--surface-info-text-secondary); }
+  .status-done       { background: var(--surface-success-bg); color: var(--surface-success-border); }
+  .status-done .dot  { background: var(--surface-success-border); }
+  .status-unknown       { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); }
+  .status-unknown .dot  { background: var(--surface-base-text-secondary); }
+
+  /* -- Detail grid -- */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 500px) { .detail-grid { grid-template-columns: 1fr; } }
+  .detail-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 14px 16px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .detail-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .detail-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    word-break: break-word;
+  }
+  .detail-value a {
+    color: var(--surface-info-text-secondary);
+    text-decoration: none;
+  }
+  .detail-value a:hover { text-decoration: underline; }
+
+  /* -- Summary block -- */
+  .summary-block {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 20px;
+  }
+  .summary-block .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .summary-block .value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    line-height: 1.4;
+  }
+
+  /* -- Description -- */
+  .description-block {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 20px;
+  }
+  .description-block .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .description-block .value {
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  /* -- Labels -- */
+  .labels-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .label-chip {
+    display: inline-flex;
+    padding: 3px 10px;
+    background: var(--surface-base-bg);
+    border-radius: 99px;
+    font-size: 11px;
+    color: var(--surface-info-text-secondary);
+    font-weight: 500;
+  }
+
+  /* -- Transitions -- */
+  .transitions-section {
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .transition-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn-transition {
+    padding: 6px 14px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-transition:hover { border-color: var(--plugin-accent); background: var(--plugin-accent)22; color: var(--surface-info-text-secondary); }
+  .btn-transition:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* -- Field mapping table -- */
+  .mapping-section { margin-bottom: 20px; }
+  .mapping-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .mapping-table th {
+    text-align: left;
+    padding: 8px 10px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+  }
+  .mapping-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+  }
+  .mapping-table tr:hover td { background: var(--surface-elevated-bg)44; }
+  .mapping-arrow { color: var(--plugin-accent); font-weight: 600; }
+
+  /* -- Buttons -- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--plugin-accent); color: white; }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+
+  /* -- Empty / setup states -- */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--surface-base-text-secondary);
+  }
+  .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; color: var(--surface-elevated-border); }
+  .empty-state h3 { color: var(--surface-base-text-secondary); font-size: 16px; margin-bottom: 6px; }
+  .empty-state p { font-size: 13px; line-height: 1.5; margin-bottom: 16px; }
+
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-msg {
+    background: var(--surface-error-bg)33;
+    border: 1px solid var(--surface-error-bg);
+    color: var(--surface-error-text);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .actions-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .timestamp {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 5h2a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h2"/>
+      <rect x="9" y="3" width="6" height="4" rx="1"/>
+    </svg>
+    Jira Issue Details
+  </div>
+
+  <div id="content">
+    <div style="text-align:center; padding:40px 0;"><div class="spinner"></div><p style="margin-top:8px;color:var(--surface-base-text-secondary);font-size:12px;">Loading Jira data...</p></div>
+  </div>
+
+  <script>
+    const API = '/api/ext/jira-sync';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || '';
+    const entityId = ctx.entityId || '';
+
+    function statusClass(name, catKey) {
+      if (!name) return 'status-unknown';
+      const cat = (catKey || '').toLowerCase();
+      if (cat === 'done' || cat === 'complete') return 'status-done';
+      if (cat === 'indeterminate' || cat === 'in_progress' || cat === 'inprogress') return 'status-inprogress';
+      const n = name.toLowerCase();
+      if (n.includes('done') || n.includes('complete') || n.includes('closed') || n.includes('resolved')) return 'status-done';
+      if (n.includes('progress') || n.includes('review') || n.includes('active')) return 'status-inprogress';
+      return 'status-todo';
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '--';
+      try { return new Date(iso).toLocaleString(); } catch { return iso; }
+    }
+
+    async function loadDetails() {
+      const el = document.getElementById('content');
+
+      if (!entityType || !entityId) {
+        el.innerHTML = '<div class="empty-state"><p>No entity context.</p></div>';
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API}/link/${entityType}/${entityId}`);
+        const data = await resp.json();
+
+        if (!data.linked || !data.issue_key) {
+          el.innerHTML = `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <h3>No Jira Issue Linked</h3>
+              <p>Use the Jira Link sidebar panel to create or link a Jira issue to this entity first.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const jira = data.jira || {};
+        const sc = statusClass(jira.status, jira.status_category);
+        const labels = jira.labels || [];
+
+        let html = '';
+
+        // Summary
+        html += `
+          <div class="summary-block">
+            <div class="label">Summary</div>
+            <div class="value">${jira.summary || data.issue_key}</div>
+          </div>
+        `;
+
+        // Actions row
+        html += `
+          <div class="actions-row">
+            <button class="btn btn-primary" onclick="syncNow()" id="sync-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+              Sync Now
+            </button>
+            <a class="btn" style="background:var(--surface-elevated-border);color:var(--surface-base-text);text-decoration:none;" href="${data.issue_url || '#'}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              Open in Jira
+            </a>
+          </div>
+        `;
+
+        // Detail grid
+        html += `
+          <div class="detail-grid">
+            <div class="detail-card">
+              <div class="detail-label">Issue Key</div>
+              <div class="detail-value"><a href="${data.issue_url || '#'}" target="_blank">${data.issue_key}</a></div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-label">Status</div>
+              <div class="detail-value">
+                <span class="status-badge ${sc}">
+                  <span class="dot"></span>
+                  ${jira.status || 'Unknown'}
+                </span>
+              </div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-label">Issue Type</div>
+              <div class="detail-value">${jira.issue_type || '--'}</div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-label">Priority</div>
+              <div class="detail-value">${jira.priority || 'None'}</div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-label">Assignee</div>
+              <div class="detail-value">${jira.assignee || 'Unassigned'}</div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-label">Last Synced</div>
+              <div class="detail-value"><span class="timestamp">${data.last_synced ? new Date(data.last_synced * 1000).toLocaleString() : 'Never'}</span></div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-label">Created (Jira)</div>
+              <div class="detail-value"><span class="timestamp">${formatDate(jira.created)}</span></div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-label">Updated (Jira)</div>
+              <div class="detail-value"><span class="timestamp">${formatDate(jira.updated)}</span></div>
+            </div>
+          </div>
+        `;
+
+        // Labels
+        if (labels.length > 0) {
+          html += '<div class="labels-row">';
+          labels.forEach(l => { html += `<span class="label-chip">${l}</span>`; });
+          html += '</div>';
+        }
+
+        // Transitions section (placeholder -- populated on demand)
+        html += `
+          <div class="transitions-section">
+            <div class="section-title">Available Transitions</div>
+            <div id="transitions-list" class="transition-btns">
+              <button class="btn-transition" onclick="loadTransitions()" style="border-style:dashed;">Load transitions...</button>
+            </div>
+          </div>
+        `;
+
+        // Field mapping preview
+        html += `
+          <div class="mapping-section">
+            <div class="section-title">Field Mapping</div>
+            <table class="mapping-table">
+              <thead><tr><th>Studio Field</th><th></th><th>Jira Field</th></tr></thead>
+              <tbody id="mapping-body">
+                <tr><td>name</td><td class="mapping-arrow">&rarr;</td><td>summary</td></tr>
+                <tr><td>description</td><td class="mapping-arrow">&rarr;</td><td>description</td></tr>
+                <tr><td>production_status</td><td class="mapping-arrow">&rarr;</td><td>status (transition)</td></tr>
+                <tr><td>entity type</td><td class="mapping-arrow">&rarr;</td><td>issuetype</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        // Sync error
+        if (data.sync_error) {
+          html += `<div class="error-msg">${data.sync_error}</div>`;
+        }
+        if (data.jira_fetch_error) {
+          html += `<div class="error-msg">Could not fetch live Jira data: ${data.jira_fetch_error}</div>`;
+        }
+
+        el.innerHTML = html;
+
+        // Load field mappings
+        loadMappings();
+
+      } catch (err) {
+        el.innerHTML = `
+          <div class="empty-state">
+            <h3>Connection Error</h3>
+            <p>Could not reach the Jira Sync API at <code>${API}</code>.<br/>Ensure the backend is running and the plugin is enabled.</p>
+          </div>
+        `;
+      }
+    }
+
+    async function syncNow() {
+      const btn = document.getElementById('sync-btn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Syncing...'; }
+      try {
+        await fetch(`${API}/sync/${entityType}/${entityId}`, { method: 'POST' });
+        await loadDetails();
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Retry'; }
+      }
+    }
+
+    async function loadTransitions() {
+      // Transitions are fetched via the Jira API through our backend
+      // For now we show available transitions from the link data
+      const el = document.getElementById('transitions-list');
+      el.innerHTML = '<span style="color:var(--surface-base-text-secondary);font-size:12px;">Transitions are executed via Sync when production_status changes. Configure status mapping in Settings.</span>';
+    }
+
+    async function loadMappings() {
+      try {
+        const resp = await fetch(`${API}/mappings`);
+        const mappings = await resp.json();
+        const tbody = document.getElementById('mapping-body');
+        if (!tbody || !mappings.default) return;
+
+        let rows = '';
+        for (const [studio, jira] of Object.entries(mappings.default)) {
+          rows += `<tr><td>${studio}</td><td class="mapping-arrow">&rarr;</td><td>${jira}</td></tr>`;
+        }
+        tbody.innerHTML = rows;
+      } catch (e) { /* keep default mapping display */ }
+    }
+
+    loadDetails();
+  </script>
+</body>
+</html>

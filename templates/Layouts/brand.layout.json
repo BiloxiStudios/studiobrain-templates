@@ -1,0 +1,437 @@
+{
+  "entity_type": "brand",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "Building",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Brand ID",
+          "ui_component": "read-only-text",
+          "required": true,
+          "auto_generate_from": "name",
+          "placeholder": "auto-generated from name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores",
+          "column_span": 1
+        },
+        {
+          "key": "name",
+          "label": "Brand Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Acme Corporation",
+          "column_span": 1
+        },
+        {
+          "key": "tagline",
+          "label": "Tagline",
+          "ui_component": "text",
+          "placeholder": "Innovation at its finest",
+          "column_span": 1
+        },
+        {
+          "key": "founded",
+          "label": "Founded",
+          "ui_component": "text",
+          "placeholder": "2021",
+          "column_span": 1
+        },
+        {
+          "key": "industry",
+          "label": "Industry",
+          "ui_component": "select",
+          "options": [
+            {"value": "food_service", "label": "Food Service"},
+            {"value": "retail", "label": "Retail"},
+            {"value": "technology", "label": "Technology"},
+            {"value": "healthcare", "label": "Healthcare"},
+            {"value": "finance", "label": "Finance"},
+            {"value": "manufacturing", "label": "Manufacturing"},
+            {"value": "entertainment", "label": "Entertainment"},
+            {"value": "energy", "label": "Energy"},
+            {"value": "transportation", "label": "Transportation"},
+            {"value": "education", "label": "Education"},
+            {"value": "other", "label": "Other"}
+          ],
+          "column_span": 1
+        },
+        {
+          "key": "market_position",
+          "label": "Market Position",
+          "ui_component": "select",
+          "options": [
+            {"value": "market_leader", "label": "Market Leader"},
+            {"value": "competitor", "label": "Competitor"},
+            {"value": "niche", "label": "Niche Player"},
+            {"value": "startup", "label": "Startup"}
+          ],
+          "column_span": 1
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "active", "label": "Active"},
+            {"value": "defunct", "label": "Defunct"},
+            {"value": "merged", "label": "Merged"},
+            {"value": "archived", "label": "Archived"},
+            {"value": "draft", "label": "Draft"}
+          ],
+          "column_span": 1
+        }
+      ]
+    },
+    {
+      "id": "temporal_information",
+      "title": "Temporal Information",
+      "icon": "Clock",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "founding_year",
+          "label": "Founding Year",
+          "ui_component": "number",
+          "placeholder": "e.g., 1985",
+          "help": "Year this brand was founded (game is set in 1998-1999)",
+          "column_span": 1
+        },
+        {
+          "key": "defunct_year",
+          "label": "Defunct Year (if applicable)",
+          "ui_component": "number",
+          "placeholder": "Leave empty if active",
+          "column_span": 1
+        },
+        {
+          "key": "major_milestones",
+          "label": "Major Milestones (Brand History)",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "help": "Add important dates from this brand's history (IPO, mergers, major product launches, etc.)",
+          "sub_fields": [
+            {"key": "year", "label": "Year"},
+            {"key": "event", "label": "Milestone description"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "visual_identity",
+      "title": "Visual Identity",
+      "icon": "Palette",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "color_palette",
+          "label": "Color Palette",
+          "ui_component": "color-palette",
+          "column_span": 1,
+          "sub_fields": [
+            {"key": "primary", "label": "Primary"},
+            {"key": "secondary", "label": "Secondary"},
+            {"key": "accent", "label": "Accent"}
+          ]
+        },
+        {
+          "key": "typography",
+          "label": "Typography",
+          "ui_component": "object-array",
+          "column_span": 1,
+          "sub_fields": [
+            {"key": "heading", "label": "Heading Font"},
+            {"key": "body", "label": "Body Font"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "audio_identity",
+      "title": "Audio Identity",
+      "icon": "Music",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "voice_actor",
+          "label": "Voice Actor",
+          "ui_component": "text",
+          "placeholder": "Jane Smith",
+          "column_span": 1
+        },
+        {
+          "key": "audio_style",
+          "label": "Audio Style",
+          "ui_component": "text",
+          "placeholder": "upbeat and energetic",
+          "column_span": 1
+        },
+        {
+          "key": "signature_sounds",
+          "label": "Signature Sounds",
+          "ui_component": "tag-input",
+          "placeholder": "e.g., cash register ding",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "brand_messaging",
+      "title": "Brand Messaging",
+      "icon": "Target",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "brand_values",
+          "label": "Brand Values",
+          "ui_component": "tag-input",
+          "placeholder": "e.g., quality, affordability",
+          "column_span": 1
+        },
+        {
+          "key": "brand_personality",
+          "label": "Brand Personality",
+          "ui_component": "tag-input",
+          "placeholder": "e.g., friendly, trustworthy",
+          "column_span": 1
+        },
+        {
+          "key": "target_audience",
+          "label": "Target Audience",
+          "ui_component": "text",
+          "placeholder": "middle-class families",
+          "column_span": 1
+        },
+        {
+          "key": "messaging_tone",
+          "label": "Messaging Tone",
+          "ui_component": "text",
+          "placeholder": "casual and approachable",
+          "column_span": 1
+        }
+      ]
+    },
+    {
+      "id": "corporate_structure",
+      "title": "Corporate Structure",
+      "icon": "Building",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "parent_company",
+          "label": "Parent Company",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "brand",
+          "max_selections": 1,
+          "show_relationship_selector": false,
+          "placeholder": "Select parent company...",
+          "column_span": 1
+        },
+        {
+          "key": "headquarters",
+          "label": "Headquarters",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "location",
+          "max_selections": 1,
+          "show_relationship_selector": false,
+          "placeholder": "Select headquarters location...",
+          "column_span": 1
+        },
+        {
+          "key": "subsidiaries",
+          "label": "Subsidiaries",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "brand",
+          "show_relationship_selector": false,
+          "placeholder": "Select subsidiary brands...",
+          "column_span": 2
+        },
+        {
+          "key": "employee_count",
+          "label": "Employee Count",
+          "ui_component": "number",
+          "placeholder": "150",
+          "column_span": 1
+        }
+      ]
+    },
+    {
+      "id": "employment_personnel",
+      "title": "Employment & Personnel",
+      "icon": "Users",
+      "columns": 1,
+      "fields": [
+        {
+          "key": "job_positions",
+          "label": "Job Positions",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "job",
+          "show_relationship_selector": false,
+          "placeholder": "Select available job positions...",
+          "column_span": 1
+        },
+        {
+          "key": "key_personnel",
+          "label": "Key Personnel",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "show_relationship_selector": false,
+          "placeholder": "Select key personnel...",
+          "column_span": 1
+        }
+      ]
+    },
+    {
+      "id": "market_presence",
+      "title": "Market Presence",
+      "icon": "TrendingUp",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "store_count",
+          "label": "Store Count",
+          "ui_component": "number",
+          "placeholder": "47",
+          "column_span": 1
+        },
+        {
+          "key": "market_share",
+          "label": "Market Share",
+          "ui_component": "text",
+          "placeholder": "35%",
+          "column_span": 1
+        },
+        {
+          "key": "franchise_model",
+          "label": "Franchise Model",
+          "ui_component": "select",
+          "options": [
+            {"value": "false", "label": "No"},
+            {"value": "true", "label": "Yes"}
+          ],
+          "column_span": 1
+        },
+        {
+          "key": "quality_tier",
+          "label": "Quality Tier",
+          "ui_component": "select",
+          "options": [
+            {"value": "budget", "label": "Budget"},
+            {"value": "mid_range", "label": "Mid Range"},
+            {"value": "premium", "label": "Premium"},
+            {"value": "luxury", "label": "Luxury"}
+          ],
+          "column_span": 1
+        },
+        {
+          "key": "distribution_channels",
+          "label": "Distribution Channels",
+          "ui_component": "tag-input",
+          "placeholder": "e.g., retail stores, online delivery",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "public_perception",
+      "title": "Public Perception",
+      "icon": "Shield",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "public_opinion",
+          "label": "Public Opinion",
+          "ui_component": "select",
+          "options": [
+            {"value": "beloved", "label": "Beloved"},
+            {"value": "positive", "label": "Positive"},
+            {"value": "mixed", "label": "Mixed"},
+            {"value": "negative", "label": "Negative"},
+            {"value": "hated", "label": "Hated"}
+          ],
+          "column_span": 1
+        },
+        {
+          "key": "consumer_loyalty",
+          "label": "Consumer Loyalty",
+          "ui_component": "select",
+          "options": [
+            {"value": "low", "label": "Low"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "high", "label": "High"},
+            {"value": "fanatic", "label": "Fanatic"}
+          ],
+          "column_span": 1
+        },
+        {
+          "key": "controversy_level",
+          "label": "Controversy Level",
+          "ui_component": "select",
+          "options": [
+            {"value": "none", "label": "None"},
+            {"value": "low", "label": "Low"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "high", "label": "High"},
+            {"value": "extreme", "label": "Extreme"}
+          ],
+          "column_span": 1
+        },
+        {
+          "key": "narrative_role",
+          "label": "Narrative Role",
+          "ui_component": "select",
+          "options": [
+            {"value": "background", "label": "Background"},
+            {"value": "minor", "label": "Minor"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "major", "label": "Major"},
+            {"value": "central", "label": "Central"}
+          ],
+          "column_span": 1
+        },
+        {
+          "key": "reputation_factors",
+          "label": "Reputation Factors",
+          "ui_component": "tag-input",
+          "placeholder": "e.g., affordable prices, questionable ingredients",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "ai_context",
+      "title": "AI Generation Helpers",
+      "icon": "Target",
+      "columns": 1,
+      "fields": [
+        {
+          "key": "ai_brand_voice",
+          "label": "Brand Voice",
+          "ui_component": "textarea",
+          "rows": 2,
+          "placeholder": "Brand's distinctive communication style and tone for AI content generation",
+          "column_span": 1
+        },
+        {
+          "key": "ai_visual_identity",
+          "label": "Visual Identity",
+          "ui_component": "textarea",
+          "rows": 2,
+          "placeholder": "Key visual elements and style for AI image generation",
+          "column_span": 1
+        },
+        {
+          "key": "ai_marketing_summary",
+          "label": "Marketing Summary",
+          "ui_component": "textarea",
+          "rows": 2,
+          "placeholder": "Brief brand positioning for AI marketing content",
+          "column_span": 1
+        }
+      ]
+    }
+  ]
+}

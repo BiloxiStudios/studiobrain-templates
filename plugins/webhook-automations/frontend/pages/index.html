@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    min-height: 100vh;
+  }
+  .page-header {
+    max-width: 960px;
+    margin: 0 auto 28px;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-info-border));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle { color: var(--surface-base-text-secondary); font-size: 15px; }
+
+  /* Stats row */
+  .stats-row {
+    max-width: 960px;
+    margin: 0 auto 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 18px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--surface-base-text); }
+  .stat-value.blue { color: var(--plugin-accent); }
+  .stat-value.green { color: var(--surface-success-border); }
+  .stat-value.red { color: var(--surface-error-border); }
+  .stat-value.amber { color: var(--surface-warning-border); }
+
+  /* Tabs */
+  .tab-bar {
+    max-width: 960px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--surface-base-text); }
+  .tab-btn.active { color: var(--plugin-accent); border-bottom-color: var(--plugin-accent); }
+  .tab-content { display: none; max-width: 960px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  /* Rules table */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .toolbar-info { font-size: 13px; color: var(--surface-base-text-secondary); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--plugin-accent); color: white; }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 6px; }
+  .btn-ghost { background: transparent; color: var(--surface-base-text-secondary); border: 1px solid var(--surface-elevated-border); }
+  .btn-ghost:hover { background: var(--surface-elevated-bg); color: var(--surface-base-text); }
+  .btn-danger { background: var(--surface-error-bg); color: var(--surface-error-active); }
+  .btn-danger:hover { background: var(--surface-error-hover); }
+  .btn-success { background: var(--surface-success-text); color: var(--surface-success-active); }
+  .btn-success:hover { background: var(--surface-success-text); }
+
+  .rules-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .rules-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    border-bottom: 1px solid var(--surface-elevated-border);
+    font-weight: 600;
+  }
+  .rules-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+  .rules-table tr:hover td { background: var(--surface-elevated-bg)40; }
+  .rule-name-cell {
+    font-weight: 600;
+    color: var(--surface-base-text);
+  }
+  .url-cell {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--surface-base-text-secondary);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+  }
+  .event-badge {
+    display: inline-flex;
+    padding: 2px 8px;
+    background: var(--surface-elevated-border);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    font-family: monospace;
+  }
+  .type-badges {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .type-badge {
+    padding: 1px 6px;
+    background: var(--surface-elevated-bg);
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--surface-info-text-secondary);
+  }
+  .toggle-switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    cursor: pointer;
+  }
+  .toggle-switch input { display: none; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--surface-elevated-border);
+    border-radius: 20px;
+    transition: 0.2s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 2px;
+    top: 2px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.2s;
+  }
+  .toggle-switch input:checked + .toggle-slider { background: var(--plugin-accent); }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(16px); }
+  .actions-cell {
+    display: flex;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .status-dot.success { background: var(--surface-success-border); }
+  .status-dot.failure { background: var(--surface-error-border); }
+  .status-dot.pending { background: var(--surface-elevated-border); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface-elevated-bg);
+    border-radius: 14px;
+    border: 1px solid var(--surface-elevated-border);
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px;
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--surface-base-text);
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 9px 12px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+  }
+  .form-textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+  }
+  .form-hint {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 4px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: 0.15s;
+  }
+  .checkbox-item:hover { border-color: var(--plugin-accent); }
+  .checkbox-item input { accent-color: var(--plugin-accent); }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--surface-elevated-border);
+  }
+
+  /* Logs table */
+  .logs-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-select {
+    padding: 6px 10px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text);
+    font-size: 12px;
+  }
+  .filter-select:focus { outline: none; border-color: var(--plugin-accent); }
+  .logs-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .logs-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--surface-base-text-secondary);
+    border-bottom: 1px solid var(--surface-elevated-border);
+    font-weight: 600;
+  }
+  .logs-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  .logs-table tr:hover td { background: var(--surface-elevated-bg)40; }
+  .log-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+  }
+  .log-status.ok { color: var(--surface-success-border); }
+  .log-status.fail { color: var(--surface-error-border); }
+  .log-url {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--surface-base-text-secondary);
+  }
+  .pagination-btns { display: flex; gap: 8px; }
+
+  /* Empty states */
+  .empty-state {
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    padding: 48px 16px;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .empty-state strong { color: var(--surface-base-text-secondary); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 2000;
+    max-width: 360px;
+  }
+  .toast.show { opacity: 1; }
+  .toast.success { background: var(--surface-success-text); color: var(--surface-success-active); }
+  .toast.error { background: var(--surface-error-bg); color: var(--surface-error-active); }
+  .toast.info { background: var(--surface-elevated-bg); color: var(--surface-info-text); }
+</style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1 class="page-title">Webhook Automations</h1>
+    <p class="page-subtitle">Trigger external webhooks when entities are created, updated, or deleted. Compatible with Zapier, Make, n8n, and custom endpoints.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Rules</div>
+      <div class="stat-value blue" id="stat-total-rules">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Rules</div>
+      <div class="stat-value green" id="stat-active-rules">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Deliveries</div>
+      <div class="stat-value" id="stat-total-deliveries">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Success Rate</div>
+      <div class="stat-value green" id="stat-success-rate">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Response</div>
+      <div class="stat-value amber" id="stat-avg-response">--</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('rules')">Rules</button>
+    <button class="tab-btn" onclick="switchTab('logs')">Delivery Logs</button>
+  </div>
+
+  <!-- Rules Tab -->
+  <div class="tab-content active" id="tab-rules">
+    <div class="toolbar">
+      <span class="toolbar-info" id="rules-count-info">Loading...</span>
+      <button class="btn btn-primary" onclick="openRuleModal()">+ Add Rule</button>
+    </div>
+    <div id="rules-container"></div>
+  </div>
+
+  <!-- Logs Tab -->
+  <div class="tab-content" id="tab-logs">
+    <div class="logs-toolbar">
+      <select class="filter-select" id="log-filter-status" onchange="loadLogs()">
+        <option value="">All Statuses</option>
+        <option value="true">Success</option>
+        <option value="false">Failed</option>
+      </select>
+      <select class="filter-select" id="log-filter-rule" onchange="loadLogs()">
+        <option value="">All Rules</option>
+      </select>
+      <select class="filter-select" id="log-filter-test" onchange="loadLogs()">
+        <option value="">All Types</option>
+        <option value="false">Live Only</option>
+        <option value="true">Test Only</option>
+      </select>
+      <button class="btn btn-sm btn-ghost" onclick="loadLogs()">Refresh</button>
+    </div>
+    <div id="logs-container"></div>
+    <div class="pagination" id="logs-pagination" style="display:none;">
+      <span id="logs-page-info">Page 1</span>
+      <div class="pagination-btns">
+        <button class="btn btn-sm btn-ghost" id="logs-prev" onclick="logsPage(-1)" disabled>Prev</button>
+        <button class="btn btn-sm btn-ghost" id="logs-next" onclick="logsPage(1)">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rule Modal -->
+  <div class="modal-overlay" id="rule-modal">
+    <div class="modal">
+      <div class="modal-title" id="modal-title">Add Rule</div>
+
+      <div class="form-group">
+        <label class="form-label">Rule Name</label>
+        <input class="form-input" id="f-name" placeholder="e.g. Notify Slack on new character" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Event Pattern</label>
+          <select class="form-select" id="f-event">
+            <option value="entity.created">entity.created</option>
+            <option value="entity.updated">entity.updated</option>
+            <option value="entity.deleted">entity.deleted</option>
+            <option value="entity.*">entity.* (all)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">HTTP Method</label>
+          <select class="form-select" id="f-method">
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Entity Types (select which to match)</label>
+        <div class="checkbox-group" id="f-entity-types">
+          <label class="checkbox-item"><input type="checkbox" value="character" /> Character</label>
+          <label class="checkbox-item"><input type="checkbox" value="location" /> Location</label>
+          <label class="checkbox-item"><input type="checkbox" value="scene" /> Scene</label>
+          <label class="checkbox-item"><input type="checkbox" value="item" /> Item</label>
+          <label class="checkbox-item"><input type="checkbox" value="dialogue" /> Dialogue</label>
+          <label class="checkbox-item"><input type="checkbox" value="quest" /> Quest</label>
+          <label class="checkbox-item"><input type="checkbox" value="lore" /> Lore</label>
+          <label class="checkbox-item"><input type="checkbox" value="faction" /> Faction</label>
+        </div>
+        <div class="form-hint">Leave all unchecked to match every entity type.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Webhook URL</label>
+        <input class="form-input" id="f-url" placeholder="https://hooks.zapier.com/..." />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Custom Headers (JSON, optional)</label>
+        <input class="form-input" id="f-headers" placeholder='{"Authorization": "Bearer ..."}' />
+        <div class="form-hint">JSON object of extra HTTP headers to send with each request.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Payload Template (optional)</label>
+        <textarea class="form-textarea" id="f-payload" placeholder='{"event": "{{event_type}}", "type": "{{entity_type}}", "id": "{{entity_id}}", "name": "{{entity_name}}", "at": "{{timestamp}}"}'></textarea>
+        <div class="form-hint">Placeholders: <code>{{entity_type}}</code>, <code>{{entity_id}}</code>, <code>{{event_type}}</code>, <code>{{entity_name}}</code>, <code>{{timestamp}}</code>. Leave blank for the default payload.</div>
+      </div>
+
+      <input type="hidden" id="f-rule-id" value="" />
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeRuleModal()">Cancel</button>
+        <button class="btn btn-primary" id="modal-save-btn" onclick="saveRule()">Create Rule</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '/api/ext/webhook-automations';
+    let allRules = [];
+    let allLogs = [];
+    let logsOffset = 0;
+    const LOGS_LIMIT = 50;
+
+    // ------- Toast -------
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + (type || 'info');
+      setTimeout(() => t.className = 'toast', 4000);
+    }
+
+    // ------- Tabs -------
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      event.target.classList.add('active');
+      if (tab === 'logs') loadLogs();
+    }
+
+    // ------- Stats -------
+    async function loadStats() {
+      try {
+        const resp = await fetch(API + '/');
+        const d = await resp.json();
+        document.getElementById('stat-total-rules').textContent = d.total_rules || 0;
+        document.getElementById('stat-active-rules').textContent = d.active_rules || 0;
+        document.getElementById('stat-total-deliveries').textContent = d.total_deliveries || 0;
+        document.getElementById('stat-success-rate').textContent = (d.success_rate || 0) + '%';
+
+        // Compute avg response time from logs
+        const logsResp = await fetch(API + '/logs?limit=200');
+        const logsData = await logsResp.json();
+        const times = (logsData.logs || []).filter(l => l.duration_ms).map(l => l.duration_ms);
+        const avg = times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : 0;
+        document.getElementById('stat-avg-response').textContent = avg ? avg + 'ms' : '--';
+      } catch (e) {
+        console.error('Stats load error', e);
+      }
+    }
+
+    // ------- Rules -------
+    async function loadRules() {
+      try {
+        const resp = await fetch(API + '/rules');
+        const data = await resp.json();
+        allRules = data.rules || [];
+        document.getElementById('rules-count-info').textContent = allRules.length + ' rule' + (allRules.length !== 1 ? 's' : '');
+
+        // Populate the log filter dropdown
+        const ruleFilter = document.getElementById('log-filter-rule');
+        const currentVal = ruleFilter.value;
+        ruleFilter.innerHTML = '<option value="">All Rules</option>' +
+          allRules.map(r => '<option value="' + r.id + '">' + escapeHtml(r.name) + '</option>').join('');
+        ruleFilter.value = currentVal;
+
+        renderRules();
+      } catch (e) {
+        document.getElementById('rules-container').innerHTML =
+          '<div class="empty-state">Failed to load rules.<br/>' + escapeHtml(e.message) + '</div>';
+      }
+    }
+
+    async function getLatestLogByRule() {
+      try {
+        const resp = await fetch(API + '/logs?limit=500');
+        const data = await resp.json();
+        const byRule = {};
+        (data.logs || []).forEach(l => {
+          if (!byRule[l.rule_id]) byRule[l.rule_id] = l;
+        });
+        return byRule;
+      } catch { return {}; }
+    }
+
+    async function renderRules() {
+      const container = document.getElementById('rules-container');
+      if (allRules.length === 0) {
+        container.innerHTML = '<div class="empty-state"><strong>No webhook rules yet.</strong><br/>Click "Add Rule" to create your first webhook automation.</div>';
+        return;
+      }
+
+      const latestLogs = await getLatestLogByRule();
+
+      let html = '<table class="rules-table"><thead><tr>' +
+        '<th>Status</th><th>Name</th><th>Event</th><th>Entity Types</th><th>URL</th><th>Active</th><th>Actions</th>' +
+        '</tr></thead><tbody>';
+
+      allRules.forEach(r => {
+        const latest = latestLogs[r.id];
+        const dotClass = !latest ? 'pending' : (latest.success ? 'success' : 'failure');
+        const types = (r.entity_types && r.entity_types.length)
+          ? r.entity_types.map(t => '<span class="type-badge">' + escapeHtml(t) + '</span>').join('')
+          : '<span style="color:var(--surface-base-text-secondary);font-size:11px">all</span>';
+
+        html += '<tr>' +
+          '<td><span class="status-dot ' + dotClass + '"></span></td>' +
+          '<td class="rule-name-cell">' + escapeHtml(r.name) + '</td>' +
+          '<td><span class="event-badge">' + escapeHtml(r.event_pattern) + '</span></td>' +
+          '<td><div class="type-badges">' + types + '</div></td>' +
+          '<td class="url-cell" title="' + escapeHtml(r.webhook_url) + '">' + escapeHtml(r.webhook_url) + '</td>' +
+          '<td>' +
+            '<label class="toggle-switch">' +
+              '<input type="checkbox"' + (r.active ? ' checked' : '') + ' onchange="toggleRule(\'' + r.id + '\', this.checked)" />' +
+              '<span class="toggle-slider"></span>' +
+            '</label>' +
+          '</td>' +
+          '<td><div class="actions-cell">' +
+            '<button class="btn btn-sm btn-ghost" onclick="testRule(\'' + r.id + '\', this)">Test</button>' +
+            '<button class="btn btn-sm btn-ghost" onclick="editRule(\'' + r.id + '\')">Edit</button>' +
+            '<button class="btn btn-sm btn-danger" onclick="deleteRule(\'' + r.id + '\', \'' + escapeHtml(r.name).replace(/'/g, "\\'") + '\')">Del</button>' +
+          '</div></td>' +
+          '</tr>';
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    async function toggleRule(id, active) {
+      try {
+        await fetch(API + '/rules/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active }),
+        });
+        showToast(active ? 'Rule enabled' : 'Rule disabled', 'success');
+        loadRules();
+        loadStats();
+      } catch (e) {
+        showToast('Toggle failed: ' + e.message, 'error');
+      }
+    }
+
+    async function testRule(id, btn) {
+      if (btn) { btn.disabled = true; btn.textContent = '...'; }
+      try {
+        const resp = await fetch(API + '/rules/' + id + '/test', { method: 'POST' });
+        const data = await resp.json();
+        if (data.result && data.result.success) {
+          showToast('Test delivered (' + (data.result.duration_ms || 0) + 'ms)', 'success');
+        } else {
+          const err = data.result ? (data.result.error || 'HTTP ' + data.result.status_code) : 'Error';
+          showToast('Test failed: ' + err, 'error');
+        }
+      } catch (e) {
+        showToast('Test error: ' + e.message, 'error');
+      }
+      if (btn) { btn.disabled = false; btn.textContent = 'Test'; }
+      setTimeout(() => { loadRules(); loadStats(); }, 500);
+    }
+
+    async function deleteRule(id, name) {
+      if (!confirm('Delete rule "' + name + '"? This cannot be undone.')) return;
+      try {
+        await fetch(API + '/rules/' + id, { method: 'DELETE' });
+        showToast('Rule deleted', 'success');
+        loadRules();
+        loadStats();
+      } catch (e) {
+        showToast('Delete failed: ' + e.message, 'error');
+      }
+    }
+
+    // ------- Rule Modal -------
+    function openRuleModal(rule) {
+      document.getElementById('modal-title').textContent = rule ? 'Edit Rule' : 'Add Rule';
+      document.getElementById('modal-save-btn').textContent = rule ? 'Save Changes' : 'Create Rule';
+      document.getElementById('f-rule-id').value = rule ? rule.id : '';
+      document.getElementById('f-name').value = rule ? rule.name : '';
+      document.getElementById('f-event').value = rule ? rule.event_pattern : 'entity.created';
+      document.getElementById('f-method').value = rule ? (rule.method || 'POST') : 'POST';
+      document.getElementById('f-url').value = rule ? rule.webhook_url : '';
+      document.getElementById('f-headers').value = rule && rule.headers && Object.keys(rule.headers).length ? JSON.stringify(rule.headers) : '';
+      document.getElementById('f-payload').value = rule ? (rule.payload_template || '') : '';
+
+      // Entity type checkboxes
+      const checks = document.querySelectorAll('#f-entity-types input[type="checkbox"]');
+      const types = rule ? (rule.entity_types || []) : [];
+      checks.forEach(cb => { cb.checked = types.includes(cb.value); });
+
+      document.getElementById('rule-modal').classList.add('show');
+    }
+
+    function closeRuleModal() {
+      document.getElementById('rule-modal').classList.remove('show');
+    }
+
+    function editRule(id) {
+      const rule = allRules.find(r => r.id === id);
+      if (rule) openRuleModal(rule);
+    }
+
+    async function saveRule() {
+      const ruleId = document.getElementById('f-rule-id').value;
+      const name = document.getElementById('f-name').value.trim();
+      const event_pattern = document.getElementById('f-event').value;
+      const method = document.getElementById('f-method').value;
+      const webhook_url = document.getElementById('f-url').value.trim();
+      const headersStr = document.getElementById('f-headers').value.trim();
+      const payload_template = document.getElementById('f-payload').value.trim() || null;
+
+      if (!name) { showToast('Rule name is required', 'error'); return; }
+      if (!webhook_url) { showToast('Webhook URL is required', 'error'); return; }
+
+      let headers = {};
+      if (headersStr) {
+        try { headers = JSON.parse(headersStr); }
+        catch { showToast('Headers must be valid JSON', 'error'); return; }
+      }
+
+      const checks = document.querySelectorAll('#f-entity-types input[type="checkbox"]:checked');
+      const entity_types = Array.from(checks).map(cb => cb.value);
+
+      const body = { name, event_pattern, entity_types, webhook_url, method, headers, payload_template, active: true };
+
+      try {
+        const isEdit = !!ruleId;
+        const url = isEdit ? API + '/rules/' + ruleId : API + '/rules';
+        const resp = await fetch(url, {
+          method: isEdit ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.detail || resp.statusText);
+        }
+        showToast(isEdit ? 'Rule updated' : 'Rule created', 'success');
+        closeRuleModal();
+        loadRules();
+        loadStats();
+      } catch (e) {
+        showToast('Save failed: ' + e.message, 'error');
+      }
+    }
+
+    // Close modal on overlay click
+    document.getElementById('rule-modal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeRuleModal();
+    });
+
+    // ------- Logs -------
+    async function loadLogs() {
+      const statusFilter = document.getElementById('log-filter-status').value;
+      const ruleFilter = document.getElementById('log-filter-rule').value;
+      const testFilter = document.getElementById('log-filter-test').value;
+
+      let qs = '?limit=' + LOGS_LIMIT + '&offset=' + logsOffset;
+      if (statusFilter) qs += '&success=' + statusFilter;
+      if (ruleFilter) qs += '&rule_id=' + ruleFilter;
+      if (testFilter) qs += '&test_only=' + testFilter;
+
+      try {
+        const resp = await fetch(API + '/logs' + qs);
+        const data = await resp.json();
+        const logs = data.logs || [];
+        const total = data.total || 0;
+
+        const container = document.getElementById('logs-container');
+        if (logs.length === 0) {
+          container.innerHTML = '<div class="empty-state">No delivery logs found.</div>';
+          document.getElementById('logs-pagination').style.display = 'none';
+          return;
+        }
+
+        let html = '<table class="logs-table"><thead><tr>' +
+          '<th>Status</th><th>Rule</th><th>Event</th><th>Entity</th><th>URL</th><th>Code</th><th>Time</th><th>When</th><th>Type</th>' +
+          '</tr></thead><tbody>';
+
+        logs.forEach(l => {
+          const statusClass = l.success ? 'ok' : 'fail';
+          const statusText = l.success ? 'OK' : 'FAIL';
+          const code = l.status_code != null ? l.status_code : '--';
+          const dur = l.duration_ms != null ? l.duration_ms + 'ms' : '--';
+          const when = l.timestamp ? formatTime(l.timestamp) : '--';
+          const typeLabel = l.test ? '<span style="color:var(--surface-warning-border)">test</span>' : 'live';
+
+          html += '<tr>' +
+            '<td><span class="log-status ' + statusClass + '">' + statusText + '</span></td>' +
+            '<td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + escapeHtml(l.rule_name) + '">' + escapeHtml(l.rule_name || '--') + '</td>' +
+            '<td><span class="event-badge">' + escapeHtml(l.event_type || '--') + '</span></td>' +
+            '<td style="font-size:12px">' + escapeHtml(l.entity_type || '') + '</td>' +
+            '<td class="log-url" title="' + escapeHtml(l.webhook_url) + '">' + escapeHtml(l.webhook_url || '') + '</td>' +
+            '<td style="font-family:monospace;font-size:12px;' + (l.success ? 'color:var(--surface-success-border)' : 'color:var(--surface-error-border)') + '">' + code + '</td>' +
+            '<td style="font-size:12px;color:var(--surface-warning-border)">' + dur + '</td>' +
+            '<td style="font-size:11px;color:var(--surface-base-text-secondary)">' + when + '</td>' +
+            '<td style="font-size:11px">' + typeLabel + '</td>' +
+            '</tr>';
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+
+        // Pagination
+        const pag = document.getElementById('logs-pagination');
+        const totalPages = Math.ceil(total / LOGS_LIMIT);
+        const currentPage = Math.floor(logsOffset / LOGS_LIMIT) + 1;
+        pag.style.display = 'flex';
+        document.getElementById('logs-page-info').textContent = 'Page ' + currentPage + ' of ' + totalPages + ' (' + total + ' logs)';
+        document.getElementById('logs-prev').disabled = logsOffset === 0;
+        document.getElementById('logs-next').disabled = (logsOffset + LOGS_LIMIT) >= total;
+
+      } catch (e) {
+        document.getElementById('logs-container').innerHTML =
+          '<div class="empty-state">Failed to load logs.<br/>' + escapeHtml(e.message) + '</div>';
+      }
+    }
+
+    function logsPage(dir) {
+      logsOffset = Math.max(0, logsOffset + dir * LOGS_LIMIT);
+      loadLogs();
+    }
+
+    function formatTime(iso) {
+      try {
+        const d = new Date(iso);
+        const now = Date.now();
+        const diff = now - d.getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return mins + 'm ago';
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return hrs + 'h ago';
+        const days = Math.floor(hrs / 24);
+        if (days < 7) return days + 'd ago';
+        return d.toLocaleDateString();
+      } catch { return iso; }
+    }
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+
+    // ------- Init -------
+    loadStats();
+    loadRules();
+  </script>
+</body>
+</html>

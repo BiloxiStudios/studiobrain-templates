@@ -1,0 +1,13 @@
+{
+  "id": "starter-characters",
+  "name": "Starter: Characters",
+  "description": "Character entity template with field schema for name, age, appearance, backstory, relationships, and production tracking. Includes two example characters to get you started.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "entity_types": ["character"],
+  "categories": ["narrative", "game-dev", "film-tv"],
+  "tags": ["character", "npc", "protagonist", "antagonist"],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": []
+}

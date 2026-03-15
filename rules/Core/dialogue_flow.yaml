@@ -1,0 +1,62 @@
+---
+rule_id: dialogue_flow
+name: Dialogue Flow Rules
+description: Rules for dialogue conversation structure, pacing, and character voice consistency
+version: "1.0"
+scope: core
+priority: high
+applies_to:
+  - character
+  - dialogue
+
+rules:
+  - id: dial_001
+    category: structure
+    priority: high
+    rule: "Dialogue exchanges must have clear speaker attribution for each line"
+    validation_type: error
+    applies_to: [character]
+
+  - id: dial_002
+    category: consistency
+    priority: critical
+    rule: "Dialogue must not contain anachronistic phrases or modern speech patterns"
+    validation_type: error
+    forbidden_phrases:
+      - "no worries"
+      - "literally"
+      - "totally"
+      - "awesome"
+      - "cool"
+      - "okay"
+    applies_to: [character]
+
+  - id: dial_003
+    category: voice
+    priority: high
+    rule: "Each character's dialogue must maintain their defined speech patterns and vocabulary"
+    validation_type: warning
+    applies_to: [character]
+
+  - id: dial_004
+    category: pacing
+    priority: medium
+    rule: "Dialogue samples should include varied sentence lengths for natural rhythm"
+    validation_type: suggestion
+    applies_to: [character]
+
+  - id: dial_005
+    category: subtext
+    priority: low
+    rule: "Dialogue should convey character motivation through subtext, not just explicit statements"
+    validation_type: suggestion
+    applies_to: [character]
+
+defaults:
+  dialogue_style: "period_appropriate"
+
+validation:
+  - "Does each dialogue line clearly indicate who is speaking?"
+  - "Is the dialogue free of anachronistic phrases?"
+  - "Does the dialogue reflect the character's established voice?"
+  - "Do the dialogue samples show varied emotional states?"

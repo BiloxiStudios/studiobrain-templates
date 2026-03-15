@@ -1,0 +1,13 @@
+export_profile: comfyui_trellis_v1
+version: 1.0.0
+description: Export format for ComfyUI Trellis pipeline (preserve originals; simple
+  folder by slot).
+outputs:
+  format: png
+  default_resolution: null
+package:
+  root_name: '{assembly_id}_trellis'
+  include_manifest: true
+  manifest_name: workflow.json
+naming:
+  pattern: '{slot_group}/{slot_name}/{slot_variant_key_or_default}.png'

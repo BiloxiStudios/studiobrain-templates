@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+
+  /* --- Page header --- */
+  .page-header {
+    max-width: 960px;
+    margin: 0 auto 28px;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-success-border));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle {
+    color: var(--surface-base-text-secondary);
+    font-size: 15px;
+  }
+
+  /* --- Active timer banner --- */
+  .active-banner {
+    max-width: 960px;
+    margin: 0 auto 24px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04));
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 10px;
+    display: none;
+    align-items: center;
+    gap: 14px;
+  }
+  .active-banner.visible { display: flex; }
+  .active-pulse {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--surface-success-border);
+    box-shadow: 0 0 0 0 rgba(34,197,94,0.6);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+    70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+    100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+  }
+  .active-info { flex: 1; }
+  .active-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--surface-success-border); }
+  .active-detail { font-size: 14px; color: var(--surface-base-text); margin-top: 2px; }
+  .active-time {
+    font-size: 22px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--surface-success-border);
+  }
+  .btn-stop-banner {
+    padding: 8px 16px;
+    border: 1px solid var(--surface-error-border);
+    background: rgba(220,38,38,0.15);
+    color: var(--surface-error-border);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-stop-banner:hover {
+    background: var(--surface-error-border);
+    color: white;
+  }
+
+  /* --- Summary cards --- */
+  .summary-cards {
+    max-width: 960px;
+    margin: 0 auto 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .summary-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: border-color 0.2s;
+  }
+  .summary-card:hover { border-color: var(--surface-elevated-border); }
+  .summary-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .summary-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .summary-value.blue { color: var(--plugin-accent); }
+  .summary-value.green { color: var(--surface-success-border); }
+  .summary-value.purple { color: var(--surface-secondary-bg); }
+  .summary-value.orange { color: var(--surface-warning-text-secondary); }
+  .summary-sub {
+    font-size: 12px;
+    color: var(--surface-elevated-border);
+    margin-top: 4px;
+  }
+
+  /* --- Section layout --- */
+  .content-grid {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 720px) {
+    .content-grid { grid-template-columns: 1fr; }
+  }
+  .section {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .section-full {
+    grid-column: 1 / -1;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* --- Bar chart (CSS) --- */
+  .chart-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .chart-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chart-label {
+    width: 100px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    text-align: right;
+    flex-shrink: 0;
+    text-transform: capitalize;
+  }
+  .chart-bar-track {
+    flex: 1;
+    height: 24px;
+    background: var(--surface-base-bg);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .chart-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    min-width: 2px;
+    transition: width 0.6s ease;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+  }
+  .chart-bar-fill.c0 { background: linear-gradient(90deg, var(--plugin-accent), var(--plugin-accent)); }
+  .chart-bar-fill.c1 { background: linear-gradient(90deg, var(--surface-success-border), var(--surface-success-border)); }
+  .chart-bar-fill.c2 { background: linear-gradient(90deg, var(--surface-secondary-bg), var(--surface-secondary-hover)); }
+  .chart-bar-fill.c3 { background: linear-gradient(90deg, var(--surface-warning-text-secondary), #ea580c); }
+  .chart-bar-fill.c4 { background: linear-gradient(90deg, var(--surface-secondary-bg), #db2777); }
+  .chart-bar-fill.c5 { background: linear-gradient(90deg, var(--surface-info-border), #0891b2); }
+  .chart-empty {
+    text-align: center;
+    padding: 24px;
+    color: var(--surface-elevated-border);
+    font-size: 13px;
+  }
+
+  /* --- Recent entries list --- */
+  .recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .recent-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .recent-item:hover { background: #162032; }
+  .recent-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .recent-dot.c0 { background: var(--plugin-accent); }
+  .recent-dot.c1 { background: var(--surface-success-border); }
+  .recent-dot.c2 { background: var(--surface-secondary-bg); }
+  .recent-dot.c3 { background: var(--surface-warning-text-secondary); }
+  .recent-dot.c4 { background: var(--surface-secondary-bg); }
+  .recent-dot.c5 { background: var(--surface-info-border); }
+  .recent-info { flex: 1; min-width: 0; }
+  .recent-entity {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--surface-base-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .recent-note {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+  .recent-meta {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .recent-duration {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .recent-date {
+    font-size: 10px;
+    color: var(--surface-elevated-border);
+    margin-top: 2px;
+  }
+
+  /* --- Entity breakdown table --- */
+  .breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .breakdown-table th {
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  .breakdown-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+  }
+  .breakdown-table tr:last-child td { border-bottom: none; }
+  .breakdown-table tr:hover td { background: rgba(59,130,246,0.04); }
+  .breakdown-type {
+    display: inline-flex;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  .breakdown-type.c0 { background: rgba(59,130,246,0.15); color: var(--surface-info-text-secondary); }
+  .breakdown-type.c1 { background: rgba(34,197,94,0.15); color: var(--surface-success-border); }
+  .breakdown-type.c2 { background: rgba(168,85,247,0.15); color: var(--surface-secondary-text-secondary); }
+  .breakdown-type.c3 { background: rgba(249,115,22,0.15); color: var(--surface-warning-text-secondary); }
+  .breakdown-type.c4 { background: rgba(236,72,153,0.15); color: var(--surface-secondary-text-secondary); }
+  .breakdown-type.c5 { background: rgba(6,182,212,0.15); color: #22d3ee; }
+  .td-duration {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--surface-base-text);
+  }
+  .td-count { color: var(--surface-base-text-secondary); }
+  .td-billable { color: var(--surface-success-border); font-size: 12px; }
+
+  /* --- Loading --- */
+  .loading {
+    max-width: 960px;
+    margin: 80px auto;
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+  }
+  .loading-spinner {
+    display: inline-block;
+    width: 28px; height: 28px;
+    border: 3px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+  <div id="loading-state" class="loading">
+    <div class="loading-spinner"></div>
+    <div>Loading time reports...</div>
+  </div>
+
+  <div id="main-ui" style="display:none;">
+    <!-- Header -->
+    <div class="page-header">
+      <h1 class="page-title">Time Tracker</h1>
+      <p class="page-subtitle">Track time across all your entities -- daily, weekly, and per-entity reports</p>
+    </div>
+
+    <!-- Active timer banner -->
+    <div class="active-banner" id="active-banner">
+      <div class="active-pulse"></div>
+      <div class="active-info">
+        <div class="active-label">Timer Running</div>
+        <div class="active-detail" id="active-detail">--</div>
+      </div>
+      <div class="active-time" id="active-time">00:00:00</div>
+      <button class="btn-stop-banner" onclick="stopActiveTimer()">Stop</button>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="summary-label">Today</div>
+        <div class="summary-value blue" id="sum-today">--</div>
+        <div class="summary-sub" id="sum-today-entries">0 entries</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">This Week</div>
+        <div class="summary-value green" id="sum-week">--</div>
+        <div class="summary-sub" id="sum-week-entries">0 entries</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">This Month</div>
+        <div class="summary-value purple" id="sum-month">--</div>
+        <div class="summary-sub" id="sum-month-entries">0 entries</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">All Time</div>
+        <div class="summary-value orange" id="sum-all">--</div>
+        <div class="summary-sub" id="sum-all-entries">0 entries</div>
+      </div>
+    </div>
+
+    <!-- Charts and recent -->
+    <div class="content-grid">
+      <!-- Bar chart by entity type -->
+      <div class="section">
+        <div class="section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--surface-base-text-secondary)" stroke-width="2"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="8" width="4" height="13"/><rect x="17" y="4" width="4" height="17"/></svg>
+          Time by Entity Type
+        </div>
+        <div id="chart-container">
+          <div class="chart-empty">No data yet</div>
+        </div>
+      </div>
+
+      <!-- Recent entries -->
+      <div class="section">
+        <div class="section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--surface-base-text-secondary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+          Recent Entries
+        </div>
+        <div class="recent-list" id="recent-list">
+          <div class="chart-empty">No entries yet</div>
+        </div>
+      </div>
+
+      <!-- Entity breakdown table -->
+      <div class="section section-full">
+        <div class="section-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--surface-base-text-secondary)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          Per-Entity Breakdown
+        </div>
+        <div id="breakdown-container">
+          <div class="chart-empty">No data yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const API = '/api/ext/time-tracker';
+  const COLORS = ['c0', 'c1', 'c2', 'c3', 'c4', 'c5'];
+
+  let activeTimer = null;
+  let bannerInterval = null;
+
+  // -----------------------------------------------------------------------
+  // Dates
+  // -----------------------------------------------------------------------
+
+  function todayStart() {
+    const d = new Date(); d.setHours(0,0,0,0); return d.toISOString();
+  }
+
+  function weekStart() {
+    const d = new Date();
+    d.setDate(d.getDate() - d.getDay());
+    d.setHours(0,0,0,0);
+    return d.toISOString();
+  }
+
+  function monthStart() {
+    const d = new Date();
+    d.setDate(1);
+    d.setHours(0,0,0,0);
+    return d.toISOString();
+  }
+
+  // -----------------------------------------------------------------------
+  // Init
+  // -----------------------------------------------------------------------
+
+  async function init() {
+    try {
+      // Fetch all needed data in parallel
+      const [activeRes, allEntries, todaySummary, weekSummary, monthSummary] = await Promise.all([
+        fetch(`${API}/active`).then(r => r.json()),
+        fetch(`${API}/entries?limit=1000`).then(r => r.json()),
+        fetch(`${API}/summary?since=${encodeURIComponent(todayStart())}`).then(r => r.json()),
+        fetch(`${API}/summary?since=${encodeURIComponent(weekStart())}`).then(r => r.json()),
+        fetch(`${API}/summary?since=${encodeURIComponent(monthStart())}`).then(r => r.json()),
+      ]);
+
+      activeTimer = activeRes.active_timer;
+
+      // Summary cards
+      setSummaryCard('today', todaySummary);
+      setSummaryCard('week', weekSummary);
+      setSummaryCard('month', monthSummary);
+
+      // All-time totals
+      const allSec = (allEntries.entries || []).reduce((s, e) => s + (e.duration_seconds || 0), 0);
+      document.getElementById('sum-all').textContent = formatDuration(allSec);
+      document.getElementById('sum-all-entries').textContent = `${allEntries.total || 0} entries`;
+
+      // Chart
+      renderChart(weekSummary.by_type || {});
+
+      // Recent entries
+      renderRecent(allEntries.entries || []);
+
+      // Entity breakdown (all time)
+      const allSummary = await fetch(`${API}/summary`).then(r => r.json());
+      renderBreakdown(allSummary.by_entity || []);
+
+      // Active timer banner
+      if (activeTimer) {
+        showActiveBanner();
+      }
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('main-ui').style.display = 'block';
+
+    } catch (err) {
+      console.error('Dashboard init error:', err);
+      document.getElementById('loading-state').innerHTML =
+        '<div style="color:var(--surface-error-border);font-size:15px;">Failed to load dashboard</div>';
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Summary cards
+  // -----------------------------------------------------------------------
+
+  function setSummaryCard(key, summary) {
+    document.getElementById(`sum-${key}`).textContent = formatDuration(summary.total_seconds || 0);
+    document.getElementById(`sum-${key}-entries`).textContent = `${summary.entry_count || 0} entries`;
+  }
+
+  // -----------------------------------------------------------------------
+  // Active timer banner
+  // -----------------------------------------------------------------------
+
+  function showActiveBanner() {
+    const banner = document.getElementById('active-banner');
+    banner.classList.add('visible');
+
+    const entityStr = activeTimer.note
+      ? `${activeTimer.entity_type}/${activeTimer.entity_id} -- ${activeTimer.note}`
+      : `${activeTimer.entity_type}/${activeTimer.entity_id}`;
+    document.getElementById('active-detail').textContent = entityStr;
+
+    updateBannerTime();
+    bannerInterval = setInterval(updateBannerTime, 1000);
+  }
+
+  function updateBannerTime() {
+    if (!activeTimer) return;
+    const start = new Date(activeTimer.start_time);
+    const now = new Date();
+    const elapsed = Math.max(0, Math.floor((now - start) / 1000));
+    document.getElementById('active-time').textContent = formatHMS(elapsed);
+  }
+
+  async function stopActiveTimer() {
+    try {
+      await fetch(`${API}/stop`, { method: 'POST' });
+      activeTimer = null;
+      if (bannerInterval) clearInterval(bannerInterval);
+      document.getElementById('active-banner').classList.remove('visible');
+      // Refresh the whole dashboard
+      init();
+    } catch (err) {
+      console.error('Failed to stop timer:', err);
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Bar chart (CSS-only)
+  // -----------------------------------------------------------------------
+
+  function renderChart(byType) {
+    const container = document.getElementById('chart-container');
+    const types = Object.entries(byType).sort((a, b) => b[1] - a[1]);
+
+    if (types.length === 0) {
+      container.innerHTML = '<div class="chart-empty">No time tracked this week yet</div>';
+      return;
+    }
+
+    const maxVal = types[0][1];
+    let html = '<div class="chart-bars">';
+    types.forEach(([type, seconds], i) => {
+      const pct = maxVal > 0 ? Math.max(2, (seconds / maxVal) * 100) : 0;
+      const color = COLORS[i % COLORS.length];
+      html += `
+        <div class="chart-row">
+          <div class="chart-label">${escapeHtml(type)}</div>
+          <div class="chart-bar-track">
+            <div class="chart-bar-fill ${color}" style="width:${pct}%">${formatDuration(seconds)}</div>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  // -----------------------------------------------------------------------
+  // Recent entries
+  // -----------------------------------------------------------------------
+
+  function renderRecent(entries) {
+    const container = document.getElementById('recent-list');
+    const recent = entries.slice(0, 10);
+
+    if (recent.length === 0) {
+      container.innerHTML = '<div class="chart-empty">No entries yet</div>';
+      return;
+    }
+
+    // Build a color map per entity type
+    const typeColors = {};
+    let colorIdx = 0;
+    recent.forEach(e => {
+      if (!(e.entity_type in typeColors)) {
+        typeColors[e.entity_type] = COLORS[colorIdx++ % COLORS.length];
+      }
+    });
+
+    let html = '';
+    recent.forEach(entry => {
+      const color = typeColors[entry.entity_type];
+      const entity = `${entry.entity_type}/${entry.entity_id}`;
+      const note = entry.note || 'No note';
+      html += `
+        <div class="recent-item">
+          <div class="recent-dot ${color}"></div>
+          <div class="recent-info">
+            <div class="recent-entity">${escapeHtml(entity)}</div>
+            <div class="recent-note">${escapeHtml(note)}</div>
+          </div>
+          <div class="recent-meta">
+            <div class="recent-duration">${formatDuration(entry.duration_seconds || 0)}</div>
+            <div class="recent-date">${formatRelativeDate(entry.start_time)}</div>
+          </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+  }
+
+  // -----------------------------------------------------------------------
+  // Entity breakdown table
+  // -----------------------------------------------------------------------
+
+  function renderBreakdown(byEntity) {
+    const container = document.getElementById('breakdown-container');
+
+    if (byEntity.length === 0) {
+      container.innerHTML = '<div class="chart-empty">No data yet</div>';
+      return;
+    }
+
+    // Build type color map
+    const typeColors = {};
+    let colorIdx = 0;
+    byEntity.forEach(e => {
+      if (!(e.entity_type in typeColors)) {
+        typeColors[e.entity_type] = COLORS[colorIdx++ % COLORS.length];
+      }
+    });
+
+    let html = '<table class="breakdown-table"><thead><tr>';
+    html += '<th>Type</th><th>Entity</th><th>Total Time</th><th>Billable</th><th>Entries</th>';
+    html += '</tr></thead><tbody>';
+
+    byEntity.forEach(e => {
+      const color = typeColors[e.entity_type];
+      html += `<tr>
+        <td><span class="breakdown-type ${color}">${escapeHtml(e.entity_type)}</span></td>
+        <td style="color:var(--surface-base-text);font-weight:500;">${escapeHtml(e.entity_id)}</td>
+        <td class="td-duration">${formatDuration(e.total_seconds)}</td>
+        <td class="td-billable">${formatDuration(e.billable_seconds)}</td>
+        <td class="td-count">${e.entry_count}</td>
+      </tr>`;
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  // -----------------------------------------------------------------------
+  // Formatting
+  // -----------------------------------------------------------------------
+
+  function formatHMS(totalSeconds) {
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+
+  function formatDuration(totalSeconds) {
+    if (!totalSeconds || totalSeconds <= 0) return '0m';
+    if (totalSeconds < 60) return `${totalSeconds}s`;
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    if (h === 0) return `${m}m`;
+    return `${h}h ${m}m`;
+  }
+
+  function formatRelativeDate(isoStr) {
+    const d = new Date(isoStr);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // -----------------------------------------------------------------------
+  // Boot
+  // -----------------------------------------------------------------------
+  init();
+</script>
+</body>
+</html>

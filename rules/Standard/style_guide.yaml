@@ -1,0 +1,59 @@
+---
+rule_id: style_guide
+name: Writing Style Guide
+description: Enforces writing style, tone, and language conventions across all generated content
+version: "1.0"
+scope: standard
+priority: medium
+applies_to:
+  - character
+  - location
+  - faction
+  - story
+  - dialogue
+
+rules:
+  - id: style_001
+    category: tone
+    priority: high
+    rule: "Generated text must maintain a consistent narrative tone appropriate to the world setting"
+    validation_type: warning
+    applies_to: [character, location, faction]
+
+  - id: style_002
+    category: language
+    priority: medium
+    rule: "Descriptions should be specific and concrete — avoid generic placeholder language"
+    validation_type: suggestion
+    applies_to: [character, location, faction]
+
+  - id: style_003
+    category: length
+    priority: low
+    rule: "Entity descriptions should be 100-500 words for primary fields"
+    validation_type: suggestion
+    applies_to: [character, location]
+
+  - id: style_004
+    category: voice
+    priority: medium
+    rule: "Character dialogue samples must reflect the character's defined voice and vocabulary level"
+    validation_type: warning
+    applies_to: [character]
+
+  - id: style_005
+    category: formatting
+    priority: low
+    rule: "Use active voice over passive voice in descriptions and backstories"
+    validation_type: suggestion
+    applies_to: [character, location, faction]
+
+defaults:
+  writing_style: "descriptive"
+  tone: "consistent_with_setting"
+
+validation:
+  - "Is the writing style consistent with the world's narrative tone?"
+  - "Are descriptions specific rather than generic?"
+  - "Does character dialogue reflect their defined voice?"
+  - "Is the text free of anachronistic language or modern idioms?"

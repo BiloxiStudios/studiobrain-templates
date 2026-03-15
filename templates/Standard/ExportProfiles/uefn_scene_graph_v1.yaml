@@ -1,0 +1,12 @@
+export_profile: uefn_scene_graph_v1
+version: 1.0.0
+description: Export format for UEFN Scene Graph Entities (component parts + metadata).
+package:
+  root_name: '{assembly_id}_uefn'
+  include_manifest: true
+  manifest_name: uefn_parts.json
+outputs:
+  format: mixed
+  default_resolution: null
+naming:
+  pattern: Parts/{slot_group}/{slot_name}/{slot_variant_key_or_default}

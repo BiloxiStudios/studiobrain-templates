@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Videos - Sidebar</title>
+<style>
+  :root {
+    --bg-primary: var(--surface-base-bg);
+    --bg-secondary: var(--surface-base-bg);
+    --bg-tertiary: var(--surface-elevated-bg);
+    --bg-hover: var(--surface-elevated-bg);
+    --text-primary: var(--surface-base-text);
+    --text-secondary: var(--surface-base-text-secondary);
+    --text-muted: var(--surface-base-text-secondary);
+    --accent: var(--plugin-accent);
+    --accent-hover: var(--surface-error-border);
+    --accent-dim: rgba(255, 0, 0, 0.15);
+    --border: var(--surface-elevated-border);
+    --success: var(--surface-success-border);
+    --warning: var(--surface-warning-border);
+    --error: var(--surface-error-border);
+    --radius: 8px;
+    --radius-sm: 4px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 12px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .yt-icon {
+    width: 20px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .yt-icon::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 6px solid white;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    margin-left: 1px;
+  }
+
+  .badge {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .video-card {
+    display: flex;
+    gap: 10px;
+    padding: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .video-card:hover {
+    background: var(--bg-hover);
+    border-color: #444;
+  }
+
+  .video-thumb {
+    width: 64px;
+    height: 36px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .video-thumb .play-icon {
+    width: 0;
+    height: 0;
+    border-left: 10px solid var(--text-muted);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+  }
+  .video-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .video-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .video-title {
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .video-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.uploaded { background: var(--success); }
+  .status-dot.pending { background: var(--warning); }
+  .status-dot.failed { background: var(--error); }
+  .status-dot.processing { background: var(--surface-info-text-secondary); }
+
+  .upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    margin-top: 8px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .upload-btn:hover { background: var(--accent-hover); }
+  .upload-btn svg { width: 14px; height: 14px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 24px 12px;
+    color: var(--text-muted);
+  }
+  .empty-state .empty-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+  }
+  .empty-state p {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+  }
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-title">
+    <span class="yt-icon"></span>
+    YouTube
+  </span>
+  <span class="badge" id="videoCount">--</span>
+</div>
+
+<div id="content">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div>Loading videos...</div>
+  </div>
+</div>
+
+<button class="upload-btn" id="uploadBtn" onclick="openUploader()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+    <polyline points="17 8 12 3 7 8"/>
+    <line x1="12" y1="3" x2="12" y2="15"/>
+  </svg>
+  Upload Video
+</button>
+
+<script>
+const API_BASE = '/api/ext/youtube-manager';
+
+// Extract entity info from the panel context (provided by the platform)
+function getEntityContext() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    entityType: params.get('entity_type') || params.get('entityType') || 'character',
+    entityId: params.get('entity_id') || params.get('entityId') || '',
+  };
+}
+
+const ctx = getEntityContext();
+
+async function loadVideos() {
+  const content = document.getElementById('content');
+  const badge = document.getElementById('videoCount');
+
+  if (!ctx.entityId) {
+    content.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">&#9888;</div>
+      <p>No entity context detected.</p>
+    </div>`;
+    badge.textContent = '--';
+    return;
+  }
+
+  try {
+    const resp = await fetch(`${API_BASE}/videos/${ctx.entityType}/${ctx.entityId}`);
+    const data = await resp.json();
+    const videos = data.videos || [];
+
+    badge.textContent = videos.length;
+
+    if (videos.length === 0) {
+      content.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">&var(--surface-success-border);</div>
+        <p>No YouTube videos linked.<br>Upload one to get started.</p>
+      </div>`;
+      return;
+    }
+
+    content.innerHTML = `<div class="video-list">${videos.map(v => videoCard(v)).join('')}</div>`;
+  } catch (err) {
+    content.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">&#9888;</div>
+      <p>Could not load videos.<br><small>${err.message}</small></p>
+    </div>`;
+    badge.textContent = '!';
+  }
+}
+
+function videoCard(v) {
+  const statusClass = v.status || 'pending';
+  const statusLabel = statusClass.charAt(0).toUpperCase() + statusClass.slice(1);
+  const dateStr = v.created_at ? new Date(v.created_at).toLocaleDateString() : '';
+  const href = v.youtube_url || '#';
+  const target = v.youtube_url ? '_blank' : '_self';
+
+  return `<a class="video-card" href="${href}" target="${target}" title="${v.title}">
+    <div class="video-thumb">
+      <span class="play-icon"></span>
+    </div>
+    <div class="video-info">
+      <div class="video-title">${escapeHtml(v.title)}</div>
+      <div class="video-meta">
+        <span class="status-dot ${statusClass}"></span>
+        ${statusLabel}${v.mock ? ' (Mock)' : ''}
+        &middot; ${dateStr}
+      </div>
+    </div>
+  </a>`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+function openUploader() {
+  // Dispatch a custom event so the platform can open the video-manager tab
+  window.parent.postMessage({
+    type: 'plugin:open-tab',
+    plugin: 'youtube-manager',
+    tab: 'video-manager',
+    entityType: ctx.entityType,
+    entityId: ctx.entityId,
+  }, '*');
+}
+
+// Initial load
+loadVideos();
+
+// Refresh on visibility change (when user switches back to this panel)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) loadVideos();
+});
+</script>
+</body>
+</html>

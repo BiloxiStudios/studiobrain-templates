@@ -1,0 +1,70 @@
+{
+  "plugins": {
+    "hello-world": {
+      "enabled": true
+    },
+    "comfyui-workflows": {
+      "enabled": true
+    },
+    "kanban-board": {
+      "enabled": true
+    },
+    "version-history": {
+      "enabled": false
+    },
+    "time-tracker": {
+      "enabled": true
+    },
+    "discord-poster": {
+      "enabled": false
+    },
+    "webhook-automations": {
+      "enabled": false
+    },
+    "voice-forge": {
+      "enabled": false
+    },
+    "music-gen": {
+      "enabled": false
+    },
+    "lora-trainer": {
+      "enabled": false
+    },
+    "pdf-exporter": {
+      "enabled": false
+    },
+    "blender-bridge": {
+      "enabled": false
+    },
+    "unity-exporter": {
+      "enabled": false
+    },
+    "unreal-exporter": {
+      "enabled": false
+    },
+    "uefn-exporter": {
+      "enabled": false
+    },
+    "showrunner-exporter": {
+      "enabled": false
+    },
+    "notion-sync": {
+      "enabled": false
+    },
+    "obsidian-vault": {
+      "enabled": false
+    },
+    "google-sheets-sync": {
+      "enabled": false
+    },
+    "jira-sync": {
+      "enabled": false
+    },
+    "social-publisher": {
+      "enabled": false
+    },
+    "youtube-manager": {
+      "enabled": false
+    }
+  }
+}

@@ -1,0 +1,59 @@
+---
+rule_id: world_lore
+name: World Lore Consistency
+description: Enforces lore consistency across all entity types — locations, factions, timelines, and events
+version: "1.0"
+scope: standard
+priority: high
+applies_to:
+  - character
+  - location
+  - faction
+  - district
+  - event
+  - timeline
+
+rules:
+  - id: lore_001
+    category: consistency
+    priority: high
+    rule: "All entity references to locations must use canonical location names from the Locations/ directory"
+    validation_type: warning
+    applies_to: [character, faction, event]
+
+  - id: lore_002
+    category: consistency
+    priority: high
+    rule: "Faction affiliations must reference factions that exist in the Factions/ directory"
+    validation_type: warning
+    applies_to: [character, location]
+
+  - id: lore_003
+    category: timeline
+    priority: medium
+    rule: "Event dates must be consistent with the universe timeline"
+    validation_type: warning
+    applies_to: [event, timeline]
+
+  - id: lore_004
+    category: terminology
+    priority: medium
+    rule: "Use setting-specific terminology consistently (avoid mixing modern and setting-appropriate language)"
+    validation_type: warning
+    applies_to: [character, location, faction]
+
+  - id: lore_005
+    category: completeness
+    priority: low
+    rule: "Each major location should have at least one associated faction or organization"
+    validation_type: suggestion
+    applies_to: [location, district]
+
+defaults:
+  universe_id: "default"
+
+validation:
+  - "Does this entity reference other entities that actually exist?"
+  - "Are all location names spelled consistently across entities?"
+  - "Are timeline references internally consistent?"
+  - "Does the entity's history align with established world events?"

@@ -1,0 +1,119 @@
+{
+  "id": "pdf-exporter",
+  "name": "PDF Bible Exporter",
+  "version": "1.0.0",
+  "description": "Generate formatted PDF 'bibles' \u2014 character sheets, world guides, campaign summaries \u2014 from entity markdown with custom templates and print-ready formatting.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "document-export",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "pdf-exporter",
+          "route": "/plugins/pdf-exporter",
+          "label": "PDF Exporter",
+          "icon": "file-text",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "export-button",
+          "label": "Export PDF",
+          "location": "entity-sidebar"
+        },
+        {
+          "id": "export-options",
+          "label": "Export Options",
+          "location": "entity-tab"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "markdown>=3.5.0",
+      "pyyaml>=6.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "filesystem:read"
+  ],
+  "settings_schema": {
+    "studio_name": {
+      "type": "string",
+      "label": "Studio Name",
+      "description": "Studio name displayed in export headers and footers",
+      "required": false,
+      "default": "City of Brains Studio",
+      "scope": "instance"
+    },
+    "studio_logo_url": {
+      "type": "string",
+      "label": "Studio Logo URL",
+      "description": "URL or path to studio logo image for export branding",
+      "required": false,
+      "default": "",
+      "scope": "instance"
+    },
+    "primary_color": {
+      "type": "string",
+      "label": "Primary Color",
+      "description": "Primary accent color for exports (hex code)",
+      "required": false,
+      "default": "#3b82f6",
+      "scope": "instance"
+    },
+    "secondary_color": {
+      "type": "string",
+      "label": "Secondary Color",
+      "description": "Secondary accent color for exports (hex code)",
+      "required": false,
+      "default": "#1e293b",
+      "scope": "instance"
+    },
+    "include_images": {
+      "type": "boolean",
+      "label": "Include Images",
+      "description": "Embed entity portraits and images in exports",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "include_relationships": {
+      "type": "boolean",
+      "label": "Include Relationships",
+      "description": "Add relationship sections and cross-references",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "page_size": {
+      "type": "string",
+      "label": "Page Size",
+      "description": "PDF page size: A4 or Letter",
+      "required": false,
+      "default": "Letter",
+      "scope": "user"
+    },
+    "custom_css": {
+      "type": "string",
+      "label": "Custom CSS",
+      "description": "Additional CSS injected into export templates",
+      "required": false,
+      "default": "",
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#EF4444"
+}

@@ -1,0 +1,795 @@
+{
+  "entity_type": "district",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "MapPin",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "District ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "required": true,
+          "placeholder": "auto-generated from name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores",
+          "column_span": 1
+        },
+        {
+          "key": "name",
+          "label": "District Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Downtown Financial District",
+          "column_span": 1
+        },
+        {
+          "key": "district_type",
+          "label": "District Type",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "commercial", "label": "Commercial" },
+            { "value": "residential", "label": "Residential" },
+            { "value": "industrial", "label": "Industrial" },
+            { "value": "financial", "label": "Financial" },
+            { "value": "entertainment", "label": "Entertainment" },
+            { "value": "government", "label": "Government" },
+            { "value": "medical", "label": "Medical" },
+            { "value": "educational", "label": "Educational" },
+            { "value": "mixed_use", "label": "Mixed Use" },
+            { "value": "slums", "label": "Slums" },
+            { "value": "abandoned", "label": "Abandoned" },
+            { "value": "military", "label": "Military" }
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "active", "label": "Active" },
+            { "value": "under_development", "label": "Under Development" },
+            { "value": "declining", "label": "Declining" },
+            { "value": "quarantined", "label": "Quarantined" },
+            { "value": "destroyed", "label": "Destroyed" },
+            { "value": "rebuilt", "label": "Rebuilt" },
+            { "value": "archived", "label": "Archived" }
+          ]
+        },
+        {
+          "key": "safety_level",
+          "label": "Safety Level",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "very_safe", "label": "Very Safe" },
+            { "value": "safe", "label": "Safe" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "dangerous", "label": "Dangerous" },
+            { "value": "very_dangerous", "label": "Very Dangerous" },
+            { "value": "lawless", "label": "Lawless" }
+          ]
+        },
+        {
+          "key": "population",
+          "label": "Population Estimate",
+          "ui_component": "number",
+          "column_span": 1,
+          "placeholder": "50000"
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 3,
+          "placeholder": "Brief description of the district's character and purpose"
+        }
+      ]
+    },
+    {
+      "id": "geographic_information",
+      "title": "Geographic Information",
+      "icon": "MapPin",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "parent_location",
+          "label": "Parent Location/City",
+          "ui_component": "text",
+          "column_span": 1,
+          "placeholder": "e.g., Metro City"
+        },
+        {
+          "key": "size_category",
+          "label": "Size Category",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "small", "label": "Small" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "large", "label": "Large" },
+            { "value": "massive", "label": "Massive" }
+          ]
+        },
+        {
+          "key": "boundaries",
+          "label": "District Boundaries",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "description": "Define the geographic boundaries of this district (North, South, East, West)",
+          "sub_fields": [
+            {
+              "key": "point",
+              "label": "Direction",
+              "ui_component": "select",
+              "options": [
+                { "value": "north", "label": "North" },
+                { "value": "south", "label": "South" },
+                { "value": "east", "label": "East" },
+                { "value": "west", "label": "West" }
+              ]
+            },
+            {
+              "key": "description",
+              "label": "Boundary Description",
+              "ui_component": "text",
+              "placeholder": "e.g., Highway 101, River Street"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "governance_control",
+      "title": "Governance & Control",
+      "icon": "Shield",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "governing_faction",
+          "label": "Governing Faction",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "description": "The primary faction that controls or governs this district.",
+          "reference_type": "faction",
+          "relationship_types": [
+            { "value": "governs", "label": "Governs" },
+            { "value": "controls", "label": "Controls" },
+            { "value": "influences", "label": "Influences" },
+            { "value": "occupies", "label": "Occupies" },
+            { "value": "protects", "label": "Protects" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for governing faction...",
+          "max_selections": 1
+        },
+        {
+          "key": "district_council",
+          "label": "District Council",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "description": "Key leadership positions and personnel in the district administration.",
+          "reference_type": "character",
+          "relationship_types": [
+            { "value": "district_leader", "label": "District Leader" },
+            { "value": "security_chief", "label": "Security Chief" },
+            { "value": "council_member", "label": "Council Member" },
+            { "value": "administrator", "label": "Administrator" },
+            { "value": "public_relations", "label": "Public Relations" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for council members...",
+          "max_selections": 10
+        },
+        {
+          "key": "laws_regulations",
+          "label": "Laws & Regulations",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "description": "Special laws, rules, or regulations that apply in this district.",
+          "placeholder": "e.g., curfew at 10pm, mandatory ID checks"
+        },
+        {
+          "key": "tax_rate",
+          "label": "Tax Rate",
+          "ui_component": "text",
+          "column_span": 1,
+          "placeholder": "e.g., 15%, Variable, None"
+        },
+        {
+          "key": "services",
+          "label": "Government Services",
+          "ui_component": "tag-input",
+          "column_span": 1,
+          "placeholder": "e.g., basic utilities, security patrols"
+        },
+        {
+          "key": "police_presence",
+          "label": "Police Presence",
+          "ui_component": "select",
+          "column_span": 1,
+          "group": "law_enforcement",
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "minimal", "label": "Minimal" },
+            { "value": "light", "label": "Light" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "heavy", "label": "Heavy" },
+            { "value": "martial_law", "label": "Martial Law" }
+          ]
+        },
+        {
+          "key": "crime_rate",
+          "label": "Crime Rate",
+          "ui_component": "select",
+          "column_span": 1,
+          "group": "law_enforcement",
+          "options": [
+            { "value": "very_low", "label": "Very Low" },
+            { "value": "low", "label": "Low" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "high", "label": "High" },
+            { "value": "very_high", "label": "Very High" },
+            { "value": "rampant", "label": "Rampant" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "economic_profile",
+      "title": "Economic Profile",
+      "icon": "DollarSign",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "economic_status",
+          "label": "Economic Status",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "thriving", "label": "Thriving" },
+            { "value": "stable", "label": "Stable" },
+            { "value": "declining", "label": "Declining" },
+            { "value": "collapsed", "label": "Collapsed" }
+          ]
+        },
+        {
+          "key": "unemployment_rate",
+          "label": "Unemployment Rate",
+          "ui_component": "text",
+          "column_span": 1,
+          "placeholder": "e.g., 12%, Low, High"
+        },
+        {
+          "key": "primary_industries",
+          "label": "Primary Industries",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "description": "Main economic activities and industries in this district.",
+          "placeholder": "e.g., retail, entertainment, finance"
+        },
+        {
+          "key": "major_employers",
+          "label": "Major Employers",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "description": "Largest employers providing jobs in this district.",
+          "placeholder": "e.g., MegaMart, Chemical Plant, City Government"
+        },
+        {
+          "key": "major_businesses",
+          "label": "Major Businesses & Brands",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "description": "Significant businesses, corporations, or brands with presence in this district.",
+          "reference_type": "brand",
+          "relationship_types": [
+            { "value": "headquarters", "label": "Headquarters" },
+            { "value": "major_office", "label": "Major Office" },
+            { "value": "operates", "label": "Operates Here" },
+            { "value": "retail_presence", "label": "Retail Presence" },
+            { "value": "manufacturing", "label": "Manufacturing" },
+            { "value": "distribution", "label": "Distribution Center" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for businesses and brands...",
+          "max_selections": 20
+        }
+      ]
+    },
+    {
+      "id": "infrastructure_services",
+      "title": "Infrastructure & Services",
+      "icon": "Building2",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "key_locations",
+          "label": "Key Locations",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "description": "Important buildings, landmarks, and facilities within this district.",
+          "reference_type": "location",
+          "relationship_types": [
+            { "value": "contains", "label": "Contains" },
+            { "value": "landmark", "label": "Landmark" },
+            { "value": "government", "label": "Government Building" },
+            { "value": "commercial", "label": "Commercial Center" },
+            { "value": "cultural", "label": "Cultural Site" },
+            { "value": "transportation", "label": "Transport Hub" }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for locations in this district...",
+          "max_selections": 25
+        },
+        {
+          "key": "transportation",
+          "label": "Transportation",
+          "ui_component": "nested-object",
+          "column_span": 2,
+          "sub_fields": [
+            {
+              "key": "public_transit",
+              "label": "Public Transit",
+              "ui_component": "text",
+              "placeholder": "e.g., limited bus service"
+            },
+            {
+              "key": "road_condition",
+              "label": "Road Condition",
+              "ui_component": "select",
+              "options": [
+                { "value": "excellent", "label": "Excellent" },
+                { "value": "good", "label": "Good" },
+                { "value": "fair", "label": "Fair" },
+                { "value": "poor", "label": "Poor" },
+                { "value": "terrible", "label": "Terrible" }
+              ]
+            },
+            {
+              "key": "parking",
+              "label": "Parking",
+              "ui_component": "select",
+              "options": [
+                { "value": "abundant", "label": "Abundant" },
+                { "value": "adequate", "label": "Adequate" },
+                { "value": "limited", "label": "Limited" },
+                { "value": "scarce", "label": "Scarce" },
+                { "value": "none", "label": "None" }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "utilities",
+          "label": "Utilities",
+          "ui_component": "nested-object",
+          "column_span": 2,
+          "sub_fields": [
+            {
+              "key": "power",
+              "label": "Power",
+              "ui_component": "select",
+              "options": [
+                { "value": "stable", "label": "Stable" },
+                { "value": "intermittent", "label": "Intermittent" },
+                { "value": "unreliable", "label": "Unreliable" },
+                { "value": "none", "label": "None" }
+              ]
+            },
+            {
+              "key": "water",
+              "label": "Water",
+              "ui_component": "select",
+              "options": [
+                { "value": "clean", "label": "Clean" },
+                { "value": "questionable", "label": "Questionable" },
+                { "value": "contaminated", "label": "Contaminated" },
+                { "value": "none", "label": "None" }
+              ]
+            },
+            {
+              "key": "sewage",
+              "label": "Sewage",
+              "ui_component": "select",
+              "options": [
+                { "value": "functional", "label": "Functional" },
+                { "value": "overwhelmed", "label": "Overwhelmed" },
+                { "value": "backed_up", "label": "Backed Up" },
+                { "value": "failed", "label": "Failed" }
+              ]
+            },
+            {
+              "key": "internet",
+              "label": "Internet",
+              "ui_component": "select",
+              "options": [
+                { "value": "high_speed", "label": "High Speed" },
+                { "value": "available", "label": "Available" },
+                { "value": "sporadic", "label": "Sporadic" },
+                { "value": "none", "label": "None" }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "emergency_services",
+          "label": "Emergency Services",
+          "ui_component": "nested-object",
+          "column_span": 2,
+          "sub_fields": [
+            {
+              "key": "police",
+              "label": "Police",
+              "ui_component": "text",
+              "placeholder": "e.g., understaffed, adequate"
+            },
+            {
+              "key": "fire",
+              "label": "Fire Department",
+              "ui_component": "text",
+              "placeholder": "e.g., one station, well equipped"
+            },
+            {
+              "key": "medical",
+              "label": "Medical Services",
+              "ui_component": "text",
+              "placeholder": "e.g., overwhelmed, functional"
+            }
+          ]
+        },
+        {
+          "key": "education",
+          "label": "Education",
+          "ui_component": "nested-object",
+          "column_span": 2,
+          "sub_fields": [
+            {
+              "key": "schools",
+              "label": "Number of Schools",
+              "ui_component": "number",
+              "placeholder": "3"
+            },
+            {
+              "key": "condition",
+              "label": "School Condition",
+              "ui_component": "select",
+              "options": [
+                { "value": "excellent", "label": "Excellent" },
+                { "value": "good", "label": "Good" },
+                { "value": "functional", "label": "Functional" },
+                { "value": "poor", "label": "Poor" },
+                { "value": "abandoned", "label": "Abandoned" }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "notable_features",
+          "label": "Notable Features",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "placeholder": "e.g., Historic clock tower, Underground tunnels"
+        }
+      ]
+    },
+    {
+      "id": "demographics_current_status",
+      "title": "Demographics & Current Status",
+      "icon": "Users",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "population_count",
+          "label": "Population Count",
+          "ui_component": "number",
+          "column_span": 1,
+          "placeholder": "45000"
+        },
+        {
+          "key": "population_density",
+          "label": "Population Density",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "low", "label": "Low" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "high", "label": "High" },
+            { "value": "overcrowded", "label": "Overcrowded" }
+          ]
+        },
+        {
+          "key": "age_demographics",
+          "label": "Age Demographics",
+          "ui_component": "percentage-group",
+          "column_span": 2,
+          "sub_fields": [
+            {
+              "key": "children",
+              "label": "Children (%)",
+              "placeholder": "15%"
+            },
+            {
+              "key": "adults",
+              "label": "Adults (%)",
+              "placeholder": "60%"
+            },
+            {
+              "key": "elderly",
+              "label": "Elderly (%)",
+              "placeholder": "25%"
+            }
+          ]
+        },
+        {
+          "key": "species_demographics",
+          "label": "Species Demographics",
+          "ui_component": "percentage-group",
+          "column_span": 2,
+          "sub_fields": [
+            {
+              "key": "human",
+              "label": "Human (%)",
+              "placeholder": "70%"
+            },
+            {
+              "key": "infected",
+              "label": "Infected (%)",
+              "placeholder": "25%"
+            },
+            {
+              "key": "other",
+              "label": "Other (%)",
+              "placeholder": "5%"
+            }
+          ]
+        },
+        {
+          "key": "cultural_groups",
+          "label": "Cultural Groups",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "description": "Different cultural or social groups present in the district.",
+          "placeholder": "e.g., locals, refugees, corporate workers"
+        },
+        {
+          "key": "outbreak_impact",
+          "label": "Outbreak Impact",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "minimal", "label": "Minimal" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "severe", "label": "Severe" },
+            { "value": "catastrophic", "label": "Catastrophic" }
+          ]
+        },
+        {
+          "key": "current_status",
+          "label": "Current Status",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "safe", "label": "Safe" },
+            { "value": "contested", "label": "Contested" },
+            { "value": "dangerous", "label": "Dangerous" },
+            { "value": "lost", "label": "Lost" },
+            { "value": "partially_controlled", "label": "Partially Controlled" }
+          ]
+        },
+        {
+          "key": "zombie_density",
+          "label": "Zombie Density",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "low", "label": "Low" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "high", "label": "High" },
+            { "value": "extreme", "label": "Extreme" }
+          ]
+        },
+        {
+          "key": "survivor_population",
+          "label": "Survivor Population",
+          "ui_component": "number",
+          "column_span": 1,
+          "placeholder": "12000"
+        }
+      ]
+    },
+    {
+      "id": "environment_atmosphere",
+      "title": "Environment & Atmosphere",
+      "icon": "AlertTriangle",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "air_quality",
+          "label": "Air Quality",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "excellent", "label": "Excellent" },
+            { "value": "good", "label": "Good" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "poor", "label": "Poor" },
+            { "value": "hazardous", "label": "Hazardous" }
+          ]
+        },
+        {
+          "key": "noise_level",
+          "label": "Noise Level",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "quiet", "label": "Quiet" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "loud", "label": "Loud" },
+            { "value": "deafening", "label": "Deafening" }
+          ]
+        },
+        {
+          "key": "cleanliness",
+          "label": "Cleanliness",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "pristine", "label": "Pristine" },
+            { "value": "clean", "label": "Clean" },
+            { "value": "average", "label": "Average" },
+            { "value": "dirty", "label": "Dirty" },
+            { "value": "squalid", "label": "Squalid" }
+          ]
+        },
+        {
+          "key": "architecture_style",
+          "label": "Architecture Style",
+          "ui_component": "text",
+          "column_span": 1,
+          "placeholder": "e.g., modern commercial, art deco"
+        },
+        {
+          "key": "landmark_locations",
+          "label": "Landmark Locations",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "description": "Notable landmarks and recognizable features of the district.",
+          "placeholder": "e.g., city hall, central park, clock tower"
+        }
+      ]
+    },
+    {
+      "id": "security_safety",
+      "title": "Security & Safety Details",
+      "icon": "Shield",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "security_presence",
+          "label": "Security Presence",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "light", "label": "Light" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "heavy", "label": "Heavy" }
+          ]
+        },
+        {
+          "key": "crime_rate",
+          "label": "Crime Rate",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "low", "label": "Low" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "high", "label": "High" },
+            { "value": "extreme", "label": "Extreme" }
+          ]
+        },
+        {
+          "key": "common_crimes",
+          "label": "Common Crimes",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "description": "Most frequent types of criminal activity in this district.",
+          "placeholder": "e.g., looting, assault, black market trading"
+        },
+        {
+          "key": "safe_zones",
+          "label": "Safe Zones",
+          "ui_component": "tag-input",
+          "column_span": 1,
+          "description": "Areas considered relatively safe within the district.",
+          "placeholder": "e.g., police station, fortified mall"
+        },
+        {
+          "key": "danger_zones",
+          "label": "Danger Zones",
+          "ui_component": "tag-input",
+          "column_span": 1,
+          "description": "Areas to avoid or approach with extreme caution.",
+          "placeholder": "e.g., abandoned subway, old hospital"
+        }
+      ]
+    },
+    {
+      "id": "story_integration",
+      "title": "Story Integration",
+      "icon": "Building2",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "narrative_importance",
+          "label": "Narrative Importance",
+          "ui_component": "select",
+          "column_span": 1,
+          "options": [
+            { "value": "minor", "label": "Minor" },
+            { "value": "moderate", "label": "Moderate" },
+            { "value": "major", "label": "Major" },
+            { "value": "central", "label": "Central" }
+          ]
+        },
+        {
+          "key": "story_chapters",
+          "label": "Story Chapters",
+          "ui_component": "tag-input",
+          "column_span": 1,
+          "placeholder": "e.g., chapter_1, chapter_4"
+        }
+      ]
+    },
+    {
+      "id": "ai_context",
+      "title": "AI Generation Context",
+      "icon": "Building2",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "ai_district_ambiance",
+          "label": "District Ambiance (AI Helper)",
+          "ui_component": "textarea",
+          "column_span": 1,
+          "rows": 2,
+          "placeholder": "Brief atmospheric description for AI environmental generation"
+        },
+        {
+          "key": "ai_architectural_style",
+          "label": "Architectural Style (AI Helper)",
+          "ui_component": "textarea",
+          "column_span": 1,
+          "rows": 2,
+          "placeholder": "Key visual and structural elements for AI image generation"
+        },
+        {
+          "key": "ai_cultural_summary",
+          "label": "Cultural Summary (AI Helper)",
+          "ui_component": "textarea",
+          "column_span": 1,
+          "rows": 2,
+          "placeholder": "Brief cultural and social context for AI content creation"
+        }
+      ]
+    }
+  ]
+}

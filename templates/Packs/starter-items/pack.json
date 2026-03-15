@@ -1,0 +1,13 @@
+{
+  "id": "starter-items",
+  "name": "Starter: Items & Props",
+  "description": "Item entity template for objects, weapons, consumables, and props in your world. Tracks rarity, stats, and narrative significance.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "entity_types": ["item"],
+  "categories": ["narrative", "game-dev"],
+  "tags": ["item", "prop", "weapon", "inventory", "collectible"],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": []
+}

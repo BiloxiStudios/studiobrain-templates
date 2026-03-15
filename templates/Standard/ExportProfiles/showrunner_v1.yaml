@@ -1,0 +1,80 @@
+export_profile: showrunner_v1
+version: 1.0.0
+description: Export format for Showrunner Show Creation pipeline (exact folder + filenames).
+outputs:
+  format: png
+  default_resolution: null
+  warnings:
+    mismatch_dimensions: warn
+package:
+  root_name: '{assembly_id}'
+  include_manifest: true
+  manifest_name: manifest.json
+groups:
+  hands:
+    sources:
+    - slot_group: hands_right
+      slot_name: hands_right_set
+    - slot_group: hands_left
+      slot_name: hands_left_set
+    folder: hands
+    files:
+      Fist_Back: Fist_Back.png
+      Fist_Front: Fist_Front.png
+      Fist2_Back: Fist2_Back.png
+      Fist2_Front: Fist2_Front.png
+      Open_Back: Open_Back.png
+      Open_Front: Open_Front.png
+      PeaceSign_Back: PeaceSign_Back.png
+      PeaceSign_Front: PeaceSign_Front.png
+      Pointing_Back: Pointing_Back.png
+      Pointing_Front: Pointing_Front.png
+      PointingRelaxed_Back: PointingRelaxed_Back.png
+      PointingRelaxed_Front: PointingRelaxed_Front.png
+      Push_Back: Push_Back.png
+      Push_Front: Push_Front.png
+      Relaxed_Back: Relaxed_Back.png
+      Relaxed_Front: Relaxed_Front.png
+      Shake_Back: Shake_Back.png
+      Shake_Front: Shake_Front.png
+      ThumbsUp_Back: ThumbsUp_Back.png
+      ThumbsUp_Front: ThumbsUp_Front.png
+    notes: Each variant key maps directly to the required Showrunner filename.
+  mouths:
+    sources:
+    - slot_group: mouth
+      slot_name: mouth_visemes
+    folder: mouths
+    files:
+      Aa: Aa.png
+      i: i.png
+      Kk: Kk.png
+      O: O.png
+      Sil: Sil.png
+      Th: Th.png
+      U: U.png
+    required_dimensions:
+    - 512
+    - 512
+required:
+  slot_sets:
+  - slot_group: head
+    slot_name: head_base
+  - slot_group: eyes
+    slot_name: eyes_base
+  - slot_group: mouth
+    slot_name: mouth_base
+  - slot_group: mouth
+    slot_name: mouth_visemes
+  - slot_group: hair
+    slot_name: hair_front
+  - slot_group: hands_right
+    slot_name: hands_right_set
+  - slot_group: hands_left
+    slot_name: hands_left_set
+  - slot_group: torso
+    slot_name: torso_base
+  - slot_group: legs
+    slot_name: legs_base
+  - slot_group: feet
+    slot_name: feet_base

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Production Kanban Board</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    min-height: 100vh;
+    overflow-x: auto;
+  }
+
+  /* ===== Top bar ===== */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px 0;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .page-title {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-bg));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle {
+    font-size: 13px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 2px;
+  }
+
+  /* ===== Filters ===== */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 28px;
+    flex-wrap: wrap;
+  }
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .filter-select, .filter-input {
+    padding: 6px 12px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .filter-select:focus, .filter-input:focus {
+    border-color: var(--plugin-accent);
+  }
+  .filter-input {
+    width: 200px;
+  }
+  .filter-input::placeholder { color: var(--surface-elevated-border); }
+
+  .refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-left: auto;
+  }
+  .refresh-btn:hover {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+  }
+  .refresh-btn.spinning svg {
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== Type legend ===== */
+  .type-legend {
+    display: flex;
+    gap: 12px;
+    padding: 0 28px 12px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .legend-item:hover { background: var(--surface-elevated-bg); }
+  .legend-item.dimmed { opacity: 0.35; }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ===== Board ===== */
+  .board-container {
+    display: flex;
+    gap: 16px;
+    padding: 8px 28px 28px;
+    min-height: calc(100vh - 200px);
+    overflow-x: auto;
+  }
+
+  .column {
+    flex: 1;
+    min-width: 280px;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-base-bg);
+    border-radius: 12px;
+    border: 1px solid var(--surface-elevated-bg);
+    overflow: hidden;
+  }
+
+  .column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface-base-bg);
+  }
+  .column-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .column-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .column-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .column-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 99px;
+    background: var(--surface-elevated-bg);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--surface-base-text-secondary);
+  }
+  .column-count.over-limit {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--surface-error-border);
+  }
+  .wip-indicator {
+    font-size: 10px;
+    color: var(--surface-elevated-border);
+    margin-left: 4px;
+  }
+
+  .column-body {
+    flex: 1;
+    padding: 8px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .column-body.drag-over {
+    background: rgba(59, 130, 246, 0.06);
+    border-radius: 0 0 12px 12px;
+  }
+
+  .column-empty {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--surface-elevated-border);
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: grab;
+    transition: all 0.15s;
+    position: relative;
+    user-select: none;
+  }
+  .card:hover {
+    border-color: var(--surface-elevated-border);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .card:active { cursor: grabbing; }
+  .card.dragging {
+    opacity: 0.4;
+    transform: scale(0.97);
+  }
+  .card.drag-preview {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    border-color: var(--plugin-accent);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .card-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--surface-base-bg);
+    flex-shrink: 0;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .card-thumb-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    flex-shrink: 0;
+    border: 1px solid var(--surface-elevated-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--surface-elevated-border);
+  }
+  .card-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .card-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+  .card-id {
+    font-size: 10px;
+    color: var(--surface-elevated-border);
+    font-family: 'SF Mono', 'Cascadia Code', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+
+  .card-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 8px;
+    line-height: 1;
+  }
+  .card-type-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+
+  .card-desc {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 6px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-raw-status {
+    font-size: 10px;
+    color: var(--surface-elevated-border);
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ===== Stats row ===== */
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    padding: 16px 28px;
+    background: var(--surface-base-bg);
+    border-top: 1px solid var(--surface-elevated-bg);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--surface-base-text);
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    line-height: 1.3;
+  }
+  .stat-pct {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .progress-bar-container {
+    flex: 1;
+    min-width: 200px;
+  }
+  .progress-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .progress-bar-track {
+    height: 8px;
+    background: var(--surface-elevated-border);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+  }
+  .progress-bar-segment {
+    height: 100%;
+    transition: width 0.5s ease;
+  }
+
+  /* ===== Drop zone indicator ===== */
+  .drop-indicator {
+    height: 3px;
+    background: var(--plugin-accent);
+    border-radius: 2px;
+    margin: -2px 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .drop-indicator.visible { opacity: 1; }
+
+  /* ===== Loading overlay ===== */
+  .board-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .board-loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  /* ===== Toast ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 28px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+    max-width: 320px;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .toast.success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: var(--surface-success-border);
+  }
+  .toast.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: var(--surface-error-border);
+  }
+  .toast.info {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: var(--plugin-accent);
+  }
+
+  /* ===== Scrollbar ===== */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface-elevated-border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--surface-elevated-border); }
+</style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="top-bar">
+    <div>
+      <h1 class="page-title">Production Kanban</h1>
+      <p class="page-subtitle">Drag entities between columns to update their production status</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-label">Type</span>
+      <select class="filter-select" id="type-filter">
+        <option value="">All Types</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Search</span>
+      <input class="filter-input" id="search-input" type="text" placeholder="Filter by name...">
+    </div>
+    <button class="refresh-btn" id="refresh-btn" onclick="loadBoard()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Type legend -->
+  <div class="type-legend" id="type-legend"></div>
+
+  <!-- Board -->
+  <div id="board-area">
+    <div class="board-loading">
+      <div class="board-loading-spinner"></div>
+      <span style="color:var(--surface-base-text-secondary);font-size:13px">Loading board...</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar" id="stats-bar" style="display:none"></div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+<script>
+// ===== Configuration =====
+const API_BASE = '/api/ext/kanban-board';
+
+const TYPE_COLORS = {
+  character: 'var(--plugin-accent)',
+  location:  'var(--surface-success-border)',
+  item:      'var(--surface-warning-text-secondary)',
+  faction:   'var(--surface-secondary-bg)',
+  brand:     'var(--surface-secondary-bg)',
+  district:  'var(--surface-accent-bg)',
+  job:       'var(--surface-warning-border)',
+};
+
+const TYPE_ICONS = {
+  character: '\u{1F464}',
+  location:  '\u{1F3DB}',
+  item:      '\u{1F4E6}',
+  faction:   '\u{2694}',
+  brand:     '\u{1F3AF}',
+  district:  '\u{1F3D8}',
+  job:       '\u{1F6E0}',
+};
+
+const COLUMN_COLORS = {
+  'Concept':     'var(--surface-base-text-secondary)',
+  'In Progress': 'var(--plugin-accent)',
+  'Review':      'var(--surface-warning-border)',
+  'Complete':    'var(--surface-success-border)',
+};
+
+const ALL_TYPES = ['character', 'location', 'item', 'faction', 'brand', 'district', 'job'];
+
+// ===== State =====
+let boardData = null;
+let activeTypeFilters = new Set(); // empty = show all
+let searchQuery = '';
+let dragState = null;
+
+// ===== Utilities =====
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.className = 'toast'; }, 2500);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  const s = typeof str === 'string' ? str : String(str);
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function truncate(str, len) {
+  if (!str) return '';
+  const s = typeof str === 'string' ? str : Array.isArray(str) ? str.join(' ') : String(str);
+  return s.length > len ? s.slice(0, len) + '...' : s;
+}
+
+// ===== Data loading =====
+async function loadBoard() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
+
+  const typeFilter = document.getElementById('type-filter').value;
+  const url = typeFilter ? `${API_BASE}/board?entity_type=${typeFilter}` : `${API_BASE}/board`;
+
+  try {
+    const [boardRes, statsRes] = await Promise.all([
+      fetch(url),
+      fetch(`${API_BASE}/stats${typeFilter ? '?entity_type=' + typeFilter : ''}`),
+    ]);
+
+    if (!boardRes.ok) throw new Error('Failed to load board');
+
+    boardData = await boardRes.json();
+    const statsData = await statsRes.json();
+
+    renderLegend();
+    renderBoard();
+    renderStats(statsData);
+  } catch (err) {
+    document.getElementById('board-area').innerHTML = `
+      <div class="board-loading">
+        <span style="color:var(--surface-error-border);font-size:14px">Failed to load board</span>
+        <span style="color:var(--surface-base-text-secondary);font-size:12px">${escapeHtml(err.message)}</span>
+      </div>`;
+  } finally {
+    btn.classList.remove('spinning');
+  }
+}
+
+// ===== Filtering =====
+function filterCards(cards) {
+  let filtered = cards;
+
+  // Type filter from legend clicks
+  if (activeTypeFilters.size > 0) {
+    filtered = filtered.filter(c => activeTypeFilters.has(c.type));
+  }
+
+  // Search filter
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(c =>
+      c.name.toLowerCase().includes(q) ||
+      c.id.toLowerCase().includes(q) ||
+      c.type.toLowerCase().includes(q)
+    );
+  }
+
+  return filtered;
+}
+
+// ===== Legend =====
+function renderLegend() {
+  if (!boardData) return;
+
+  // Count how many of each type
+  const typeCounts = {};
+  for (const col of boardData.columns) {
+    for (const card of boardData.board[col] || []) {
+      typeCounts[card.type] = (typeCounts[card.type] || 0) + 1;
+    }
+  }
+
+  const container = document.getElementById('type-legend');
+  container.innerHTML = ALL_TYPES
+    .filter(t => typeCounts[t])
+    .map(t => {
+      const dimmed = activeTypeFilters.size > 0 && !activeTypeFilters.has(t);
+      return `<div class="legend-item ${dimmed ? 'dimmed' : ''}" onclick="toggleTypeFilter('${t}')">
+        <span class="legend-dot" style="background:${TYPE_COLORS[t]}"></span>
+        <span>${t.charAt(0).toUpperCase() + t.slice(1)}s</span>
+        <span style="color:var(--surface-elevated-border)">(${typeCounts[t]})</span>
+      </div>`;
+    }).join('');
+}
+
+function toggleTypeFilter(type) {
+  if (activeTypeFilters.has(type)) {
+    activeTypeFilters.delete(type);
+  } else {
+    activeTypeFilters.add(type);
+  }
+  renderLegend();
+  renderBoard();
+}
+
+// ===== Board rendering =====
+function renderBoard() {
+  if (!boardData) return;
+
+  const { columns, board } = boardData;
+
+  let html = '<div class="board-container">';
+
+  for (const col of columns) {
+    const allCards = board[col] || [];
+    const cards = filterCards(allCards);
+    const colColor = COLUMN_COLORS[col] || 'var(--surface-base-text-secondary)';
+
+    html += `
+      <div class="column" data-column="${escapeHtml(col)}">
+        <div class="column-header">
+          <div class="column-title-group">
+            <div class="column-dot" style="background:${colColor};box-shadow:0 0 6px ${colColor}50"></div>
+            <span class="column-title">${escapeHtml(col)}</span>
+          </div>
+          <span class="column-count">${cards.length}</span>
+        </div>
+        <div class="column-body"
+             ondragover="onColumnDragOver(event, '${escapeHtml(col)}')"
+             ondragleave="onColumnDragLeave(event)"
+             ondrop="onColumnDrop(event, '${escapeHtml(col)}')"
+        >`;
+
+    if (cards.length === 0) {
+      html += '<div class="column-empty">No entities in this stage</div>';
+    } else {
+      for (const card of cards) {
+        html += renderCard(card);
+      }
+    }
+
+    html += '</div></div>';
+  }
+
+  html += '</div>';
+  document.getElementById('board-area').innerHTML = html;
+}
+
+function renderCard(card) {
+  const typeColor = TYPE_COLORS[card.type] || 'var(--surface-base-text-secondary)';
+  const typeIcon = TYPE_ICONS[card.type] || '\u{1F4CB}';
+
+  // Description handling
+  let desc = '';
+  if (card.description) {
+    if (Array.isArray(card.description)) {
+      desc = card.description.join(' ');
+    } else if (typeof card.description === 'string') {
+      desc = card.description;
+    }
+  }
+
+  // Thumbnail
+  let thumbHtml;
+  if (card.image) {
+    thumbHtml = `<img class="card-thumb" src="${card.image}" alt="" onerror="this.outerHTML='<div class=\\'card-thumb-placeholder\\'>${typeIcon}</div>'">`;
+  } else {
+    thumbHtml = `<div class="card-thumb-placeholder">${typeIcon}</div>`;
+  }
+
+  return `
+    <div class="card"
+         draggable="true"
+         data-entity-type="${escapeHtml(card.type)}"
+         data-entity-id="${escapeHtml(card.id)}"
+         data-entity-name="${escapeHtml(card.name)}"
+         ondragstart="onCardDragStart(event)"
+         ondragend="onCardDragEnd(event)"
+    >
+      <div class="card-top">
+        ${thumbHtml}
+        <div class="card-info">
+          <div class="card-name" title="${escapeHtml(card.name)}">${escapeHtml(card.name)}</div>
+          <div class="card-id">${escapeHtml(card.id)}</div>
+        </div>
+      </div>
+      <div class="card-type-badge" style="background:${typeColor}18;color:${typeColor}">
+        <span class="card-type-dot" style="background:${typeColor}"></span>
+        ${escapeHtml(card.type)}
+      </div>
+      ${desc ? `<div class="card-desc">${escapeHtml(truncate(desc, 100))}</div>` : ''}
+      ${card.status && card.status !== card.column ? `<div class="card-raw-status">Raw: ${escapeHtml(card.status)}</div>` : ''}
+    </div>`;
+}
+
+// ===== Stats =====
+function renderStats(stats) {
+  if (!stats) return;
+
+  const bar = document.getElementById('stats-bar');
+  bar.style.display = 'flex';
+
+  // Build the segmented progress bar
+  const segments = stats.columns.map((col, i) => {
+    const color = COLUMN_COLORS[col.name] || ['var(--surface-base-text-secondary)', 'var(--plugin-accent)', 'var(--surface-warning-border)', 'var(--surface-success-border)'][i] || 'var(--surface-base-text-secondary)';
+    return `<div class="progress-bar-segment" style="width:${col.percentage}%;background:${color}" title="${col.name}: ${col.count} (${col.percentage}%)"></div>`;
+  }).join('');
+
+  bar.innerHTML = `
+    <div class="stat-item">
+      <div class="stat-value">${stats.total}</div>
+      <div class="stat-label">Total<br>Entities</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value stat-pct" style="color:var(--surface-success-border)">${stats.completion_rate}%</div>
+      <div class="stat-label">Complete</div>
+    </div>
+    ${stats.columns.map((col, i) => {
+      const color = COLUMN_COLORS[col.name] || ['var(--surface-base-text-secondary)','var(--plugin-accent)','var(--surface-warning-border)','var(--surface-success-border)'][i] || 'var(--surface-base-text-secondary)';
+      return `<div class="stat-item">
+        <div class="stat-value" style="color:${color};font-size:16px">${col.count}</div>
+        <div class="stat-label">${escapeHtml(col.name)}</div>
+      </div>`;
+    }).join('')}
+    <div class="progress-bar-container">
+      <div class="progress-bar-label">
+        <span>Pipeline Progress</span>
+        <span>${stats.completion_rate}% complete</span>
+      </div>
+      <div class="progress-bar-track">${segments}</div>
+    </div>
+  `;
+}
+
+// ===== Drag and Drop =====
+function onCardDragStart(e) {
+  const card = e.currentTarget;
+  card.classList.add('dragging');
+
+  dragState = {
+    entityType: card.dataset.entityType,
+    entityId: card.dataset.entityId,
+    entityName: card.dataset.entityName,
+    sourceColumn: card.closest('.column').dataset.column,
+  };
+
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', JSON.stringify(dragState));
+
+  // Add drag image styling
+  requestAnimationFrame(() => card.classList.add('dragging'));
+}
+
+function onCardDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  dragState = null;
+
+  // Remove all drag-over states
+  document.querySelectorAll('.column-body.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+
+function onColumnDragOver(e, column) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+
+  const body = e.currentTarget;
+  body.classList.add('drag-over');
+}
+
+function onColumnDragLeave(e) {
+  // Only remove if actually leaving the column body
+  const body = e.currentTarget;
+  const related = e.relatedTarget;
+  if (!body.contains(related)) {
+    body.classList.remove('drag-over');
+  }
+}
+
+async function onColumnDrop(e, targetColumn) {
+  e.preventDefault();
+
+  const body = e.currentTarget;
+  body.classList.remove('drag-over');
+
+  let data;
+  try {
+    data = JSON.parse(e.dataTransfer.getData('text/plain'));
+  } catch { return; }
+
+  if (!data || data.sourceColumn === targetColumn) return;
+
+  // Optimistic update: move card in local state
+  const sourceCards = boardData.board[data.sourceColumn];
+  const cardIdx = sourceCards.findIndex(c => c.id === data.entityId && c.type === data.entityType);
+  if (cardIdx === -1) return;
+
+  const [card] = sourceCards.splice(cardIdx, 1);
+  card.column = targetColumn;
+  card.status = targetColumn.toLowerCase().replace(/ /g, '_');
+  boardData.board[targetColumn].push(card);
+
+  renderBoard();
+  showToast(`Moved "${data.entityName}" to ${targetColumn}`, 'info');
+
+  // API call
+  try {
+    const res = await fetch(`${API_BASE}/move`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        entity_type: data.entityType,
+        entity_id: data.entityId,
+        new_status: targetColumn,
+      }),
+    });
+
+    if (!res.ok) throw new Error('Move failed');
+    showToast(`"${data.entityName}" moved to ${targetColumn}`, 'success');
+
+    // Refresh stats
+    const statsRes = await fetch(`${API_BASE}/stats`);
+    if (statsRes.ok) renderStats(await statsRes.json());
+
+  } catch (err) {
+    showToast(`Failed to move: ${err.message}`, 'error');
+    // Revert optimistic update
+    loadBoard();
+  }
+}
+
+// ===== Event bindings =====
+document.getElementById('type-filter').addEventListener('change', () => {
+  activeTypeFilters.clear();
+  loadBoard();
+});
+
+let searchDebounce;
+document.getElementById('search-input').addEventListener('input', (e) => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => {
+    searchQuery = e.target.value.trim();
+    renderBoard();
+  }, 200);
+});
+
+// Populate entity type dropdown
+(function initTypeDropdown() {
+  const sel = document.getElementById('type-filter');
+  ALL_TYPES.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t.charAt(0).toUpperCase() + t.slice(1) + 's';
+    sel.appendChild(opt);
+  });
+})();
+
+// ===== Initial load =====
+loadBoard();
+</script>
+</body>
+</html>

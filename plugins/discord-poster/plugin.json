@@ -1,0 +1,111 @@
+{
+  "id": "discord-poster",
+  "name": "Discord Channel Poster",
+  "version": "0.2.0",
+  "description": "Post entity updates, new art, and campaign events to Discord channels via webhooks. Supports rich embeds with images, auto-posting, and multi-channel targeting.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "social-media",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "discord-dashboard",
+          "route": "/plugins/discord-poster",
+          "label": "Discord Poster",
+          "icon": "message-circle",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "quick-post",
+          "label": "Discord Post",
+          "location": "entity-sidebar",
+          "icon": "send"
+        },
+        {
+          "id": "post-history",
+          "label": "Post History",
+          "location": "entity-tab",
+          "icon": "history"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "httpx>=0.27.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "network:external",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "default_webhook_url": {
+      "type": "secret",
+      "label": "Default Discord Webhook URL",
+      "description": "Primary Discord webhook URL for posting",
+      "required": true,
+      "scope": "instance"
+    },
+    "webhook_urls": {
+      "type": "string",
+      "label": "Additional Webhook URLs (JSON)",
+      "description": "JSON array of {\"name\": \"channel-name\", \"url\": \"https://discord.com/api/webhooks/...\"} objects",
+      "required": false,
+      "default": "[]",
+      "scope": "instance"
+    },
+    "bot_username": {
+      "type": "string",
+      "label": "Bot Display Name",
+      "description": "Name shown in Discord for webhook posts",
+      "required": false,
+      "default": "City of Brains",
+      "scope": "instance"
+    },
+    "bot_avatar_url": {
+      "type": "string",
+      "label": "Bot Avatar URL",
+      "description": "Avatar image URL for webhook posts",
+      "required": false,
+      "scope": "instance"
+    },
+    "auto_post_on_create": {
+      "type": "boolean",
+      "label": "Auto-post on Entity Create",
+      "description": "Automatically post to Discord when a new entity is created",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "auto_post_on_update": {
+      "type": "boolean",
+      "label": "Auto-post on Entity Update",
+      "description": "Automatically post to Discord when an entity is updated",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "embed_color": {
+      "type": "string",
+      "label": "Embed Color (hex)",
+      "description": "Color for Discord embed sidebar, e.g. #5865F2",
+      "required": false,
+      "default": "#5865F2",
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#5865F2"
+}

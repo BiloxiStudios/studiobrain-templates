@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-icon {
+    width: 20px; height: 20px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-hover));
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-icon svg { width: 12px; height: 12px; }
+
+  /* Status indicator */
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.configured { background: var(--surface-success-border); box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+  .status-dot.unconfigured { background: var(--surface-base-text-secondary); }
+  .status-text { font-size: 12px; color: var(--surface-base-text-secondary); flex: 1; }
+  .status-voice-name { font-size: 12px; color: var(--surface-base-text); font-weight: 500; }
+
+  /* Voice selector */
+  .voice-select-wrap {
+    margin-bottom: 10px;
+  }
+  .voice-select-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  select {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+  select:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(139,92,246,0.2);
+  }
+
+  /* Mini audio player */
+  .mini-player {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  .mini-player.empty {
+    text-align: center;
+    color: var(--surface-elevated-border);
+    padding: 16px 10px;
+    font-size: 12px;
+  }
+  .player-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .play-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--plugin-accent);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .play-btn:hover { background: var(--plugin-accent); }
+  .play-btn svg { fill: white; width: 14px; height: 14px; }
+  .play-btn.playing { background: var(--surface-secondary-active); }
+
+  .player-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .player-filename {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .player-style {
+    font-size: 10px;
+    color: var(--plugin-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--surface-elevated-border);
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--plugin-accent), var(--surface-secondary-hover));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+  .player-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--surface-elevated-border);
+    margin-top: 3px;
+  }
+
+  /* Quick generate */
+  .quick-gen-section {
+    margin-bottom: 8px;
+  }
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    cursor: not-allowed;
+  }
+  .btn svg { width: 14px; height: 14px; }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-msg {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--surface-error-text);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-top: 8px;
+    display: none;
+  }
+
+  .no-voice-hint {
+    text-align: center;
+    color: var(--surface-elevated-border);
+    font-size: 11px;
+    padding: 8px;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+    </div>
+    Voice Preview
+  </div>
+
+  <!-- Status -->
+  <div class="status-row" id="status-row">
+    <div class="status-dot unconfigured" id="status-dot"></div>
+    <span class="status-text" id="status-text">Loading...</span>
+  </div>
+
+  <!-- Voice Selector -->
+  <div class="voice-select-wrap">
+    <div class="voice-select-label">Voice Profile</div>
+    <select id="voice-select" onchange="onVoiceChanged()">
+      <option value="">Loading voices...</option>
+    </select>
+  </div>
+
+  <!-- Mini Player -->
+  <div class="mini-player empty" id="player-section">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--surface-elevated-border)" stroke-width="1.5" style="margin-bottom:4px">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <line x1="23" y1="9" x2="17" y2="15"/>
+      <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+    <div>No audio generated yet</div>
+  </div>
+
+  <!-- Quick Generate -->
+  <div class="quick-gen-section">
+    <button class="btn btn-primary" id="generate-btn" onclick="quickGenerate()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      </svg>
+      Quick Generate
+    </button>
+  </div>
+
+  <div class="error-msg" id="error-msg"></div>
+
+  <audio id="audio-el" preload="auto"></audio>
+
+  <script>
+    const API = '/api/ext/voice-forge';
+    const ENTITY_API = '/api/entity';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || 'character';
+    const entityId = ctx.entityId || '';
+
+    let voices = [];
+    let currentProfile = null;
+    let audioEl = document.getElementById('audio-el');
+    let isPlaying = false;
+    let latestAudio = null;
+
+    // ── Init ──────────────────────────────────────────────
+    async function init() {
+      if (!entityId) {
+        document.getElementById('status-text').textContent = 'No entity selected';
+        return;
+      }
+      await Promise.all([loadVoices(), loadHistory(), loadProfile()]);
+      updateStatus();
+    }
+
+    async function loadVoices() {
+      try {
+        const resp = await fetch(`${API}/voices`);
+        const data = await resp.json();
+        voices = data.voices || [];
+        renderVoiceSelect();
+      } catch(e) { console.error('Failed to load voices', e); }
+    }
+
+    async function loadHistory() {
+      try {
+        const resp = await fetch(`${API}/history/${entityType}/${entityId}`);
+        const data = await resp.json();
+        const files = data.files || [];
+        if (files.length > 0) {
+          latestAudio = files[0];
+          renderPlayer(latestAudio);
+        }
+      } catch(e) { console.error('Failed to load history', e); }
+    }
+
+    async function loadProfile() {
+      try {
+        const resp = await fetch(`${API}/voice-profiles`);
+        const data = await resp.json();
+        currentProfile = (data.profiles || {})[entityId] || null;
+        if (currentProfile) {
+          const sel = document.getElementById('voice-select');
+          sel.value = currentProfile.voice_id;
+        }
+      } catch(e) { console.error('Failed to load profile', e); }
+    }
+
+    function updateStatus() {
+      const dot = document.getElementById('status-dot');
+      const text = document.getElementById('status-text');
+      if (currentProfile) {
+        dot.className = 'status-dot configured';
+        text.innerHTML = `<span class="status-voice-name">${currentProfile.voice_name || currentProfile.voice_id}</span>`;
+      } else {
+        dot.className = 'status-dot unconfigured';
+        text.textContent = 'No voice assigned';
+      }
+    }
+
+    function renderVoiceSelect() {
+      const sel = document.getElementById('voice-select');
+      sel.innerHTML = '<option value="">-- Select Voice --</option>';
+      voices.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.voice_id;
+        opt.textContent = `${v.name}${v.category ? ` (${v.category})` : ''}`;
+        sel.appendChild(opt);
+      });
+      if (currentProfile) sel.value = currentProfile.voice_id;
+    }
+
+    async function onVoiceChanged() {
+      const sel = document.getElementById('voice-select');
+      const voiceId = sel.value;
+      if (!voiceId || !entityId) return;
+      const voiceName = sel.options[sel.selectedIndex].textContent;
+      try {
+        await fetch(`${API}/voice-profiles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_id: entityId,
+            voice_id: voiceId,
+            voice_name: voiceName,
+          }),
+        });
+        currentProfile = { voice_id: voiceId, voice_name: voiceName };
+        updateStatus();
+      } catch(e) { showError('Failed to save voice profile'); }
+    }
+
+    // ── Player ────────────────────────────────────────────
+    function renderPlayer(file) {
+      const section = document.getElementById('player-section');
+      section.className = 'mini-player';
+      section.innerHTML = `
+        <div class="player-top">
+          <button class="play-btn" id="play-btn" onclick="togglePlay()">
+            <svg id="play-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+          <div class="player-info">
+            <div class="player-filename">${file.filename}</div>
+            <div class="player-style">${file.style || 'normal'}</div>
+          </div>
+        </div>
+        <div class="progress-bar" id="progress-bar" onclick="seekAudio(event)">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="player-time">
+          <span id="time-current">0:00</span>
+          <span id="time-total">0:00</span>
+        </div>
+      `;
+      audioEl.src = file.url;
+      audioEl.load();
+    }
+
+    function togglePlay() {
+      if (!audioEl.src) return;
+      if (isPlaying) {
+        audioEl.pause();
+      } else {
+        audioEl.play();
+      }
+    }
+
+    audioEl.addEventListener('play', () => {
+      isPlaying = true;
+      const btn = document.getElementById('play-btn');
+      if (btn) {
+        btn.classList.add('playing');
+        document.getElementById('play-icon').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+      }
+    });
+    audioEl.addEventListener('pause', () => {
+      isPlaying = false;
+      const btn = document.getElementById('play-btn');
+      if (btn) {
+        btn.classList.remove('playing');
+        document.getElementById('play-icon').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      }
+    });
+    audioEl.addEventListener('ended', () => {
+      isPlaying = false;
+      const btn = document.getElementById('play-btn');
+      if (btn) {
+        btn.classList.remove('playing');
+        document.getElementById('play-icon').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      }
+      const fill = document.getElementById('progress-fill');
+      if (fill) fill.style.width = '0%';
+    });
+    audioEl.addEventListener('timeupdate', () => {
+      if (!audioEl.duration) return;
+      const pct = (audioEl.currentTime / audioEl.duration) * 100;
+      const fill = document.getElementById('progress-fill');
+      if (fill) fill.style.width = pct + '%';
+      const cur = document.getElementById('time-current');
+      if (cur) cur.textContent = formatTime(audioEl.currentTime);
+    });
+    audioEl.addEventListener('loadedmetadata', () => {
+      const tot = document.getElementById('time-total');
+      if (tot) tot.textContent = formatTime(audioEl.duration);
+    });
+
+    function seekAudio(e) {
+      if (!audioEl.duration) return;
+      const bar = document.getElementById('progress-bar');
+      const rect = bar.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      audioEl.currentTime = pct * audioEl.duration;
+    }
+
+    function formatTime(s) {
+      if (!s || isNaN(s)) return '0:00';
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+
+    // ── Quick Generate ────────────────────────────────────
+    async function quickGenerate() {
+      const btn = document.getElementById('generate-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Generating...';
+      hideError();
+
+      let text = 'Hello, this is a voice test for this character.';
+      // Try to get character's ai_voice_style or name
+      try {
+        const resp = await fetch(`${ENTITY_API}/${entityType}/${entityId}`);
+        if (resp.ok) {
+          const entity = await resp.json();
+          const md = entity.markdown || entity.content || '';
+          const name = entity.name || entity.title || 'character';
+          // Use ai_voice_style field if present
+          if (entity.ai_voice_style) {
+            text = entity.ai_voice_style;
+          } else {
+            // Extract first dialogue line from markdown
+            const dialogueMatch = md.match(/"([^"]{10,200})"/);
+            if (dialogueMatch) {
+              text = dialogueMatch[1];
+            } else {
+              text = `Hello, my name is ${name}. This is my voice.`;
+            }
+          }
+        }
+      } catch(e) { /* Use default text */ }
+
+      const voiceId = document.getElementById('voice-select').value || undefined;
+
+      try {
+        const resp = await fetch(`${API}/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: text,
+            voice_id: voiceId,
+            entity_type: entityType,
+            entity_id: entityId,
+            style: 'normal',
+          }),
+        });
+        const data = await resp.json();
+        if (data.success) {
+          latestAudio = { filename: data.filename, url: data.audio_url, style: data.style };
+          renderPlayer(latestAudio);
+        } else {
+          showError(data.message || 'Generation failed');
+        }
+      } catch(e) {
+        showError('Network error: ' + e.message);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        </svg>
+        Quick Generate`;
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+    function hideError() {
+      document.getElementById('error-msg').style.display = 'none';
+    }
+
+    init();
+  </script>
+</body>
+</html>

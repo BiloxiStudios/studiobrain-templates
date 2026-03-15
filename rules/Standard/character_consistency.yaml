@@ -1,0 +1,63 @@
+---
+rule_id: character_consistency
+name: Character Consistency
+description: Enforces name consistency, trait validation, and canonical character attributes
+version: "1.0"
+scope: standard
+priority: high
+entity_type: character
+applies_to:
+  - character
+associated_skill: character_writer
+
+rules:
+  - id: char_001
+    category: consistency
+    priority: critical
+    rule: "Character must have a primary_location assigned"
+    validation_type: error
+    applies_to: [character]
+
+  - id: char_002
+    category: formatting
+    priority: high
+    rule: "Character ID must use lowercase_with_underscores format"
+    validation_type: error
+    applies_to: [character]
+
+  - id: char_003
+    category: completeness
+    priority: medium
+    rule: "Character should have a defined personality description"
+    validation_type: warning
+    applies_to: [character]
+
+  - id: char_004
+    category: lore
+    priority: critical
+    rule: "Character content must not contain anachronistic or setting-inappropriate references"
+    validation_type: error
+    forbidden:
+      - "smartphone"
+      - "internet"
+      - "computer"
+      - "email"
+      - "twitter"
+    applies_to: [character]
+
+  - id: char_005
+    category: completeness
+    priority: medium
+    rule: "Character should have at least one defined relationship or faction affiliation"
+    validation_type: suggestion
+    applies_to: [character]
+
+defaults:
+  status: "active"
+  visibility: "private"
+
+validation:
+  - "Does the character have a unique name within their universe?"
+  - "Are the character's motivations clearly defined?"
+  - "Is the character's voice distinct from other characters?"
+  - "Does the character's background align with the world lore?"

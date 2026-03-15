@@ -1,0 +1,20 @@
+{
+  "id": "full-starter",
+  "name": "Full Starter Pack",
+  "description": "Everything you need to start a new project: characters, locations, districts, factions, brands, jobs, and items. The recommended starting point for most projects.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "entity_types": ["character", "location", "district", "faction", "brand", "job", "item"],
+  "categories": ["narrative", "game-dev", "film-tv", "world-building"],
+  "tags": ["starter", "complete", "recommended", "all-in-one"],
+  "icon": null,
+  "is_meta_pack": true,
+  "includes": [
+    "starter-characters",
+    "starter-locations",
+    "starter-factions",
+    "starter-brands",
+    "starter-jobs",
+    "starter-items"
+  ]
+}

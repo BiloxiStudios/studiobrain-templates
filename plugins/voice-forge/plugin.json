@@ -1,0 +1,121 @@
+{
+  "id": "voice-forge",
+  "name": "Voice Forge",
+  "version": "0.2.0",
+  "description": "Generate character voices using ElevenLabs or XTTS. Attach voice samples to characters and generate dialogue audio.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "ai-generation",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "voice-forge",
+          "route": "/plugins/voice-forge",
+          "label": "Voice Forge",
+          "icon": "mic",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "voice-preview",
+          "label": "Voice Preview",
+          "location": "entity-sidebar",
+          "icon": "volume-2",
+          "entity_types": [
+            "character"
+          ]
+        },
+        {
+          "id": "voice-studio",
+          "label": "Voice Studio",
+          "location": "entity-tab",
+          "icon": "audio-waveform",
+          "entity_types": [
+            "character"
+          ]
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "elevenlabs>=0.3.0",
+      "aiohttp>=3.9.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "network:external",
+    "filesystem:write",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "provider": {
+      "type": "string",
+      "label": "TTS Provider",
+      "description": "Voice generation provider (elevenlabs, xtts, bark)",
+      "required": true,
+      "default": "elevenlabs",
+      "scope": "instance"
+    },
+    "elevenlabs_api_key": {
+      "type": "secret",
+      "label": "ElevenLabs API Key",
+      "description": "Your ElevenLabs API key for voice generation",
+      "required": false,
+      "scope": "instance"
+    },
+    "default_voice_id": {
+      "type": "string",
+      "label": "Default Voice ID",
+      "description": "Default ElevenLabs voice ID to use when none is specified",
+      "required": false,
+      "default": "21m00Tcm4TlvDq8ikWAM",
+      "scope": "instance"
+    },
+    "default_model": {
+      "type": "string",
+      "label": "Default TTS Model",
+      "description": "ElevenLabs model ID (e.g., eleven_multilingual_v2, eleven_turbo_v2)",
+      "required": false,
+      "default": "eleven_multilingual_v2",
+      "scope": "instance"
+    },
+    "xtts_server_url": {
+      "type": "string",
+      "label": "XTTS Server URL",
+      "description": "URL of local XTTS server (if using XTTS provider)",
+      "required": false,
+      "default": "http://localhost:8020",
+      "scope": "instance"
+    },
+    "output_format": {
+      "type": "string",
+      "label": "Output Format",
+      "description": "Audio output format (mp3, wav)",
+      "required": false,
+      "default": "mp3",
+      "scope": "instance"
+    },
+    "auto_attach": {
+      "type": "boolean",
+      "label": "Auto-attach to Entity",
+      "description": "Automatically attach generated audio files to the entity",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    }
+  },
+  "accent_color": "#8B5CF6"
+}

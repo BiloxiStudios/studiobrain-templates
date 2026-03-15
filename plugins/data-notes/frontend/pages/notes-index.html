@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Notes</title>
+  <!-- plugin-theme.css injected by backend -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--surface-base-bg);
+      color: var(--surface-base-text);
+      padding: 24px;
+      font-size: 14px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--surface-base-text);
+    }
+
+    .subtitle {
+      color: var(--surface-base-text-secondary);
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    input[type="search"] {
+      flex: 1;
+      min-width: 180px;
+      padding: 7px 12px;
+      border: 1px solid var(--surface-base-border);
+      border-radius: 6px;
+      background: var(--surface-elevated-bg);
+      color: var(--surface-elevated-text);
+      font-size: 13px;
+      outline: none;
+    }
+
+    input[type="search"]:focus {
+      border-color: var(--plugin-accent);
+    }
+
+    select {
+      padding: 7px 10px;
+      border: 1px solid var(--surface-base-border);
+      border-radius: 6px;
+      background: var(--surface-elevated-bg);
+      color: var(--surface-elevated-text);
+      font-size: 13px;
+    }
+
+    #notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .note-card {
+      background: var(--surface-elevated-bg);
+      border: 1px solid var(--surface-elevated-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .note-card.pinned {
+      border-left: 3px solid var(--plugin-accent);
+    }
+
+    .note-entity {
+      font-size: 11px;
+      color: var(--surface-base-text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .note-text {
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    .note-meta {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--surface-base-text-secondary);
+    }
+
+    .pin-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--plugin-accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    .empty {
+      color: var(--surface-base-text-secondary);
+      font-style: italic;
+      text-align: center;
+      padding: 32px;
+      grid-column: 1/-1;
+    }
+
+    #pagination {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    #pagination button {
+      padding: 6px 16px;
+      border: 1px solid var(--surface-base-border);
+      border-radius: 6px;
+      background: var(--surface-elevated-bg);
+      color: var(--surface-elevated-text);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    #pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+    #page-info { line-height: 2; font-size: 13px; color: var(--surface-base-text-secondary); }
+  </style>
+</head>
+<body>
+<h1>All Notes</h1>
+<p class="subtitle">Notes across all entities, scoped to your workspace.</p>
+
+<div class="controls">
+  <input type="search" id="search" placeholder="Search notes..." />
+  <select id="entity-filter">
+    <option value="">All entity types</option>
+  </select>
+</div>
+
+<div id="notes-grid"><p class="empty">Loading...</p></div>
+
+<div id="pagination">
+  <button id="prev-btn" disabled>Previous</button>
+  <span id="page-info"></span>
+  <button id="next-btn" disabled>Next</button>
+</div>
+
+<script>
+(function () {
+  var PLUGIN_ID = (window.PLUGIN_CONTEXT || {}).pluginId || 'data-notes';
+  var API_BASE = '/api/ext/' + PLUGIN_ID + '/data/note';
+
+  var PAGE_SIZE = 24;
+  var currentOffset = 0;
+  var totalRecords = 0;
+  var searchTimeout = null;
+
+  function buildUrl() {
+    var search = document.getElementById('search').value.trim();
+    var entityType = document.getElementById('entity-filter').value;
+    var url = API_BASE + '?limit=' + PAGE_SIZE + '&offset=' + currentOffset;
+    if (entityType) url += '&entity_type=' + encodeURIComponent(entityType);
+    return url;
+  }
+
+  function loadNotes() {
+    fetch(buildUrl(), { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        totalRecords = data.total || 0;
+        renderNotes(data.records || []);
+        updatePagination();
+      })
+      .catch(function (err) {
+        document.getElementById('notes-grid').innerHTML =
+          '<p class="empty">Failed to load notes: ' + err + '</p>';
+      });
+  }
+
+  function renderNotes(records) {
+    var grid = document.getElementById('notes-grid');
+    var search = document.getElementById('search').value.trim().toLowerCase();
+
+    // Client-side text filter (API has no full-text search for plugin data)
+    if (search) {
+      records = records.filter(function (r) {
+        return (r.data && r.data.text || '').toLowerCase().includes(search);
+      });
+    }
+
+    if (records.length === 0) {
+      grid.innerHTML = '<p class="empty">No notes found.</p>';
+      return;
+    }
+
+    grid.innerHTML = records.map(function (rec) {
+      var d = rec.data || {};
+      var pinned = d.pinned ? ' pinned' : '';
+      var ts = rec.created_at ? new Date(rec.created_at).toLocaleString() : '';
+      var entity = rec.entity_type ? rec.entity_type + (rec.entity_id ? ' / ' + rec.entity_id.slice(0, 8) : '') : '';
+      var escaped = (d.text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      var pin = d.pinned ? '<span class="pin-badge">Pinned</span>' : '';
+
+      return [
+        '<div class="note-card' + pinned + '">',
+        entity ? '  <div class="note-entity">' + entity + '</div>' : '',
+        '  <div class="note-text">' + escaped + '</div>',
+        '  <div class="note-meta">' + ts + pin + '</div>',
+        '</div>',
+      ].join('\n');
+    }).join('\n');
+  }
+
+  function updatePagination() {
+    var prev = document.getElementById('prev-btn');
+    var next = document.getElementById('next-btn');
+    var info = document.getElementById('page-info');
+
+    var pageNum = Math.floor(currentOffset / PAGE_SIZE) + 1;
+    var totalPages = Math.max(1, Math.ceil(totalRecords / PAGE_SIZE));
+
+    prev.disabled = currentOffset <= 0;
+    next.disabled = currentOffset + PAGE_SIZE >= totalRecords;
+    info.textContent = 'Page ' + pageNum + ' of ' + totalPages + ' (' + totalRecords + ' total)';
+  }
+
+  document.getElementById('prev-btn').addEventListener('click', function () {
+    if (currentOffset >= PAGE_SIZE) { currentOffset -= PAGE_SIZE; loadNotes(); }
+  });
+
+  document.getElementById('next-btn').addEventListener('click', function () {
+    if (currentOffset + PAGE_SIZE < totalRecords) { currentOffset += PAGE_SIZE; loadNotes(); }
+  });
+
+  document.getElementById('search').addEventListener('input', function () {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(function () { currentOffset = 0; loadNotes(); }, 300);
+  });
+
+  document.getElementById('entity-filter').addEventListener('change', function () {
+    currentOffset = 0;
+    loadNotes();
+  });
+
+  loadNotes();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,754 @@
+{
+  "entity_type": "location",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "MapPin",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Location ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "required": true,
+          "help": "Auto-generated: lowercase, spaces replaced with underscores",
+          "placeholder": "auto-generated from name"
+        },
+        {
+          "key": "name",
+          "label": "Display Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Gary's Gas Station"
+        },
+        {
+          "key": "location_type",
+          "label": "Location Type",
+          "ui_component": "select",
+          "options": [
+            {"value": "commercial", "label": "Commercial"},
+            {"value": "residential", "label": "Residential"},
+            {"value": "industrial", "label": "Industrial"},
+            {"value": "government", "label": "Government"},
+            {"value": "entertainment", "label": "Entertainment"},
+            {"value": "medical", "label": "Medical"},
+            {"value": "educational", "label": "Educational"},
+            {"value": "religious", "label": "Religious"},
+            {"value": "transportation", "label": "Transportation"},
+            {"value": "other", "label": "Other"}
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "active", "label": "Active"},
+            {"value": "abandoned", "label": "Abandoned"},
+            {"value": "under_construction", "label": "Under Construction"},
+            {"value": "destroyed", "label": "Destroyed"},
+            {"value": "quarantined", "label": "Quarantined"},
+            {"value": "archived", "label": "Archived"}
+          ]
+        },
+        {
+          "key": "security_level",
+          "label": "Security Level",
+          "ui_component": "select",
+          "options": [
+            {"value": "public", "label": "Public"},
+            {"value": "restricted", "label": "Restricted"},
+            {"value": "private", "label": "Private"},
+            {"value": "classified", "label": "Classified"},
+            {"value": "dangerous", "label": "Dangerous"}
+          ]
+        },
+        {
+          "key": "narrative_importance",
+          "label": "Narrative Importance",
+          "ui_component": "select",
+          "options": [
+            {"value": "critical", "label": "Critical"},
+            {"value": "major", "label": "Major"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "minor", "label": "Minor"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "temporal_information",
+      "title": "Temporal Information",
+      "icon": "Clock",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "founded_year",
+          "label": "Founded Year",
+          "ui_component": "number",
+          "placeholder": "e.g., 1985",
+          "help": "Year this location was established"
+        },
+        {
+          "key": "destroyed_year",
+          "label": "Destroyed Year (if applicable)",
+          "ui_component": "number",
+          "placeholder": "Leave empty if active"
+        },
+        {
+          "key": "key_events",
+          "label": "Key Events (Location History)",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "help": "Add important dates from this location's history (grand opening, renovation, etc.)",
+          "sub_fields": [
+            {"key": "year", "label": "Year", "ui_component": "number", "placeholder": "Year"},
+            {"key": "event", "label": "Event", "ui_component": "text", "placeholder": "Event description"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "geographic_information",
+      "title": "Geographic Information",
+      "icon": "MapPin",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "size",
+          "label": "Size",
+          "ui_component": "select",
+          "options": [
+            {"value": "small", "label": "Small"},
+            {"value": "medium", "label": "Medium"},
+            {"value": "large", "label": "Large"},
+            {"value": "massive", "label": "Massive"}
+          ]
+        },
+        {
+          "key": "address",
+          "label": "Address",
+          "ui_component": "text",
+          "column_span": 2,
+          "placeholder": "123 Main Street, Downtown District"
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 3,
+          "placeholder": "Brief description of the location..."
+        },
+        {
+          "key": "atmosphere",
+          "label": "Atmosphere",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 2,
+          "placeholder": "Describe the mood and feeling of this location..."
+        }
+      ]
+    },
+    {
+      "id": "population_control",
+      "title": "Population & Control",
+      "icon": "Users",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "primary_npcs",
+          "label": "Primary NPCs",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "reference_type": "character",
+          "help": "Key characters who live, work, or are frequently found at this location.",
+          "relationship_types": [
+            {"value": "resident", "label": "Resident"},
+            {"value": "worker", "label": "Worker"},
+            {"value": "owner", "label": "Owner"},
+            {"value": "manager", "label": "Manager"},
+            {"value": "guard", "label": "Security Guard"},
+            {"value": "visitor", "label": "Regular Visitor"}
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for characters at this location...",
+          "max_selections": 10
+        },
+        {
+          "key": "npc_density",
+          "label": "NPC Density",
+          "ui_component": "select",
+          "group": "npc_population_details",
+          "options": [
+            {"value": "none", "label": "None"},
+            {"value": "low", "label": "Low"},
+            {"value": "medium", "label": "Medium"},
+            {"value": "high", "label": "High"}
+          ]
+        },
+        {
+          "key": "crowd_behavior",
+          "label": "Crowd Behavior",
+          "ui_component": "select",
+          "group": "npc_population_details",
+          "options": [
+            {"value": "scattered", "label": "Scattered"},
+            {"value": "grouped", "label": "Grouped"},
+            {"value": "panicked", "label": "Panicked"},
+            {"value": "hostile", "label": "Hostile"},
+            {"value": "organized", "label": "Organized"}
+          ]
+        },
+        {
+          "key": "max_occupancy",
+          "label": "Max Occupancy",
+          "ui_component": "number",
+          "group": "npc_population_details",
+          "placeholder": "50"
+        },
+        {
+          "key": "current_population",
+          "label": "Current Population",
+          "ui_component": "number",
+          "group": "npc_population_details",
+          "placeholder": "10"
+        },
+        {
+          "key": "background_npcs",
+          "label": "Background NPCs",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "group": "npc_population_details",
+          "help": "General types of NPCs found in the background (not specific characters).",
+          "sub_fields": [
+            {"key": "type", "label": "Type", "ui_component": "text", "placeholder": "Type (e.g., survivor, worker)"},
+            {"key": "count", "label": "Count", "ui_component": "number", "placeholder": "1"},
+            {
+              "key": "behavior",
+              "label": "Behavior",
+              "ui_component": "select",
+              "options": [
+                {"value": "passive", "label": "Passive"},
+                {"value": "friendly", "label": "Friendly"},
+                {"value": "neutral", "label": "Neutral"},
+                {"value": "cautious", "label": "Cautious"},
+                {"value": "hostile", "label": "Hostile"}
+              ]
+            }
+          ]
+        },
+        {
+          "key": "faction_control",
+          "label": "Faction Control",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "reference_type": "faction",
+          "relationship_types": [
+            {"value": "controls", "label": "Controls"},
+            {"value": "influences", "label": "Influences"},
+            {"value": "disputes", "label": "Disputes Control"},
+            {"value": "protects", "label": "Protects"}
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for controlling faction...",
+          "max_selections": 1
+        }
+      ]
+    },
+    {
+      "id": "business_commerce",
+      "title": "Business & Commerce",
+      "icon": "Building2",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "associated_brands",
+          "label": "Associated Brands",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "reference_type": "brand",
+          "help": "Brands that operate, are sold, or have presence at this location.",
+          "relationship_types": [
+            {"value": "operates", "label": "Operates Here"},
+            {"value": "headquarters", "label": "Headquarters"},
+            {"value": "branch", "label": "Branch Office"},
+            {"value": "retail", "label": "Retail Location"},
+            {"value": "distributor", "label": "Distributor"},
+            {"value": "sponsor", "label": "Sponsor"}
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for brands at this location...",
+          "max_selections": 15
+        },
+        {
+          "key": "available_jobs",
+          "label": "Available Jobs",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "reference_type": "job",
+          "help": "Job positions typically available at this location.",
+          "relationship_types": [
+            {"value": "available", "label": "Position Available"},
+            {"value": "filled", "label": "Position Filled"},
+            {"value": "hiring", "label": "Actively Hiring"},
+            {"value": "seasonal", "label": "Seasonal Position"}
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for job positions...",
+          "max_selections": 10
+        }
+      ]
+    },
+    {
+      "id": "economy_services",
+      "title": "Economy & Services",
+      "icon": "DollarSign",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "business_type",
+          "label": "Business Type",
+          "ui_component": "text",
+          "placeholder": "e.g., convenience_store, restaurant, clinic"
+        },
+        {
+          "key": "operating_hours",
+          "label": "Operating Hours",
+          "ui_component": "text",
+          "placeholder": "e.g., 24/7, 9AM-5PM, Closed"
+        },
+        {
+          "key": "price_range",
+          "label": "Price Range",
+          "ui_component": "select",
+          "options": [
+            {"value": "budget", "label": "Budget"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "expensive", "label": "Expensive"},
+            {"value": "luxury", "label": "Luxury"}
+          ]
+        },
+        {
+          "key": "primary_brand",
+          "label": "Primary Brand",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "brand",
+          "help": "The main brand this location represents or operates under.",
+          "relationship_types": [
+            {"value": "primary", "label": "Primary Brand"}
+          ],
+          "show_relationship_selector": false,
+          "placeholder": "Search for primary brand...",
+          "max_selections": 1
+        },
+        {
+          "key": "currency_accepted",
+          "label": "Currency Accepted",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "help": "Types of currency or payment methods accepted at this location.",
+          "placeholder": "e.g., credits, barter, caps"
+        },
+        {
+          "key": "services_offered",
+          "label": "Services Offered",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "help": "Services, functions, or activities available at this location.",
+          "placeholder": "e.g., buy items, repair equipment, medical aid"
+        }
+      ]
+    },
+    {
+      "id": "available_items",
+      "title": "Available Items",
+      "icon": "Package",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "available_items",
+          "label": "Available Items",
+          "ui_component": "entity-multi-selector",
+          "column_span": 2,
+          "reference_type": "item",
+          "help": "Items that can be found, purchased, or are commonly available at this location.",
+          "relationship_types": [
+            {"value": "available", "label": "Available"},
+            {"value": "for_sale", "label": "For Sale"},
+            {"value": "rental", "label": "For Rent"},
+            {"value": "rare", "label": "Rare Find"},
+            {"value": "hidden", "label": "Hidden"},
+            {"value": "quest_reward", "label": "Quest Reward"}
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for items available here...",
+          "max_selections": 25
+        }
+      ]
+    },
+    {
+      "id": "features_amenities",
+      "title": "Features & Amenities",
+      "icon": "Tag",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "features",
+          "label": "Location Features",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "placeholder": "Feature"
+        },
+        {
+          "key": "notable_features",
+          "label": "Notable Features",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "help": "Key distinguishing characteristics that make this location memorable.",
+          "placeholder": "Notable feature"
+        }
+      ]
+    },
+    {
+      "id": "hidden_secrets",
+      "title": "Hidden Secrets",
+      "icon": "Eye",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "hidden_secrets",
+          "label": "Secret Elements",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "help": "Hidden areas, easter eggs, or secret loot that players can discover.",
+          "placeholder": "Hidden secret"
+        },
+        {
+          "key": "searchable_objects",
+          "label": "Searchable Objects",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "group": "interactive_elements",
+          "help": "Objects that players can search for items or clues.",
+          "sub_fields": [
+            {"key": "object", "label": "Object", "ui_component": "text", "placeholder": "Object name (e.g., cash register)"},
+            {"key": "loot_table", "label": "Loot Table", "ui_component": "text", "placeholder": "Loot table ID"},
+            {
+              "key": "searched",
+              "label": "Searched",
+              "ui_component": "select",
+              "options": [
+                {"value": "false", "label": "Not Searched"},
+                {"value": "true", "label": "Already Searched"}
+              ]
+            }
+          ]
+        },
+        {
+          "key": "vendors",
+          "label": "Vendors",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "group": "interactive_elements",
+          "help": "NPC vendors operating at this location.",
+          "sub_fields": [
+            {"key": "vendor_id", "label": "Character ID", "ui_component": "text", "placeholder": "Character ID"},
+            {"key": "vendor_type", "label": "Vendor Type", "ui_component": "text", "placeholder": "Vendor type (e.g., general_store)"},
+            {"key": "hours", "label": "Hours", "ui_component": "text", "placeholder": "Hours (e.g., 24/7)"}
+          ]
+        },
+        {
+          "key": "minigames",
+          "label": "Minigames",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "group": "interactive_elements",
+          "help": "Interactive activities or games available at this location.",
+          "sub_fields": [
+            {"key": "game_id", "label": "Game ID", "ui_component": "text", "placeholder": "Game ID (e.g., lock_picking)"},
+            {
+              "key": "difficulty",
+              "label": "Difficulty",
+              "ui_component": "select",
+              "options": [
+                {"value": "easy", "label": "Easy"},
+                {"value": "medium", "label": "Medium"},
+                {"value": "hard", "label": "Hard"},
+                {"value": "expert", "label": "Expert"}
+              ]
+            }
+          ]
+        },
+        {
+          "key": "interactive_features",
+          "label": "Interactive Features",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "group": "interactive_elements",
+          "help": "Simple interactive elements like workbenches, save points, etc.",
+          "placeholder": "e.g., workbench, save_point, fast_travel"
+        },
+        {
+          "key": "enterable",
+          "label": "Enterable",
+          "ui_component": "checkbox",
+          "group": "accessibility"
+        },
+        {
+          "key": "exterior_access",
+          "label": "Exterior Access",
+          "ui_component": "checkbox",
+          "group": "accessibility"
+        }
+      ]
+    },
+    {
+      "id": "environment_atmosphere",
+      "title": "Environment & Atmosphere",
+      "icon": "Lightbulb",
+      "columns": 3,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "lighting",
+          "label": "Lighting",
+          "ui_component": "select",
+          "options": [
+            {"value": "bright", "label": "Bright"},
+            {"value": "normal", "label": "Normal"},
+            {"value": "dim", "label": "Dim"},
+            {"value": "dark", "label": "Dark"}
+          ]
+        },
+        {
+          "key": "air_quality",
+          "label": "Air Quality",
+          "ui_component": "select",
+          "options": [
+            {"value": "fresh", "label": "Fresh"},
+            {"value": "normal", "label": "Normal"},
+            {"value": "musty", "label": "Musty"},
+            {"value": "toxic", "label": "Toxic"}
+          ]
+        },
+        {
+          "key": "size_env",
+          "label": "Size",
+          "ui_component": "select",
+          "options": [
+            {"value": "small", "label": "Small"},
+            {"value": "medium", "label": "Medium"},
+            {"value": "large", "label": "Large"},
+            {"value": "massive", "label": "Massive"}
+          ]
+        },
+        {
+          "key": "color_palette.primary",
+          "label": "Primary Color",
+          "ui_component": "color"
+        },
+        {
+          "key": "color_palette.secondary",
+          "label": "Secondary Color",
+          "ui_component": "color"
+        },
+        {
+          "key": "color_palette.accent",
+          "label": "Accent Color",
+          "ui_component": "color"
+        }
+      ]
+    },
+    {
+      "id": "security_safety",
+      "title": "Security & Safety",
+      "icon": "Lock",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "security_level",
+          "label": "Security Level",
+          "ui_component": "select",
+          "options": [
+            {"value": "none", "label": "None"},
+            {"value": "low", "label": "Low"},
+            {"value": "medium", "label": "Medium"},
+            {"value": "high", "label": "High"},
+            {"value": "maximum", "label": "Maximum"}
+          ]
+        },
+        {
+          "key": "maintenance_level",
+          "label": "Maintenance Level",
+          "ui_component": "select",
+          "options": [
+            {"value": "excellent", "label": "Excellent"},
+            {"value": "good", "label": "Good"},
+            {"value": "poor", "label": "Poor"},
+            {"value": "critical", "label": "Critical"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "story_integration",
+      "title": "Story Integration",
+      "icon": "TrendingUp",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "narrative_importance",
+          "label": "Narrative Importance",
+          "ui_component": "select",
+          "options": [
+            {"value": "minor", "label": "Minor"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "major", "label": "Major"},
+            {"value": "critical", "label": "Critical"}
+          ]
+        },
+        {
+          "key": "faction_relationship",
+          "label": "Faction Relationship",
+          "ui_component": "select",
+          "options": [
+            {"value": "headquarters", "label": "Headquarters"},
+            {"value": "outpost", "label": "Outpost"},
+            {"value": "contested", "label": "Contested"},
+            {"value": "neutral", "label": "Neutral"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "safety_hazards",
+      "title": "Safety & Hazards",
+      "icon": "AlertTriangle",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "threat_level",
+          "label": "Threat Level",
+          "ui_component": "select",
+          "options": [
+            {"value": "safe", "label": "Safe"},
+            {"value": "low", "label": "Low"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "high", "label": "High"},
+            {"value": "extreme", "label": "Extreme"}
+          ]
+        },
+        {
+          "key": "zombie_risk",
+          "label": "Zombie Risk",
+          "ui_component": "select",
+          "options": [
+            {"value": "none", "label": "None"},
+            {"value": "low", "label": "Low"},
+            {"value": "medium", "label": "Medium"},
+            {"value": "high", "label": "High"},
+            {"value": "extreme", "label": "Extreme"}
+          ]
+        },
+        {
+          "key": "infection_status",
+          "label": "Infection Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "clean", "label": "Clean"},
+            {"value": "contaminated", "label": "Contaminated"},
+            {"value": "infected", "label": "Infected"},
+            {"value": "quarantined", "label": "Quarantined"}
+          ]
+        },
+        {
+          "key": "hazards",
+          "label": "Hazards",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "help": "Specific dangers and risks present at this location.",
+          "sub_fields": [
+            {"key": "type", "label": "Type", "ui_component": "text", "placeholder": "Type (e.g., zombies, structural)"},
+            {
+              "key": "frequency",
+              "label": "Frequency",
+              "ui_component": "select",
+              "options": [
+                {"value": "rare", "label": "Rare"},
+                {"value": "occasional", "label": "Occasional"},
+                {"value": "frequent", "label": "Frequent"},
+                {"value": "constant", "label": "Constant"}
+              ]
+            },
+            {
+              "key": "severity",
+              "label": "Severity",
+              "ui_component": "select",
+              "options": [
+                {"value": "low", "label": "Low"},
+                {"value": "moderate", "label": "Moderate"},
+                {"value": "high", "label": "High"},
+                {"value": "critical", "label": "Critical"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ai_context",
+      "title": "AI Context",
+      "icon": "Brain",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "ai_atmosphere_description",
+          "label": "Atmosphere Description",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 3,
+          "placeholder": "Brief atmospheric description for AI scene generation...",
+          "help": "Used for AI environmental generation"
+        },
+        {
+          "key": "ai_visual_style",
+          "label": "Visual Style",
+          "ui_component": "text",
+          "column_span": 2,
+          "placeholder": "Visual style and mood for AI image generation...",
+          "help": "Used for visual generation and image prompts"
+        },
+        {
+          "key": "ai_ambient_summary",
+          "label": "Ambient Summary",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 3,
+          "placeholder": "Key environmental elements for AI context...",
+          "help": "Brief environmental context for AI generation"
+        }
+      ]
+    },
+    {
+      "id": "comfyui",
+      "component": "entity-workflow-trigger"
+    }
+  ]
+}

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  /* Header */
+  .tab-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .tab-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tab-title svg { width: 20px; height: 20px; color: var(--plugin-accent); }
+  .tab-subtitle { font-size: 13px; color: var(--surface-base-text-secondary); margin-top: 2px; }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* Section blocks */
+  .section {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    border: 1px solid var(--surface-elevated-border);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title svg { width: 16px; height: 16px; color: var(--plugin-accent); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .stat-chip .val { color: var(--surface-base-text); font-weight: 600; }
+  .stat-chip.good .val { color: var(--surface-success-border); }
+  .stat-chip.warn .val { color: var(--surface-warning-border); }
+
+  /* Image grid */
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .image-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--surface-elevated-border);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface-base-bg);
+  }
+  .image-card:hover { border-color: var(--surface-elevated-border); }
+  .image-card.selected { border-color: var(--plugin-accent); box-shadow: 0 0 0 1px var(--plugin-accent); }
+  .image-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+    background: var(--surface-elevated-bg);
+  }
+  .image-card-footer {
+    padding: 6px 8px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .image-card-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+  }
+  .image-card-caption-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .image-card-caption-dot.has { background: var(--surface-success-border); }
+  .image-card-caption-dot.none { background: var(--surface-elevated-border); }
+  .image-select-check {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid rgba(255,255,255,0.4);
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .image-card.selected .image-select-check {
+    background: var(--plugin-accent);
+    border-color: var(--plugin-accent);
+  }
+  .image-select-check svg { width: 12px; height: 12px; color: white; opacity: 0; }
+  .image-card.selected .image-select-check svg { opacity: 1; }
+
+  /* Caption editor */
+  .caption-editor {
+    display: none;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .caption-editor.visible { display: block; }
+  .caption-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .caption-editor-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .caption-editor-close {
+    background: none;
+    border: none;
+    color: var(--surface-base-text-secondary);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px;
+  }
+  .caption-editor-close:hover { color: var(--surface-base-text); }
+  .caption-image-preview {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: var(--surface-elevated-bg);
+  }
+  .caption-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .caption-textarea:focus { outline: none; border-color: var(--plugin-accent); box-shadow: 0 0 0 2px rgba(249,115,22,0.2); }
+  .caption-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    justify-content: flex-end;
+  }
+
+  /* Training config form */
+  .config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .form-group { margin-bottom: 0; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .form-input, .form-select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .form-input:focus, .form-select:focus { outline: none; border-color: var(--plugin-accent); box-shadow: 0 0 0 2px rgba(249,115,22,0.2); }
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+  .form-hint {
+    font-size: 10px;
+    color: var(--surface-elevated-border);
+    margin-top: 2px;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--plugin-accent); color: white; }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+  .btn-secondary { background: var(--surface-elevated-bg); border: 1px solid var(--surface-elevated-border); color: var(--surface-base-text-secondary); }
+  .btn-secondary:hover { border-color: var(--plugin-accent); color: var(--surface-base-text); }
+  .btn-ghost { background: transparent; color: var(--surface-base-text-secondary); border: none; padding: 6px 10px; }
+  .btn-ghost:hover { color: var(--plugin-accent); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn svg { width: 14px; height: 14px; }
+
+  .btn-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--surface-error-border); }
+  .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+  /* Training log */
+  .log-viewer {
+    display: none;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-border);
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--surface-base-text-secondary);
+  }
+  .log-viewer.visible { display: block; }
+  .log-line { padding: 1px 0; }
+  .log-line.info { color: var(--surface-base-text-secondary); }
+  .log-line.success { color: var(--surface-success-border); }
+  .log-line.warn { color: var(--surface-warning-border); }
+  .log-line.error { color: var(--surface-error-border); }
+  .log-time { color: var(--surface-elevated-border); margin-right: 8px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 100;
+    max-width: 300px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: rgba(34,197,94,0.15); border: 1px solid var(--surface-success-border); color: var(--surface-success-border); }
+  .toast.error { background: rgba(239,68,68,0.15); border: 1px solid var(--surface-error-border); color: var(--surface-error-border); }
+
+  /* Loading spinner */
+  .loading {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+  }
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .inline-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  /* Empty state */
+  .empty-grid {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--surface-elevated-border); margin: 16px 0; }
+</style>
+</head>
+<body>
+  <div class="tab-header">
+    <div>
+      <div class="tab-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <circle cx="9" cy="9" r="2"/>
+          <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+        </svg>
+        Training Dataset
+      </div>
+      <div class="tab-subtitle" id="subtitle">Loading...</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary btn-sm" onclick="selectAll()" id="select-all-btn">Select All</button>
+      <button class="btn btn-secondary btn-sm" onclick="autoCaption()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Auto-Caption
+      </button>
+    </div>
+  </div>
+
+  <div id="main-content">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      Loading dataset images...
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '/api/ext/lora-trainer';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || 'character';
+    const entityId = ctx.entityId || '';
+
+    let images = [];
+    let selectedImages = new Set();
+    let editingCaption = null;
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + type;
+      setTimeout(() => { t.className = 'toast'; }, 3000);
+    }
+
+    // ---- Data loading ----
+
+    async function loadDataset() {
+      if (!entityId) {
+        document.getElementById('main-content').innerHTML =
+          '<div class="empty-grid">No entity selected</div>';
+        return;
+      }
+
+      try {
+        const res = await fetch(API + '/datasets/' + entityType + '/' + entityId);
+        if (!res.ok) throw new Error('Failed to load dataset');
+        const data = await res.json();
+
+        images = data.images || [];
+        document.getElementById('subtitle').textContent =
+          data.total + ' images' + (data.captioned > 0 ? ' (' + data.captioned + ' captioned)' : '');
+
+        // Select all by default
+        selectedImages = new Set(images.map(i => i.filename));
+
+        renderContent();
+      } catch (err) {
+        document.getElementById('main-content').innerHTML =
+          '<div class="empty-grid" style="color:var(--surface-error-border)">Failed to load dataset<br><small style="color:var(--surface-base-text-secondary)">' + err.message + '</small></div>';
+      }
+    }
+
+    function renderContent() {
+      let html = '';
+
+      // Stats bar
+      const captionedCount = images.filter(i => i.has_caption).length;
+      html += '<div class="stats-bar">';
+      html += '  <div class="stat-chip"><span>Images:</span><span class="val">' + images.length + '</span></div>';
+      html += '  <div class="stat-chip ' + (selectedImages.size === images.length ? 'good' : 'warn') + '"><span>Selected:</span><span class="val">' + selectedImages.size + '</span></div>';
+      html += '  <div class="stat-chip ' + (captionedCount === images.length ? 'good' : 'warn') + '"><span>Captioned:</span><span class="val">' + captionedCount + '/' + images.length + '</span></div>';
+      html += '</div>';
+
+      // Image grid
+      if (images.length === 0) {
+        html += '<div class="section"><div class="empty-grid">';
+        html += '  No images found in entity assets directory.<br>';
+        html += '  Add training images to the entity\'s assets folder to begin.';
+        html += '</div></div>';
+      } else {
+        html += '<div class="section">';
+        html += '  <div class="section-title">';
+        html += '    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>';
+        html += '    Training Images';
+        html += '  </div>';
+        html += '  <div class="image-grid">';
+        for (const img of images) {
+          const selected = selectedImages.has(img.filename);
+          html += '<div class="image-card' + (selected ? ' selected' : '') + '" onclick="toggleImage(\'' + img.filename + '\')" data-filename="' + img.filename + '">';
+          html += '  <div class="image-select-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>';
+          html += '  <img src="' + img.url + '" alt="' + img.filename + '" onerror="this.style.background=\'var(--surface-elevated-border)\'">';
+          html += '  <div class="image-card-footer">';
+          html += '    <span class="image-card-name" title="' + img.filename + '">' + img.filename + '</span>';
+          html += '    <div style="display:flex;align-items:center;gap:4px;">';
+          html += '      <span class="image-card-caption-dot ' + (img.has_caption ? 'has' : 'none') + '" title="' + (img.has_caption ? 'Captioned' : 'No caption') + '"></span>';
+          html += '      <button class="btn-ghost" style="padding:2px;font-size:14px;" onclick="event.stopPropagation();editCaption(\'' + img.filename + '\')" title="Edit caption">E</button>';
+          html += '    </div>';
+          html += '  </div>';
+          html += '</div>';
+        }
+        html += '  </div>';
+
+        // Caption editor (initially hidden)
+        html += '  <div class="caption-editor" id="caption-editor">';
+        html += '    <div class="caption-editor-header">';
+        html += '      <span class="caption-editor-title" id="caption-editor-title">Caption for: --</span>';
+        html += '      <button class="caption-editor-close" onclick="closeCaptionEditor()">&times;</button>';
+        html += '    </div>';
+        html += '    <img class="caption-image-preview" id="caption-preview-img" src="" alt="">';
+        html += '    <textarea class="caption-textarea" id="caption-text" placeholder="Enter training caption for this image..."></textarea>';
+        html += '    <div class="caption-actions">';
+        html += '      <button class="btn btn-secondary btn-sm" onclick="closeCaptionEditor()">Cancel</button>';
+        html += '      <button class="btn btn-primary btn-sm" onclick="saveCaption()">Save Caption</button>';
+        html += '    </div>';
+        html += '  </div>';
+
+        html += '</div>';
+      }
+
+      // Training config section
+      html += '<div class="section">';
+      html += '  <div class="section-title">';
+      html += '    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+      html += '    Training Configuration';
+      html += '  </div>';
+      html += '  <div class="config-grid">';
+
+      html += '    <div class="form-group">';
+      html += '      <label class="form-label">Training Steps</label>';
+      html += '      <input type="number" class="form-input" id="cfg-steps" value="1500" min="100" max="10000" step="100">';
+      html += '      <div class="form-hint">More steps = better detail, risk of overfitting</div>';
+      html += '    </div>';
+
+      html += '    <div class="form-group">';
+      html += '      <label class="form-label">Learning Rate</label>';
+      html += '      <select class="form-select" id="cfg-lr">';
+      html += '        <option value="5e-5">5e-5 (conservative)</option>';
+      html += '        <option value="1e-4" selected>1e-4 (standard)</option>';
+      html += '        <option value="2e-4">2e-4 (aggressive)</option>';
+      html += '        <option value="5e-4">5e-4 (fast/risky)</option>';
+      html += '      </select>';
+      html += '    </div>';
+
+      html += '    <div class="form-group">';
+      html += '      <label class="form-label">LoRA Rank</label>';
+      html += '      <select class="form-select" id="cfg-rank">';
+      html += '        <option value="8">8 (minimal, ~4MB)</option>';
+      html += '        <option value="16">16 (light, ~8MB)</option>';
+      html += '        <option value="32" selected>32 (standard, ~16MB)</option>';
+      html += '        <option value="64">64 (detailed, ~32MB)</option>';
+      html += '        <option value="128">128 (maximum, ~64MB)</option>';
+      html += '      </select>';
+      html += '    </div>';
+
+      html += '    <div class="form-group">';
+      html += '      <label class="form-label">Resolution</label>';
+      html += '      <select class="form-select" id="cfg-resolution">';
+      html += '        <option value="512" selected>512x512</option>';
+      html += '        <option value="768">768x768</option>';
+      html += '        <option value="1024">1024x1024 (SDXL)</option>';
+      html += '      </select>';
+      html += '    </div>';
+
+      html += '    <div class="form-group">';
+      html += '      <label class="form-label">Optimizer</label>';
+      html += '      <select class="form-select" id="cfg-optimizer">';
+      html += '        <option value="AdamW8bit" selected>AdamW8bit</option>';
+      html += '        <option value="AdamW">AdamW</option>';
+      html += '        <option value="Lion">Lion</option>';
+      html += '        <option value="Prodigy">Prodigy</option>';
+      html += '      </select>';
+      html += '    </div>';
+
+      html += '    <div class="form-group">';
+      html += '      <label class="form-label">LR Scheduler</label>';
+      html += '      <select class="form-select" id="cfg-scheduler">';
+      html += '        <option value="cosine" selected>Cosine</option>';
+      html += '        <option value="constant">Constant</option>';
+      html += '        <option value="constant_with_warmup">Constant + Warmup</option>';
+      html += '        <option value="polynomial">Polynomial</option>';
+      html += '      </select>';
+      html += '    </div>';
+
+      html += '  </div>';
+
+      html += '  <div class="divider"></div>';
+
+      html += '  <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;">';
+      html += '    <div style="font-size:12px;color:var(--surface-base-text-secondary);">';
+      html += '      <span id="queue-summary">Ready to train with ' + selectedImages.size + ' images</span>';
+      html += '    </div>';
+      html += '    <div style="display:flex;gap:8px;">';
+      html += '      <button class="btn btn-secondary" onclick="toggleLog()">View Log</button>';
+      html += '      <button class="btn btn-primary" id="train-btn" onclick="queueTraining()"' + (images.length === 0 ? ' disabled' : '') + '>';
+      html += '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+      html += '        Queue Training';
+      html += '      </button>';
+      html += '    </div>';
+      html += '  </div>';
+      html += '</div>';
+
+      // Training log viewer (hidden by default)
+      html += '<div class="log-viewer" id="log-viewer"></div>';
+
+      document.getElementById('main-content').innerHTML = html;
+    }
+
+    // ---- Image selection ----
+
+    function toggleImage(filename) {
+      if (selectedImages.has(filename)) {
+        selectedImages.delete(filename);
+      } else {
+        selectedImages.add(filename);
+      }
+      // Update visual state without full re-render
+      const card = document.querySelector('[data-filename="' + filename + '"]');
+      if (card) card.classList.toggle('selected', selectedImages.has(filename));
+      updateSelectionCount();
+    }
+
+    function selectAll() {
+      const allSelected = selectedImages.size === images.length;
+      if (allSelected) {
+        selectedImages.clear();
+      } else {
+        selectedImages = new Set(images.map(i => i.filename));
+      }
+      renderContent();
+    }
+
+    function updateSelectionCount() {
+      const summary = document.getElementById('queue-summary');
+      if (summary) {
+        summary.textContent = 'Ready to train with ' + selectedImages.size + ' images';
+      }
+      const selectBtn = document.getElementById('select-all-btn');
+      if (selectBtn) {
+        selectBtn.textContent = selectedImages.size === images.length ? 'Deselect All' : 'Select All';
+      }
+    }
+
+    // ---- Caption editing ----
+
+    function editCaption(filename) {
+      editingCaption = filename;
+      const img = images.find(i => i.filename === filename);
+      if (!img) return;
+
+      const editor = document.getElementById('caption-editor');
+      const title = document.getElementById('caption-editor-title');
+      const preview = document.getElementById('caption-preview-img');
+      const textarea = document.getElementById('caption-text');
+
+      title.textContent = 'Caption for: ' + filename;
+      preview.src = img.url;
+      textarea.value = img.caption || '';
+
+      editor.classList.add('visible');
+      textarea.focus();
+    }
+
+    function closeCaptionEditor() {
+      editingCaption = null;
+      document.getElementById('caption-editor').classList.remove('visible');
+    }
+
+    async function saveCaption() {
+      if (!editingCaption) return;
+      const caption = document.getElementById('caption-text').value;
+
+      try {
+        const res = await fetch(API + '/datasets/' + entityType + '/' + entityId + '/captions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            captions: [{ image_name: editingCaption, caption: caption }]
+          }),
+        });
+        if (!res.ok) throw new Error('Failed to save');
+
+        // Update local state
+        const img = images.find(i => i.filename === editingCaption);
+        if (img) {
+          img.caption = caption;
+          img.has_caption = !!caption.trim();
+        }
+
+        showToast('Caption saved');
+        closeCaptionEditor();
+        renderContent();
+      } catch (err) {
+        showToast('Failed to save caption: ' + err.message, 'error');
+      }
+    }
+
+    // ---- Auto-caption ----
+
+    async function autoCaption() {
+      try {
+        const res = await fetch(API + '/datasets/' + entityType + '/' + entityId + '/prepare', {
+          method: 'POST',
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.detail || 'Failed to prepare');
+        }
+        const data = await res.json();
+        showToast('Captioned ' + data.captioned + ' images (skipped ' + data.skipped_existing + ' existing)');
+        addLogLine('Auto-caption complete: ' + data.captioned + ' new, ' + data.skipped_existing + ' skipped', 'success');
+        addLogLine('Base caption: ' + data.base_caption, 'info');
+
+        // Reload dataset
+        await loadDataset();
+      } catch (err) {
+        showToast('Auto-caption failed: ' + err.message, 'error');
+        addLogLine('Auto-caption failed: ' + err.message, 'error');
+      }
+    }
+
+    // ---- Training ----
+
+    async function queueTraining() {
+      const btn = document.getElementById('train-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="inline-spinner"></span> Queuing...';
+
+      const config = {
+        steps: parseInt(document.getElementById('cfg-steps').value) || 1500,
+        lr: document.getElementById('cfg-lr').value,
+        rank: parseInt(document.getElementById('cfg-rank').value) || 32,
+        resolution: parseInt(document.getElementById('cfg-resolution').value) || 512,
+        optimizer: document.getElementById('cfg-optimizer').value,
+        scheduler: document.getElementById('cfg-scheduler').value,
+      };
+
+      addLogLine('Queuing training job...', 'info');
+      addLogLine('Config: ' + JSON.stringify(config), 'info');
+
+      try {
+        const res = await fetch(API + '/train', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_type: entityType,
+            entity_id: entityId,
+            config: config,
+          }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast(data.message || 'Training job queued!');
+          addLogLine('Job queued: ' + data.job_id, 'success');
+          addLogLine('Images: ' + data.image_count + ', Steps: ' + config.steps, 'info');
+        } else {
+          throw new Error(data.detail || 'Failed to queue training');
+        }
+      } catch (err) {
+        showToast('Failed: ' + err.message, 'error');
+        addLogLine('Error: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Queue Training';
+      }
+    }
+
+    // ---- Log viewer ----
+
+    let logVisible = false;
+
+    function toggleLog() {
+      logVisible = !logVisible;
+      const viewer = document.getElementById('log-viewer');
+      if (viewer) viewer.classList.toggle('visible', logVisible);
+    }
+
+    function addLogLine(message, level) {
+      const viewer = document.getElementById('log-viewer');
+      if (!viewer) return;
+
+      const now = new Date();
+      const time = now.toLocaleTimeString('en-US', { hour12: false });
+      const line = document.createElement('div');
+      line.className = 'log-line ' + level;
+      line.innerHTML = '<span class="log-time">[' + time + ']</span>' + message;
+      viewer.appendChild(line);
+      viewer.scrollTop = viewer.scrollHeight;
+
+      // Auto-show log on first entry
+      if (!logVisible) {
+        logVisible = true;
+        viewer.classList.add('visible');
+      }
+    }
+
+    // ---- Init ----
+    loadDataset();
+  </script>
+</body>
+</html>

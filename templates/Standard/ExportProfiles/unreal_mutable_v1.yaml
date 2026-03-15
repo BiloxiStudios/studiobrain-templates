@@ -1,0 +1,12 @@
+export_profile: unreal_mutable_v1
+version: 1.0.0
+description: Export format for Unreal Engine Mutable pipeline (textures/materials/meshes).
+outputs:
+  format: png
+  default_resolution: null
+package:
+  root_name: '{assembly_id}_mutable'
+  include_manifest: true
+  manifest_name: mutable_manifest.json
+naming:
+  pattern: Textures/{slot_group}/{slot_name}/{slot_variant_key_or_default}.png

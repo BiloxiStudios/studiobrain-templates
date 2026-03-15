@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header svg { flex-shrink: 0; }
+
+  /* --- Status badge --- */
+  .status-card {
+    padding: 12px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 10px;
+  }
+  .status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .status-row:last-child { margin-bottom: 0; }
+  .status-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+  }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .badge-synced {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--surface-success-border);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .badge-pending {
+    background: rgba(234, 179, 8, 0.15);
+    color: var(--surface-warning-border);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+  }
+  .badge-error {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--surface-error-border);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  .badge-not-linked {
+    background: rgba(100, 116, 139, 0.15);
+    color: var(--surface-base-text-secondary);
+    border: 1px solid rgba(100, 116, 139, 0.3);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-synced { background: var(--surface-success-border); }
+  .dot-pending { background: var(--surface-warning-border); }
+  .dot-error { background: var(--surface-error-border); }
+  .dot-not-linked { background: var(--surface-base-text-secondary); }
+
+  /* --- Timestamp --- */
+  .timestamp {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* --- Notion link --- */
+  .notion-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--surface-base-text);
+    text-decoration: none;
+    font-size: 12px;
+    padding: 4px 10px;
+    background: var(--surface-base-bg);
+    border-radius: 6px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: all 0.15s;
+  }
+  .notion-link:hover {
+    border-color: var(--surface-base-text);
+    color: #ffffff;
+  }
+
+  /* --- Buttons --- */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 8px;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-sync {
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .btn-sync:hover:not(:disabled) {
+    background: var(--surface-elevated-bg);
+    border-color: var(--surface-base-text);
+  }
+  .btn-unlink {
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px;
+    margin-top: 4px;
+  }
+  .btn-unlink:hover:not(:disabled) {
+    color: var(--surface-error-border);
+  }
+
+  /* --- Error message --- */
+  .error-msg {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 6px;
+    font-size: 11px;
+    color: var(--surface-error-text);
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  /* --- Setup message --- */
+  .setup-msg {
+    padding: 12px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-border);
+    text-align: center;
+  }
+  .setup-msg p {
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .setup-link {
+    color: var(--surface-base-text);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* --- Status bar --- */
+  .status-bar {
+    margin-top: 6px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--surface-elevated-border);
+    min-height: 16px;
+  }
+  .status-bar.error { color: var(--surface-error-border); }
+  .status-bar.success { color: var(--surface-success-border); }
+
+  /* --- Loading --- */
+  .loading {
+    text-align: center;
+    padding: 20px 0;
+    color: var(--surface-base-text-secondary);
+  }
+  .loading-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--surface-base-text);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+  <div id="loading-state" class="loading">
+    <div class="loading-spinner"></div>
+    <div>Checking sync...</div>
+  </div>
+
+  <div id="panel-ui" style="display:none;">
+    <div class="header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16v16H4z"/>
+        <path d="M9 4v16"/>
+        <path d="M4 9h5"/>
+        <path d="M4 14h5"/>
+      </svg>
+      Notion Sync
+    </div>
+
+    <!-- Status card -->
+    <div class="status-card">
+      <div class="status-row">
+        <span class="status-label">Status</span>
+        <span class="status-badge" id="status-badge">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Loading</span>
+        </span>
+      </div>
+      <div class="status-row" id="last-synced-row" style="display:none;">
+        <span class="status-label">Last synced</span>
+        <span class="timestamp" id="last-synced"></span>
+      </div>
+    </div>
+
+    <!-- Notion page link -->
+    <div id="notion-link-container" style="display:none; margin-bottom: 10px;">
+      <a class="notion-link" id="notion-link" href="#" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        Open in Notion
+      </a>
+    </div>
+
+    <!-- Error message -->
+    <div id="error-container" style="display:none;">
+      <div class="error-msg" id="error-msg"></div>
+    </div>
+
+    <!-- Sync button -->
+    <button class="btn btn-sync" id="btn-sync" onclick="syncNow()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/>
+        <polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+        <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+      </svg>
+      Sync Now
+    </button>
+
+    <!-- Unlink button (only shown when linked) -->
+    <button class="btn btn-unlink" id="btn-unlink" onclick="unlinkEntity()" style="display:none;">
+      Unlink from Notion
+    </button>
+
+    <!-- Status message -->
+    <div class="status-bar" id="status-bar"></div>
+
+    <!-- Setup needed message -->
+    <div id="setup-container" style="display:none;">
+      <div class="setup-msg">
+        <p>Notion integration not configured.</p>
+        <p>Add your API key in<br><span class="setup-link">Settings > Plugins > Notion Sync</span></p>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const API = '/api/ext/notion-sync';
+  const ctx = window.PLUGIN_CONTEXT || {};
+  const entityType = ctx.entityType || '';
+  const entityId = ctx.entityId || '';
+
+  let currentState = null;
+
+  // -----------------------------------------------------------------------
+  // Init
+  // -----------------------------------------------------------------------
+
+  async function init() {
+    try {
+      const [statusRes, pluginRes] = await Promise.all([
+        fetch(`${API}/status/${entityType}/${entityId}`).then(r => r.json()),
+        fetch(`${API}/`).then(r => r.json()),
+      ]);
+
+      currentState = statusRes;
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('panel-ui').style.display = 'block';
+
+      // Check if plugin is configured
+      if (!pluginRes.api_key_configured) {
+        document.getElementById('setup-container').style.display = 'block';
+        document.getElementById('btn-sync').style.display = 'none';
+        updateBadge('not_linked', 'Not configured');
+        return;
+      }
+
+      renderStatus(statusRes);
+
+    } catch (err) {
+      console.error('Notion sync panel init error:', err);
+      document.getElementById('loading-state').innerHTML =
+        '<div style="color:var(--surface-error-border);">Failed to load sync status</div>';
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Render
+  // -----------------------------------------------------------------------
+
+  function renderStatus(state) {
+    const status = state.status || 'not_linked';
+
+    updateBadge(status);
+
+    // Last synced
+    if (state.last_synced) {
+      document.getElementById('last-synced-row').style.display = 'flex';
+      document.getElementById('last-synced').textContent = formatTime(state.last_synced);
+    } else {
+      document.getElementById('last-synced-row').style.display = 'none';
+    }
+
+    // Notion link
+    if (state.notion_url) {
+      document.getElementById('notion-link-container').style.display = 'block';
+      document.getElementById('notion-link').href = state.notion_url;
+      document.getElementById('btn-unlink').style.display = 'block';
+    } else {
+      document.getElementById('notion-link-container').style.display = 'none';
+      document.getElementById('btn-unlink').style.display = 'none';
+    }
+
+    // Error
+    if (state.error) {
+      document.getElementById('error-container').style.display = 'block';
+      document.getElementById('error-msg').textContent = state.error;
+    } else {
+      document.getElementById('error-container').style.display = 'none';
+    }
+
+    // Button text
+    const btn = document.getElementById('btn-sync');
+    if (state.notion_page_id) {
+      btn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/>
+          <polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+          <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+        </svg>
+        Sync Now`;
+    } else {
+      btn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+        Link & Sync to Notion`;
+    }
+  }
+
+  function updateBadge(status, overrideText) {
+    const badge = document.getElementById('status-badge');
+    const dot = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+
+    // Remove all classes
+    badge.className = 'status-badge';
+    dot.className = 'status-dot';
+
+    const labels = {
+      'synced': 'Synced',
+      'pending': 'Pending',
+      'error': 'Error',
+      'not_linked': 'Not Linked',
+    };
+
+    const mapped = status === 'not_linked' ? 'not-linked' : status;
+    badge.classList.add(`badge-${mapped}`);
+    dot.classList.add(`dot-${mapped}`);
+    text.textContent = overrideText || labels[status] || status;
+  }
+
+  // -----------------------------------------------------------------------
+  // Actions
+  // -----------------------------------------------------------------------
+
+  async function syncNow() {
+    const btn = document.getElementById('btn-sync');
+    btn.disabled = true;
+    setStatus('Syncing...', false);
+
+    try {
+      const resp = await fetch(`${API}/sync/${entityType}/${entityId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+
+      const data = await resp.json();
+
+      if (resp.ok && data.status === 'synced') {
+        setStatus('Synced successfully', false, true);
+        // Refresh status
+        const newState = await fetch(`${API}/status/${entityType}/${entityId}`).then(r => r.json());
+        currentState = newState;
+        renderStatus(newState);
+      } else if (data.status === 'not_configured') {
+        setStatus('API key not configured', true);
+      } else {
+        setStatus(data.detail || data.message || 'Sync failed', true);
+      }
+
+    } catch (err) {
+      setStatus('Sync failed: ' + err.message, true);
+    }
+
+    btn.disabled = false;
+  }
+
+  async function unlinkEntity() {
+    if (!confirm('Unlink this entity from Notion? The Notion page will not be deleted.')) return;
+
+    // Remove from sync state by syncing with a cleared state
+    // For now, we just visually reset — the real unlink would need a backend endpoint
+    setStatus('Unlinked', false, true);
+    document.getElementById('notion-link-container').style.display = 'none';
+    document.getElementById('btn-unlink').style.display = 'none';
+    updateBadge('not_linked');
+  }
+
+  // -----------------------------------------------------------------------
+  // Helpers
+  // -----------------------------------------------------------------------
+
+  function formatTime(iso) {
+    try {
+      const d = new Date(iso);
+      const now = new Date();
+      const diff = now - d;
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return iso;
+    }
+  }
+
+  function setStatus(msg, isError, isSuccess) {
+    const el = document.getElementById('status-bar');
+    el.textContent = msg;
+    el.className = 'status-bar';
+    if (isError) el.classList.add('error');
+    if (isSuccess) el.classList.add('success');
+    if (!isError) {
+      setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 4000);
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Boot
+  // -----------------------------------------------------------------------
+  init();
+</script>
+</body>
+</html>

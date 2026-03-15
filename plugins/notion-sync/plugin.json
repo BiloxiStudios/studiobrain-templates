@@ -1,0 +1,91 @@
+{
+  "id": "notion-sync",
+  "name": "Notion Sync",
+  "version": "0.2.0",
+  "description": "Two-way sync entities with Notion databases. Map entity fields to Notion properties, keep character wikis and world bibles in sync.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "document-export",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "notion-sync",
+          "route": "/plugins/notion-sync",
+          "label": "Notion Sync",
+          "icon": "book-open",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "sync-status",
+          "label": "Notion Sync",
+          "location": "entity-sidebar",
+          "icon": "refresh-cw"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "notion-client>=2.2.0",
+      "httpx>=0.25.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "network:external",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "notion_api_key": {
+      "type": "secret",
+      "label": "Notion Integration Token",
+      "description": "Internal integration token from notion.so/my-integrations",
+      "required": true,
+      "scope": "instance"
+    },
+    "default_database_id": {
+      "type": "string",
+      "label": "Default Notion Database ID",
+      "description": "ID of the default Notion database to sync with (32-character hex from the database URL)",
+      "required": false,
+      "scope": "instance"
+    },
+    "auto_sync": {
+      "type": "boolean",
+      "label": "Auto-sync on Save",
+      "description": "Automatically sync entities to Notion when they are saved in Studio",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "sync_direction": {
+      "type": "string",
+      "label": "Sync Direction",
+      "description": "Direction of sync: studio_to_notion or bidirectional",
+      "required": false,
+      "default": "studio_to_notion",
+      "scope": "instance"
+    },
+    "sync_entity_types": {
+      "type": "string",
+      "label": "Entity Types to Sync",
+      "description": "Comma-separated entity types (e.g., character,location,item)",
+      "required": false,
+      "default": "character,location",
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#000000"
+}

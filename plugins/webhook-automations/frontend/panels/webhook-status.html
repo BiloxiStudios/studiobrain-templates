@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header svg { flex-shrink: 0; }
+  .context-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--surface-elevated-bg);
+    border-radius: 99px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .rule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .rule-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--plugin-accent);
+    position: relative;
+  }
+  .rule-card.inactive {
+    border-left-color: var(--surface-elevated-border);
+    opacity: 0.6;
+  }
+  .rule-name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rule-meta {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .rule-event {
+    padding: 1px 6px;
+    background: var(--surface-elevated-border);
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+  }
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.success { background: var(--surface-success-border); }
+  .status-dot.failure { background: var(--surface-error-border); }
+  .status-dot.pending { background: var(--surface-elevated-border); }
+  .delivery-info {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: white;
+  }
+  .btn-test {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-test:hover { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+  .btn-test.loading {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  .empty-state {
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    padding: 24px 0;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .empty-state a {
+    color: var(--plugin-accent);
+    text-decoration: none;
+  }
+  .empty-state a:hover { text-decoration: underline; }
+  .loading-state {
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    padding: 20px 0;
+    font-size: 12px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+  .toast.success { background: var(--surface-success-text); color: var(--surface-success-active); }
+  .toast.error { background: var(--surface-error-bg); color: var(--surface-error-active); }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--plugin-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/>
+      <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.4"/>
+      <circle cx="12" cy="12" r="2"/>
+      <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.4"/>
+      <path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>
+    </svg>
+    Webhook Status
+  </div>
+
+  <div class="context-bar">
+    <span class="badge" id="entity-type-badge">Loading...</span>
+    <span class="badge" id="rule-count-badge">0 rules</span>
+  </div>
+
+  <div id="rule-list" class="rule-list">
+    <div class="loading-state">Loading rules...</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_BASE = '/api/ext/webhook-automations';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || 'unknown';
+
+    document.getElementById('entity-type-badge').textContent = entityType;
+
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + type;
+      setTimeout(() => t.className = 'toast', 3000);
+    }
+
+    function timeAgo(iso) {
+      if (!iso) return 'never';
+      const diff = Date.now() - new Date(iso).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      return Math.floor(hrs / 24) + 'd ago';
+    }
+
+    async function loadRules() {
+      try {
+        const [rulesRes, logsRes] = await Promise.all([
+          fetch(API_BASE + '/rules'),
+          fetch(API_BASE + '/logs?limit=500')
+        ]);
+        const rulesData = await rulesRes.json();
+        const logsData = await logsRes.json();
+
+        const allRules = rulesData.rules || [];
+        const allLogs = logsData.logs || [];
+
+        // Filter rules that match this entity type (or have no entity_type filter)
+        const matching = allRules.filter(r => {
+          if (!r.entity_types || r.entity_types.length === 0) return true;
+          return r.entity_types.includes(entityType);
+        });
+
+        document.getElementById('rule-count-badge').textContent = matching.length + ' rule' + (matching.length !== 1 ? 's' : '');
+
+        const container = document.getElementById('rule-list');
+        if (matching.length === 0) {
+          container.innerHTML = '<div class="empty-state">No webhook rules match<br/>the <strong>' + entityType + '</strong> entity type.</div>';
+          return;
+        }
+
+        container.innerHTML = matching.map(rule => {
+          // Find latest log for this rule
+          const ruleLogs = allLogs.filter(l => l.rule_id === rule.id);
+          const latest = ruleLogs[0];
+          const statusClass = !latest ? 'pending' : (latest.success ? 'success' : 'failure');
+          const statusLabel = !latest ? 'No deliveries yet' :
+            (latest.success ? 'Last: OK ' + (latest.duration_ms || 0) + 'ms' : 'Last: Failed' + (latest.status_code ? ' (' + latest.status_code + ')' : ''));
+
+          return '<div class="rule-card' + (rule.active ? '' : ' inactive') + '">' +
+            '<div class="rule-name">' +
+              '<span class="status-dot ' + statusClass + '"></span>' +
+              escapeHtml(rule.name) +
+            '</div>' +
+            '<div class="rule-meta">' +
+              '<span class="rule-event">' + escapeHtml(rule.event_pattern) + '</span>' +
+              '<span>' + escapeHtml(rule.method || 'POST') + '</span>' +
+            '</div>' +
+            '<div class="delivery-info">' + statusLabel + (latest ? ' &middot; ' + timeAgo(latest.timestamp) : '') + '</div>' +
+            '<button class="btn btn-test" id="test-btn-' + rule.id + '" onclick="testRule(\'' + rule.id + '\')">' +
+              'Test' +
+            '</button>' +
+          '</div>';
+        }).join('');
+
+      } catch (err) {
+        document.getElementById('rule-list').innerHTML =
+          '<div class="empty-state">Failed to load rules.<br/>' + escapeHtml(err.message) + '</div>';
+      }
+    }
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str || '';
+      return d.innerHTML;
+    }
+
+    async function testRule(ruleId) {
+      const btn = document.getElementById('test-btn-' + ruleId);
+      if (btn) { btn.classList.add('loading'); btn.textContent = 'Sending...'; }
+
+      try {
+        const resp = await fetch(API_BASE + '/rules/' + ruleId + '/test', { method: 'POST' });
+        const data = await resp.json();
+        if (data.result && data.result.success) {
+          showToast('Test delivered (' + (data.result.duration_ms || 0) + 'ms)', 'success');
+        } else {
+          const errMsg = data.result ? (data.result.error || 'HTTP ' + data.result.status_code) : 'Unknown error';
+          showToast('Test failed: ' + errMsg, 'error');
+        }
+      } catch (err) {
+        showToast('Test error: ' + err.message, 'error');
+      }
+
+      if (btn) { btn.classList.remove('loading'); btn.textContent = 'Test'; }
+      // Refresh to show updated status
+      setTimeout(loadRules, 500);
+    }
+
+    loadRules();
+  </script>
+</body>
+</html>

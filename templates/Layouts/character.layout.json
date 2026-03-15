@@ -1,0 +1,755 @@
+{
+  "entity_type": "character",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "User",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Character ID",
+          "ui_component": "read-only-text",
+          "required": true,
+          "auto_generate_from": "name",
+          "placeholder": "auto-generated from name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores"
+        },
+        {
+          "key": "name",
+          "label": "Full Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Gary Henderson"
+        },
+        {
+          "key": "nickname",
+          "label": "Nickname",
+          "ui_component": "text",
+          "placeholder": "Gary"
+        },
+        {
+          "key": "age",
+          "label": "Age",
+          "ui_component": "number",
+          "placeholder": "30"
+        },
+        {
+          "key": "species",
+          "label": "Species",
+          "ui_component": "select",
+          "options": [
+            {
+              "value": "human",
+              "label": "Human"
+            },
+            {
+              "value": "zombie",
+              "label": "Zombie"
+            },
+            {
+              "value": "animal",
+              "label": "Animal"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ]
+        },
+        {
+          "key": "gender",
+          "label": "Gender",
+          "ui_component": "select",
+          "options": [
+            {
+              "value": "male",
+              "label": "Male"
+            },
+            {
+              "value": "female",
+              "label": "Female"
+            },
+            {
+              "value": "non-binary",
+              "label": "Non-binary"
+            },
+            {
+              "value": "other",
+              "label": "Other"
+            }
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {
+              "value": "active",
+              "label": "Active"
+            },
+            {
+              "value": "deceased",
+              "label": "Deceased"
+            },
+            {
+              "value": "infected",
+              "label": "Infected"
+            },
+            {
+              "value": "unknown",
+              "label": "Unknown"
+            },
+            {
+              "value": "archived",
+              "label": "Archived"
+            }
+          ]
+        },
+        {
+          "key": "narrative_importance",
+          "label": "Narrative Importance",
+          "ui_component": "select",
+          "options": [
+            {
+              "value": "main",
+              "label": "Main Character"
+            },
+            {
+              "value": "major",
+              "label": "Major Character"
+            },
+            {
+              "value": "minor",
+              "label": "Minor Character"
+            }
+          ]
+        },
+        {
+          "key": "primary_image",
+          "label": "Primary Image",
+          "ui_component": "text"
+        }
+      ]
+    },
+    {
+      "id": "block_1771782684900",
+      "title": "Primary Image",
+      "icon": "ImageIcon",
+      "component": "primary-image",
+      "component_config": {
+        "object_fit": "contain"
+      },
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false
+    },
+    {
+      "id": "block_1771728956572",
+      "title": "Plugin Notes",
+      "icon": "message-square",
+      "component": "plugin:hello-world:entity-notes",
+      "component_config": {},
+      "component_source": "hello-world",
+      "surface": "accent",
+      "description": "Notes"
+    },
+    {
+      "id": "block_1771788397362",
+      "title": "Timeline Panel",
+      "icon": "Clock",
+      "component": "entity-timeline",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "temporal_information",
+      "title": "Temporal Information",
+      "icon": "Clock",
+      "columns": 3,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "birth_year",
+          "label": "Birth Year",
+          "ui_component": "number",
+          "placeholder": "e.g., 1965",
+          "help": "Game is set in 1998-1999"
+        },
+        {
+          "key": "death_year",
+          "label": "Death Year (if applicable)",
+          "ui_component": "number",
+          "placeholder": "Leave empty if alive"
+        },
+        {
+          "key": "current_age_reference_year",
+          "label": "Age Reference Year",
+          "ui_component": "number",
+          "placeholder": "1998",
+          "help": "Year the age field is accurate for"
+        },
+        {
+          "key": "key_dates",
+          "label": "Key Dates (Timeline Events)",
+          "ui_component": "object-array",
+          "column_span": 3,
+          "help": "Add important dates from this character's history (job started, moved to city, etc.)",
+          "sub_fields": [
+            {
+              "key": "year",
+              "label": "Year",
+              "ui_component": "number"
+            },
+            {
+              "key": "event",
+              "label": "Event",
+              "ui_component": "text"
+            }
+          ]
+        }
+      ],
+      "surface": "accent"
+    },
+    {
+      "id": "physical_description",
+      "title": "Physical Description",
+      "icon": "User",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "height",
+          "label": "Height",
+          "ui_component": "text",
+          "placeholder": "5'10"
+        },
+        {
+          "key": "build",
+          "label": "Build",
+          "ui_component": "select",
+          "options": [
+            {
+              "value": "slim",
+              "label": "Slim"
+            },
+            {
+              "value": "average",
+              "label": "Average"
+            },
+            {
+              "value": "muscular",
+              "label": "Muscular"
+            },
+            {
+              "value": "heavyset",
+              "label": "Heavyset"
+            },
+            {
+              "value": "petite",
+              "label": "Petite"
+            },
+            {
+              "value": "sturdy",
+              "label": "Sturdy"
+            }
+          ]
+        },
+        {
+          "key": "skin_tone",
+          "label": "Skin Tone Palette",
+          "ui_component": "skin-tone-palette",
+          "column_span": 2,
+          "required": true
+        },
+        {
+          "key": "eye_color",
+          "label": "Eye Color",
+          "ui_component": "color-select",
+          "palette_name": "eye_colors"
+        },
+        {
+          "key": "hair_color",
+          "label": "Hair Color",
+          "ui_component": "color-select",
+          "palette_name": "hair_colors"
+        },
+        {
+          "key": "nail_color",
+          "label": "Nail Color",
+          "ui_component": "color-picker",
+          "column_span": 2,
+          "placeholder": "#C9B0C0"
+        },
+        {
+          "key": "distinguishing_features",
+          "label": "Distinguishing Features",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "placeholder": "Add distinguishing feature..."
+        }
+      ]
+    },
+    {
+      "id": "location_affiliations",
+      "title": "Location & Affiliations",
+      "icon": "MapPin",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "primary_location",
+          "label": "Primary Location",
+          "ui_component": "entity-selector",
+          "reference_type": "location",
+          "relationship_types": [
+            {
+              "value": "lives",
+              "label": "Lives At"
+            },
+            {
+              "value": "works",
+              "label": "Works At"
+            },
+            {
+              "value": "visits",
+              "label": "Visits"
+            },
+            {
+              "value": "owns",
+              "label": "Owns"
+            }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for primary location...",
+          "max_selections": 1
+        },
+        {
+          "key": "faction",
+          "label": "Faction Affiliation",
+          "ui_component": "entity-selector",
+          "reference_type": "faction",
+          "relationship_types": [
+            {
+              "value": "member",
+              "label": "Member"
+            },
+            {
+              "value": "leader",
+              "label": "Leader"
+            },
+            {
+              "value": "ally",
+              "label": "Ally"
+            },
+            {
+              "value": "enemy",
+              "label": "Enemy"
+            },
+            {
+              "value": "neutral",
+              "label": "Neutral"
+            }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for faction...",
+          "max_selections": 1
+        },
+        {
+          "key": "secondary_locations",
+          "label": "Secondary Locations",
+          "ui_component": "tag-input",
+          "placeholder": "Add secondary location..."
+        }
+      ],
+      "surface": "secondary"
+    },
+    {
+      "id": "employment_career",
+      "title": "Employment & Career",
+      "icon": "Briefcase",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "job",
+          "label": "Job Position",
+          "ui_component": "entity-selector",
+          "description": "The primary job role this character holds.",
+          "reference_type": "job",
+          "relationship_types": [
+            {
+              "value": "employed",
+              "label": "Currently Employed"
+            },
+            {
+              "value": "former",
+              "label": "Former Position"
+            },
+            {
+              "value": "seeking",
+              "label": "Seeking Position"
+            },
+            {
+              "value": "freelance",
+              "label": "Freelance"
+            }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for job position...",
+          "max_selections": 1
+        },
+        {
+          "key": "associated_brands",
+          "label": "Employer",
+          "ui_component": "entity-multi-selector",
+          "description": "The brand/company this character works for.",
+          "reference_type": "brand",
+          "relationship_types": [
+            {
+              "value": "employee",
+              "label": "Employee"
+            },
+            {
+              "value": "contractor",
+              "label": "Contractor"
+            },
+            {
+              "value": "owner",
+              "label": "Owner"
+            },
+            {
+              "value": "partner",
+              "label": "Business Partner"
+            },
+            {
+              "value": "customer",
+              "label": "Customer"
+            },
+            {
+              "value": "former_employee",
+              "label": "Former Employee"
+            }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for employer brands...",
+          "max_selections": 5
+        }
+      ]
+    },
+    {
+      "id": "character_relationships",
+      "title": "Character Relationships",
+      "icon": "Heart",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "family",
+          "label": "Family Members",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "relationship_types": [
+            {
+              "value": "parent",
+              "label": "Parent"
+            },
+            {
+              "value": "child",
+              "label": "Child"
+            },
+            {
+              "value": "sibling",
+              "label": "Sibling"
+            },
+            {
+              "value": "spouse",
+              "label": "Spouse"
+            },
+            {
+              "value": "grandparent",
+              "label": "Grandparent"
+            },
+            {
+              "value": "grandchild",
+              "label": "Grandchild"
+            },
+            {
+              "value": "cousin",
+              "label": "Cousin"
+            },
+            {
+              "value": "uncle_aunt",
+              "label": "Uncle/Aunt"
+            },
+            {
+              "value": "family",
+              "label": "Other Family"
+            }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for family members...",
+          "max_selections": 10
+        },
+        {
+          "key": "friends",
+          "label": "Friends & Allies",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "relationship_types": [
+            {
+              "value": "acquaintance",
+              "label": "Acquaintance"
+            },
+            {
+              "value": "friend",
+              "label": "Friend"
+            },
+            {
+              "value": "close",
+              "label": "Close Friend"
+            },
+            {
+              "value": "best_friend",
+              "label": "Best Friend"
+            },
+            {
+              "value": "ally",
+              "label": "Ally"
+            },
+            {
+              "value": "mentor",
+              "label": "Mentor"
+            }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for friends and allies...",
+          "max_selections": 15
+        },
+        {
+          "key": "enemies",
+          "label": "Enemies & Rivals",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "relationship_types": [
+            {
+              "value": "rival",
+              "label": "Rival"
+            },
+            {
+              "value": "antagonist",
+              "label": "Antagonist"
+            },
+            {
+              "value": "nemesis",
+              "label": "Nemesis"
+            },
+            {
+              "value": "competitor",
+              "label": "Competitor"
+            },
+            {
+              "value": "hostile",
+              "label": "Hostile"
+            }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for enemies and rivals...",
+          "max_selections": 10
+        },
+        {
+          "key": "romantic",
+          "label": "Romantic Relationships",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "relationship_types": [
+            {
+              "value": "interested",
+              "label": "Interested"
+            },
+            {
+              "value": "dating",
+              "label": "Dating"
+            },
+            {
+              "value": "partner",
+              "label": "Partner"
+            },
+            {
+              "value": "spouse",
+              "label": "Spouse"
+            },
+            {
+              "value": "ex",
+              "label": "Ex"
+            },
+            {
+              "value": "complicated",
+              "label": "Complicated"
+            }
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for romantic interests...",
+          "max_selections": 5
+        }
+      ]
+    },
+    {
+      "id": "personality_psychology",
+      "title": "Personality & Psychology",
+      "icon": "Heart",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "personality_traits",
+          "label": "Personality Traits",
+          "ui_component": "tag-input",
+          "placeholder": "Add personality trait..."
+        },
+        {
+          "key": "fears",
+          "label": "Fears",
+          "ui_component": "tag-input",
+          "placeholder": "Add fear..."
+        },
+        {
+          "key": "motivations",
+          "label": "Motivations",
+          "ui_component": "tag-input",
+          "placeholder": "Add motivation..."
+        },
+        {
+          "key": "secrets",
+          "label": "Secrets",
+          "ui_component": "tag-input",
+          "placeholder": "Add secret..."
+        }
+      ]
+    },
+    {
+      "id": "skills_abilities",
+      "title": "Skills & Abilities",
+      "icon": "Shield",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "primary_skills",
+          "label": "Primary Skills",
+          "ui_component": "tag-input",
+          "placeholder": "Add primary skill..."
+        },
+        {
+          "key": "secondary_skills",
+          "label": "Secondary Skills",
+          "ui_component": "tag-input",
+          "placeholder": "Add secondary skill..."
+        },
+        {
+          "key": "special_abilities",
+          "label": "Special Abilities",
+          "ui_component": "tag-input",
+          "placeholder": "Add special ability..."
+        }
+      ]
+    },
+    {
+      "id": "story_integration",
+      "title": "Story Integration",
+      "icon": "Building2",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "story_function",
+          "label": "Story Function",
+          "ui_component": "tag-input",
+          "placeholder": "Add story function..."
+        },
+        {
+          "key": "inventory_items",
+          "label": "Inventory Items",
+          "ui_component": "tag-input",
+          "placeholder": "Add inventory item..."
+        },
+        {
+          "key": "services",
+          "label": "Services Offered",
+          "ui_component": "tag-input",
+          "placeholder": "Add service..."
+        }
+      ]
+    },
+    {
+      "id": "ai_context",
+      "title": "AI Generation Helpers",
+      "icon": "Brain",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "ai_profile_description",
+          "label": "Profile Description",
+          "ui_component": "textarea",
+          "rows": 3,
+          "placeholder": "Visual description from profile image for AI vision-to-text generation...",
+          "help": "Used for AI image generation and visual descriptions"
+        },
+        {
+          "key": "ai_voice_style",
+          "label": "Voice Style",
+          "ui_component": "text",
+          "placeholder": "Brief 1-2 line description of speaking style/vocal characteristics...",
+          "help": "Used for voice generation and dialogue consistency"
+        },
+        {
+          "key": "ai_bio_summary",
+          "label": "Bio Summary",
+          "ui_component": "textarea",
+          "rows": 3,
+          "placeholder": "Concise 2-3 sentence character bio for AI context...",
+          "help": "Brief context for AI generation without full markdown content"
+        }
+      ]
+    },
+    {
+      "id": "comfyui",
+      "component": "entity-workflow-trigger"
+    },
+    {
+      "id": "block_1771728678701",
+      "title": "Entity Stats",
+      "icon": "bar-chart",
+      "component": "plugin:hello-world:entity-stats",
+      "component_config": {},
+      "component_source": "hello-world"
+    },
+    {
+      "id": "block_1771782682484",
+      "title": "Asset Browser",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "block_1771792480053",
+      "title": "Time Log",
+      "icon": "clock",
+      "component": "plugin:time-tracker:time-log",
+      "component_config": {},
+      "component_source": "time-tracker"
+    }
+  ],
+  "updated_at": "2026-02-22T20:35:21.460444",
+  "created_at": "2026-02-22T02:54:37.665599",
+  "view_config": {
+    "layout_driven": true
+  }
+}

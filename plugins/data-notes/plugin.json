@@ -1,0 +1,53 @@
+{
+  "id": "data-notes",
+  "name": "Entity Notes",
+  "version": "1.0.0",
+  "description": "Attach timestamped notes to any entity. Demonstrates the generic Plugin Data Service (plugin_data_routes) for database-backed record storage without writing backend code.",
+  "type": "frontend-only",
+  "author": "BiloxiStudios",
+  "capabilities": {
+    "frontend": {
+      "panels": [
+        {
+          "id": "notes-panel",
+          "label": "Notes",
+          "location": "entity-sidebar",
+          "icon": "sticky-note"
+        }
+      ],
+      "pages": [
+        {
+          "id": "notes-index",
+          "route": "/plugins/data-notes",
+          "label": "All Notes",
+          "icon": "notebook",
+          "nav_section": "plugins"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read"
+  ],
+  "settings_schema": {
+    "max_notes_per_entity": {
+      "type": "number",
+      "label": "Max Notes Per Entity",
+      "required": false,
+      "default": 50,
+      "scope": "instance"
+    }
+  },
+  "data_schema": {
+    "note": {
+      "label": "Entity Note",
+      "fields": {
+        "text": "string",
+        "pinned": "boolean",
+        "color": "string"
+      }
+    }
+  },
+  "accent_color": "#f59e0b"
+}

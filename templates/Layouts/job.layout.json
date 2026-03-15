@@ -1,0 +1,217 @@
+{
+  "entity_type": "job",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "Briefcase",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Job ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores"
+        },
+        {
+          "key": "name",
+          "label": "Job Title",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Nerdent Technician"
+        },
+        {
+          "key": "job_category",
+          "label": "Category",
+          "ui_component": "select",
+          "options": [
+            {"value": "technical", "label": "Technical"},
+            {"value": "service", "label": "Service"},
+            {"value": "management", "label": "Management"},
+            {"value": "security", "label": "Security"},
+            {"value": "creative", "label": "Creative"},
+            {"value": "labor", "label": "Labor"},
+            {"value": "sales", "label": "Sales"}
+          ]
+        },
+        {
+          "key": "employment_type",
+          "label": "Employment Type",
+          "ui_component": "select",
+          "options": [
+            {"value": "full_time", "label": "Full Time"},
+            {"value": "part_time", "label": "Part Time"},
+            {"value": "contract", "label": "Contract"},
+            {"value": "seasonal", "label": "Seasonal"},
+            {"value": "volunteer", "label": "Volunteer"}
+          ]
+        },
+        {
+          "key": "experience_level",
+          "label": "Experience Level",
+          "ui_component": "select",
+          "options": [
+            {"value": "entry", "label": "Entry"},
+            {"value": "mid", "label": "Mid"},
+            {"value": "senior", "label": "Senior"},
+            {"value": "executive", "label": "Executive"}
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "active", "label": "Active"},
+            {"value": "deprecated", "label": "Deprecated"},
+            {"value": "seasonal", "label": "Seasonal"},
+            {"value": "archived", "label": "Archived"},
+            {"value": "draft", "label": "Draft"}
+          ]
+        },
+        {
+          "key": "salary_range",
+          "label": "Salary Range",
+          "ui_component": "text",
+          "column_span": 2,
+          "placeholder": "$32,000 - $48,000"
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 4,
+          "placeholder": "Detailed description of the job role and responsibilities..."
+        }
+      ]
+    },
+    {
+      "id": "visual_design",
+      "title": "Visual Design",
+      "icon": "Palette",
+      "columns": 1,
+      "fields": [
+        {
+          "key": "color_palette",
+          "label": "Color Palette",
+          "ui_component": "color-palette"
+        },
+        {
+          "key": "primary_image",
+          "label": "Primary Job Image/Logo",
+          "ui_component": "text",
+          "placeholder": "images/jobs/job_logo.png",
+          "help": "Path to the primary image/logo for this job position"
+        }
+      ]
+    },
+    {
+      "id": "brand_organization",
+      "title": "Brand & Organization",
+      "icon": "Building",
+      "columns": 1,
+      "fields": [
+        {
+          "key": "primary_brand",
+          "label": "Primary Brand",
+          "ui_component": "entity-selector",
+          "reference_type": "brand",
+          "help": "The main brand/company that offers this position.",
+          "placeholder": "Select primary brand..."
+        },
+        {
+          "key": "associated_brands",
+          "label": "Associated Brands",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "brand",
+          "help": "Other brands that may offer similar positions.",
+          "placeholder": "Add associated brands..."
+        }
+      ]
+    },
+    {
+      "id": "work_locations",
+      "title": "Work Locations",
+      "icon": "MapPin",
+      "description": "Locations where this job is performed.",
+      "columns": 1,
+      "fields": [
+        {
+          "key": "work_locations",
+          "label": "Work Locations",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "location",
+          "placeholder": "Add work locations..."
+        }
+      ]
+    },
+    {
+      "id": "career_progression",
+      "title": "Career Progression",
+      "icon": "TrendingUp",
+      "columns": 1,
+      "fields": [
+        {
+          "key": "entry_positions",
+          "label": "Entry Positions",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "job",
+          "help": "Jobs that typically lead to this position.",
+          "placeholder": "Add entry positions..."
+        },
+        {
+          "key": "advancement_paths",
+          "label": "Advancement Paths",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "job",
+          "help": "Positions this job can lead to with experience.",
+          "placeholder": "Add advancement paths..."
+        },
+        {
+          "key": "lateral_moves",
+          "label": "Lateral Moves",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "job",
+          "help": "Similar-level positions that require similar skills.",
+          "placeholder": "Add lateral moves..."
+        }
+      ]
+    },
+    {
+      "id": "job_relationships",
+      "title": "Job Relationships",
+      "icon": "Network",
+      "columns": 1,
+      "fields": [
+        {
+          "key": "reports_to",
+          "label": "Reports To",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "job",
+          "help": "Superior positions this job reports to.",
+          "placeholder": "Add supervisor positions..."
+        },
+        {
+          "key": "manages",
+          "label": "Manages",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "job",
+          "help": "Subordinate positions this job manages.",
+          "placeholder": "Add managed positions..."
+        },
+        {
+          "key": "collaborates_with",
+          "label": "Collaborates With",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "job",
+          "help": "Peer positions this job works closely with.",
+          "placeholder": "Add collaborative positions..."
+        }
+      ]
+    }
+  ]
+}

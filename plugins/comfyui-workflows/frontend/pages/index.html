@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+
+  /* -- Page Header -- */
+  .page-header {
+    max-width: 1200px;
+    margin: 0 auto 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .page-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .page-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(0, 212, 170, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .page-icon svg {
+    width: 24px;
+    height: 24px;
+    color: var(--plugin-accent);
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--plugin-accent), #00a896);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle {
+    color: var(--surface-base-text-secondary);
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  /* -- Status Cards -- */
+  .stats-row {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .stat-value.teal { color: var(--plugin-accent); }
+  .stat-value.blue { color: var(--plugin-accent); }
+  .stat-value.amber { color: var(--surface-warning-border); }
+  .stat-value.green { color: var(--surface-success-border); }
+  .stat-value.red { color: var(--surface-error-border); }
+
+  /* -- Toolbar -- */
+  .toolbar {
+    max-width: 1200px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-box {
+    flex: 1;
+    min-width: 260px;
+    padding: 10px 14px 10px 38px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 14px;
+    font-family: inherit;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8' stroke='%2364748b' stroke-width='2' fill='none'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65' stroke='%2364748b' stroke-width='2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+  }
+  .search-box:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.15);
+  }
+  .filter-btn {
+    padding: 10px 16px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--plugin-accent); color: var(--surface-base-text); }
+  .filter-btn.active { border-color: var(--plugin-accent); color: var(--plugin-accent); background: rgba(0, 212, 170, 0.08); }
+
+  .action-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .action-btn.primary {
+    background: var(--plugin-accent);
+    color: var(--surface-base-bg);
+  }
+  .action-btn.primary:hover { background: var(--plugin-accent); }
+  .action-btn.secondary {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .action-btn.secondary:hover { border-color: var(--plugin-accent); color: var(--surface-base-text); }
+
+  /* -- Main Content Sections -- */
+  .main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-count {
+    background: rgba(0, 212, 170, 0.12);
+    color: var(--plugin-accent);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* -- Workflow Grid -- */
+  .wf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .wf-card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .wf-card:hover { border-color: var(--plugin-accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .wf-thumb {
+    width: 100%;
+    height: 140px;
+    background: linear-gradient(135deg, var(--surface-base-bg) 0%, var(--surface-base-bg) 50%, var(--surface-base-bg) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .wf-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .wf-thumb .icon-placeholder {
+    color: var(--surface-elevated-border);
+    font-size: 36px;
+  }
+  .wf-cat-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 3px 8px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    border-radius: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--plugin-accent);
+  }
+  .wf-inputs-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    padding: 3px 8px;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+  }
+  .wf-body {
+    padding: 14px;
+  }
+  .wf-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wf-meta {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 10px;
+  }
+  .wf-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .wf-tag {
+    padding: 2px 7px;
+    background: rgba(0, 212, 170, 0.08);
+    color: var(--plugin-accent);
+    border-radius: 4px;
+    font-size: 10px;
+  }
+
+  /* -- Import Modal -- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 14px;
+    padding: 28px;
+    width: 500px;
+    max-width: 90vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--surface-base-text);
+  }
+  .modal-form-group {
+    margin-bottom: 16px;
+  }
+  .modal-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .modal-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .modal-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.15);
+  }
+  .modal-divider {
+    text-align: center;
+    color: var(--surface-elevated-border);
+    font-size: 12px;
+    margin: 16px 0;
+    position: relative;
+  }
+  .modal-divider::before, .modal-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 42%;
+    height: 1px;
+    background: var(--surface-elevated-border);
+  }
+  .modal-divider::before { left: 0; }
+  .modal-divider::after { right: 0; }
+  .file-drop {
+    border: 2px dashed var(--surface-elevated-border);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .file-drop:hover, .file-drop.dragover { border-color: var(--plugin-accent); color: var(--plugin-accent); }
+  .file-drop input[type="file"] { display: none; }
+  .modal-btns {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .modal-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .modal-btn.cancel {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    flex: 0;
+  }
+  .modal-btn.cancel:hover { border-color: var(--surface-error-border); color: var(--surface-error-border); }
+  .modal-btn.submit {
+    background: var(--plugin-accent);
+    color: var(--surface-base-bg);
+    flex: 1;
+  }
+  .modal-btn.submit:hover { background: var(--plugin-accent); }
+  .modal-btn.submit:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+
+  /* -- Detail Panel (slide-in) -- */
+  .detail-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 900;
+  }
+  .detail-overlay.visible { display: block; }
+  .detail-panel {
+    position: fixed;
+    top: 0;
+    right: -500px;
+    width: 480px;
+    height: 100%;
+    background: var(--surface-elevated-bg);
+    border-left: 1px solid var(--surface-elevated-border);
+    z-index: 901;
+    overflow-y: auto;
+    transition: right 0.3s ease;
+    padding: 28px;
+  }
+  .detail-panel.visible { right: 0; }
+  .detail-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--surface-base-text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .detail-close:hover { color: var(--surface-base-text); }
+  .detail-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--surface-base-text);
+    padding-right: 40px;
+  }
+  .detail-cat {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(0, 212, 170, 0.12);
+    color: var(--plugin-accent);
+    border-radius: 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .detail-section {
+    margin-bottom: 20px;
+  }
+  .detail-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+  }
+  .detail-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .detail-info-item {
+    background: var(--surface-base-bg);
+    padding: 10px;
+    border-radius: 6px;
+  }
+  .detail-info-label { font-size: 10px; color: var(--surface-base-text-secondary); text-transform: uppercase; margin-bottom: 2px; }
+  .detail-info-value { font-size: 13px; color: var(--surface-base-text); font-weight: 500; }
+
+  .detail-inputs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .detail-input-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 6px;
+  }
+  .detail-input-name { font-size: 13px; color: var(--surface-base-text); font-weight: 500; }
+  .detail-input-type { font-size: 11px; color: var(--plugin-accent); background: rgba(0,212,170,0.08); padding: 2px 6px; border-radius: 3px; }
+
+  .detail-exec-form {
+    margin-top: 16px;
+  }
+  .detail-form-group {
+    margin-bottom: 12px;
+  }
+  .detail-form-label {
+    display: block;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .detail-form-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  textarea.detail-form-input {
+    resize: vertical;
+    min-height: 50px;
+  }
+  .detail-form-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.15);
+  }
+
+  .exec-btn-full {
+    width: 100%;
+    padding: 12px;
+    background: var(--plugin-accent);
+    color: var(--surface-base-bg);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .exec-btn-full:hover { background: var(--plugin-accent); }
+  .exec-btn-full:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+
+  /* -- Queue Section -- */
+  .queue-section {
+    max-width: 1200px;
+    margin: 0 auto 32px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .queue-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .queue-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .queue-counts {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+  }
+  .queue-counts span { color: var(--plugin-accent); font-weight: 600; }
+  .queue-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .queue-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .queue-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .queue-dot.running { background: var(--plugin-accent); animation: pulse 1.5s ease-in-out infinite; }
+  .queue-dot.pending { background: var(--surface-warning-border); }
+  .queue-item-name { flex: 1; color: var(--surface-base-text); }
+  .queue-item-status { color: var(--surface-base-text-secondary); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* -- History Section -- */
+  .history-section {
+    max-width: 1200px;
+    margin: 0 auto 32px;
+  }
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .history-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--surface-base-text-secondary);
+    border-bottom: 1px solid var(--surface-elevated-border);
+    background: var(--surface-base-bg);
+  }
+  .history-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    color: var(--surface-base-text-secondary);
+  }
+  .history-table tr:hover td { background: rgba(0, 212, 170, 0.03); }
+  .status-badge {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .status-badge.queued { background: rgba(245, 158, 11, 0.15); color: var(--surface-warning-border); }
+  .status-badge.running { background: rgba(59, 130, 246, 0.15); color: var(--plugin-accent); }
+  .status-badge.completed { background: rgba(0, 212, 170, 0.15); color: var(--plugin-accent); }
+  .status-badge.error { background: rgba(239, 68, 68, 0.15); color: var(--surface-error-border); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    padding: 40px 20px;
+    font-size: 14px;
+  }
+
+  .feedback-global {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 2000;
+    display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  .feedback-global.success { display: block; background: #0d3d30; border: 1px solid var(--plugin-accent); color: var(--plugin-accent); }
+  .feedback-global.error { display: block; background: #3b1c1c; border: 1px solid var(--surface-error-border); color: var(--surface-error-border); }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(15,23,42,0.3);
+    border-top-color: var(--surface-base-bg);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="page-title">ComfyUI Workflows</h1>
+        <p class="page-subtitle">Browse, import, and execute image generation workflows</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="action-btn secondary" onclick="refreshAll()">Refresh</button>
+      <button class="action-btn primary" onclick="openImportModal()">Import Workflow</button>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Workflows</div>
+      <div class="stat-value teal" id="stat-total">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">ComfyUI Status</div>
+      <div class="stat-value" id="stat-comfy">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Queue</div>
+      <div class="stat-value blue" id="stat-queue">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Executions</div>
+      <div class="stat-value amber" id="stat-executions">--</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <input class="search-box" id="search-box" placeholder="Search workflows by name, feature, or category..." oninput="filterWorkflows()">
+    <div id="cat-filters"></div>
+  </div>
+
+  <!-- WORKFLOW GRID -->
+  <div class="main-content">
+    <div class="section-title">
+      Workflow Library <span class="section-count" id="grid-count">0</span>
+    </div>
+    <div class="wf-grid" id="wf-grid">
+      <div class="empty-state">Loading workflows...</div>
+    </div>
+  </div>
+
+  <!-- QUEUE SECTION -->
+  <div class="queue-section" id="queue-section" style="display:none;">
+    <div class="queue-header">
+      <span class="queue-title">Execution Queue</span>
+      <div class="queue-counts">
+        Running: <span id="q-running">0</span>
+        Pending: <span id="q-pending">0</span>
+      </div>
+    </div>
+    <div class="queue-items" id="queue-items"></div>
+  </div>
+
+  <!-- HISTORY SECTION -->
+  <div class="history-section">
+    <div class="section-title">Recent Executions</div>
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Workflow</th>
+          <th>Entity</th>
+          <th>Status</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="history-body">
+        <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- IMPORT MODAL -->
+  <div class="modal-overlay" id="import-modal">
+    <div class="modal">
+      <div class="modal-title">Import Workflow</div>
+
+      <div class="modal-form-group">
+        <label class="modal-label">Import from URL</label>
+        <input class="modal-input" id="import-url" placeholder="https://civitai.com/... or direct JSON URL">
+      </div>
+
+      <div class="modal-form-group">
+        <label class="modal-label">Save As (optional)</label>
+        <input class="modal-input" id="import-filename" placeholder="my_workflow.json">
+      </div>
+
+      <div class="modal-divider">or</div>
+
+      <div class="file-drop" id="file-drop" onclick="document.getElementById('file-input').click()">
+        Drop a .json workflow file here, or click to browse
+        <input type="file" id="file-input" accept=".json" onchange="handleFileSelect(event)">
+      </div>
+      <div id="file-selected" style="font-size:12px;color:var(--plugin-accent);margin-top:6px;display:none;"></div>
+
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeImportModal()">Cancel</button>
+        <button class="modal-btn submit" id="import-btn" onclick="importWorkflow()">Import</button>
+      </div>
+      <div class="feedback-import" id="import-feedback" style="margin-top:10px;font-size:12px;display:none;"></div>
+    </div>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-overlay" id="detail-overlay" onclick="closeDetail()"></div>
+  <div class="detail-panel" id="detail-panel">
+    <button class="detail-close" onclick="closeDetail()">&times;</button>
+    <div class="detail-title" id="detail-title">--</div>
+    <span class="detail-cat" id="detail-cat">--</span>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Info</div>
+      <div class="detail-info-grid" id="detail-info"></div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Features</div>
+      <div class="wf-tags" id="detail-features"></div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Inputs</div>
+      <div class="detail-inputs-list" id="detail-inputs"></div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Execute</div>
+      <div class="detail-exec-form" id="detail-exec-form"></div>
+      <button class="exec-btn-full" id="detail-exec-btn" onclick="executeFromDetail()">
+        Execute Workflow
+      </button>
+      <div class="feedback" id="detail-feedback" style="margin-top:10px;padding:10px;border-radius:6px;font-size:12px;display:none;"></div>
+    </div>
+  </div>
+
+  <!-- GLOBAL FEEDBACK TOAST -->
+  <div class="feedback-global" id="global-feedback"></div>
+
+  <script>
+    const API = '/api/ext/comfyui-workflows';
+
+    let workflows = [];
+    let activeCategory = '';
+    let selectedWorkflowData = null;
+    let selectedFile = null;
+    let comfyConnected = false;
+
+    // ---- Load status ----
+    async function loadStatus() {
+      try {
+        const resp = await fetch(`${API}/`);
+        const data = await resp.json();
+
+        document.getElementById('stat-total').textContent = data.workflow_count || 0;
+        document.getElementById('stat-executions').textContent = data.total_executions || 0;
+
+        if (data.comfyui && data.comfyui.connected) {
+          const el = document.getElementById('stat-comfy');
+          el.textContent = 'Connected';
+          el.className = 'stat-value green';
+          comfyConnected = true;
+        } else {
+          const el = document.getElementById('stat-comfy');
+          el.textContent = 'Offline';
+          el.className = 'stat-value red';
+          comfyConnected = false;
+        }
+      } catch {
+        document.getElementById('stat-comfy').textContent = 'Error';
+        document.getElementById('stat-comfy').className = 'stat-value red';
+      }
+    }
+
+    // ---- Load queue ----
+    async function loadQueue() {
+      try {
+        const resp = await fetch(`${API}/queue`);
+        const data = await resp.json();
+        const running = data.running || 0;
+        const pending = data.pending || 0;
+
+        document.getElementById('stat-queue').textContent = running + pending;
+        document.getElementById('q-running').textContent = running;
+        document.getElementById('q-pending').textContent = pending;
+
+        const section = document.getElementById('queue-section');
+        if (running > 0 || pending > 0) {
+          section.style.display = 'block';
+          const items = document.getElementById('queue-items');
+          let html = '';
+          (data.running_details || []).forEach(item => {
+            html += `<div class="queue-item"><span class="queue-dot running"></span><span class="queue-item-name">Running</span><span class="queue-item-status">In progress</span></div>`;
+          });
+          (data.pending_details || []).forEach(item => {
+            html += `<div class="queue-item"><span class="queue-dot pending"></span><span class="queue-item-name">Pending</span><span class="queue-item-status">Waiting</span></div>`;
+          });
+          items.innerHTML = html || '<div style="color:var(--surface-base-text-secondary);font-size:12px;">Queue is empty</div>';
+        } else {
+          section.style.display = 'none';
+        }
+      } catch {
+        document.getElementById('stat-queue').textContent = '?';
+      }
+    }
+
+    // ---- Load workflows ----
+    async function loadWorkflows() {
+      try {
+        const resp = await fetch(`${API}/workflows`);
+        const data = await resp.json();
+        workflows = data.workflows || [];
+
+        // Build category filter buttons
+        const cats = data.categories || [];
+        const catDiv = document.getElementById('cat-filters');
+        catDiv.innerHTML = `<button class="filter-btn active" onclick="setCategory('')">All</button>` +
+          cats.map(c => `<button class="filter-btn" onclick="setCategory('${c}')">${c.charAt(0).toUpperCase() + c.slice(1)}</button>`).join('');
+
+        renderGrid(workflows);
+      } catch {
+        document.getElementById('wf-grid').innerHTML = '<div class="empty-state">Failed to load workflows</div>';
+      }
+    }
+
+    function setCategory(cat) {
+      activeCategory = cat;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        const btnCat = btn.textContent.toLowerCase() === 'all' ? '' : btn.textContent.toLowerCase();
+        btn.classList.toggle('active', btnCat === cat);
+      });
+      filterWorkflows();
+    }
+
+    function filterWorkflows() {
+      const search = document.getElementById('search-box').value.toLowerCase();
+      let filtered = workflows;
+      if (activeCategory) filtered = filtered.filter(w => w.category === activeCategory);
+      if (search) filtered = filtered.filter(w =>
+        w.id.toLowerCase().includes(search) ||
+        w.filename.toLowerCase().includes(search) ||
+        w.category.includes(search) ||
+        (w.features || []).some(f => f.toLowerCase().includes(search))
+      );
+      renderGrid(filtered);
+    }
+
+    function renderGrid(list) {
+      document.getElementById('grid-count').textContent = list.length;
+      const grid = document.getElementById('wf-grid');
+
+      if (list.length === 0) {
+        grid.innerHTML = '<div class="empty-state">No workflows match your search</div>';
+        return;
+      }
+
+      grid.innerHTML = list.map(w => {
+        const features = (w.features || []).slice(0, 5).map(f => `<span class="wf-tag">${f}</span>`).join('');
+        return `
+          <div class="wf-card" onclick="openDetail('${w.id}')">
+            <div class="wf-thumb">
+              <span class="icon-placeholder">&#9881;</span>
+              <span class="wf-cat-badge">${w.category}</span>
+              ${w.inputs.length > 0 ? `<span class="wf-inputs-badge">${w.inputs.length} inputs</span>` : ''}
+            </div>
+            <div class="wf-body">
+              <div class="wf-name" title="${w.filename}">${w.id.replace(/_/g, ' ')}</div>
+              <div class="wf-meta">
+                <span>${w.node_count} nodes</span>
+                <span>${(w.file_size / 1024).toFixed(0)} KB</span>
+                <span>${new Date(w.modified).toLocaleDateString()}</span>
+              </div>
+              <div class="wf-tags">${features}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ---- Detail Panel ----
+    function openDetail(workflowId) {
+      selectedWorkflowData = workflows.find(w => w.id === workflowId);
+      if (!selectedWorkflowData) return;
+
+      const w = selectedWorkflowData;
+      document.getElementById('detail-title').textContent = w.id.replace(/_/g, ' ');
+      document.getElementById('detail-cat').textContent = w.category;
+
+      document.getElementById('detail-info').innerHTML = `
+        <div class="detail-info-item"><div class="detail-info-label">Nodes</div><div class="detail-info-value">${w.node_count}</div></div>
+        <div class="detail-info-item"><div class="detail-info-label">File Size</div><div class="detail-info-value">${(w.file_size / 1024).toFixed(0)} KB</div></div>
+        <div class="detail-info-item"><div class="detail-info-label">Inputs</div><div class="detail-info-value">${w.inputs.length}</div></div>
+        <div class="detail-info-item"><div class="detail-info-label">Modified</div><div class="detail-info-value">${new Date(w.modified).toLocaleDateString()}</div></div>
+      `;
+
+      document.getElementById('detail-features').innerHTML = (w.features || []).map(f =>
+        `<span class="wf-tag">${f}</span>`
+      ).join('') || '<span style="color:var(--surface-base-text-secondary);font-size:12px;">None detected</span>';
+
+      const inputsList = document.getElementById('detail-inputs');
+      if (w.inputs.length > 0) {
+        inputsList.innerHTML = w.inputs.map(inp =>
+          `<div class="detail-input-item">
+            <span class="detail-input-name">${inp.name.replace(/_/g, ' ')}</span>
+            <span class="detail-input-type">${inp.type}</span>
+          </div>`
+        ).join('');
+      } else {
+        inputsList.innerHTML = '<div style="color:var(--surface-base-text-secondary);font-size:12px;">No user inputs detected</div>';
+      }
+
+      // Build exec form
+      const editableInputs = w.inputs.filter(inp =>
+        ['string', 'text', 'integer', 'float'].includes(inp.type)
+      );
+      const execForm = document.getElementById('detail-exec-form');
+      if (editableInputs.length > 0) {
+        execForm.innerHTML = editableInputs.map(inp => {
+          const tag = inp.type === 'text'
+            ? `<textarea class="detail-form-input detail-override" data-input="${inp.name}" placeholder="Enter ${inp.name.replace(/_/g, ' ')}...">${inp.default_value || ''}</textarea>`
+            : `<input class="detail-form-input detail-override" data-input="${inp.name}" type="${inp.type === 'integer' || inp.type === 'float' ? 'number' : 'text'}" value="${inp.default_value || ''}" placeholder="${inp.name.replace(/_/g, ' ')}">`;
+          return `<div class="detail-form-group"><label class="detail-form-label">${inp.name.replace(/_/g, ' ')}</label>${tag}</div>`;
+        }).join('');
+      } else {
+        execForm.innerHTML = '<div style="color:var(--surface-base-text-secondary);font-size:12px;margin-bottom:8px;">No configurable inputs.</div>';
+      }
+
+      const execBtn = document.getElementById('detail-exec-btn');
+      execBtn.disabled = !comfyConnected;
+      if (!comfyConnected) execBtn.textContent = 'ComfyUI Offline';
+
+      document.getElementById('detail-feedback').style.display = 'none';
+      document.getElementById('detail-overlay').classList.add('visible');
+      document.getElementById('detail-panel').classList.add('visible');
+    }
+
+    function closeDetail() {
+      document.getElementById('detail-overlay').classList.remove('visible');
+      document.getElementById('detail-panel').classList.remove('visible');
+      selectedWorkflowData = null;
+    }
+
+    async function executeFromDetail() {
+      if (!selectedWorkflowData) return;
+
+      const btn = document.getElementById('detail-exec-btn');
+      const feedback = document.getElementById('detail-feedback');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Queueing...';
+      feedback.style.display = 'none';
+
+      const overrides = {};
+      document.querySelectorAll('.detail-override').forEach(inp => {
+        const name = inp.dataset.input;
+        const val = inp.value.trim();
+        if (val) overrides[name] = val;
+      });
+
+      try {
+        const resp = await fetch(`${API}/execute`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            workflow_id: selectedWorkflowData.id,
+            input_overrides: Object.keys(overrides).length > 0 ? overrides : undefined,
+          }),
+        });
+
+        const data = await resp.json();
+        if (resp.ok) {
+          feedback.style.display = 'block';
+          feedback.style.background = 'rgba(0,212,170,0.1)';
+          feedback.style.border = '1px solid rgba(0,212,170,0.3)';
+          feedback.style.color = 'var(--plugin-accent)';
+          feedback.textContent = data.message || 'Workflow queued!';
+          showToast('success', data.message || 'Workflow queued successfully!');
+          loadQueue();
+          loadHistory();
+        } else {
+          feedback.style.display = 'block';
+          feedback.style.background = 'rgba(239,68,68,0.1)';
+          feedback.style.border = '1px solid rgba(239,68,68,0.3)';
+          feedback.style.color = 'var(--surface-error-border)';
+          feedback.textContent = data.detail || 'Failed to queue';
+        }
+      } catch (err) {
+        feedback.style.display = 'block';
+        feedback.style.background = 'rgba(239,68,68,0.1)';
+        feedback.style.border = '1px solid rgba(239,68,68,0.3)';
+        feedback.style.color = 'var(--surface-error-border)';
+        feedback.textContent = 'Network error: ' + err.message;
+      } finally {
+        btn.disabled = !comfyConnected;
+        btn.innerHTML = 'Execute Workflow';
+      }
+    }
+
+    // ---- Import Modal ----
+    function openImportModal() {
+      document.getElementById('import-modal').classList.add('visible');
+      document.getElementById('import-url').value = '';
+      document.getElementById('import-filename').value = '';
+      selectedFile = null;
+      document.getElementById('file-selected').style.display = 'none';
+      document.getElementById('import-feedback').style.display = 'none';
+    }
+
+    function closeImportModal() {
+      document.getElementById('import-modal').classList.remove('visible');
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) {
+        selectedFile = file;
+        document.getElementById('file-selected').textContent = 'Selected: ' + file.name;
+        document.getElementById('file-selected').style.display = 'block';
+      }
+    }
+
+    // Drag and drop
+    const dropZone = document.getElementById('file-drop');
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.name.endsWith('.json')) {
+        selectedFile = file;
+        document.getElementById('file-selected').textContent = 'Selected: ' + file.name;
+        document.getElementById('file-selected').style.display = 'block';
+      }
+    });
+
+    async function importWorkflow() {
+      const btn = document.getElementById('import-btn');
+      const feedback = document.getElementById('import-feedback');
+      const url = document.getElementById('import-url').value.trim();
+      const filename = document.getElementById('import-filename').value.trim();
+
+      btn.disabled = true;
+      btn.textContent = 'Importing...';
+      feedback.style.display = 'none';
+
+      try {
+        let resp;
+        if (selectedFile) {
+          const formData = new FormData();
+          formData.append('file', selectedFile);
+          if (filename) formData.append('filename', filename);
+          resp = await fetch(`${API}/import`, { method: 'POST', body: formData });
+        } else if (url) {
+          const formData = new FormData();
+          formData.append('url', url);
+          if (filename) formData.append('filename', filename);
+          resp = await fetch(`${API}/import`, { method: 'POST', body: formData });
+        } else {
+          feedback.style.display = 'block';
+          feedback.style.color = 'var(--surface-error-border)';
+          feedback.textContent = 'Provide a URL or file';
+          btn.disabled = false;
+          btn.textContent = 'Import';
+          return;
+        }
+
+        const data = await resp.json();
+        if (resp.ok) {
+          feedback.style.display = 'block';
+          feedback.style.color = 'var(--plugin-accent)';
+          feedback.textContent = data.message || 'Imported!';
+          showToast('success', 'Workflow imported successfully!');
+          setTimeout(() => {
+            closeImportModal();
+            loadWorkflows();
+            loadStatus();
+          }, 1200);
+        } else {
+          feedback.style.display = 'block';
+          feedback.style.color = 'var(--surface-error-border)';
+          feedback.textContent = data.detail || 'Import failed';
+        }
+      } catch (err) {
+        feedback.style.display = 'block';
+        feedback.style.color = 'var(--surface-error-border)';
+        feedback.textContent = 'Error: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Import';
+      }
+    }
+
+    // ---- History ----
+    async function loadHistory() {
+      try {
+        const resp = await fetch(`${API}/history?limit=20`);
+        const data = await resp.json();
+        const items = data.items || [];
+        const body = document.getElementById('history-body');
+
+        if (items.length === 0) {
+          body.innerHTML = '<tr><td colspan="4" class="empty-state">No execution history yet</td></tr>';
+          return;
+        }
+
+        body.innerHTML = items.map(h => {
+          const status = h.status || 'queued';
+          const time = h.queued_at ? new Date(h.queued_at).toLocaleString() : '--';
+          const entity = h.entity_name || (h.entity_type ? `${h.entity_type}/${(h.entity_id || '').substring(0, 8)}` : '--');
+          return `
+            <tr>
+              <td style="color:var(--surface-base-text);font-weight:500;">${(h.workflow_name || h.workflow_id || '--').replace(/_/g, ' ')}</td>
+              <td>${entity}</td>
+              <td><span class="status-badge ${status}">${status}</span></td>
+              <td>${time}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch {
+        document.getElementById('history-body').innerHTML = '<tr><td colspan="4" class="empty-state">Failed to load history</td></tr>';
+      }
+    }
+
+    // ---- Toast ----
+    function showToast(type, message) {
+      const el = document.getElementById('global-feedback');
+      el.className = 'feedback-global ' + type;
+      el.textContent = message;
+      setTimeout(() => { el.className = 'feedback-global'; }, 4000);
+    }
+
+    // ---- Refresh all ----
+    function refreshAll() {
+      loadStatus();
+      loadWorkflows();
+      loadQueue();
+      loadHistory();
+    }
+
+    // ---- Init ----
+    loadStatus();
+    loadWorkflows();
+    loadQueue();
+    loadHistory();
+
+    // Auto-refresh queue every 8 seconds
+    setInterval(loadQueue, 8000);
+  </script>
+</body>
+</html>

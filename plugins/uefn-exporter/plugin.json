@@ -1,0 +1,137 @@
+{
+  "id": "uefn-exporter",
+  "name": "UEFN Exporter",
+  "version": "0.2.0",
+  "description": "Export entities to Unreal Editor for Fortnite (UEFN) projects. Generate Verse data structures, device configurations, NPC dialogue trees, and Creative island metadata from Studio entities.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "3d-creative-tools",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "uefn-dashboard",
+          "route": "/plugins/uefn-exporter",
+          "label": "UEFN Exporter",
+          "icon": "zap",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "uefn-export",
+          "label": "Export to UEFN",
+          "location": "entity-sidebar",
+          "icon": "zap"
+        },
+        {
+          "id": "verse-preview",
+          "label": "Verse Preview",
+          "location": "entity-tab",
+          "icon": "code"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "aiohttp>=3.9.0",
+      "jinja2>=3.1.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "filesystem:read",
+    "filesystem:write"
+  ],
+  "settings_schema": {
+    "uefn_project_path": {
+      "type": "string",
+      "label": "UEFN Project Path",
+      "description": "Path to the UEFN project root directory",
+      "required": true,
+      "scope": "instance"
+    },
+    "verse_module": {
+      "type": "string",
+      "label": "Verse Module Name",
+      "description": "Target Verse module for generated code",
+      "required": false,
+      "default": "CityOfBrains",
+      "scope": "instance"
+    },
+    "include_dialogue": {
+      "type": "boolean",
+      "label": "Include Dialogue Export",
+      "description": "Export character dialogue trees as Verse-compatible dialogue data",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    },
+    "creative_version": {
+      "type": "string",
+      "label": "Creative Version",
+      "description": "Target Fortnite Creative version for compatibility",
+      "required": false,
+      "default": "31.00",
+      "scope": "instance"
+    },
+    "generate_verse_classes": {
+      "type": "boolean",
+      "label": "Generate Verse Classes",
+      "description": "Auto-generate Verse class definitions from entity templates",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    },
+    "generate_device_configs": {
+      "type": "boolean",
+      "label": "Generate Device Configs",
+      "description": "Create UEFN device configuration files for NPC and gameplay entities",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    },
+    "export_portraits_as_textures": {
+      "type": "boolean",
+      "label": "Export Portraits as Island Textures",
+      "description": "Copy entity portraits for use as billboards or UI textures in Creative islands",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "npc_behavior_template": {
+      "type": "string",
+      "label": "NPC Behavior Template",
+      "description": "Default Verse behavior template for character exports (patrol, idle, dialogue)",
+      "required": false,
+      "default": "dialogue",
+      "scope": "instance"
+    },
+    "island_metadata_sync": {
+      "type": "boolean",
+      "label": "Sync Island Metadata",
+      "description": "Push entity names/descriptions to island metadata fields",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "quest_to_device_mapping": {
+      "type": "boolean",
+      "label": "Map Quests to Devices",
+      "description": "Convert Studio quest entities into UEFN quest device chains",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#FFD700"
+}

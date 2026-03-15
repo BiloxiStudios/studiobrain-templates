@@ -1,0 +1,154 @@
+{
+  "id": "time-tracker",
+  "name": "Time Tracker",
+  "version": "1.0.0",
+  "description": "Track time spent on entities with a built-in timer and sync to Clockify, Toggl, or Harvest. Start/stop timers from entity pages, view time reports per entity, and auto-log hours to your team's time tracking service.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "project-management",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "time-tracker-dashboard",
+          "route": "/plugins/time-tracker",
+          "label": "Time Tracker",
+          "icon": "clock",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "timer-widget",
+          "label": "Timer",
+          "location": "entity-sidebar",
+          "icon": "timer"
+        },
+        {
+          "id": "time-log",
+          "label": "Time Log",
+          "location": "entity-tab",
+          "icon": "clock"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "httpx>=0.25.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "network:external",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "default_billable": {
+      "type": "boolean",
+      "label": "Default Billable",
+      "description": "Whether new time entries default to billable",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    },
+    "hourly_rate": {
+      "type": "number",
+      "label": "Hourly Rate",
+      "description": "Default hourly rate for billable time calculations",
+      "required": false,
+      "default": 0,
+      "scope": "instance"
+    },
+    "currency": {
+      "type": "string",
+      "label": "Currency",
+      "description": "Currency code for rate display (e.g. USD, EUR, GBP)",
+      "required": false,
+      "default": "USD",
+      "scope": "instance"
+    },
+    "provider": {
+      "type": "string",
+      "label": "Time Tracking Provider",
+      "description": "External service to sync time entries: clockify, toggl, harvest, or none (local only)",
+      "required": false,
+      "default": "none",
+      "scope": "instance"
+    },
+    "clockify_api_key": {
+      "type": "secret",
+      "label": "Clockify API Key",
+      "description": "API key from app.clockify.me/user/settings",
+      "required": false,
+      "scope": "instance"
+    },
+    "clockify_workspace_id": {
+      "type": "string",
+      "label": "Clockify Workspace ID",
+      "description": "Workspace ID from Clockify settings",
+      "required": false,
+      "scope": "instance"
+    },
+    "toggl_api_key": {
+      "type": "secret",
+      "label": "Toggl API Token",
+      "description": "API token from track.toggl.com/profile",
+      "required": false,
+      "scope": "instance"
+    },
+    "auto_start_on_open": {
+      "type": "boolean",
+      "label": "Auto-start Timer on Entity Open",
+      "description": "Automatically start a timer when an entity page is opened",
+      "required": false,
+      "default": false,
+      "scope": "user"
+    },
+    "auto_stop_on_navigate": {
+      "type": "boolean",
+      "label": "Auto-stop on Navigate Away",
+      "description": "Automatically stop the running timer when leaving an entity page",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "minimum_duration_seconds": {
+      "type": "number",
+      "label": "Minimum Duration (seconds)",
+      "description": "Discard time entries shorter than this (prevents accidental micro-entries)",
+      "required": false,
+      "default": 30,
+      "scope": "instance"
+    },
+    "round_to_minutes": {
+      "type": "number",
+      "label": "Round to Minutes",
+      "description": "Round time entries up to nearest N minutes (0 for no rounding)",
+      "required": false,
+      "default": 0,
+      "scope": "instance"
+    }
+  },
+  "data_schema": {
+    "time_entry": {
+      "label": "Time Entry",
+      "fields": {
+        "start_time": "datetime",
+        "end_time": "datetime",
+        "duration_seconds": "integer",
+        "note": "string",
+        "billable": "boolean"
+      }
+    }
+  },
+  "accent_color": "var(--surface-primary-bg)"
+}

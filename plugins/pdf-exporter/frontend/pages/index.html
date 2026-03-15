@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Bible Exporter</title>
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--surface-base-bg);
+        color: var(--surface-base-text);
+        min-height: 100vh;
+        padding: 24px 32px;
+    }
+
+    /* ── Page Header ─────────────────────── */
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--surface-elevated-border);
+    }
+
+    .page-header .header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .page-header .header-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(59, 130, 246, 0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .page-header .header-icon svg {
+        width: 22px;
+        height: 22px;
+        stroke: var(--plugin-accent);
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .page-header h1 {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--surface-base-text);
+    }
+
+    .page-header .version {
+        font-size: 11px;
+        color: var(--surface-base-text-secondary);
+        background: var(--surface-elevated-bg);
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-left: 8px;
+    }
+
+    .page-header .header-right {
+        display: flex;
+        gap: 8px;
+    }
+
+    /* ── Tab Navigation ──────────────────── */
+    .tab-nav {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--surface-elevated-border);
+    }
+
+    .tab-btn {
+        padding: 10px 20px;
+        background: transparent;
+        color: var(--surface-base-text-secondary);
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+        color: var(--surface-base-text);
+    }
+
+    .tab-btn.active {
+        color: var(--plugin-accent);
+        border-bottom-color: var(--plugin-accent);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* ── Cards ────────────────────────────── */
+    .card {
+        background: var(--surface-elevated-bg);
+        border: 1px solid var(--surface-elevated-border);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    .card h3 {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--surface-base-text);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card h3 svg {
+        width: 18px;
+        height: 18px;
+        stroke: var(--plugin-accent);
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    /* ── Batch Export Section ─────────────── */
+    .batch-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 16px;
+    }
+
+    /* Entity type selector */
+    .type-selector {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .type-btn {
+        padding: 10px 14px;
+        background: transparent;
+        color: var(--surface-base-text-secondary);
+        border: 1px solid transparent;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .type-btn:hover {
+        background: var(--surface-base-bg);
+        color: var(--surface-base-text-secondary);
+    }
+
+    .type-btn.active {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--plugin-accent);
+        border-color: rgba(59, 130, 246, 0.3);
+        font-weight: 600;
+    }
+
+    .type-btn .type-count {
+        margin-left: auto;
+        font-size: 11px;
+        background: var(--surface-base-bg);
+        padding: 2px 8px;
+        border-radius: 10px;
+        color: var(--surface-base-text-secondary);
+    }
+
+    .type-btn.active .type-count {
+        background: rgba(59, 130, 246, 0.2);
+        color: var(--plugin-accent);
+    }
+
+    .type-btn svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    /* Entity checklist */
+    .entity-list-panel {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .entity-list-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .entity-list-controls .search-input {
+        flex: 1;
+        background: var(--surface-base-bg);
+        border: 1px solid var(--surface-elevated-border);
+        color: var(--surface-base-text);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+    .entity-list-controls .search-input:focus {
+        outline: none;
+        border-color: var(--plugin-accent);
+    }
+
+    .select-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .select-actions button {
+        padding: 6px 12px;
+        background: transparent;
+        color: var(--surface-base-text-secondary);
+        border: 1px solid var(--surface-elevated-border);
+        border-radius: 4px;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .select-actions button:hover {
+        border-color: var(--plugin-accent);
+        color: var(--plugin-accent);
+    }
+
+    .entity-checklist {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid var(--surface-elevated-border);
+        border-radius: 6px;
+        background: var(--surface-base-bg);
+    }
+
+    .entity-check-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 14px;
+        border-bottom: 1px solid var(--surface-elevated-bg);
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .entity-check-item:hover {
+        background: var(--surface-elevated-bg);
+    }
+
+    .entity-check-item:last-child {
+        border-bottom: none;
+    }
+
+    .entity-check-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--plugin-accent);
+        cursor: pointer;
+    }
+
+    .entity-check-item .entity-name {
+        font-size: 13px;
+        color: var(--surface-base-text-secondary);
+        flex: 1;
+    }
+
+    .entity-check-item .entity-id {
+        font-size: 11px;
+        color: var(--surface-elevated-border);
+        font-family: monospace;
+    }
+
+    .entity-list-empty {
+        padding: 40px;
+        text-align: center;
+        color: var(--surface-elevated-border);
+        font-size: 13px;
+    }
+
+    /* ── Export Actions Bar ───────────────── */
+    .export-actions {
+        margin-top: 16px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .export-actions .selection-count {
+        font-size: 12px;
+        color: var(--surface-base-text-secondary);
+        margin-right: auto;
+    }
+
+    .export-actions .selection-count strong {
+        color: var(--plugin-accent);
+    }
+
+    /* ── Template picker row ──────────────── */
+    .template-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .tmpl-chip {
+        padding: 8px 14px;
+        background: var(--surface-base-bg);
+        border: 1px solid var(--surface-elevated-border);
+        border-radius: 20px;
+        color: var(--surface-base-text-secondary);
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tmpl-chip:hover {
+        border-color: var(--surface-elevated-border);
+        color: var(--surface-base-text-secondary);
+    }
+
+    .tmpl-chip.selected {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: var(--plugin-accent);
+        color: var(--plugin-accent);
+        font-weight: 600;
+    }
+
+    .tmpl-chip svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    /* ── Buttons ──────────────────────────── */
+    .btn-primary {
+        padding: 10px 20px;
+        background: var(--plugin-accent);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        background: var(--surface-primary-hover);
+    }
+
+    .btn-primary:disabled {
+        background: var(--surface-elevated-border);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .btn-primary svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .btn-accent {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #6366f1, var(--surface-secondary-bg));
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-accent:hover {
+        opacity: 0.9;
+    }
+
+    .btn-accent svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .btn-outline {
+        padding: 10px 20px;
+        background: transparent;
+        color: var(--surface-base-text-secondary);
+        border: 1px solid var(--surface-elevated-border);
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-outline:hover {
+        border-color: var(--plugin-accent);
+        color: var(--plugin-accent);
+    }
+
+    /* ── World Bible Section ─────────────── */
+    .bible-card {
+        background: linear-gradient(135deg, var(--surface-elevated-bg), var(--surface-base-bg));
+        border: 1px solid var(--surface-elevated-border);
+        border-radius: 12px;
+        padding: 32px;
+        text-align: center;
+    }
+
+    .bible-card .bible-icon {
+        width: 64px;
+        height: 64px;
+        background: rgba(99, 102, 241, 0.15);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px auto;
+    }
+
+    .bible-card .bible-icon svg {
+        width: 32px;
+        height: 32px;
+        stroke: var(--surface-secondary-bg);
+        fill: none;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .bible-card h3 {
+        justify-content: center;
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+
+    .bible-card .bible-desc {
+        color: var(--surface-base-text-secondary);
+        font-size: 13px;
+        margin-bottom: 20px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .bible-stats {
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+
+    .bible-stat {
+        text-align: center;
+    }
+
+    .bible-stat .stat-number {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--surface-secondary-bg);
+    }
+
+    .bible-stat .stat-label {
+        font-size: 11px;
+        color: var(--surface-base-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* ── Loading / Status ────────────────── */
+    .spinner-inline {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .status-bar {
+        display: none;
+        margin-top: 12px;
+        padding: 10px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+    }
+
+    .status-bar.info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: var(--surface-info-text-secondary);
+    }
+
+    .status-bar.success {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: var(--surface-success-border);
+    }
+
+    .status-bar.error {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--surface-error-border);
+    }
+
+    /* ── Responsive ───────────────────────── */
+    @media (max-width: 900px) {
+        .batch-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+<body>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+            </div>
+            <div>
+                <h1>PDF Bible Exporter <span class="version">v1.0</span></h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('batch')">Batch Export</button>
+        <button class="tab-btn" onclick="switchTab('bible')">World Bible</button>
+        <button class="tab-btn" onclick="switchTab('templates')">Templates</button>
+    </div>
+
+    <!-- ── Tab: Batch Export ────────────── -->
+    <div class="tab-content active" id="tab-batch">
+
+        <div class="card">
+            <h3>
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Batch Export
+            </h3>
+
+            <!-- Template selection for batch -->
+            <div style="margin-bottom:16px;">
+                <div style="font-size:12px;color:var(--surface-base-text-secondary);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Template</div>
+                <div class="template-row" id="batchTemplateRow">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="batch-layout">
+                <!-- Left: Entity type selector -->
+                <div class="card" style="margin-bottom:0; padding:12px;">
+                    <div class="type-selector" id="typeSelector">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Right: Entity checklist -->
+                <div class="entity-list-panel">
+                    <div class="entity-list-controls">
+                        <input type="text" class="search-input" id="entitySearch"
+                               placeholder="Search entities..." oninput="filterEntities()">
+                        <div class="select-actions">
+                            <button onclick="selectAll()">Select All</button>
+                            <button onclick="selectNone()">Clear</button>
+                        </div>
+                    </div>
+                    <div class="entity-checklist" id="entityChecklist">
+                        <div class="entity-list-empty">Select an entity type to load entities</div>
+                    </div>
+                    <div class="export-actions">
+                        <div class="selection-count">
+                            <strong id="selectedCount">0</strong> selected
+                        </div>
+                        <button class="btn-primary" id="batchExportBtn" onclick="doBatchExport()" disabled>
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-bar" id="batchStatus"></div>
+        </div>
+    </div>
+
+    <!-- ── Tab: World Bible ────────────── -->
+    <div class="tab-content" id="tab-bible">
+        <div class="bible-card">
+            <div class="bible-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+            </div>
+            <h3>World Bible Generator</h3>
+            <div class="bible-desc">
+                Generate a complete reference document with all characters, locations,
+                factions, and items compiled into a single print-ready export with
+                a cover page and table of contents.
+            </div>
+
+            <div class="bible-stats" id="bibleStats">
+                <!-- Populated by JS -->
+            </div>
+
+            <button class="btn-accent" onclick="doWorldBible()" id="bibleBtn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                Generate World Bible
+            </button>
+
+            <div class="status-bar" id="bibleStatus"></div>
+        </div>
+    </div>
+
+    <!-- ── Tab: Templates ──────────────── -->
+    <div class="tab-content" id="tab-templates">
+        <div class="card">
+            <h3>
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                Available Templates
+            </h3>
+            <div id="templatesGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px;">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+<script>
+    const API_BASE = '/api/ext/pdf-exporter';
+
+    // State
+    let templates = [];
+    let entityTypes = ['character', 'location', 'faction', 'item', 'brand', 'district', 'quest', 'event', 'campaign'];
+    let currentType = '';
+    let currentEntities = [];
+    let selectedEntities = new Set();
+    let selectedBatchTemplate = 'entity-summary';
+    let entityCounts = {};
+
+    const TYPE_ICONS = {
+        character: '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+        location: '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+        faction: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+        item: '<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+        brand: '<svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+        district: '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+        quest: '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+        event: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+        campaign: '<svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+    };
+
+    const TEMPLATE_ICONS_SVG = {
+        'character-sheet': TYPE_ICONS.character,
+        'location-guide': TYPE_ICONS.location,
+        'faction-dossier': TYPE_ICONS.faction,
+        'item-catalog': TYPE_ICONS.item,
+        'entity-summary': '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+        'world-bible': '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    };
+
+    // ── Initialization ──────────────────────
+    async function init() {
+        await loadTemplates();
+        await loadTypeCounts();
+        renderTypeSelector();
+        renderBatchTemplates();
+        renderBibleStats();
+        renderTemplatesGrid();
+    }
+
+    async function loadTemplates() {
+        try {
+            const resp = await fetch(`${API_BASE}/templates`);
+            if (resp.ok) {
+                const data = await resp.json();
+                templates = data.templates;
+            }
+        } catch (e) {
+            console.error('Failed to load templates:', e);
+        }
+    }
+
+    async function loadTypeCounts() {
+        const promises = entityTypes.map(async (type) => {
+            try {
+                const resp = await fetch(`${API_BASE}/entities/${type}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    entityCounts[type] = data.count;
+                } else {
+                    entityCounts[type] = 0;
+                }
+            } catch (e) {
+                entityCounts[type] = 0;
+            }
+        });
+        await Promise.all(promises);
+    }
+
+    // ── Tab switching ───────────────────────
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(`tab-${tabId}`).classList.add('active');
+    }
+
+    // ── Type Selector ───────────────────────
+    function renderTypeSelector() {
+        const container = document.getElementById('typeSelector');
+        container.innerHTML = '';
+
+        entityTypes.forEach(type => {
+            const count = entityCounts[type] || 0;
+            if (count === 0) return; // Skip empty types
+
+            const btn = document.createElement('button');
+            btn.className = 'type-btn' + (type === currentType ? ' active' : '');
+            btn.innerHTML = `
+                ${TYPE_ICONS[type] || TYPE_ICONS.item}
+                ${type.charAt(0).toUpperCase() + type.slice(1)}s
+                <span class="type-count">${count}</span>
+            `;
+            btn.onclick = () => loadEntitiesOfType(type);
+            container.appendChild(btn);
+        });
+    }
+
+    async function loadEntitiesOfType(type) {
+        currentType = type;
+        selectedEntities.clear();
+        updateSelectedCount();
+
+        // Update type selector UI
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        event.target.closest('.type-btn').classList.add('active');
+
+        const checklist = document.getElementById('entityChecklist');
+        checklist.innerHTML = '<div class="entity-list-empty"><span class="spinner-inline"></span> Loading...</div>';
+
+        try {
+            const resp = await fetch(`${API_BASE}/entities/${type}`);
+            if (resp.ok) {
+                const data = await resp.json();
+                currentEntities = data.entities;
+                renderEntityChecklist();
+            }
+        } catch (e) {
+            checklist.innerHTML = '<div class="entity-list-empty">Failed to load entities</div>';
+        }
+    }
+
+    function renderEntityChecklist() {
+        const checklist = document.getElementById('entityChecklist');
+        const filter = document.getElementById('entitySearch').value.toLowerCase();
+
+        const filtered = currentEntities.filter(e =>
+            e.name.toLowerCase().includes(filter) || e.id.toLowerCase().includes(filter)
+        );
+
+        if (filtered.length === 0) {
+            checklist.innerHTML = '<div class="entity-list-empty">No entities match your search</div>';
+            return;
+        }
+
+        checklist.innerHTML = filtered.map(e => `
+            <label class="entity-check-item">
+                <input type="checkbox" value="${e.id}"
+                       ${selectedEntities.has(e.id) ? 'checked' : ''}
+                       onchange="toggleEntity('${e.id}')">
+                <span class="entity-name">${e.name}</span>
+                <span class="entity-id">${e.id}</span>
+            </label>
+        `).join('');
+    }
+
+    function toggleEntity(id) {
+        if (selectedEntities.has(id)) {
+            selectedEntities.delete(id);
+        } else {
+            selectedEntities.add(id);
+        }
+        updateSelectedCount();
+    }
+
+    function selectAll() {
+        const filter = document.getElementById('entitySearch').value.toLowerCase();
+        currentEntities.forEach(e => {
+            if (e.name.toLowerCase().includes(filter) || e.id.toLowerCase().includes(filter)) {
+                selectedEntities.add(e.id);
+            }
+        });
+        renderEntityChecklist();
+        updateSelectedCount();
+    }
+
+    function selectNone() {
+        selectedEntities.clear();
+        renderEntityChecklist();
+        updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+        document.getElementById('selectedCount').textContent = selectedEntities.size;
+        document.getElementById('batchExportBtn').disabled = selectedEntities.size === 0;
+    }
+
+    function filterEntities() {
+        renderEntityChecklist();
+    }
+
+    // ── Template Rendering ──────────────────
+    function renderBatchTemplates() {
+        const row = document.getElementById('batchTemplateRow');
+        row.innerHTML = '';
+        templates.forEach(t => {
+            if (t.id === 'world-bible') return;
+            const chip = document.createElement('button');
+            chip.className = 'tmpl-chip' + (t.id === selectedBatchTemplate ? ' selected' : '');
+            chip.innerHTML = `${TEMPLATE_ICONS_SVG[t.id] || TEMPLATE_ICONS_SVG['entity-summary']} ${t.name}`;
+            chip.onclick = () => {
+                selectedBatchTemplate = t.id;
+                document.querySelectorAll('.tmpl-chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+            };
+            row.appendChild(chip);
+        });
+    }
+
+    function renderTemplatesGrid() {
+        const grid = document.getElementById('templatesGrid');
+        grid.innerHTML = templates.map(t => `
+            <div class="card" style="margin-bottom:0;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                    <div style="width:36px;height:36px;background:rgba(59,130,246,0.1);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <span style="color:var(--plugin-accent);">${TEMPLATE_ICONS_SVG[t.id] || TEMPLATE_ICONS_SVG['entity-summary']}</span>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;font-size:14px;color:var(--surface-base-text);">${t.name}</div>
+                        <div style="font-size:11px;color:var(--surface-base-text-secondary);">${t.id}</div>
+                    </div>
+                </div>
+                <div style="font-size:12px;color:var(--surface-base-text-secondary);margin-bottom:8px;">${t.description}</div>
+                <div style="font-size:11px;color:var(--surface-elevated-border);">
+                    Supports: ${t.entity_types.map(et => '<span style="background:var(--surface-base-bg);padding:1px 6px;border-radius:3px;margin-right:4px;">' + et + '</span>').join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ── Bible Stats ─────────────────────────
+    function renderBibleStats() {
+        const stats = document.getElementById('bibleStats');
+        const bibleTypes = ['character', 'location', 'faction', 'item'];
+        stats.innerHTML = bibleTypes.map(type => `
+            <div class="bible-stat">
+                <div class="stat-number">${entityCounts[type] || 0}</div>
+                <div class="stat-label">${type}s</div>
+            </div>
+        `).join('');
+    }
+
+    // ── Export Actions ──────────────────────
+    async function doBatchExport() {
+        if (selectedEntities.size === 0) return;
+
+        const btn = document.getElementById('batchExportBtn');
+        const statusBar = document.getElementById('batchStatus');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-inline"></span> Generating...';
+        statusBar.className = 'status-bar info';
+        statusBar.innerHTML = `<span class="spinner-inline"></span> Generating export for ${selectedEntities.size} ${currentType}(s)...`;
+
+        try {
+            const resp = await fetch(`${API_BASE}/batch`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    entity_type: currentType,
+                    entity_ids: Array.from(selectedEntities),
+                    template: selectedBatchTemplate,
+                    include_toc: true,
+                }),
+            });
+
+            if (resp.ok) {
+                const html = await resp.text();
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+                statusBar.className = 'status-bar success';
+                statusBar.textContent = `Export opened in new tab. Use Ctrl+P / Cmd+P to save as PDF.`;
+            } else {
+                const err = await resp.text();
+                statusBar.className = 'status-bar error';
+                statusBar.textContent = `Export failed: ${err}`;
+            }
+        } catch (e) {
+            statusBar.className = 'status-bar error';
+            statusBar.textContent = `Export failed: ${e.message}`;
+        } finally {
+            btn.disabled = selectedEntities.size === 0;
+            btn.innerHTML = `
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export Selected`;
+        }
+    }
+
+    async function doWorldBible() {
+        const btn = document.getElementById('bibleBtn');
+        const statusBar = document.getElementById('bibleStatus');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-inline"></span> Generating World Bible...';
+        statusBar.className = 'status-bar info';
+        statusBar.innerHTML = '<span class="spinner-inline"></span> Compiling all entities into world bible...';
+
+        try {
+            const resp = await fetch(`${API_BASE}/world-bible`, {
+                method: 'POST',
+            });
+
+            if (resp.ok) {
+                const html = await resp.text();
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+                statusBar.className = 'status-bar success';
+                statusBar.textContent = 'World Bible opened in new tab. Use Ctrl+P / Cmd+P to save as PDF.';
+            } else {
+                const err = await resp.text();
+                statusBar.className = 'status-bar error';
+                statusBar.textContent = `Generation failed: ${err}`;
+            }
+        } catch (e) {
+            statusBar.className = 'status-bar error';
+            statusBar.textContent = `Generation failed: ${e.message}`;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                Generate World Bible`;
+        }
+    }
+
+    // Start
+    init();
+</script>
+</body>
+</html>
