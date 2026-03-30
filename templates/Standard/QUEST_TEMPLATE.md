@@ -14,6 +14,23 @@ asset_subfolders:
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
 status: "active"
+workflow:
+  definition: "QUEST_WORKFLOW.md"
+  default_stage: "concept"
+  allow_multiple_active: false
+  notifications:
+    on_enter:
+      - type: "print"
+        message: "Quest entered stage {{stage_name}}"
+    on_exit:
+      - type: "archive"
+        target: "stage_history/quests/{{quest_id}}/{{old_stage}}"
+    on_complete:
+      - type: "print"
+        message: "Quest completed {{stage_name}}"
+  # Note: Production status and workflow are separate systems
+  # - production_status: tracks progress across domains (game, TV, etc.)
+  # - workflow: tracks entity lifecycle (concept -> published -> active -> archived)
 
 # PRODUCTION STATUS TRACKING
 production_status:
