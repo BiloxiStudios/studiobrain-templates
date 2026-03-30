@@ -65,6 +65,9 @@
     },
     "youtube-manager": {
       "enabled": false
+    },
+    "comparison": {
+      "enabled": false
     }
   }
 }
