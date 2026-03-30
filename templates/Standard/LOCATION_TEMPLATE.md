@@ -18,6 +18,7 @@ created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
 associated_rules:
   - LOCATION_RULES.md
+  - LOCATION_WORKFLOW.md
 associated_skills: []
 status: "active"  # active, destroyed, quarantined, archived, draft
 
@@ -27,6 +28,25 @@ production_status:
   game_uefn: "none"         # none, planned, in_progress, review, published, live
   tv_showrunner: "none"     # none, planned, in_progress, review, episode, current, archived
   notes: ""                 # Production notes
+
+# WORKFLOW CONFIGURATION
+workflow:
+  definition: "LOCATION_WORKFLOW.md"
+  default_stage: "concept"
+  allow_multiple_active: false
+  notifications:
+    on_enter:
+      - type: "print"
+        message: "Location entered stage {{stage_name}}"
+    on_exit:
+      - type: "archive"
+        target: "stage_history/locations/{{location_id}}/{{old_stage}}"
+    on_complete:
+      - type: "print"
+        message: "Location completed {{stage_name}}"
+  # Note: Production status and workflow are separate systems
+  # - production_status: tracks progress across domains (game, TV, etc.)
+  # - workflow: tracks entity lifecycle (concept -> published -> active -> archived)
 
 # PRIMARY IMAGE
 primary_image: ""           # Path to primary image (set via EntityAssets component)

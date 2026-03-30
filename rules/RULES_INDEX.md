@@ -4,7 +4,7 @@
 ### 🎯 Purpose
 This directory contains ALL generation and validation rules for the City of Brains universe. These rules are:
 - **Machine-readable** for API/application settings
-- **Human-readable** for designers and writers  
+- **Human-readable** for designers and writers
 - **LLM-compatible** for AI generation
 
 ### 📋 Rule Categories
@@ -12,14 +12,20 @@ This directory contains ALL generation and validation rules for the City of Brai
 | File | Purpose | Used By |
 |------|---------|---------|
 | [CHARACTER_RULES.md](CHARACTER_RULES.md) | Character creation, relationships, dialogue | Character Builder, Story Generator |
+| [CHARACTER_WORKFLOW.md](CHARACTER_WORKFLOW.md) | Character status state machine (11 stages) | Character Builder, QA |
 | [LOCATION_RULES.md](LOCATION_RULES.md) | Location atmosphere, brands, NPCs | World Builder, Location Generator |
+| [LOCATION_WORKFLOW.md](LOCATION_WORKFLOW.md) | Location status state machine (14 stages) | World Builder, QA |
 | [BRAND_RULES.md](BRAND_RULES.md) | Brand identity, products, marketing | Brand Creator, Ad Generator |
+| [ITEM_RULES.md](ITEM_RULES.md) | Item stats, rarity, abnormalities | Item Builder, Balance |
+| [ITEM_WORKFLOW.md](ITEM_WORKFLOW.md) | Item status state machine (12 stages) | Item Builder, QA |
 | [DIALOGUE_RULES.md](DIALOGUE_RULES.md) | Conversation flow, personality expression | Dialogue System, Voice AI |
+| [QUEST_RULES.md](QUEST_RULES.md) | Quest structure, rewards, progression | Quest Designer, Story Builder |
+| [QUEST_WORKFLOW.md](QUEST_WORKFLOW.md) | Quest status state machine (12 stages) | Quest Designer, QA |
 | [IMAGE_GENERATION_RULES.md](IMAGE_GENERATION_RULES.md) | Visual style, prompts, consistency | ComfyUI, DALL-E, Stable Diffusion |
 | [VOICE_GENERATION_RULES.md](VOICE_GENERATION_RULES.md) | Voice profiles, pronunciation, emotion | ElevenLabs, Voice Synthesis |
 | [COMBAT_RULES.md](COMBAT_RULES.md) | Combat mechanics, damage, abilities | Game Systems, Combat AI |
-| [QUEST_RULES.md](QUEST_RULES.md) | Quest structure, rewards, progression | Quest Designer, Story Builder |
 | [FACTION_RULES.md](FACTION_RULES.md) | Faction dynamics, territory, loyalty | World State, Political System |
+| [WORKFLOW_RULES.md](WORKFLOW_RULES.md) | Workflow system documentation and examples | All Systems |
 
 ### 🔧 Application Settings Integration
 
