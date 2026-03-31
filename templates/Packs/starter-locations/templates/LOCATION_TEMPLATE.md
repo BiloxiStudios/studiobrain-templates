@@ -162,7 +162,6 @@ infection_status: "contaminated"  # clean, contaminated, infected, quarantined
 # CONTENT FIELDS
 description: null  # Brief description (also in markdown below for details)
 atmosphere: null  # Atmosphere description (also in markdown below for details)
-notable_features: []  # List of key features
 hidden_secrets: []  # Hidden elements players can discover
 historical_context: null  # Will be in markdown below
 gameplay_notes: null  # Will be in markdown below

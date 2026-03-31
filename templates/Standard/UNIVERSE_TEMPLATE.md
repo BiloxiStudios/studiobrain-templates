@@ -4,7 +4,7 @@ template_version: "1.0"
 template_category: "document"
 editable: true
 marketplace_eligible: true
-id: "[snake_case_name]"
+id: "[snake_case_name]"  # e.g., city_of_brains
 entity_type: "universe"
 folder_name: "Universes"
 file_prefix: "UNIV_"
@@ -12,7 +12,6 @@ asset_subfolders:
   - images
   - audio
   - video
-id: "unique_lowercase_id"  # e.g., city_of_brains
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
 associated_rules:

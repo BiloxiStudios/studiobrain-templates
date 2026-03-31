@@ -4,7 +4,7 @@ template_version: "1.0"
 template_category: "core"
 editable: false
 marketplace_eligible: false
-id: "[snake_case_name]"
+id: "[snake_case_name]"  # Must match timeline entry (e.g., campaign_start_main_story)
 entity_type: "timeline"
 folder_name: "Timelines"
 file_prefix: "TIMEL_"
@@ -12,7 +12,6 @@ asset_subfolders:
   - images
   - audio
   - video
-id: "unique_lowercase_id"  # Must match timeline entry (e.g., campaign_start_main_story)
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
 status: "active"  # active, draft, archived
@@ -86,7 +85,7 @@ vector_references:  # IDs of documents in vector database that support this entr
   - "doc_id_2"
 
 # TIMELINE ORGANIZATION
-id: "master_timeline"  # For nested/sub-timelines
+timeline_id: "master_timeline"  # For nested/sub-timelines
 sequence_order: 1  # Order within a sequence of related events
 prerequisites:  # Events that must happen before this one
   - "previous_event_id"

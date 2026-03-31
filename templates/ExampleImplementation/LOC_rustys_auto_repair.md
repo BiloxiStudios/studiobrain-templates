@@ -1,7 +1,6 @@
 ---
 # LOCATION METADATA
 template_version: "1.0"
-location_type: "poi"
 created_date: "2025-01-15"
 last_updated: "2025-01-15"
 status: "active"
