@@ -4,7 +4,7 @@ template_version: "1.0"
 template_category: "document"
 editable: true
 marketplace_eligible: true
-id: "[snake_case_name]"
+id: "[snake_case_name]"  # Must match universe_id
 entity_type: "style_bible"
 folder_name: "Style Bibles"
 file_prefix: "STYLE_"
@@ -12,7 +12,6 @@ asset_subfolders:
   - images
   - audio
   - video
-id: "unique_lowercase_id"  # Must match universe_id
 universe_id: "universe_id"  # References universe configuration
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
@@ -169,7 +168,7 @@ special_font:
   usage: "Terminal displays, retro UI"
 
 # ANIMATION PRINCIPLES
-animation_style: "snappy_responsive"
+animation_approach: "snappy_responsive"
 frame_rate: 30  # fps
 key_principles:
   - "Anticipation before action"

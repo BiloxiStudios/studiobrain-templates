@@ -4,7 +4,7 @@ template_version: "1.0"
 template_category: "core"
 editable: false
 marketplace_eligible: false
-id: "[snake_case_name]"
+id: "[snake_case_name]"  # Must match folder name (e.g., find_the_cure)
 entity_type: "quest"
 folder_name: "Quests"
 file_prefix: "QUEST_"
@@ -12,7 +12,6 @@ asset_subfolders:
   - images
   - audio
   - video
-id: "unique_lowercase_id"  # Must match folder name (e.g., find_the_cure)
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
 status: "active"  # active, disabled, completed, archived, draft

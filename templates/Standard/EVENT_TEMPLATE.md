@@ -4,7 +4,7 @@ template_version: "1.0"
 template_category: "entity"
 editable: true
 marketplace_eligible: true
-id: "[snake_case_name]"
+id: "[snake_case_name]"  # Must match folder name (e.g., zombie_horde_attack)
 entity_type: "event"
 folder_name: "Events"
 file_prefix: "EVENT_"
@@ -12,7 +12,6 @@ asset_subfolders:
   - images
   - audio
   - video
-id: "unique_lowercase_id"  # Must match folder name (e.g., zombie_horde_attack)
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
 associated_rules: []
