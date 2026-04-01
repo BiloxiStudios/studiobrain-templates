@@ -4,7 +4,11 @@
       "greeting": "Hello test",
       "log_events": false
     },
-    "comfyui-workflows": {},
+    "comfyui-workflows": {
+      "comfyui_url": "http://localhost:8188",
+      "workflows_dir": "",
+      "auto_save_outputs": true
+    },
     "time-tracker": {
       "default_billable": false
     }

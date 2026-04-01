@@ -222,15 +222,44 @@ async def _comfyui_post(path: str, data: dict) -> dict:
         return {"error": str(e)}
 
 
-async def _check_comfyui_connection() -> dict:
-    """Check if ComfyUI is reachable."""
-    result = await _comfyui_get("/system_stats")
-    if "error" in result:
-        return {"connected": False, "error": result["error"]}
-    return {
-        "connected": True,
-        "system_stats": result,
-    }
+async def _check_comfyui_connection(url: Optional[str] = None) -> dict:
+    """Check if ComfyUI is reachable.
+
+    Args:
+        url: Optional override URL to test. Defaults to the configured comfyui_url.
+    """
+    base_url = url.rstrip("/") if url else _comfyui_url()
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{base_url}/system_stats",
+                timeout=aiohttp.ClientTimeout(total=10),
+            ) as resp:
+                if resp.status != 200:
+                    return {
+                        "connected": False,
+                        "url": base_url,
+                        "error": f"ComfyUI returned HTTP {resp.status}",
+                    }
+                stats = await resp.json()
+
+        # Extract version info when present
+        system = stats.get("system", {})
+        python_version = system.get("python_version", "")
+        comfyui_version = stats.get("version") or system.get("comfyui_version", "")
+
+        return {
+            "connected": True,
+            "url": base_url,
+            "version": comfyui_version or None,
+            "python_version": python_version or None,
+            "system_stats": stats,
+        }
+    except aiohttp.ClientError:
+        return {"connected": False, "url": base_url, "error": f"Cannot reach ComfyUI at {base_url}"}
+    except Exception as exc:
+        logger.exception("Unexpected error checking ComfyUI connection at %s", base_url)
+        return {"connected": False, "url": base_url, "error": f"Unexpected error: {type(exc).__name__}"}
 
 
 # ---------------------------------------------------------------------------
@@ -273,6 +302,26 @@ async def status():
         "workflow_count": workflow_count,
         "total_executions": hist_result["total"],
     }
+
+
+@router.get("/connect")
+async def connect(url: Optional[str] = None):
+    """Test connectivity to the ComfyUI server.
+
+    Called by the SchemaForm provider button so the user can verify their
+    ComfyUI URL setting without executing a full workflow.
+
+    Query params:
+        url: Override URL to test (e.g. the value the user just typed).
+             Falls back to the saved ``comfyui_url`` setting when omitted.
+
+    Returns a JSON object with at minimum:
+        connected (bool)   – whether ComfyUI responded successfully
+        url       (str)    – the URL that was tested
+        error     (str?)   – human-readable error message when connected=false
+        version   (str?)   – ComfyUI version string when connected=true
+    """
+    return await _check_comfyui_connection(url=url)
 
 
 @router.get("/workflows")
