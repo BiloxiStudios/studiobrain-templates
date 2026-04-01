@@ -27,6 +27,7 @@ This directory contains ALL generation and validation rules for the City of Brai
 | [COMBAT_RULES.md](COMBAT_RULES.md) | Combat mechanics, damage, abilities | Game Systems, Combat AI |
 | [FACTION_RULES.md](FACTION_RULES.md) | Faction dynamics, territory, loyalty | World State, Political System |
 | [WORKFLOW_RULES.md](WORKFLOW_RULES.md) | Workflow system documentation and examples | All Systems |
+| [PROMPT_ENGINE_RULES.md](PROMPT_ENGINE_RULES.md) | Cross-entity variable resolution syntax, pipeline, caching, and security | Prompt Engine Plugin, AI Generation, Document Renderer |
 
 ### 🔧 Application Settings Integration
 

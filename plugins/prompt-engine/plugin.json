@@ -1,0 +1,79 @@
+{
+  "id": "prompt-engine",
+  "name": "Prompt Engine",
+  "version": "1.0.0",
+  "description": "Cross-entity variable resolution for AI generation prompts and document template rendering. Supports $field (local), $type.field (implicit), $type:id.field (explicit), and nested dot-path traversal.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "prompt-engine-dashboard",
+          "route": "/plugins/prompt-engine",
+          "label": "Prompt Engine",
+          "icon": "terminal",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "prompt-variables",
+          "label": "Prompt Variables",
+          "location": "entity-sidebar",
+          "icon": "braces"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read",
+    "prompt:read",
+    "prompt:resolve"
+  ],
+  "settings_schema": {
+    "default_cache_ttl": {
+      "type": "integer",
+      "label": "Default Cache TTL (seconds)",
+      "required": false,
+      "default": 300,
+      "scope": "instance",
+      "description": "How long resolved variable values are cached. Set to 0 to disable caching."
+    },
+    "strict_mode": {
+      "type": "boolean",
+      "label": "Strict Mode",
+      "required": false,
+      "default": true,
+      "scope": "instance",
+      "description": "When enabled, resolution fails immediately on any unresolvable variable."
+    },
+    "fallback_strategy": {
+      "type": "string",
+      "label": "Fallback Strategy",
+      "required": false,
+      "default": "empty_string",
+      "scope": "instance",
+      "enum": ["empty_string", "placeholder", "skip", "error"],
+      "description": "How to handle optional variables that cannot be resolved."
+    },
+    "max_value_length": {
+      "type": "integer",
+      "label": "Max Resolved Value Length (chars)",
+      "required": false,
+      "default": 1000,
+      "scope": "instance",
+      "description": "Maximum character length of a single resolved variable value (security truncation)."
+    }
+  },
+  "accent_color": "var(--surface-primary-bg)"
+}

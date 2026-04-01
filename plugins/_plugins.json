@@ -3,6 +3,9 @@
     "assembly-composer": {
       "enabled": true
     },
+    "prompt-engine": {
+      "enabled": true
+    },
     "hello-world": {
       "enabled": true
     },
