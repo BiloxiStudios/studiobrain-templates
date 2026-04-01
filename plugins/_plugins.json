@@ -1,5 +1,8 @@
 {
   "plugins": {
+    "assembly-composer": {
+      "enabled": true
+    },
     "hello-world": {
       "enabled": true
     },

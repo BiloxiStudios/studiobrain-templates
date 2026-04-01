@@ -11,6 +11,7 @@ This directory contains ALL generation and validation rules for the City of Brai
 
 | File | Purpose | Used By |
 |------|---------|---------|
+| [ASSEMBLY_RULES.md](ASSEMBLY_RULES.md) | Assembly slot system, inheritance hierarchy, z-index ordering, slot locking, export profiles | Assembly Composer, Export Pipeline |
 | [CHARACTER_RULES.md](CHARACTER_RULES.md) | Character creation, relationships, dialogue | Character Builder, Story Generator |
 | [CHARACTER_WORKFLOW.md](CHARACTER_WORKFLOW.md) | Character status state machine (11 stages) | Character Builder, QA |
 | [LOCATION_RULES.md](LOCATION_RULES.md) | Location atmosphere, brands, NPCs | World Builder, Location Generator |

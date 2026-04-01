@@ -1,0 +1,22 @@
+{
+  "id": "starter-assemblies",
+  "name": "Starter Assemblies",
+  "version": "1.0.0",
+  "description": "Starter assembly pack demonstrating the full Template→Profile→Variant→Zombie inheritance hierarchy for a character assembly. Includes slot definitions, export profiles, z-index ordering, and slot locking examples.",
+  "author": "BiloxiStudios",
+  "entity_types": ["assembly"],
+  "templates": [
+    "templates/ASSEMBLY_TEMPLATE.md"
+  ],
+  "examples": [
+    "examples/assembly_hero_template.md",
+    "examples/assembly_hero_profile.md",
+    "examples/assembly_hero_variant_red.md",
+    "examples/assembly_hero_zombie.md"
+  ],
+  "rules": [
+    "rules/assembly-rules.yaml"
+  ],
+  "tags": ["assembly", "composition", "slots", "inheritance", "export"],
+  "created_at": "2026-04-01"
+}

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--surface-base-text);
+  }
+
+  /* ── Chain nodes ── */
+  .chain { display: flex; flex-direction: column; gap: 0; }
+
+  .node {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    position: relative;
+  }
+  .node + .node::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: -12px;
+    width: 2px;
+    height: 12px;
+    background: var(--surface-elevated-border);
+  }
+  .node-connector {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+    border: 2px solid;
+  }
+  .level-template    { border-color: #6366f1; background: rgba(99,102,241,0.15); color: #6366f1; }
+  .level-profile     { border-color: #3b82f6; background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .level-variant     { border-color: #22c55e; background: rgba(34,197,94,0.15);  color: #22c55e; }
+  .level-zombie      { border-color: #a855f7; background: rgba(168,85,247,0.15); color: #a855f7; }
+  .level-current     { box-shadow: 0 0 0 3px var(--plugin-accent); }
+
+  .node-body { flex: 1; min-width: 0; padding-bottom: 12px; }
+  .node-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .node-name.current-node { color: var(--plugin-accent); }
+  .node-id {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    font-family: monospace;
+    margin-top: 1px;
+  }
+  .node-meta {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 3px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .badge {
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+  }
+
+  /* ── Locked slots summary ── */
+  .locked-section {
+    margin-top: 14px;
+    padding: 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    background: var(--surface-elevated-bg);
+  }
+  .locked-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .locked-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .locked-tag {
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: monospace;
+    background: rgba(148,163,184,0.12);
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .empty-locks {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    font-style: italic;
+  }
+
+  /* ── Depth indicator ── */
+  .depth-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    border: 1px solid var(--surface-elevated-border);
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+  }
+  .depth-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--plugin-accent);
+  }
+
+  /* ── States ── */
+  .loading, .empty {
+    text-align: center;
+    padding: 20px 0;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div id="panel-root">
+  <div class="loading"><div class="spinner"></div>Loading inheritance…</div>
+</div>
+
+<script>
+const ctx = window.PLUGIN_CONTEXT || {};
+const API = '/api/plugins/assembly-composer';
+const assemblyId = ctx.entityId;
+
+const LEVEL_LABELS = {
+  template: 'T',
+  profile: 'P',
+  variant: 'V',
+  zombie_variant: 'Z',
+  transformation_variant: 'X',
+};
+const LEVEL_CSS = {
+  template: 'level-template',
+  profile: 'level-profile',
+  variant: 'level-variant',
+  zombie_variant: 'level-zombie',
+  transformation_variant: 'level-zombie',
+};
+
+async function load() {
+  if (!assemblyId) {
+    document.getElementById('panel-root').innerHTML =
+      '<div class="empty">No assembly selected.</div>';
+    return;
+  }
+  try {
+    const res = await fetch(`${API}/assemblies/${assemblyId}/inheritance`);
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
+    render(data);
+  } catch (err) {
+    document.getElementById('panel-root').innerHTML =
+      `<div class="loading" style="color:var(--surface-error-border)">Error: ${err.message}</div>`;
+  }
+}
+
+function render(data) {
+  const { chain, chain_depth, all_locked_slots } = data;
+
+  const depthColor = chain_depth >= 4 ? 'var(--surface-error-border)'
+    : chain_depth >= 3 ? 'var(--surface-warning-border)'
+    : 'var(--surface-success-border)';
+
+  const chainHtml = chain.map((node, i) => {
+    const isCurrent = i === chain.length - 1;
+    const levelKey = node.hierarchy_level || 'template';
+    const levelClass = LEVEL_CSS[levelKey] || 'level-template';
+    const label = LEVEL_LABELS[levelKey] || 'T';
+    const nodeLocks = node.locked_slots || [];
+
+    return `
+      <div class="node">
+        <div class="node-connector ${levelClass}${isCurrent ? ' level-current' : ''}">
+          ${label}
+        </div>
+        <div class="node-body">
+          <div class="node-name${isCurrent ? ' current-node' : ''}">${node.name || node.id || '—'}</div>
+          <div class="node-id">${node.id || ''}</div>
+          <div class="node-meta">
+            <span class="badge">${levelKey.replace('_', ' ')}</span>
+            ${nodeLocks.length ? `<span class="badge">🔒 ${nodeLocks.length} locked</span>` : ''}
+            ${isCurrent ? '<span class="badge" style="border-color:var(--plugin-accent);color:var(--plugin-accent)">◀ current</span>' : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  const lockedHtml = (all_locked_slots && all_locked_slots.length)
+    ? all_locked_slots.map(p => `<span class="locked-tag">${p}</span>`).join('')
+    : '<span class="empty-locks">No locked slots</span>';
+
+  document.getElementById('panel-root').innerHTML = `
+    <div class="header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
+        <path d="M18 9a9 9 0 0 1-9 9"/>
+      </svg>
+      Inheritance Chain
+    </div>
+
+    <div class="depth-badge">
+      <div class="depth-dot" style="background:${depthColor}"></div>
+      Depth ${chain_depth} / 4
+    </div>
+
+    <div class="chain">${chainHtml}</div>
+
+    <div class="locked-section">
+      <div class="locked-title">🔒 Effective Locked Slots</div>
+      <div class="locked-list">${lockedHtml}</div>
+    </div>`;
+}
+
+load();
+</script>
+</body>
+</html>

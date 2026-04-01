@@ -1,5 +1,12 @@
 {
   "plugins": {
+    "assembly-composer": {
+      "preview_resolution": "512x512",
+      "auto_detect_slots": true,
+      "show_z_index_overlay": false,
+      "default_export_profile": "showrunner_v1",
+      "warn_locked_slot_override": true
+    },
     "hello-world": {
       "greeting": "Hello test",
       "log_events": false

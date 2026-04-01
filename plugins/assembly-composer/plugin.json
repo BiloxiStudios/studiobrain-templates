@@ -1,0 +1,128 @@
+{
+  "id": "assembly-composer",
+  "name": "Assembly Composer",
+  "version": "1.0.0",
+  "description": "Visual composition tool for the Assembly system. Provides a slot editor with drag-and-drop asset assignment, z-index reordering, slot locking controls, inheritance tree visualization, and one-click multi-pipeline export.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "production-tools",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "assembly-composer-dashboard",
+          "route": "/plugins/assembly-composer",
+          "label": "Assembly Composer",
+          "icon": "layers",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "slot-editor",
+          "label": "Slot Editor",
+          "location": "entity-tab",
+          "icon": "grid",
+          "entity_types": ["assembly"]
+        },
+        {
+          "id": "inheritance-tree",
+          "label": "Inheritance Tree",
+          "location": "entity-sidebar",
+          "icon": "git-branch",
+          "entity_types": ["assembly"]
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "pyyaml",
+      "Pillow"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "asset:read",
+    "asset:write",
+    "export:write"
+  ],
+  "settings_schema": {
+    "preview_resolution": {
+      "type": "string",
+      "label": "Preview Resolution",
+      "description": "Resolution for composite preview renders (WxH)",
+      "required": false,
+      "default": "512x512",
+      "scope": "instance"
+    },
+    "auto_detect_slots": {
+      "type": "boolean",
+      "label": "Auto-detect Slot Type on Upload",
+      "description": "Use AI to suggest the best matching slot when a new asset is uploaded",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "show_z_index_overlay": {
+      "type": "boolean",
+      "label": "Show Z-Index Overlay",
+      "description": "Overlay z-index numbers on the slot grid for debugging",
+      "required": false,
+      "default": false,
+      "scope": "user"
+    },
+    "default_export_profile": {
+      "type": "string",
+      "label": "Default Export Profile",
+      "description": "Export profile ID used when no profile is explicitly selected",
+      "required": false,
+      "default": "showrunner_v1",
+      "scope": "instance"
+    },
+    "warn_locked_slot_override": {
+      "type": "boolean",
+      "label": "Warn on Locked Slot Override Attempt",
+      "description": "Show a blocking warning when a user tries to fill a locked slot inherited from a parent",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    }
+  },
+  "data_schema": {
+    "slot_assignment": {
+      "label": "Slot Asset Assignment",
+      "fields": {
+        "assembly_id": "string",
+        "slot_group": "string",
+        "slot_name": "string",
+        "asset_id": "string",
+        "variant_key": "string",
+        "z_index_override": "integer",
+        "locked": "boolean",
+        "assigned_at": "datetime"
+      }
+    },
+    "export_job": {
+      "label": "Export Job",
+      "fields": {
+        "assembly_id": "string",
+        "profile_id": "string",
+        "status": "string",
+        "output_path": "string",
+        "created_at": "datetime",
+        "completed_at": "datetime"
+      }
+    }
+  },
+  "accent_color": "var(--surface-primary-bg)"
+}
