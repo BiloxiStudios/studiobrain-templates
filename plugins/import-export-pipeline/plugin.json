@@ -1,0 +1,183 @@
+{
+  "id": "import-export-pipeline",
+  "name": "Import/Export Pipeline",
+  "version": "1.0.0",
+  "description": "Unified multi-format import and export pipeline with AI-assisted merge conflict resolution. Consolidates import (42K) + export (21K) + Verse converter (15K) into a single tool.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "tools",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "import-export-pipeline",
+          "route": "/plugins/import-export-pipeline",
+          "label": "Import/Export Pipeline",
+          "icon": "git-compare",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "import-button",
+          "label": "Import",
+          "location": "entity-sidebar",
+          "icon": "download"
+        },
+        {
+          "id": "export-button",
+          "label": "Export",
+          "location": "entity-sidebar",
+          "icon": "upload"
+        },
+        {
+          "id": "import-options",
+          "label": "Import Options",
+          "location": "entity-tab",
+          "icon": "settings"
+        },
+        {
+          "id": "export-options",
+          "label": "Export Options",
+          "location": "entity-tab",
+          "icon": "settings"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "markdown>=3.5.0",
+      "pyyaml>=6.0",
+      "python-docx>=0.8.0",
+      "jinja2>=3.1.0",
+      "aiohttp>=3.9.0"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "filesystem:read",
+    "filesystem:write",
+    "network:local"
+  ],
+  "settings_schema": {
+    "brains_root": {
+      "type": "string",
+      "label": "Brains Repository Root",
+      "description": "Path to the Brains repository. Use environment variable BRAINS_ROOT or default to current working directory",
+      "required": false,
+      "default": ".",
+      "scope": "instance"
+    },
+    "default_import_format": {
+      "type": "string",
+      "label": "Default Import Format",
+      "description": "Default format to auto-detect for imports",
+      "required": false,
+      "default": "auto",
+      "options": [
+        {"label": "Auto-detect", "value": "auto"},
+        {"label": "Markdown", "value": "markdown"},
+        {"label": "JSON", "value": "json"},
+        {"label": "CSV", "value": "csv"},
+        {"label": "OPML", "value": "opml"},
+        {"label": "Verse", "value": "verse"},
+        {"label": "ZIP Archive", "value": "zip"}
+      ],
+      "scope": "user"
+    },
+    "default_export_format": {
+      "type": "string",
+      "label": "Default Export Format",
+      "description": "Default format for exports",
+      "required": false,
+      "default": "markdown",
+      "options": [
+        {"label": "Markdown", "value": "markdown"},
+        {"label": "PDF (Playwright)", "value": "pdf"},
+        {"label": "DOCX (Word)", "value": "docx"},
+        {"label": "HTML", "value": "html"},
+        {"label": "JSON", "value": "json"},
+        {"label": "CSV", "value": "csv"},
+        {"label": "Verse", "value": "verse"}
+      ],
+      "scope": "user"
+    },
+    "batch_size": {
+      "type": "number",
+      "label": "Batch Processing Size",
+      "description": "Number of entities to process in each batch",
+      "required": false,
+      "default": 10,
+      "minimum": 1,
+      "maximum": 100,
+      "scope": "user"
+    },
+    "ai_merge_enabled": {
+      "type": "boolean",
+      "label": "Enable AI-Driven Conflict Resolution",
+      "description": "Use LLM-based merge conflict resolution for ambiguous imports",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    },
+    "ai_merge_model": {
+      "type": "string",
+      "label": "AI Merge Model",
+      "description": "Model to use for conflict resolution (e.g., gpt-4o, claude-3-5-sonnet)",
+      "required": false,
+      "default": "claude-3-5-sonnet",
+      "scope": "instance"
+    },
+    "pdf_page_size": {
+      "type": "string",
+      "label": "PDF Page Size",
+      "description": "Page size for PDF exports (A4, Letter, Legal)",
+      "required": false,
+      "default": "Letter",
+      "scope": "user"
+    },
+    "pdf_layout_template": {
+      "type": "string",
+      "label": "PDF Layout Template",
+      "description": "Path to custom Jinja2 template for PDF layouts",
+      "required": false,
+      "default": "",
+      "scope": "instance"
+    },
+    "docx_template": {
+      "type": "string",
+      "label": "DOCX Template",
+      "description": "Path to DOCX template with styles for exports",
+      "required": false,
+      "default": "",
+      "scope": "instance"
+    },
+    "include_images_in_pdf": {
+      "type": "boolean",
+      "label": "Include Images in PDF",
+      "description": "Embed entity portraits and images in PDF exports",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "include_relationships_in_export": {
+      "type": "boolean",
+      "label": "Include Relationships",
+      "description": "Add relationship sections and cross-references in exports",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    }
+  },
+  "accent_color": "#3B82F6"
+}

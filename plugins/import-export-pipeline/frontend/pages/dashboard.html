@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import/Export Pipeline</title>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --background-color: #f8fafc;
+            --surface-color: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card h3 {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-card .subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: #f1f5f9;
+        }
+
+        .tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        [data-tab-content] {
+            display: none;
+            animation: fadeIn 0.2s;
+        }
+
+        [data-tab-content].active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group .description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color);
+            background: #f8fafc;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-upload .icon {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .file-upload .text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .file-upload .hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .log-container {
+            background: #1e293b;
+            border-radius: 6px;
+            padding: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 16px;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
+        }
+
+        .log-entry.success { color: #4ade80; }
+        .log-entry.error { color: #f87171; }
+        .log-entry.info { color: #60a5fa; }
+        .log-entry.warning { color: #fbbf24; }
+
+        .entity-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .entity-item {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .entity-item:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .entity-item.selected {
+            background: #eff6ff;
+            border-color: var(--primary-color);
+        }
+
+        .entity-item h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .entity-item .type {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .export-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .profile-selector {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .profile-selector .selected {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .notification {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification.success {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .notification.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .notification.warning {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .notification .icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Import / Export Pipeline</h1>
+            <p>Unified multi-format import and export tool with AI-assisted merge conflict resolution</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Entities</h3>
+                <div class="value" id="stat-total-entities">0</div>
+                <div class="subtext">Across all types</div>
+            </div>
+            <div class="stat-card">
+                <h3>Imported Today</h3>
+                <div class="value" id="stat-imports-today">0</div>
+                <div class="subtext">Recent import operations</div>
+            </div>
+            <div class="stat-card">
+                <h3>Exported Today</h3>
+                <div class="value" id="stat-exports-today">0</div>
+                <div class="subtext">Recent export operations</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Profiles</h3>
+                <div class="value" id="stat-profiles">0</div>
+                <div class="subtext">Import/Export profiles</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="import">Import</button>
+            <button class="tab" data-tab="export">Export</button>
+            <button class="tab" data-tab="profiles">Profiles</button>
+            <button class="tab" data-tab="operations">Operations</button>
+        </div>
+
+        <!-- Import Tab -->
+        <div data-tab-content class="active" id="tab-import">
+            <div class="card">
+                <h2>Import Options</h2>
+                <div class="export-options">
+                    <div class="form-group">
+                        <label>Source Format</label>
+                        <select id="import-format">
+                            <option value="auto">Auto-detect</option>
+                            <option value="markdown">Markdown (.md)</option>
+                            <option value="json">JSON (.json)</option>
+                            <option value="csv">CSV (.csv)</option>
+                            <option value="opml">OPML (.opml)</option>
+                            <option value="verse">Verse (.verse)</option>
+                            <option value="zip">ZIP Archive</option>
+                        </select>
+                        <div class="description">Select the format of your import file</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Entity Type</label>
+                        <select id="import-entity-type">
+                            <option value="">Auto-detect</option>
+                            <option value="character">Character</option>
+                            <option value="location">Location</option>
+                            <option value="item">Item</option>
+                            <option value="quest">Quest</option>
+                            <option value="faction">Faction</option>
+                            <option value="event">Event</option>
+                            <option value="dialogue">Dialogue</option>
+                            <option value="district">District</option>
+                            <option value="brand">Brand</option>
+                            <option value="campaign">Campaign</option>
+                            <option value="job">Job</option>
+                            <option value="assembly">Assembly</option>
+                        </select>
+                        <div class="description">Target entity type (optional if format includes metadata)</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Import File</label>
+                    <div class="file-upload" id="import-file-drop">
+                        <input type="file" id="import-file-input" accept=".md,.json,.csv,.opml,.verse,.zip">
+                        <div class="icon">📁</div>
+                        <div class="text">Drag & drop file or click to browse</div>
+                        <div class="hint">Supported formats: Markdown, JSON, CSV, OPML, Verse, ZIP</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Settings</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="import-overwrite" checked>
+                            Overwrite existing entities with same ID
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="import-ai-merge" checked>
+                            Use AI for conflict resolution
+                        </label>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="import-start-btn">
+                        <span>Import Now</span>
+                    </button>
+                </div>
+
+                <div id="import-progress" style="display: none; margin-top: 20px;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="import-progress-bar"></div>
+                    </div>
+                    <div id="import-log" class="log-container"></div>
+                    <div style="margin-top: 12px; text-align: center;">
+                        <span id="import-status">Ready to import...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Recent Imports</h2>
+                <div id="recent-imports" class="entity-list">
+                    <!-- Populated by JS -->
+                    <div style="color: var(--text-muted); text-align: center; padding: 20px;">
+                        No recent imports
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Tab -->
+        <div data-tab-content id="tab-export">
+            <div class="card">
+                <h2>Export Configuration</h2>
+                <div class="export-options">
+                    <div class="form-group">
+                        <label>Export Format</label>
+                        <select id="export-format">
+                            <option value="markdown">Markdown (.md)</option>
+                            <option value="json">JSON (.json)</option>
+                            <option value="csv">CSV (.csv)</option>
+                            <option value="html">HTML (.html)</option>
+                            <option value="pdf">PDF (.pdf)</option>
+                            <option value="docx">DOCX (.docx)</option>
+                            <option value="verse">Verse (.verse)</option>
+                        </select>
+                        <div class="description">Output format for exported entities</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Export Profile</label>
+                        <select id="export-profile">
+                            <option value="default">Default Profile</option>
+                            <option value="pdf">PDF Profile</option>
+                            <option value="docx">DOCX Profile</option>
+                            <option value="json">JSON Profile</option>
+                            <option value="verse">Verse Profile</option>
+                        </select>
+                        <div class="description">Save/export configuration as profile</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Entities</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="export-all" onchange="toggleEntitySelection(this)">
+                            Select all entities of selected type
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Entity Type</label>
+                    <select id="export-entity-type" onchange="loadEntitiesForExport()">
+                        <option value="">-- Select Type --</option>
+                        <option value="character">Character</option>
+                        <option value="location">Location</option>
+                        <option value="item">Item</option>
+                        <option value="quest">Quest</option>
+                        <option value="faction">Faction</option>
+                        <option value="event">Event</option>
+                        <option value="dialogue">Dialogue</option>
+                        <option value="district">District</option>
+                        <option value="brand">Brand</option>
+                        <option value="campaign">Campaign</option>
+                        <option value="job">Job</option>
+                        <option value="assembly">Assembly</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="export-entities-select">
+                    <label>Entities to Export</label>
+                    <div class="entity-list" id="export-entities-list">
+                        <!-- Populated by JS -->
+                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">
+                            Select an entity type first
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Export Settings</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="export-include-body" checked>
+                            Include entity body content
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="export-include-images" checked>
+                            Include images in PDF/HTML exports
+                        </label>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="export-btn">
+                        <span>Export Selected</span>
+                    </button>
+                    <button class="btn btn-secondary" id="export-download-all">
+                        <span>Download All</span>
+                    </button>
+                </div>
+
+                <div id="export-progress" style="display: none; margin-top: 20px;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="export-progress-bar"></div>
+                    </div>
+                    <div id="export-log" class="log-container"></div>
+                    <div style="margin-top: 12px; text-align: center;">
+                        <span id="export-status">Ready to export...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Recent Exports</h2>
+                <div id="recent-exports" class="entity-list">
+                    <!-- Populated by JS -->
+                    <div style="color: var(--text-muted); text-align: center; padding: 20px;">
+                        No recent exports
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profiles Tab -->
+        <div data-tab-content id="tab-profiles">
+            <div class="card">
+                <h2>Import Profiles</h2>
+                <div class="entity-list" id="import-profiles-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Export Profiles</h2>
+                <div class="entity-list" id="export-profiles-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Create New Profile</h2>
+                <div class="export-options">
+                    <div class="form-group">
+                        <label>Profile Name</label>
+                        <input type="text" id="profile-name" placeholder="e.g., My Export Profile">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Profile Type</label>
+                        <select id="profile-type">
+                            <option value="import">Import Profile</option>
+                            <option value="export">Export Profile</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Format</label>
+                    <select id="profile-format">
+                        <option value="markdown">Markdown</option>
+                        <option value="json">JSON</option>
+                        <option value="csv">CSV</option>
+                        <option value="html">HTML</option>
+                        <option value="pdf">PDF</option>
+                        <option value="docx">DOCX</option>
+                        <option value="verse">Verse</option>
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="save-profile-btn">
+                        <span>Save Profile</span>
+                    </button>
+                    <button class="btn btn-secondary" id="apply-profile-btn">
+                        <span>Apply to Current Operation</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operations Tab -->
+        <div data-tab-content id="tab-operations">
+            <div class="card">
+                <h2>Operation History</h2>
+                <div id="operation-history" class="log-container">
+                    <!-- Populated by JS -->
+                    <div style="color: var(--text-muted); text-align: center; padding: 20px;">
+                        No operations yet
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        const state = {
+            entities: {},
+            imports: [],
+            exports: [],
+            operations: [],
+            profiles: {
+                imports: [],
+                exports: []
+            }
+        };
+
+        // DOM Elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('[data-tab-content]');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initTabs();
+            loadPluginStatus();
+            loadProfiles();
+            setupEventListeners();
+        });
+
+        function initTabs() {
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+                });
+            });
+        }
+
+        async function loadPluginStatus() {
+            try {
+                const response = await fetch('/api/ext/import-export-pipeline/');
+                const data = await response.json();
+                updateStats(data);
+                populateEntityList('import-entities', data.available_entity_types);
+            } catch (error) {
+                console.error('Failed to load plugin status:', error);
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('stat-total-entities').textContent = 
+                Object.values(data.entity_counts || {}).reduce((a, b) => a + b, 0);
+            document.getElementById('stat-imports-today').textContent = '0'; // Will be populated from history
+            document.getElementById('stat-exports-today').textContent = '0'; // Will be populated from history
+            document.getElementById('stat-profiles').textContent = '0'; // Will be populated from profiles
+        }
+
+        function populateEntityList(elementId, entityTypes) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            // Not used directly in this version
+        }
+
+        async function loadEntitiesForExport() {
+            const entityType = document.getElementById('export-entity-type').value;
+            if (!entityType) return;
+
+            try {
+                const response = await fetch(`/api/ext/import-export-pipeline/entities/${entityType}`);
+                const data = await response.json();
+
+                const container = document.getElementById('export-entities-list');
+                container.innerHTML = data.entity_ids.map(id => `
+                    <div class="entity-item" data-id="${id}">
+                        <h3>${id}</h3>
+                        <span class="type">${entityType}</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load entities:', error);
+            }
+        }
+
+        async function loadProfiles() {
+            try {
+                const response = await fetch('/api/ext/import-export-pipeline/import/profiles');
+                const data = await response.json();
+                state.profiles.imports = data.profiles || [];
+
+                // Render import profiles
+                const importContainer = document.getElementById('import-profiles-list');
+                importContainer.innerHTML = (data.profiles || []).map(p => `
+                    <div class="entity-item">
+                        <h3>${p.name}</h3>
+                        <span class="type">${p.format || 'auto'}</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load profiles:', error);
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('imporexport-all').addEventListener('change', toggleEntitySelection);
+            document.getElementById('save-profile-btn').addEventListener('click', saveProfile);
+            document.getElementById('apply-profile-btn').addEventListener('click', applyProfile);
+        }
+
+        function toggleEntitySelection(checkbox) {
+            const entities = document.querySelectorAll('#export-entities-list .entity-item');
+            entities.forEach(entity => {
+                entity.classList.toggle('selected', checkbox.checked);
+            });
+        }
+
+        async function saveProfile() {
+            const name = document.getElementById('profile-name').value;
+            const type = document.getElementById('profile-type').value;
+            const format = document.getElementById('profile-format').value;
+
+            if (!name) {
+                alert('Please enter a profile name');
+                return;
+            }
+
+            const profile = {
+                name,
+                format,
+                type
+            };
+
+            try {
+                const response = await fetch(`/api/ext/import-export-pipeline/${type}/profiles/${name}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(profile)
+                });
+
+                if (response.ok) {
+                    alert(`Profile "${name}" saved successfully`);
+                    loadProfiles();
+                } else {
+                    alert('Failed to save profile');
+                }
+            } catch (error) {
+                console.error('Failed to save profile:', error);
+            }
+        }
+
+        function applyProfile() {
+            // Not implemented in this demo version
+            alert('Profile application not implemented in this version');
+        }
+
+        // Import functionality
+        document.getElementById('import-start-btn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('import-file-input');
+            if (!fileInput.files.length) {
+                alert('Please select a file to import');
+                return;
+            }
+
+            showImportProgress();
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', btoa(await file.arrayBuffer()));
+            formData.append('filename', file.name);
+
+            try {
+                const response = await fetch('/api/ext/import-export-pipeline/import/file', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                addImportToHistory(result);
+                updateStats({ entity_counts: result.entity_counts || {} });
+                addOperationToHistory('import', result);
+                showNotification(`Import completed: ${result.imported || 1} entities`, 'success');
+            } catch (error) {
+                addOperationToHistory('import', { error: error.message });
+                showNotification('Import failed: ' + error.message, 'error');
+            }
+        });
+
+        // Export functionality
+        document.getElementById('export-btn').addEventListener('click', async () => {
+            const entities = Array.from(document.querySelectorAll('#export-entities-list .entity-item.selected'));
+            if (!entities.length && !document.getElementById('export-all').checked) {
+                alert('Please select entities to export');
+                return;
+            }
+
+            const format = document.getElementById('export-format').value;
+            const includeBody = document.getElementById('export-include-body').checked;
+
+            showExportProgress();
+
+            try {
+                const response = await fetch('/api/ext/import-export-pipeline/export/batch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        format,
+                        include_body: includeBody,
+                        entity_ids: entities.map(e => e.dataset.id)
+                    })
+                });
+
+                const result = await response.json();
+                addExportToHistory(result);
+                addOperationToHistory('export', result);
+                showNotification(`Export completed: ${result.exported || 0} entities`, 'success');
+            } catch (error) {
+                addOperationToHistory('export', { error: error.message });
+                showNotification('Export failed: ' + error.message, 'error');
+            }
+        });
+
+        // Progress display
+        function showImportProgress() {
+            document.getElementById('import-progress').style.display = 'block';
+            logImport('Starting import operation...');
+        }
+
+        function logImport(message) {
+            const log = document.getElementById('import-log');
+            log.innerHTML += `<div class="log-entry info">ℹ ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function showExportProgress() {
+            document.getElementById('export-progress').style.display = 'block';
+            logExport('Starting export operation...');
+        }
+
+        function logExport(message) {
+            const log = document.getElementById('export-log');
+            log.innerHTML += `<div class="log-entry info">ℹ ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span class="icon">
+                    ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
+                </span>
+                <span>${message}</span>
+            `;
+            document.querySelector('.container').prepend(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+
+        function addImportToHistory(result) {
+            if (result.results) {
+                result.results.forEach(r => {
+                    state.imports.unshift({
+                        type: r.entity_type,
+                        id: r.entity_id,
+                        status: r.status,
+                        timestamp: new Date().toISOString()
+                    });
+                });
+            } else {
+                state.imports.unshift({
+                    type: result.entity_type,
+                    id: result.entity_id,
+                    status: result.status || 'completed',
+                    timestamp: new Date().toISOString()
+                });
+            }
+            updateRecentImports();
+        }
+
+        function addExportToHistory(result) {
+            if (result.results) {
+                result.results.forEach(r => {
+                    state.exports.unshift({
+                        type: r.entity_type,
+                        id: r.entity_id,
+                        format: r.format,
+                        timestamp: new Date().toISOString()
+                    });
+                });
+            }
+            updateRecentExports();
+        }
+
+        function addOperationToHistory(operationType, result) {
+            state.operations.unshift({
+                type: operationType,
+                status: result.error ? 'failed' : 'completed',
+                timestamp: new Date().toISOString(),
+                details: result
+            });
+            updateOperationHistory();
+        }
+
+        function updateRecentImports() {
+            const container = document.getElementById('recent-imports');
+            container.innerHTML = state.imports.slice(0, 5).map(i => `
+                <div class="entity-item">
+                    <h3>${i.id}</h3>
+                    <span class="type">${i.type} — ${i.status}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateRecentExports() {
+            const container = document.getElementById('recent-exports');
+            container.innerHTML = state.exports.slice(0, 5).map(e => `
+                <div class="entity-item">
+                    <h3>${e.id}</h3>
+                    <span class="type">${e.type} → ${e.format}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateOperationHistory() {
+            const container = document.getElementById('operation-history');
+            container.innerHTML = state.operations.slice(0, 20).map(o => `
+                <div class="log-entry ${o.status}">
+                    ${o.type.toUpperCase()}: ${o.status}
+                    <span style="float: right; opacity: 0.7;">${new Date(o.timestamp).toLocaleTimeString()}</span>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
