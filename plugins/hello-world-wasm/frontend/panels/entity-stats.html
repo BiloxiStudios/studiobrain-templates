@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+  .header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--surface-base-text);
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .stat-value.blue { color: var(--plugin-accent); }
+  .stat-value.green { color: var(--surface-success-border); }
+  .stat-value.purple { color: var(--surface-secondary-bg); }
+  .stat-value.orange { color: var(--surface-warning-text-secondary); }
+  .section {
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--surface-base-text-secondary);
+  }
+  .event-log {
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Fira Code', 'SF Mono', monospace;
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .event-line {
+    padding: 3px 0;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    display: flex;
+    gap: 8px;
+  }
+  .event-time { color: var(--surface-elevated-border); min-width: 80px; }
+  .event-type { color: var(--plugin-accent); min-width: 120px; }
+  .event-detail { color: var(--surface-base-text-secondary); }
+  .context-info {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .context-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .context-label { font-size: 11px; color: var(--surface-base-text-secondary); text-transform: uppercase; }
+  .context-value { font-size: 14px; color: var(--surface-base-text); font-weight: 500; }
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    padding: 4px 10px;
+    background: var(--surface-elevated-border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+  }
+</style>
+</head>
+<body>
+  <div class="header">Entity Stats (Hello World WASM Plugin)</div>
+
+  <div class="context-info">
+    <div class="context-item">
+      <span class="context-label">Plugin</span>
+      <span class="context-value" id="ctx-plugin">hello-world-wasm</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Runtime</span>
+      <span class="context-value">WASM</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Entity Type</span>
+      <span class="context-value" id="ctx-type">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Entity ID</span>
+      <span class="context-value" id="ctx-id">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Panel Loaded</span>
+      <span class="context-value" id="ctx-time">--</span>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Page Views</div>
+      <div class="stat-value blue" id="stat-views">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Entities</div>
+      <div class="stat-value green" id="stat-entities">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Edits Today</div>
+      <div class="stat-value purple" id="stat-edits">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Plugin Version</div>
+      <div class="stat-value orange">1.0</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Plugin Capabilities</div>
+    <div class="badge-row">
+      <span class="badge">WASM Backend</span>
+      <span class="badge">Entity Hooks</span>
+      <span class="badge">Sidebar Panel</span>
+      <span class="badge">Entity Tab</span>
+      <span class="badge">Settings Schema</span>
+      <span class="badge">Host Functions</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Recent Activity</div>
+    <div class="event-log" id="event-log">
+      <div class="event-line">
+        <span class="event-time">Just now</span>
+        <span class="event-type">panel.loaded</span>
+        <span class="event-detail">Entity Stats panel opened</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const API = `/api/ext/${ctx.pluginId || 'hello-world-wasm'}`;
+
+    document.getElementById('ctx-type').textContent = ctx.entityType || 'unknown';
+    document.getElementById('ctx-id').textContent = ctx.entityId || 'new';
+    document.getElementById('ctx-time').textContent = new Date().toLocaleTimeString();
+
+    // View counter (session-local, resets on restart)
+    const viewKey = `plugin-stats-views-${ctx.entityType}-${ctx.entityId}`;
+    let views = parseInt(sessionStorage.getItem(viewKey) || '0') + 1;
+    sessionStorage.setItem(viewKey, views.toString());
+    document.getElementById('stat-views').textContent = views;
+
+    // Fetch entity count from the WASM backend /stats route
+    (async () => {
+      try {
+        const res = await fetch(`${API}/stats`);
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('stat-entities').textContent = data.entity_count ?? '--';
+        }
+      } catch {}
+    })();
+
+    // Random edits for demo
+    document.getElementById('stat-edits').textContent = Math.floor(Math.random() * 12) + 1;
+
+    // Simulated activity log
+    const log = document.getElementById('event-log');
+    const activities = [
+      { type: 'entity.viewed', detail: `${ctx.entityType} opened in editor` },
+      { type: 'plugin.init', detail: 'Hello World WASM plugin initialized' },
+      { type: 'panel.render', detail: 'Stats panel rendered successfully' },
+    ];
+    activities.forEach((act, i) => {
+      const line = document.createElement('div');
+      line.className = 'event-line';
+      line.innerHTML = `
+        <span class="event-time">${i + 1}s ago</span>
+        <span class="event-type">${act.type}</span>
+        <span class="event-detail">${act.detail}</span>
+      `;
+      log.appendChild(line);
+    });
+  </script>
+</body>
+</html>

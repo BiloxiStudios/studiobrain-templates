@@ -71,6 +71,9 @@
     },
     "import-export-pipeline": {
       "enabled": false
+    },
+    "hello-world-wasm": {
+      "enabled": true
     }
   }
 }
