@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/campaign.json",
+  "title": "StudioBrain Campaign Entity Schema",
+  "description": "JSON Schema for the CAMPAIGN entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "campaign"
+    },
+    "name": {
+      "type": "string",
+      "description": "Campaign display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "campaign_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "act": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ]
+    },
+    "quests": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Quest IDs that are part of this campaign."
+    },
+    "factions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "key_characters": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "key_locations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "themes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "rewards": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "prerequisites": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

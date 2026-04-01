@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/faction.json",
+  "title": "StudioBrain Faction Entity Schema",
+  "description": "JSON Schema for the FACTION entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "faction"
+    },
+    "name": {
+      "type": "string",
+      "description": "Faction display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "faction_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "alignment": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "leader": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Character ID of the faction leader."
+    },
+    "headquarters": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Location ID of faction HQ."
+    },
+    "territory": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "members": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "allied_factions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "enemy_factions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "goals": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "resources": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

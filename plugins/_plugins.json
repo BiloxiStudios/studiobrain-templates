@@ -152,6 +152,9 @@
     },
     "version-history-wasm": {
       "enabled": false
+    },
+    "entity-validator": {
+      "enabled": true
     }
   }
 }

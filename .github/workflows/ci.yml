@@ -8,6 +8,8 @@ on:
 jobs:
   validate-templates:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,8 +21,12 @@ jobs:
           python3 -c "
           import yaml, sys, pathlib
 
+          SKIP_FILES = {'README.md'}
+
           errors = []
-          for md in sorted(pathlib.Path('_Templates').rglob('*.md')):
+          for md in sorted(pathlib.Path('templates').rglob('*.md')):
+              if md.name in SKIP_FILES:
+                  continue
               text = md.read_text(encoding='utf-8')
               if not text.startswith('---'):
                   errors.append(f'{md}: missing YAML frontmatter delimiter')
@@ -46,6 +52,8 @@ jobs:
 
   validate-rules:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -57,8 +65,12 @@ jobs:
           python3 -c "
           import yaml, sys, pathlib
 
+          SKIP_FILES = {'README.md', 'RULES_INDEX.md'}
+
           errors = []
-          for md in sorted(pathlib.Path('_Rules').rglob('*.md')):
+          for md in sorted(pathlib.Path('rules').rglob('*.md')):
+              if md.name in SKIP_FILES:
+                  continue
               text = md.read_text(encoding='utf-8')
               if not text.startswith('---'):
                   errors.append(f'{md}: missing YAML frontmatter delimiter')
@@ -78,4 +90,70 @@ jobs:
               sys.exit(1)
           else:
               print(f'All rules valid.')
+          "
+
+  validate-schemas:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install "jsonschema>=4.17"
+      - name: Validate JSON Schemas in schemas/
+        run: |
+          python3 -c "
+          import json, sys, pathlib
+          from jsonschema import Draft202012Validator
+
+          errors = []
+          schema_files = sorted(pathlib.Path('schemas').glob('*.json'))
+          if not schema_files:
+              print('ERROR: No schema files found in schemas/', file=sys.stderr)
+              sys.exit(1)
+
+          for schema_file in schema_files:
+              try:
+                  schema = json.loads(schema_file.read_text(encoding='utf-8'))
+              except json.JSONDecodeError as e:
+                  errors.append(f'{schema_file}: JSON parse error: {e}')
+                  continue
+              try:
+                  Draft202012Validator.check_schema(schema)
+              except Exception as e:
+                  errors.append(f'{schema_file}: invalid JSON Schema: {e}')
+
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}', file=sys.stderr)
+              sys.exit(1)
+          else:
+              print(f'All {len(schema_files)} schema(s) valid.')
+          "
+
+      - name: Validate plugin manifests in plugins/
+        run: |
+          python3 -c "
+          import json, sys, pathlib
+
+          errors = []
+          REQUIRED_KEYS = {'id', 'name', 'version', 'description', 'type', 'author'}
+          for manifest in sorted(pathlib.Path('plugins').glob('*/plugin.json')):
+              try:
+                  data = json.loads(manifest.read_text(encoding='utf-8'))
+              except json.JSONDecodeError as e:
+                  errors.append(f'{manifest}: JSON parse error: {e}')
+                  continue
+              missing = REQUIRED_KEYS - data.keys()
+              if missing:
+                  errors.append(f'{manifest}: missing required keys: {sorted(missing)}')
+
+          if errors:
+              for e in errors:
+                  print(f'ERROR: {e}', file=sys.stderr)
+              sys.exit(1)
+          else:
+              print(f'All plugin manifests valid.')
           "

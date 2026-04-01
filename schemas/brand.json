@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/brand.json",
+  "title": "StudioBrain Brand Entity Schema",
+  "description": "JSON Schema for the BRAND entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "brand"
+    },
+    "name": {
+      "type": "string",
+      "description": "Brand display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tagline": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "industry": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "headquarters": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Location ID of brand HQ."
+    },
+    "founded_year": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "key_personnel": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "products": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "locations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "color_palette": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "logo_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "marketing_style": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

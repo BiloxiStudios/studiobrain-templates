@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/timeline.json",
+  "title": "StudioBrain Timeline Entity Schema",
+  "description": "JSON Schema for the TIMELINE entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "timeline"
+    },
+    "name": {
+      "type": "string",
+      "description": "Timeline display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timeline_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "e.g. in-universe, production, lore."
+    },
+    "start_year": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "end_year": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "entries": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Chronological timeline entries.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": [
+              "integer",
+              "string"
+            ]
+          },
+          "event": {
+            "type": "string"
+          },
+          "entity_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "linked_characters": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_locations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

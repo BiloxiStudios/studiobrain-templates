@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/location.json",
+  "title": "StudioBrain Location Entity Schema",
+  "description": "JSON Schema for the LOCATION entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "location"
+    },
+    "name": {
+      "type": "string",
+      "description": "Location display name."
+    },
+    "location_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Type of location (e.g. building, district, region, interior)."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "district": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "ID of the district this location belongs to."
+    },
+    "address": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "coordinates": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    },
+    "size": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "interior": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Whether this is an interior location."
+    },
+    "accessible": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "primary_npcs": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Character IDs of NPCs found at this location."
+    },
+    "factions_present": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "items_available": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "connected_locations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "atmosphere": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hazards": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "game_uefn_map": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

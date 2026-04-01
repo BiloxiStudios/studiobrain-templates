@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/quest.json",
+  "title": "StudioBrain Quest Entity Schema",
+  "description": "JSON Schema for the QUEST entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "quest"
+    },
+    "name": {
+      "type": "string",
+      "description": "Quest display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "quest_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "e.g. main, side, daily, hidden."
+    },
+    "giver": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Character ID who gives the quest."
+    },
+    "location": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Location ID where the quest starts."
+    },
+    "objectives": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "rewards": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "prerequisites": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "branching": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "act": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

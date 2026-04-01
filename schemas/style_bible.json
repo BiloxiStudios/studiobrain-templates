@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/style_bible.json",
+  "title": "StudioBrain Style Bible Document Schema",
+  "description": "JSON Schema for the STYLE_BIBLE document YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "style_bible"
+    },
+    "name": {
+      "type": "string",
+      "description": "Style bible display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scope": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Scope of style rules (e.g. world, faction, brand)."
+    },
+    "applies_to": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Entity types or IDs this style bible applies to."
+    },
+    "visual_style": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "writing_style": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "audio_style": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "color_palette": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "typography": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

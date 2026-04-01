@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/dialogue.json",
+  "title": "StudioBrain Dialogue Entity Schema",
+  "description": "JSON Schema for the DIALOGUE entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "dialogue"
+    },
+    "name": {
+      "type": "string",
+      "description": "Dialogue display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "participants": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Character IDs participating in this dialogue."
+    },
+    "location": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "trigger_condition": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dialogue_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "e.g. scripted, branching, ambient."
+    },
+    "quest_link": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Quest ID this dialogue is associated with."
+    },
+    "lines": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Ordered dialogue lines.",
+      "items": {}
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}
