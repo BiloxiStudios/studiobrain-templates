@@ -68,6 +68,9 @@
     },
     "comparison": {
       "enabled": false
+    },
+    "import-export-pipeline": {
+      "enabled": false
     }
   }
 }
