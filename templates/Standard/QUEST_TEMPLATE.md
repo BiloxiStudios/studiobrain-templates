@@ -13,6 +13,41 @@ asset_subfolders:
   - audio
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# FIELD WIDGET CONFIGURATION
+field_config:
+  parent_campaign:
+    widget: entity-selector
+    reference_type: campaign
+    max_selections: 1
+  quest_giver:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 1
+  key_npcs:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 20
+  target_characters:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 10
+  involved_factions:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 10
+  starting_location:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 1
+  quest_locations:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 20
+  destination_location:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 1
+
 status: "active"
 workflow:
   definition: "QUEST_WORKFLOW.md"

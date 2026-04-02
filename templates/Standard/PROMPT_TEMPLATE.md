@@ -13,6 +13,12 @@ created_date: "[YYYY-MM-DD]"
 last_updated: "[YYYY-MM-DD]"
 associated_rules:
   - PROMPT_ENGINE_RULES.md
+
+# FIELD WIDGET CONFIGURATION
+# No non-default widgets required for prompt template fields.
+# All fields use standard string, boolean, and structured-object inputs.
+field_config: {}
+
 status: "active"   # active, draft, deprecated, archived
 
 # PRODUCTION STATUS TRACKING

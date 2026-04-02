@@ -16,6 +16,18 @@ last_updated: "[YYYY-MM-DD]"
 associated_rules:
   - ASSEMBLY_RULES.md
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  source_entity_id:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 1
+  parent_assembly_id:
+    widget: entity-selector
+    reference_type: assembly
+    max_selections: 1
+
 status: "active"
 
 # ASSEMBLY METADATA

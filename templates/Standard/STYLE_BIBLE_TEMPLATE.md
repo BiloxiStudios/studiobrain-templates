@@ -17,6 +17,16 @@ created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
 associated_rules: []
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  key_light_color:
+    widget: color-picker
+  fill_light_color:
+    widget: color-picker
+  rim_light_color:
+    widget: color-picker
+
 status: "active"  # active, development, archived
 
 # PRIMARY IMAGE

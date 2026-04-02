@@ -16,6 +16,30 @@ created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
 associated_rules: []
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  affected_locations:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 20
+  affected_characters:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 20
+  affected_factions:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 10
+  related_campaigns:
+    widget: entity-selector
+    reference_type: campaign
+    max_selections: 5
+  related_quests:
+    widget: entity-selector
+    reference_type: quest
+    max_selections: 20
+
 status: "active"  # active, disabled, completed, archived, draft
 
 # PRODUCTION STATUS TRACKING
