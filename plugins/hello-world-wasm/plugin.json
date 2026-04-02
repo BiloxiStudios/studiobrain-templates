@@ -1,0 +1,61 @@
+{
+  "id": "hello-world-wasm",
+  "name": "Hello World (WASM)",
+  "version": "1.0.0",
+  "description": "A sample WASM plugin demonstrating hooks, routes, host functions, and frontend panels — the Rust/WASM counterpart of the Python hello-world plugin",
+  "type": "full",
+  "runtime": "wasm",
+  "author": "BiloxiStudios",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "hello-dashboard",
+          "route": "/plugins/hello-world-wasm",
+          "label": "Hello World (WASM)",
+          "icon": "hand-wave",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "entity-notes",
+          "label": "Plugin Notes",
+          "location": "entity-sidebar",
+          "icon": "message-square"
+        },
+        {
+          "id": "entity-stats",
+          "label": "Entity Stats",
+          "location": "entity-tab",
+          "icon": "bar-chart"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "greeting": {
+      "type": "string",
+      "label": "Greeting Message",
+      "required": false,
+      "default": "Hello from the WASM plugin system!",
+      "scope": "instance"
+    },
+    "log_events": {
+      "type": "boolean",
+      "label": "Log Entity Events",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    }
+  },
+  "accent_color": "var(--surface-primary-bg)"
+}

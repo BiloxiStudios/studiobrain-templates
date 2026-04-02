@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+  .page-header {
+    max-width: 800px;
+    margin: 0 auto 32px;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-bg));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle {
+    color: var(--surface-base-text-secondary);
+    font-size: 16px;
+  }
+  .cards {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--plugin-accent); }
+  .card-icon { font-size: 32px; margin-bottom: 12px; }
+  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .card-desc { font-size: 13px; color: var(--surface-base-text-secondary); line-height: 1.5; }
+  .status-section {
+    max-width: 800px;
+    margin: 32px auto 0;
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .status-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .status-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .status-label { color: var(--surface-base-text-secondary); }
+  .status-value { font-weight: 600; }
+  .status-ok { color: var(--surface-success-border); }
+  .status-info { color: var(--plugin-accent); }
+</style>
+</head>
+<body>
+  <div class="page-header">
+    <h1 class="page-title">Hello World Plugin (WASM)</h1>
+    <p class="page-subtitle">A sample Rust/WASM plugin demonstrating hooks, routes, host functions, and frontend panels</p>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-title">WASM Backend</div>
+      <div class="card-desc">Compiled from Rust to wasm32-wasip1 via Extism PDK. Routes served at /api/ext/hello-world-wasm/.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Entity Hooks</div>
+      <div class="card-desc">Implements on_entity_save, on_entity_create, on_entity_delete, and on_entity_validate hooks.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Sidebar Panel</div>
+      <div class="card-desc">A "Plugin Notes" panel appears in every entity editor sidebar, letting you add notes per entity.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Entity Tab</div>
+      <div class="card-desc">An "Entity Stats" tab auto-injects into entity editors showing view counts and activity.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Host Functions</div>
+      <div class="card-desc">Calls host-provided entity queries and settings via Extism vars, matching the WIT interface contract.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Plugin Page</div>
+      <div class="card-desc">This page! Full HTML pages served through sandboxed iframes with studio navigation.</div>
+    </div>
+  </div>
+
+  <div class="status-section">
+    <div class="status-title">Plugin Status</div>
+    <div class="status-grid">
+      <div class="status-item">
+        <span class="status-label">Plugin ID</span>
+        <span class="status-value status-info">hello-world-wasm</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Version</span>
+        <span class="status-value">1.0.0</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Runtime</span>
+        <span class="status-value status-info">WASM (Extism)</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Language</span>
+        <span class="status-value">Rust</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Routes</span>
+        <span class="status-value status-ok" id="routes-status">Checking...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Hooks</span>
+        <span class="status-value status-ok">save, create, delete, validate</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Panels</span>
+        <span class="status-value">2 (sidebar + tab)</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Pages</span>
+        <span class="status-value">1</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const API = `/api/ext/${ctx.pluginId || 'hello-world-wasm'}`;
+
+    // Ping the status route to confirm the WASM backend is running
+    (async () => {
+      try {
+        const res = await fetch(`${API}/status`);
+        if (res.ok) {
+          document.getElementById('routes-status').textContent = 'Active';
+        } else {
+          document.getElementById('routes-status').textContent = 'Error';
+        }
+      } catch {
+        document.getElementById('routes-status').textContent = 'Unreachable';
+      }
+    })();
+  </script>
+</body>
+</html>
