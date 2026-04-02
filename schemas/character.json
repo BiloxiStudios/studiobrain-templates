@@ -1,0 +1,351 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/character.json",
+  "title": "StudioBrain Character Entity Schema",
+  "description": "JSON Schema for the CHARACTER entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "character"
+    },
+    "name": {
+      "type": "string",
+      "description": "Character's full display name."
+    },
+    "nickname": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "age": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ],
+      "description": "Character age (string for placeholder, integer for actual value)."
+    },
+    "gender": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "species": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "birth_year": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "death_year": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "current_age_reference_year": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "key_dates": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "integer"
+          },
+          "event": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "height": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "build": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hair_color": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "hex": {
+          "type": "string"
+        }
+      }
+    },
+    "eye_color": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "hex": {
+          "type": "string"
+        }
+      }
+    },
+    "skin_tone": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "nail_color": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "distinguishing_features": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "primary_location": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "secondary_locations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "faction": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "family": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "friends": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "enemies": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "romantic": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "personality_traits": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "fears": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "motivations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "secrets": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "defining_moment_summary": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "primary_skills": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "secondary_skills": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "special_abilities": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "story_function": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "inventory_items": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "services": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "associated_brands": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "job": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "narrative_importance": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "main",
+        "major",
+        "minor",
+        null
+      ]
+    },
+    "ai_profile_description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ai_voice_style": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ai_bio_summary": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dialogue_samples": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

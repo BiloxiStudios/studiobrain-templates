@@ -1,0 +1,46 @@
+{
+  "id": "entity-validator",
+  "name": "Entity Validator",
+  "version": "1.0.0",
+  "description": "Validates entity YAML frontmatter against JSON Schema definitions before write. Returns HTTP 422 with per-field errors on invalid data so only well-formed entities reach the database.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "data-integrity",
+  "capabilities": {
+    "backend": {
+      "routes": [
+        "backend/routes.py"
+      ],
+      "event_handlers": [
+        "backend/events.py"
+      ]
+    }
+  },
+  "dependencies": {
+    "python": [
+      "pyyaml>=6.0",
+      "jsonschema>=4.17"
+    ]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write"
+  ],
+  "settings_schema": {
+    "strict_mode": {
+      "type": "boolean",
+      "label": "Strict Mode",
+      "description": "When enabled, entities with unknown fields are also rejected. When disabled (default), unknown fields are allowed with a warning.",
+      "default": false,
+      "scope": "instance"
+    },
+    "validate_on_write": {
+      "type": "boolean",
+      "label": "Validate on Write",
+      "description": "Intercept entity.pre_write events and reject writes that fail schema validation.",
+      "default": true,
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#F59E0B"
+}

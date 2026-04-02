@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/_base.json",
+  "title": "StudioBrain Entity Base Schema",
+  "description": "Shared YAML frontmatter fields required by every StudioBrain entity.",
+  "type": "object",
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique snake_case entity identifier matching the folder name.",
+      "pattern": "^[a-z0-9][a-z0-9_]*$"
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "Entity type discriminator.",
+      "enum": [
+        "character",
+        "location",
+        "item",
+        "faction",
+        "brand",
+        "district",
+        "job",
+        "quest",
+        "event",
+        "campaign",
+        "assembly",
+        "dialogue",
+        "timeline",
+        "universe",
+        "style_bible"
+      ]
+    },
+    "template_version": {
+      "type": "string",
+      "description": "Semantic version of the template used (e.g. \"1.0\" or \"2.0\").",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "template_category": {
+      "type": "string",
+      "description": "Broad category of the template.",
+      "enum": [
+        "entity",
+        "document",
+        "core"
+      ]
+    },
+    "created_date": {
+      "type": "string",
+      "description": "ISO-8601 creation date (YYYY-MM-DD).",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "last_updated": {
+      "type": "string",
+      "description": "ISO-8601 last-update date (YYYY-MM-DD).",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle status of the entity.",
+      "enum": [
+        "active",
+        "draft",
+        "archived",
+        "deprecated",
+        "prototype",
+        "destroyed",
+        "quarantined"
+      ]
+    },
+    "editable": {
+      "type": "boolean",
+      "description": "Whether the entity can be edited via the UI."
+    },
+    "marketplace_eligible": {
+      "type": "boolean",
+      "description": "Whether the entity can be published to the marketplace."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable display name."
+    },
+    "folder_name": {
+      "type": "string",
+      "description": "The folder that stores this entity type (e.g. \"Characters\")."
+    },
+    "file_prefix": {
+      "type": "string",
+      "description": "Filename prefix for entity files (e.g. \"CH_\")."
+    },
+    "associated_rules": {
+      "type": "array",
+      "description": "Rule files governing this entity type.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "associated_skills": {
+      "type": "array",
+      "description": "Skills associated with this entity.",
+      "items": {}
+    },
+    "asset_subfolders": {
+      "type": "array",
+      "description": "Asset sub-folder names.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "primary_image": {
+      "description": "Path to the entity's primary image.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "production_status": {
+      "type": "object",
+      "description": "Cross-domain production tracking.",
+      "properties": {
+        "general": {
+          "type": "string"
+        },
+        "game_uefn": {
+          "type": "string"
+        },
+        "tv_showrunner": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "description": "Entity lifecycle workflow configuration.",
+      "properties": {
+        "definition": {
+          "type": "string"
+        },
+        "default_stage": {
+          "type": "string"
+        },
+        "allow_multiple_active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {}
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

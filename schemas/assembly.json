@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/assembly.json",
+  "title": "StudioBrain Assembly Entity Schema",
+  "description": "JSON Schema for the ASSEMBLY entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "assembly"
+    },
+    "name": {
+      "type": "string",
+      "description": "Assembly display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "assembly_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Type of assembly grouping (e.g. scene, chapter, act)."
+    },
+    "entities": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "References to entities included in this assembly.",
+      "items": {}
+    },
+    "order": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "parent_assembly": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "ID of the parent assembly (for nested assemblies)."
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

@@ -1,0 +1,468 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/item.json",
+  "title": "StudioBrain Item Entity Schema",
+  "description": "JSON Schema for the ITEM entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "item"
+    },
+    "name": {
+      "type": "string",
+      "description": "Item display name."
+    },
+    "item_type": {
+      "type": "string",
+      "description": "Primary item classification.",
+      "enum": [
+        "weapon",
+        "consumable",
+        "key_item",
+        "material",
+        "collectible",
+        "cosmetic",
+        "currency"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tagline": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "category": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rarity": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "common",
+        "uncommon",
+        "rare",
+        "epic",
+        "legendary",
+        "unique",
+        null
+      ]
+    },
+    "stack_size": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "weight": {
+      "type": [
+        "string",
+        "number",
+        "null"
+      ]
+    },
+    "value": {
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "game_id": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "base_price": {
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "texture_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "max_stack_size": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "storage_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "inventory",
+        "bank",
+        "pet",
+        "closet",
+        null
+      ]
+    },
+    "storage_settings": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "item_granter_config": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "is_removable_config": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "power_up_device": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "collectible_device": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "brand_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "product_line": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "spawn_locations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "vendors": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "drop_sources": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "crafting_recipe": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "craftable": {
+          "type": "boolean"
+        },
+        "required_items": {
+          "type": "array"
+        },
+        "crafting_station": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "usable": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "consumable": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "effects": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "duration": {
+      "type": [
+        "string",
+        "number",
+        "null"
+      ]
+    },
+    "cooldown": {
+      "type": [
+        "string",
+        "number",
+        "null"
+      ]
+    },
+    "damage": {
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "defense": {
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "special_properties": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "ammo_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "quest_item": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "required_quests": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "unlocks": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "thumbnail": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "model_3d": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ui_category": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ui_sort_order": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "level_requirement": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "class_restrictions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "faction_restrictions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "bound": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "tradeable": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "nft_metadata": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "sound_effects": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "visual_effects": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "buffs": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "debuffs": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "auras": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "search_keywords": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "vendor_overrides": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "procedural_stats": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "analytics_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "track_usage": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "track_trades": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "designer_notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "balance_notes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated",
+    "item_type"
+  ],
+  "additionalProperties": true
+}

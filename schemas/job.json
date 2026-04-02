@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/job.json",
+  "title": "StudioBrain Job Entity Schema",
+  "description": "JSON Schema for the JOB entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "job"
+    },
+    "name": {
+      "type": "string",
+      "description": "Job display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "job_category": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "employer": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Character or Brand ID of the employer."
+    },
+    "location": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Location ID where the job is performed."
+    },
+    "salary": {
+      "type": [
+        "string",
+        "number",
+        "null"
+      ]
+    },
+    "required_skills": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "responsibilities": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "schedule": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "npc_holders": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Character IDs that hold this job."
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

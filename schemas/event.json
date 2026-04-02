@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/event.json",
+  "title": "StudioBrain Event Entity Schema",
+  "description": "JSON Schema for the EVENT entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "event"
+    },
+    "name": {
+      "type": "string",
+      "description": "Event display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "event_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "date": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "location": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Location ID where the event takes place."
+    },
+    "participants": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Character IDs participating in the event."
+    },
+    "factions_involved": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "outcomes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "triggers": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {}
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "recurring": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

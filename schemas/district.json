@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/district.json",
+  "title": "StudioBrain District Entity Schema",
+  "description": "JSON Schema for the DISTRICT entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "district"
+    },
+    "name": {
+      "type": "string",
+      "description": "District display name."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "district_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "population": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "locations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Location IDs within this district."
+    },
+    "controlling_faction": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Faction ID that controls the district."
+    },
+    "factions_present": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "atmosphere": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hazard_level": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ]
+    },
+    "lore_significance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}
