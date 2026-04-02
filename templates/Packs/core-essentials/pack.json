@@ -1,0 +1,24 @@
+{
+  "id": "core-essentials",
+  "name": "Core Essentials",
+  "version": "1.0.0",
+  "description": "Essential templates for any creative project. Characters, Locations, Items, and Biomes with AI generation rules.",
+  "author": "BiloxiStudios",
+  "is_default": true,
+  "auto_install": true,
+  "entity_types": ["character", "location", "item", "biome"],
+  "templates": [
+    "../../Standard/CHARACTER_TEMPLATE.md",
+    "../../Standard/LOCATION_TEMPLATE.md",
+    "../../Standard/ITEM_TEMPLATE.md",
+    "../../Standard/BIOME_TEMPLATE.md"
+  ],
+  "rules": [],
+  "layouts": [
+    "../../Layouts/character.layout.json",
+    "../../Layouts/location.layout.json",
+    "../../Layouts/item.layout.json"
+  ],
+  "examples": [],
+  "tags": ["essentials", "starter", "default"]
+}
