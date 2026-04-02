@@ -18,6 +18,22 @@ last_updated: "YYYY-MM-DD"
 associated_rules:
   - JOB_RULES.md
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  primary_brand:
+    widget: entity-selector
+    reference_type: brand
+    max_selections: 1
+  associated_brands:
+    widget: entity-selector
+    reference_type: brand
+    max_selections: 10
+  faction_controlled:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 1
+
 status: "active"  # active, deprecated, seasonal, archived, draft
 
 # PRODUCTION STATUS TRACKING

@@ -20,6 +20,47 @@ associated_rules:
   - LOCATION_RULES.md
   - LOCATION_WORKFLOW.md
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  color_palette:
+    widget: color-group
+    swatches:
+      - key: primary
+        label: "Primary Color"
+      - key: secondary
+        label: "Secondary Color"
+      - key: accent
+        label: "Accent Color"
+  founded_year:
+    widget: year
+    min: 1800
+    max: 1998
+  destroyed_year:
+    widget: year
+    min: 1800
+    max: 1998
+  parent_location:
+    widget: entity-selector
+    reference_type: district
+    max_selections: 1
+  faction_control:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 1
+  primary_npcs:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 20
+  primary_brand:
+    widget: entity-selector
+    reference_type: brand
+    max_selections: 1
+  associated_brands:
+    widget: entity-selector
+    reference_type: brand
+    max_selections: 10
+
 status: "active"  # active, destroyed, quarantined, archived, draft
 
 # PRODUCTION STATUS TRACKING
