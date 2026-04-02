@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes</title>
+  <!-- plugin-theme.css is injected by the backend automatically -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--surface-base-bg);
+      color: var(--surface-base-text);
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--surface-base-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    #note-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 72px;
+      resize: vertical;
+      border: 1px solid var(--surface-base-border);
+      border-radius: 6px;
+      background: var(--surface-elevated-bg);
+      color: var(--surface-elevated-text);
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--plugin-accent);
+    }
+
+    button {
+      align-self: flex-end;
+      padding: 6px 14px;
+      border: none;
+      border-radius: 6px;
+      background: var(--plugin-accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #notes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .note-card {
+      background: var(--surface-elevated-bg);
+      border: 1px solid var(--surface-elevated-border);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .note-card.pinned {
+      border-left: 3px solid var(--plugin-accent);
+    }
+
+    .note-text {
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .note-meta {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--surface-base-text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .note-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .note-actions button {
+      background: transparent;
+      color: var(--surface-base-text-secondary);
+      padding: 2px 6px;
+      font-size: 11px;
+    }
+
+    .note-actions button:hover {
+      color: var(--surface-base-text);
+    }
+
+    .delete-btn:hover {
+      color: var(--surface-error-border) !important;
+    }
+
+    #status {
+      font-size: 12px;
+      color: var(--surface-base-text-secondary);
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    .empty {
+      color: var(--surface-base-text-secondary);
+      font-style: italic;
+      text-align: center;
+      padding: 16px 0;
+    }
+  </style>
+</head>
+<body>
+<h2>Notes</h2>
+
+<form id="note-form">
+  <textarea id="note-text" placeholder="Add a note..." maxlength="2000"></textarea>
+  <button type="submit" id="add-btn">Add Note</button>
+</form>
+
+<div id="notes-list"><p class="empty">Loading...</p></div>
+<p id="status"></p>
+
+<script>
+(function () {
+  // -------------------------------------------------------------------------
+  // Plugin Data Service API helper
+  //
+  // The generic CRUD endpoints live at:
+  //   GET    /api/ext/{plugin_id}/data/{record_type}
+  //   POST   /api/ext/{plugin_id}/data/{record_type}
+  //   PUT    /api/ext/{plugin_id}/data/{record_type}/{record_id}
+  //   DELETE /api/ext/{plugin_id}/data/{record_type}/{record_id}
+  //
+  // Authentication cookies are sent automatically (same-origin).
+  // The backend scopes all records to the current tenant_id automatically.
+  // -------------------------------------------------------------------------
+
+  var ctx = window.PLUGIN_CONTEXT || {};
+  var PLUGIN_ID = ctx.pluginId || 'data-notes';
+  var ENTITY_TYPE = ctx.entityType || null;
+  var ENTITY_ID = ctx.entityId || null;
+
+  var API_BASE = '/api/ext/' + PLUGIN_ID + '/data/note';
+
+  function apiUrl(recordId) {
+    return recordId ? API_BASE + '/' + recordId : API_BASE;
+  }
+
+  function setStatus(msg) {
+    var el = document.getElementById('status');
+    if (el) el.textContent = msg;
+  }
+
+  // -------------------------------------------------------------------------
+  // Load notes for this entity
+  // -------------------------------------------------------------------------
+  function loadNotes() {
+    var url = API_BASE + '?limit=50&offset=0';
+    if (ENTITY_TYPE) url += '&entity_type=' + encodeURIComponent(ENTITY_TYPE);
+    if (ENTITY_ID)   url += '&entity_id='   + encodeURIComponent(ENTITY_ID);
+
+    fetch(url, { credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var records = data.records || [];
+        renderNotes(records);
+      })
+      .catch(function (err) {
+        setStatus('Failed to load notes: ' + err);
+      });
+  }
+
+  // -------------------------------------------------------------------------
+  // Render note cards
+  // -------------------------------------------------------------------------
+  function renderNotes(records) {
+    var list = document.getElementById('notes-list');
+    if (records.length === 0) {
+      list.innerHTML = '<p class="empty">No notes yet. Add the first one above.</p>';
+      return;
+    }
+
+    list.innerHTML = records.map(function (rec) {
+      var d = rec.data || {};
+      var pinned = d.pinned ? ' pinned' : '';
+      var ts = rec.created_at ? new Date(rec.created_at).toLocaleString() : '';
+      var escaped = (d.text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      return [
+        '<div class="note-card' + pinned + '" data-id="' + rec.record_id + '">',
+        '  <div class="note-text">' + escaped + '</div>',
+        '  <div class="note-meta">',
+        '    <span>' + ts + '</span>',
+        '    <div class="note-actions">',
+        '      <button class="pin-btn" data-id="' + rec.record_id + '" data-pinned="' + (d.pinned ? '1' : '0') + '">',
+        '        ' + (d.pinned ? 'Unpin' : 'Pin'),
+        '      </button>',
+        '      <button class="delete-btn" data-id="' + rec.record_id + '">Delete</button>',
+        '    </div>',
+        '  </div>',
+        '</div>',
+      ].join('\n');
+    }).join('\n');
+
+    // Attach event listeners
+    list.querySelectorAll('.delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () { deleteNote(btn.dataset.id); });
+    });
+    list.querySelectorAll('.pin-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        togglePin(btn.dataset.id, btn.dataset.pinned !== '1');
+      });
+    });
+  }
+
+  // -------------------------------------------------------------------------
+  // Create a note  (POST /api/ext/data-notes/data/note)
+  // -------------------------------------------------------------------------
+  document.getElementById('note-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var text = document.getElementById('note-text').value.trim();
+    if (!text) return;
+
+    var addBtn = document.getElementById('add-btn');
+    addBtn.disabled = true;
+    setStatus('Saving...');
+
+    fetch(API_BASE, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        data: { text: text, pinned: false, color: null },
+        entity_type: ENTITY_TYPE,
+        entity_id: ENTITY_ID,
+      }),
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function () {
+        document.getElementById('note-text').value = '';
+        setStatus('');
+        loadNotes();
+      })
+      .catch(function (err) {
+        setStatus('Failed to save: ' + err);
+      })
+      .finally(function () {
+        addBtn.disabled = false;
+      });
+  });
+
+  // -------------------------------------------------------------------------
+  // Toggle pin  (PUT /api/ext/data-notes/data/note/{id})
+  // -------------------------------------------------------------------------
+  function togglePin(recordId, newPinned) {
+    fetch(apiUrl(recordId), {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: { pinned: newPinned } }),
+    })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function () { loadNotes(); })
+      .catch(function (err) { setStatus('Failed to update: ' + err); });
+  }
+
+  // -------------------------------------------------------------------------
+  // Delete a note  (DELETE /api/ext/data-notes/data/note/{id})
+  // -------------------------------------------------------------------------
+  function deleteNote(recordId) {
+    if (!confirm('Delete this note?')) return;
+    fetch(apiUrl(recordId), {
+      method: 'DELETE',
+      credentials: 'include',
+    })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function () { loadNotes(); })
+      .catch(function (err) { setStatus('Failed to delete: ' + err); });
+  }
+
+  // -------------------------------------------------------------------------
+  // Init
+  // -------------------------------------------------------------------------
+  loadNotes();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ───────────────────────────────────── */
+  .page-header {
+    max-width: 1000px;
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .page-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-active));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(139,92,246,0.3);
+  }
+  .page-icon svg { width: 28px; height: 28px; }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--plugin-accent), #c4b5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle { color: var(--surface-base-text-secondary); font-size: 15px; margin-top: 2px; }
+
+  /* ── Content ──────────────────────────────────── */
+  .content { max-width: 1000px; margin: 0 auto; }
+
+  /* ── Status Bar ───────────────────────────────── */
+  .status-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .status-card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 10px;
+    padding: 18px;
+    transition: border-color 0.2s;
+  }
+  .status-card:hover { border-color: var(--plugin-accent); }
+  .status-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .status-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .status-value.purple { color: var(--surface-secondary-hover); }
+  .status-value.green { color: var(--surface-success-border); }
+  .status-value.blue { color: var(--surface-info-text-secondary); }
+  .status-value.orange { color: var(--surface-warning-text-secondary); }
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .status-tag.connected { background: rgba(34,197,94,0.15); color: var(--surface-success-border); }
+  .status-tag.disconnected { background: rgba(100,116,139,0.15); color: var(--surface-base-text-secondary); }
+  .status-tag-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .status-tag.connected .status-tag-dot { background: var(--surface-success-border); }
+  .status-tag.disconnected .status-tag-dot { background: var(--surface-base-text-secondary); }
+
+  /* ── Section ──────────────────────────────────── */
+  .section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 700px) { .section-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 12px;
+    padding: 22px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--surface-elevated-border); }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title svg { width: 18px; height: 18px; opacity: 0.6; }
+  .card-full { grid-column: 1 / -1; }
+
+  /* ── Voice Profiles Table ─────────────────────── */
+  .profiles-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .profiles-table th {
+    text-align: left;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  .profiles-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(51,65,85,0.5);
+    vertical-align: middle;
+  }
+  .profiles-table tr:hover td { background: rgba(139,92,246,0.04); }
+  .profile-voice-name { color: var(--surface-secondary-hover); font-weight: 500; }
+  .profile-entity-id {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Recent Generations ───────────────────────── */
+  .gen-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 350px;
+    overflow-y: auto;
+  }
+  .gen-list::-webkit-scrollbar { width: 4px; }
+  .gen-list::-webkit-scrollbar-track { background: transparent; }
+  .gen-list::-webkit-scrollbar-thumb { background: var(--surface-elevated-border); border-radius: 2px; }
+
+  .gen-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    transition: border-color 0.15s;
+  }
+  .gen-item:hover { border-color: var(--plugin-accent); }
+  .gen-play-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--surface-elevated-border);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .gen-play-btn:hover { background: var(--plugin-accent); }
+  .gen-play-btn svg { fill: var(--surface-base-text); width: 14px; height: 14px; }
+  .gen-info { flex: 1; min-width: 0; }
+  .gen-name {
+    font-size: 13px;
+    color: var(--surface-base-text);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gen-meta {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+    align-items: center;
+  }
+  .gen-text-preview {
+    font-size: 11px;
+    color: var(--surface-elevated-border);
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+  .style-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(139,92,246,0.15);
+    color: var(--surface-secondary-hover);
+    border-radius: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 500;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--surface-elevated-border);
+    padding: 32px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .empty-state svg { margin-bottom: 8px; opacity: 0.3; }
+
+  /* ── Mini Player (page level) ─────────────────── */
+  .page-player {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface-elevated-bg);
+    border-top: 1px solid var(--surface-elevated-border);
+    padding: 10px 32px;
+    display: none;
+    align-items: center;
+    gap: 14px;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .page-player.visible { display: flex; }
+  .pp-play-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--plugin-accent);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .pp-play-btn:hover { background: var(--plugin-accent); }
+  .pp-play-btn svg { fill: white; width: 14px; height: 14px; }
+  .pp-info { flex-shrink: 0; min-width: 120px; }
+  .pp-name { font-size: 12px; color: var(--surface-base-text); font-weight: 500; }
+  .pp-style { font-size: 10px; color: var(--plugin-accent); }
+  .pp-progress {
+    flex: 1;
+    height: 4px;
+    background: var(--surface-elevated-border);
+    border-radius: 2px;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .pp-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--plugin-accent), var(--surface-secondary-hover));
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.1s linear;
+  }
+  .pp-time { font-size: 11px; color: var(--surface-base-text-secondary); min-width: 40px; text-align: right; }
+  .pp-close {
+    background: none;
+    border: none;
+    color: var(--surface-base-text-secondary);
+    cursor: pointer;
+    padding: 4px;
+  }
+  .pp-close:hover { color: var(--surface-base-text); }
+
+  /* ── Refresh btn ──────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn:hover { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+  .btn svg { width: 14px; height: 14px; }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+      </svg>
+    </div>
+    <div>
+      <h1 class="page-title">Voice Forge</h1>
+      <p class="page-subtitle">Character voice library and generation dashboard</p>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Status Cards -->
+    <div class="status-bar" id="status-bar">
+      <div class="status-card">
+        <div class="status-label">API Status</div>
+        <div id="api-status">
+          <div class="status-tag disconnected">
+            <span class="status-tag-dot"></span> Checking...
+          </div>
+        </div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Voice Profiles</div>
+        <div class="status-value purple" id="stat-profiles">--</div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Total Generations</div>
+        <div class="status-value blue" id="stat-generations">--</div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Provider</div>
+        <div class="status-value orange" id="stat-provider">--</div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="section-grid">
+
+      <!-- Voice Profiles -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Character Voice Profiles
+          </div>
+          <button class="btn" onclick="loadProfiles()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+        <div id="profiles-content">
+          <div class="empty-state">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Recent Generations -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>
+            Recent Generations
+          </div>
+          <button class="btn" onclick="loadGenerationLog()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+        <div class="gen-list" id="gen-list">
+          <div class="empty-state">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Available Voices -->
+      <div class="card card-full">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+            Available Voices
+          </div>
+        </div>
+        <div id="voices-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
+          <div class="empty-state" style="grid-column:1/-1">Loading voices...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Page-level audio player -->
+  <div class="page-player" id="page-player">
+    <button class="pp-play-btn" id="pp-play-btn" onclick="togglePagePlay()">
+      <svg id="pp-play-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    </button>
+    <div class="pp-info">
+      <div class="pp-name" id="pp-name">--</div>
+      <div class="pp-style" id="pp-style">--</div>
+    </div>
+    <div class="pp-progress" onclick="seekPageAudio(event)">
+      <div class="pp-progress-fill" id="pp-progress-fill"></div>
+    </div>
+    <span class="pp-time" id="pp-time">0:00</span>
+    <button class="pp-close" onclick="closePagePlayer()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <audio id="audio-el" preload="auto"></audio>
+
+  <script>
+    const API = '/api/ext/voice-forge';
+    let audioEl = document.getElementById('audio-el');
+    let isPlaying = false;
+
+    // ── Init ──────────────────────────────────────
+    async function init() {
+      await Promise.all([loadStatus(), loadProfiles(), loadGenerationLog(), loadVoices()]);
+    }
+
+    // ── Status ────────────────────────────────────
+    async function loadStatus() {
+      try {
+        const resp = await fetch(`${API}/`);
+        const data = await resp.json();
+
+        const apiEl = document.getElementById('api-status');
+        if (data.api_configured) {
+          apiEl.innerHTML = '<div class="status-tag connected"><span class="status-tag-dot"></span> Connected</div>';
+        } else {
+          apiEl.innerHTML = '<div class="status-tag disconnected"><span class="status-tag-dot"></span> No API Key</div>';
+        }
+
+        document.getElementById('stat-profiles').textContent = data.profiles_count || 0;
+        document.getElementById('stat-provider').textContent = (data.provider || 'elevenlabs').replace(/^./, c => c.toUpperCase());
+
+        // Load generation log count
+        const logResp = await fetch(`${API}/generation-log`);
+        const logData = await logResp.json();
+        document.getElementById('stat-generations').textContent = (logData.entries || []).length;
+      } catch(e) {
+        console.error('Status load failed', e);
+        document.getElementById('api-status').innerHTML = '<div class="status-tag disconnected"><span class="status-tag-dot"></span> Offline</div>';
+      }
+    }
+
+    // ── Profiles ──────────────────────────────────
+    async function loadProfiles() {
+      try {
+        const resp = await fetch(`${API}/voice-profiles`);
+        const data = await resp.json();
+        const profiles = data.profiles || {};
+        const entries = Object.entries(profiles);
+
+        const container = document.getElementById('profiles-content');
+        if (entries.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              <div>No voice profiles assigned yet.<br>Open a character's Voice Studio tab to assign voices.</div>
+            </div>`;
+          return;
+        }
+
+        let html = '<table class="profiles-table"><thead><tr>';
+        html += '<th>Character ID</th><th>Voice</th><th>Voice ID</th><th>Updated</th>';
+        html += '</tr></thead><tbody>';
+        entries.forEach(([eid, p]) => {
+          html += `<tr>
+            <td><span class="profile-entity-id" title="${eid}">${eid.substring(0, 16)}...</span></td>
+            <td><span class="profile-voice-name">${p.voice_name || '--'}</span></td>
+            <td style="font-size:11px;color:var(--surface-base-text-secondary);font-family:monospace">${(p.voice_id || '').substring(0, 16)}...</td>
+            <td style="font-size:11px;color:var(--surface-base-text-secondary)">${p.updated ? formatDate(p.updated) : '--'}</td>
+          </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        document.getElementById('stat-profiles').textContent = entries.length;
+      } catch(e) {
+        console.error('Profiles load failed', e);
+        document.getElementById('profiles-content').innerHTML = '<div class="empty-state">Failed to load profiles.</div>';
+      }
+    }
+
+    // ── Generation Log ────────────────────────────
+    async function loadGenerationLog() {
+      try {
+        const resp = await fetch(`${API}/generation-log`);
+        const data = await resp.json();
+        const entries = data.entries || [];
+        const list = document.getElementById('gen-list');
+
+        if (entries.length === 0) {
+          list.innerHTML = `
+            <div class="empty-state">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <line x1="23" y1="9" x2="17" y2="15"/>
+                <line x1="17" y1="9" x2="23" y2="15"/>
+              </svg>
+              <div>No voice generations yet.<br>Generate audio from a character's Voice Studio tab.</div>
+            </div>`;
+          return;
+        }
+
+        document.getElementById('stat-generations').textContent = entries.length;
+
+        list.innerHTML = entries.slice(0, 50).map(e => `
+          <div class="gen-item">
+            <button class="gen-play-btn" onclick="playPageAudio('${e.audio_url || ''}', '${e.filename || ''}', '${e.style || 'normal'}')">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </button>
+            <div class="gen-info">
+              <div class="gen-name">${e.filename || 'unknown'}</div>
+              <div class="gen-meta">
+                <span class="style-badge">${e.style || 'normal'}</span>
+                <span>${formatDate(e.timestamp)}</span>
+              </div>
+              <div class="gen-text-preview">"${escapeHtml((e.text_preview || '').substring(0, 80))}"</div>
+            </div>
+          </div>
+        `).join('');
+      } catch(e) {
+        console.error('Generation log load failed', e);
+        document.getElementById('gen-list').innerHTML = '<div class="empty-state">Failed to load generations.</div>';
+      }
+    }
+
+    // ── Voices ────────────────────────────────────
+    async function loadVoices() {
+      try {
+        const resp = await fetch(`${API}/voices`);
+        const data = await resp.json();
+        const voices = data.voices || [];
+        const grid = document.getElementById('voices-grid');
+
+        if (voices.length === 0) {
+          grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">No voices available.</div>';
+          return;
+        }
+
+        grid.innerHTML = voices.map(v => `
+          <div style="background:var(--surface-base-bg);border:1px solid var(--surface-elevated-border);border-radius:8px;padding:12px;transition:border-color 0.15s;cursor:default"
+               onmouseover="this.style.borderColor='var(--plugin-accent)'" onmouseout="this.style.borderColor='var(--surface-elevated-border)'">
+            <div style="font-size:13px;font-weight:600;color:var(--surface-base-text);margin-bottom:4px">${v.name}</div>
+            <div style="font-size:10px;color:var(--surface-base-text-secondary);font-family:monospace;margin-bottom:6px">${v.voice_id}</div>
+            <div style="display:flex;gap:4px;align-items:center">
+              <span class="style-badge">${v.category || 'premade'}</span>
+              ${v.preview_url ? `<button class="btn" style="padding:3px 8px;font-size:10px;margin:0" onclick="playPageAudio('${v.preview_url}','${v.name} preview','preview')">Preview</button>` : ''}
+            </div>
+          </div>
+        `).join('');
+
+        // Add source info
+        if (data.source === 'defaults') {
+          grid.insertAdjacentHTML('beforebegin',
+            '<div style="font-size:11px;color:var(--surface-warning-border);margin-bottom:10px;padding:8px 12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);border-radius:6px">Showing default voice list. Configure your ElevenLabs API key in Settings for full voice access.</div>');
+        }
+      } catch(e) {
+        console.error('Voices load failed', e);
+        document.getElementById('voices-grid').innerHTML = '<div class="empty-state" style="grid-column:1/-1">Failed to load voices.</div>';
+      }
+    }
+
+    // ── Page Player ───────────────────────────────
+    function playPageAudio(url, name, style) {
+      if (!url) return;
+      const player = document.getElementById('page-player');
+      player.classList.add('visible');
+      document.getElementById('pp-name').textContent = name;
+      document.getElementById('pp-style').textContent = style;
+      audioEl.src = url;
+      audioEl.load();
+      audioEl.play();
+    }
+
+    function togglePagePlay() {
+      if (!audioEl.src) return;
+      if (isPlaying) audioEl.pause(); else audioEl.play();
+    }
+
+    function closePagePlayer() {
+      audioEl.pause();
+      audioEl.src = '';
+      document.getElementById('page-player').classList.remove('visible');
+    }
+
+    function seekPageAudio(e) {
+      if (!audioEl.duration) return;
+      const bar = e.currentTarget;
+      const rect = bar.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      audioEl.currentTime = pct * audioEl.duration;
+    }
+
+    audioEl.addEventListener('play', () => {
+      isPlaying = true;
+      document.getElementById('pp-play-icon').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    });
+    audioEl.addEventListener('pause', () => {
+      isPlaying = false;
+      document.getElementById('pp-play-icon').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+    });
+    audioEl.addEventListener('ended', () => {
+      isPlaying = false;
+      document.getElementById('pp-play-icon').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      document.getElementById('pp-progress-fill').style.width = '0%';
+    });
+    audioEl.addEventListener('timeupdate', () => {
+      if (!audioEl.duration) return;
+      const pct = (audioEl.currentTime / audioEl.duration) * 100;
+      document.getElementById('pp-progress-fill').style.width = pct + '%';
+      document.getElementById('pp-time').textContent = formatTime(audioEl.currentTime);
+    });
+
+    // ── Helpers ────────────────────────────────────
+    function formatTime(s) {
+      if (!s || isNaN(s)) return '0:00';
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+    function formatDate(ts) {
+      if (!ts) return '';
+      const d = new Date(ts * 1000);
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>

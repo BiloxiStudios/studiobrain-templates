@@ -1,0 +1,82 @@
+{
+  "id": "kanban-board-wasm",
+  "name": "Production Kanban (WASM)",
+  "version": "1.0.0",
+  "description": "Visual kanban board tracking entity production status with drag-and-drop workflow, color-coded cards, filtering, and production pipeline stats.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "project-management",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "kanban-board",
+          "route": "/plugins/kanban-board-wasm",
+          "label": "Production Board",
+          "icon": "kanban",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "production-status",
+          "label": "Production Status",
+          "location": "entity-sidebar",
+          "icon": "columns"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read",
+    "entity:write"
+  ],
+  "settings_schema": {
+    "columns": {
+      "type": "string",
+      "label": "Kanban Columns",
+      "description": "Comma-separated column names for the board",
+      "required": false,
+      "default": "Concept,In Progress,Review,Complete",
+      "scope": "instance"
+    },
+    "wip_limits": {
+      "type": "string",
+      "label": "WIP Limits",
+      "description": "Comma-separated WIP limits per column (0 = unlimited). Must match column count.",
+      "required": false,
+      "default": "0,10,5,0",
+      "scope": "instance"
+    },
+    "entity_types": {
+      "type": "string",
+      "label": "Entity Types",
+      "description": "Comma-separated entity types to show on the board",
+      "required": false,
+      "default": "character,location,item,faction,brand,district,job",
+      "scope": "instance"
+    },
+    "show_thumbnails": {
+      "type": "boolean",
+      "label": "Show Thumbnails",
+      "description": "Display entity portrait thumbnails on cards",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "status_field": {
+      "type": "string",
+      "label": "Status Field Name",
+      "description": "YAML frontmatter field used to track production status",
+      "required": false,
+      "default": "status",
+      "scope": "instance"
+    }
+  },
+  "accent_color": "var(--surface-primary-bg)",
+  "runtime": "wasm"
+}

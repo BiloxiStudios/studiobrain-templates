@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--surface-base-text-secondary);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  /* Current status display */
+  .current-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .status-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+  }
+
+  /* Progress indicator */
+  .progress-track {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 14px;
+    padding: 0 2px;
+  }
+  .progress-step {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--surface-elevated-border);
+    transition: background 0.3s;
+    position: relative;
+  }
+  .progress-step.active {
+    background: var(--plugin-accent);
+  }
+  .progress-step.completed {
+    background: var(--surface-success-border);
+  }
+  .progress-step-label {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: var(--surface-base-text-secondary);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .progress-step:hover .progress-step-label {
+    opacity: 1;
+  }
+
+  /* Quick-move buttons */
+  .move-section {
+    margin-top: 4px;
+  }
+  .move-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .move-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .move-btn {
+    flex: 1;
+    min-width: calc(50% - 2px);
+    padding: 6px 8px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .move-btn:hover {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+    background: var(--surface-elevated-bg);
+  }
+  .move-btn.current {
+    border-color: var(--plugin-accent);
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--plugin-accent);
+    cursor: default;
+    font-weight: 600;
+  }
+  .move-btn.moving {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .toast.success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid var(--surface-success-border);
+    color: var(--surface-success-border);
+  }
+  .toast.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid var(--surface-error-border);
+    color: var(--surface-error-border);
+  }
+
+  /* Loading state */
+  .loading {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+  }
+  .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Entity type badge */
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+  <div id="panel-content">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      Loading status...
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const API_BASE = '/api/ext/kanban-board';
+    const entityType = ctx.entityType;
+    const entityId = ctx.entityId;
+
+    const TYPE_COLORS = {
+      character: 'var(--plugin-accent)',
+      location: 'var(--surface-success-border)',
+      item: 'var(--surface-warning-text-secondary)',
+      faction: 'var(--surface-secondary-bg)',
+      brand: 'var(--surface-secondary-bg)',
+      district: 'var(--surface-accent-bg)',
+      job: 'var(--surface-warning-border)',
+    };
+
+    // Column colors for progress bar
+    const COLUMN_COLORS = {
+      'Concept':     'var(--surface-base-text-secondary)',
+      'In Progress': 'var(--plugin-accent)',
+      'Review':      'var(--surface-warning-border)',
+      'Complete':    'var(--surface-success-border)',
+    };
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast show ${type}`;
+      setTimeout(() => { t.className = 'toast'; }, 2000);
+    }
+
+    async function loadStatus() {
+      if (!entityType || !entityId) {
+        document.getElementById('panel-content').innerHTML =
+          '<div class="loading" style="padding:16px 0">No entity selected</div>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/entity-status/${entityType}/${entityId}`);
+        if (!res.ok) throw new Error('Failed to load');
+        const data = await res.json();
+        renderPanel(data);
+      } catch (err) {
+        document.getElementById('panel-content').innerHTML = `
+          <div class="loading" style="color:var(--surface-error-border)">
+            Failed to load status
+            <br><small style="color:var(--surface-base-text-secondary)">${err.message}</small>
+          </div>`;
+      }
+    }
+
+    function renderPanel(data) {
+      const { column, columns, color, raw_status } = data;
+      const currentIdx = columns.indexOf(column);
+      const typeColor = TYPE_COLORS[entityType] || 'var(--surface-base-text-secondary)';
+
+      // Status dot color based on column
+      const dotColor = COLUMN_COLORS[column] || 'var(--plugin-accent)';
+
+      let html = `
+        <div class="header">
+          <div class="header-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>
+          </div>
+          Production Status
+        </div>
+
+        <div class="current-status">
+          <div class="status-dot" style="background:${dotColor};box-shadow:0 0 6px ${dotColor}60"></div>
+          <div>
+            <div class="status-label">Current Stage</div>
+            <div class="status-value">${column}</div>
+          </div>
+        </div>
+
+        <div class="progress-track">
+          ${columns.map((col, i) => {
+            let cls = '';
+            if (i < currentIdx) cls = 'completed';
+            else if (i === currentIdx) cls = 'active';
+            return `<div class="progress-step ${cls}"><span class="progress-step-label">${col}</span></div>`;
+          }).join('')}
+        </div>
+
+        <div class="move-section">
+          <div class="move-label">Move to</div>
+          <div class="move-buttons">
+            ${columns.map(col => {
+              const isCurrent = col === column;
+              return `<button class="move-btn ${isCurrent ? 'current' : ''}"
+                        onclick="${isCurrent ? '' : `moveEntity('${col}')`}"
+                        ${isCurrent ? 'disabled' : ''}>
+                        ${isCurrent ? '&#9679; ' : ''}${col}
+                      </button>`;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('panel-content').innerHTML = html;
+    }
+
+    async function moveEntity(newStatus) {
+      // Disable all buttons
+      document.querySelectorAll('.move-btn').forEach(b => b.classList.add('moving'));
+
+      try {
+        const res = await fetch(`${API_BASE}/move`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_type: entityType,
+            entity_id: entityId,
+            new_status: newStatus,
+          }),
+        });
+        if (!res.ok) throw new Error('Move failed');
+
+        showToast(`Moved to ${newStatus}`);
+        // Reload to reflect changes
+        setTimeout(loadStatus, 300);
+      } catch (err) {
+        showToast(err.message, 'error');
+        document.querySelectorAll('.move-btn').forEach(b => b.classList.remove('moving'));
+      }
+    }
+
+    loadStatus();
+  </script>
+</body>
+</html>

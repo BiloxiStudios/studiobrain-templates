@@ -1,0 +1,74 @@
+{
+  "id": "comfyui-workflows-wasm",
+  "name": "ComfyUI Workflow Manager (WASM)",
+  "version": "0.2.0",
+  "description": "Browse, import, and manage ComfyUI workflows directly from Studio. Visual workflow picker with thumbnail previews, entity-mapped execution, queue tracking, and output gallery.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "3d-creative-tools",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "comfyui-manager",
+          "route": "/plugins/comfyui-workflows-wasm",
+          "label": "ComfyUI Workflows",
+          "icon": "workflow",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "workflow-quick",
+          "label": "Quick Workflow",
+          "location": "entity-sidebar",
+          "icon": "play-circle"
+        },
+        {
+          "id": "workflow-manager",
+          "label": "Workflow Manager",
+          "location": "entity-tab",
+          "icon": "git-branch"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read",
+    "network:local",
+    "filesystem:read",
+    "filesystem:write"
+  ],
+  "settings_schema": {
+    "comfyui_url": {
+      "type": "string",
+      "label": "ComfyUI Server URL",
+      "description": "URL of the running ComfyUI server",
+      "required": true,
+      "default": "http://localhost:8188",
+      "scope": "instance"
+    },
+    "workflows_dir": {
+      "type": "string",
+      "label": "Workflows Directory",
+      "description": "Path to saved workflow JSON files",
+      "required": false,
+      "default": "A:\\Brains\\Workflows",
+      "scope": "instance"
+    },
+    "auto_save_outputs": {
+      "type": "boolean",
+      "label": "Auto-save Outputs",
+      "description": "Automatically save generated outputs to entity data",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    }
+  },
+  "accent_color": "#00D4AA",
+  "runtime": "wasm"
+}

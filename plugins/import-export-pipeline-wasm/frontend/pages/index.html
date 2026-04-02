@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Import/Export Pipeline</title>
+<style>
+  :root {
+    --bg-base: #0f172a;
+    --bg-elevated: #1e293b;
+    --bg-secondary: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --border: #334155;
+    --diff-added: rgba(34, 197, 94, 0.15);
+    --diff-removed: rgba(239, 68, 68, 0.15);
+    --diff-modified: rgba(245, 158, 11, 0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .header .subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  /* Import/Export Tabs */
+  .mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .mode-tab {
+    padding: 10px 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mode-tab:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary);
+  }
+
+  .mode-tab.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+
+  /* Card Styles */
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .card-content {
+    padding: 12px;
+  }
+
+  /* Form Elements */
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .form-label small {
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .form-select, .form-input, .form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .form-select:focus, .form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .form-textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  .form-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .form-checkbox input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-hover);
+  }
+
+  .btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  .btn-danger {
+    background: var(--error);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: #dc2626;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* Progress Bar */
+  .progress-container {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+
+  .progress-bar {
+    height: 8px;
+    background: linear-gradient(90deg, var(--primary), #3b82f6);
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  /* File Upload */
+  .file-upload {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg-elevated);
+  }
+
+  .file-upload:hover {
+    border-color: var(--primary);
+    background: var(--bg-secondary);
+  }
+
+  .file-upload.dragover {
+    border-color: var(--primary);
+    background: rgba(16, 185, 129, 0.1);
+  }
+
+  .file-upload-icon {
+    font-size: 48px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .file-upload p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .file-upload small {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  /* File List */
+  .file-list {
+    list-style: none;
+    margin: 16px 0;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .file-item .file-name {
+    flex: 1;
+    font-family: monospace;
+    color: var(--text-primary);
+  }
+
+  .file-item .file-size {
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  .file-item .remove-file {
+    color: var(--error);
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  /*	output View */
+  .output-view {
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .output-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary);
+  }
+
+  .output-tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border-right: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+
+  .output-tab:hover {
+    background: var(--bg-secondary);
+  }
+
+  .output-tab.active {
+    background: var(--bg-elevated);
+    border-bottom: 2px solid var(--primary);
+    color: var(--primary);
+  }
+
+  .output-content {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  /* Status Indicators */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .status-success {
+    background: var(--diff-added);
+    color: var(--success);
+  }
+
+  .status-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+  }
+
+  .status-error {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--error);
+  }
+
+  .status-pending {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+  }
+
+  .status-processing {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* Tabs */
+  .content-tabs {
+    display: flex;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .content-tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  .content-tab.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+
+  /* Tab Content */
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Table */
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .results-table th {
+    text-align: left;
+    padding: 12px;
+    background: var(--bg-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .results-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .results-table tr:hover {
+    background: var(--bg-secondary);
+  }
+
+  /* Preview View */
+  .preview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .preview-panel {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .preview-content {
+    font-size: 12px;
+    font-family: monospace;
+    white-space: pre;
+    overflow: auto;
+    max-height: 300px;
+    background: var(--bg-elevated);
+    padding: 12px;
+    border-radius: 6px;
+    line-height: 1.5;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .preview-grid, .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .header h1 {
+      margin-bottom: 8px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Import/Export Pipeline</h1>
+      <div class="subtitle">Unified pipeline for multi-format import and export operations</div>
+    </div>
+    <div class="status-badge status-success">
+      <span>✓</span> Online
+    </div>
+  </div>
+
+  <!-- Mode Tabs -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="import">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Import
+    </button>
+    <button class="mode-tab" data-mode="export">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      Export
+    </button>
+  </div>
+
+  <!-- Import Mode Content -->
+  <div id="import-content" class="tab-content active">
+    <!-- Import Profile Selection -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Import Profile</h2>
+      </div>
+      <div class="card-content">
+        <div class="form-group">
+          <label class="form-label">Profile <small>Select configuration preset</small></label>
+          <select class="form-select" id="importProfile">
+            <option value="default">Default (All formats)</option>
+            <option value="verse">Verse (UEFN)</option>
+            <option value="dialogue">Dialogue</option>
+            <option value="movie">Movie Script</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Entity Type</label>
+          <select class="form-select" id="importEntityType">
+            <option value="character">Character</option>
+            <option value="location">Location</option>
+            <option value="quest">Quest</option>
+            <option value="assembly">Assembly</option>
+            <option value="dialogue">Dialogue</option>
+            <option value="item">Item</option>
+            <option value="faction">Faction</option>
+            <option value="brand">Brand</option>
+            <option value=" District">District</option>
+            <option value="job">Job</option>
+            <option value="event">Event</option>
+            <option value="campaign">Campaign</option>
+            <option value="note">Note</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import Files -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Source Files</h2>
+      </div>
+      <div class="card-content">
+        <div id="dropZone" class="file-upload">
+          <div class="file-upload-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </div>
+          <p>Drag and drop files here</p>
+          <p>or <span id="browseFiles">browse</span> to select</p>
+          <small>Supports: Markdown, JSON, CSV, OPML, Verse, ZIP archives</small>
+          <input type="file" id="fileInput" multiple style="display: none" accept=".md,.markdown,.json,.csv,.opml,.verse,.txt,.zip">
+        </div>
+
+        <div id="fileList" class="file-list"></div>
+
+        <div class="form-group">
+          <label class="form-label">Import Format <small>Auto-detect by default</small></label>
+          <select class="form-select" id="importFormat">
+            <option value="auto">Auto-detect</option>
+            <option value="markdown">Markdown</option>
+            <option value="json">JSON</option>
+            <option value="csv">CSV</option>
+            <option value="opml">OPML</option>
+            <option value="verse">Verse (UEFN)</option>
+            <option value="zip">ZIP Archive</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import Options -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Import Options</h2>
+      </div>
+      <div class="card-content">
+        <div class="form-group">
+          <label class="form-label">Merge Mode</label>
+          <select class="form-select" id="importMode">
+            <option value="create">Create New (always create new entity)</option>
+            <option value="replace" selected>Replace (overwrite existing entity)</option>
+            <option value="update">Update (smart merge with existing)</option>
+            <option value="merge">Merge (combine with existing entity)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Merge Strategy</label>
+          <select class="form-select" id="mergeStrategy">
+            <option value="algorithmic">Algorithmic (predictable rules)</option>
+            <option value="ai">AI-Assisted (intelligent merge with LLM)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Options</label>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <label class="form-checkbox">
+              <input type="checkbox" id="replaceFilledFields" checked>
+              Replace filled fields
+            </label>
+            <label class="form-checkbox">
+              <input type="checkbox" id="addMissingFields">
+              Add missing fields
+            </label>
+            <label class="form-checkbox">
+              <input type="checkbox" id="removeOrphanedFields">
+              Remove orphaned fields
+            </label>
+            <label class="form-checkbox">
+              <input type="checkbox" id="replaceMarkdownBody" checked>
+              Replace markdown body
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Batch Settings</label>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <div>
+              <span class="form-label">Max Batch Size</span>
+              <input type="number" class="form-input" id="batchSize" value="50" min="1" max="1000">
+            </div>
+            <div>
+              <span class="form-label">Parallel Workers</span>
+              <input type="number" class="form-input" id="parallelWorkers" value="4" min="1" max="16">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import Action -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Import Action</h2>
+      </div>
+      <div class="card-content">
+        <div class="btn-group">
+          <button class="btn btn-primary" id="previewImportBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            Preview Import
+          </button>
+          <button class="btn btn-primary" id="runImportBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            Run Import
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import Results -->
+    <div class="card" id="importResults" style="display: none;">
+      <div class="card-header">
+        <h2>Import Results</h2>
+      </div>
+      <div class="card-content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="importedCount">0</div>
+            <div class="stat-label">Imported</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="importFailedCount">0</div>
+            <div class="stat-label">Failed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="importWarningsCount">0</div>
+            <div class="stat-label">Warnings</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="importTaskId">-</div>
+            <div class="stat-label">Task ID</div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-text">
+            <span id="importProgressText">Progress: 0%</span>
+            <span id="importProgressTotal">Total: 0/0</span>
+          </div>
+          <div class="progress-bar" id="importProgressBar" style="width: 0%"></div>
+        </div>
+
+        <div id="importStatusMessage" class="status-badge" style="margin-bottom: 12px;"></div>
+
+        <div class="form-group">
+          <label class="form-label">Detailed Results</label>
+          <div class="output-view">
+            <div class="output-tabs">
+              <div class="output-tab active" data-output="errors">Errors</div>
+              <div class="output-tab" data-output="warnings">Warnings</div>
+              <div class="output-tab" data-output="summary">Summary</div>
+            </div>
+            <div class="output-content">
+              <pre id="importOutputErrors" style="display: block; color: var(--error)"></pre>
+              <pre id="importOutputWarnings" style="display: none; color: var(--warning)"></pre>
+              <pre id="importOutputSummary" style="display: none; color: var(--text-secondary)"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Mode Content -->
+  <div id="export-content" class="tab-content">
+    <!-- Export Profile Selection -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Export Profile</h2>
+      </div>
+      <div class="card-content">
+        <div class="form-group">
+          <label class="form-label">Profile <small>Select configuration preset</small></label>
+          <select class="form-select" id="exportProfile">
+            <option value="default">Default (All formats)</option>
+            <option value="verse">Verse (UEFN)</option>
+            <option value="dialogue">Dialogue (Script)</option>
+            <option value="movie">Movie Script</option>
+            <option value="book">Book (PDF)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Source Entity Type</label>
+          <select class="form-select" id="exportEntityType">
+            <option value="character">Character</option>
+            <option value="location">Location</option>
+            <option value="quest">Quest</option>
+            <option value="assembly">Assembly</option>
+            <option value="dialogue">Dialogue</option>
+            <option value="item">Item</option>
+            <option value="faction">Faction</option>
+            <option value="brand">Brand</option>
+            <option value="district">District</option>
+            <option value="job">Job</option>
+            <option value="event">Event</option>
+            <option value="campaign">Campaign</option>
+            <option value="timeline">Timeline</option>
+            <option value="note">Note</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entity Selection -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Entity Selection</h2>
+      </div>
+      <div class="card-content">
+        <div class="form-group">
+          <label class="form-label">Selection Method</label>
+          <select class="form-select" id="exportSelectionMethod">
+            <option value="manual">Manual Selection</option>
+            <option value="all">All entities of type</option>
+            <option value="tag">By Tag</option>
+          </select>
+        </div>
+
+        <div id="manualSelection">
+          <label class="form-label">Select Entities (comma-separated IDs)</label>
+          <input type="text" class="form-input" id="exportEntityIds" placeholder="char_001, char_002, loc_001">
+        </div>
+
+        <div id="tagSelection" style="display: none;">
+          <label class="form-label">Tag Filter</label>
+          <input type="text" class="form-input" id="exportTag" placeholder="e.g., master, draft, published">
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Export Options</h2>
+      </div>
+      <div class="card-content">
+        <div class="form-group">
+          <label class="form-label">Export Format</label>
+          <select class="form-select" id="exportFormat">
+            <option value="markdown">Markdown (.md)</option>
+            <option value="json">JSON (.json)</option>
+            <option value="csv">CSV (.csv)</option>
+            <option value="html">HTML (.html)</option>
+            <option value="pdf">PDF (.pdf)</option>
+            <option value="docx">DOCX (.docx)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Layout Template</label>
+          <select class="form-select" id="exportLayout">
+            <option value="gdd_standard">GDD Standard</option>
+            <option value="script_format">Script Format</option>
+            <option value="book_format">Book Format</option>
+            <option value="assembly">Assembly View</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Options</label>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <label class="form-checkbox">
+              <input type="checkbox" id="exportIncludeMetadata" checked>
+              Include YAML frontmatter
+            </label>
+            <label class="form-checkbox">
+              <input type="checkbox" id="exportFlatten">
+              Flatten hierarchy
+            </label>
+            <label class="form-checkbox">
+              <input type="checkbox" id="exportEmbedImages" checked>
+              Embed images (HTML/PDF)
+            </label>
+            <label class="form-checkbox">
+              <input type="checkbox" id="exportZipOutput">
+              Compress output to ZIP
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Theme (for rendered formats)</label>
+          <select class="form-select" id="exportTheme">
+            <option value="default">Default</option>
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+            <option value="gdd">GDD Theme</option>
+            <option value="script">Script Theme</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Action -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Export Action</h2>
+      </div>
+      <div class="card-content">
+        <div class="btn-group">
+          <button class="btn btn-secondary" id="previewExportBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            Preview Export
+          </button>
+          <button class="btn btn-primary" id="runExportBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Run Export
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export Results -->
+    <div class="card" id="exportResults" style="display: none;">
+      <div class="card-header">
+        <h2>Export Results</h2>
+      </div>
+      <div class="card-content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="exportedCount">0</div>
+            <div class="stat-label">Exported</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="exportFailedCount">0</div>
+            <div class="stat-label">Failed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="exportWarningsCount">0</div>
+            <div class="stat-label">Warnings</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="exportTaskId">-</div>
+            <div class="stat-label">Task ID</div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-text">
+            <span id="exportProgressText">Progress: 0%</span>
+            <span id="exportProgressTotal">Total: 0/0</span>
+          </div>
+          <div class="progress-bar" id="exportProgressBar" style="width: 0%"></div>
+        </div>
+
+        <div id="exportStatusMessage" class="status-badge" style="margin-bottom: 12px;"></div>
+
+        <div class="form-group">
+          <label class="form-label">Output Files</label>
+          <div class="output-view">
+            <div class="output-tabs">
+              <div class="output-tab active" data-output="files">Files</div>
+              <div class="output-tab" data-output="errors">Errors</div>
+              <div class="output-tab" data-output="warnings">Warnings</div>
+            </div>
+            <div class="output-content">
+              <ul id="exportFilesList" style="list-style: none; padding: 0;"></ul>
+              <pre id="exportOutputErrors" style="display: none; color: var(--error)"></pre>
+              <pre id="exportOutputWarnings" style="display: none; color: var(--warning)"></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" id="downloadAllBtn" style="display: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download All
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Status -->
+  <div class="card">
+    <div class="card-header">
+      <h2>System Status</h2>
+    </div>
+    <div class="card-content">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div>
+          <span class="form-label">Pipeline Version</span>
+          <div style="font-family: monospace; color: var(--text-primary);" id="pipelineVersion">1.0.0</div>
+        </div>
+        <div>
+          <span class="form-label">Supported Imports</span>
+          <div style="font-family: monospace; color: var(--text-primary);" id="supportedImports">6</div>
+        </div>
+        <div>
+          <span class="form-label">Supported Exports</span>
+          <div style="font-family: monospace; color: var(--text-primary);" id="supportedExports">6</div>
+        </div>
+        <div>
+          <span class="form-label">Profiles Configured</span>
+          <div style="font-family: monospace; color: var(--text-primary);" id="profilesConfigured">5</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Constants
+const ENTITY_TYPES = [
+  'character', 'location', 'quest', 'assembly', 'dialogue', 'item',
+  'faction', 'brand', 'district', 'job', 'event', 'campaign', 'timeline', 'note'
+];
+
+const IMPORT_FORMATS = {
+  'markdown': ['.md', '.markdown'],
+  'json': ['.json'],
+  'csv': ['.csv'],
+  'opml': ['.opml'],
+  'verse': ['.verse', '.txt'],
+  'zip': ['.zip']
+};
+
+const EXPORT_FORMATS = {
+  'markdown': '.md',
+  'json': '.json',
+  'csv': '.csv',
+  'html': '.html',
+  'pdf': '.pdf',
+  'docx': '.docx'
+};
+
+// State
+let selectedFiles = [];
+let currentMode = 'import';
+let isProcessing = false;
+
+// DOM Elements
+const els = {
+  importContent: document.getElementById('import-content'),
+  exportContent: document.getElementById('export-content'),
+  importProfile: document.getElementById('importProfile'),
+  importEntityType: document.getElementById('importEntityType'),
+  importFormat: document.getElementById('importFormat'),
+  importMode: document.getElementById('importMode'),
+  mergeStrategy: document.getElementById('mergeStrategy'),
+  replaceFilledFields: document.getElementById('replaceFilledFields'),
+  addMissingFields: document.getElementById('addMissingFields'),
+  removeOrphanedFields: document.getElementById('removeOrphanedFields'),
+  replaceMarkdownBody: document.getElementById('replaceMarkdownBody'),
+  batchSize: document.getElementById('batchSize'),
+  parallelWorkers: document.getElementById('parallelWorkers'),
+  dropZone: document.getElementById('dropZone'),
+  fileInput: document.getElementById('fileInput'),
+  fileList: document.getElementById('fileList'),
+  browseFiles: document.getElementById('browseFiles'),
+  previewImportBtn: document.getElementById('previewImportBtn'),
+  runImportBtn: document.getElementById('runImportBtn'),
+  importResults: document.getElementById('importResults'),
+  importedCount: document.getElementById('importedCount'),
+  importFailedCount: document.getElementById('importFailedCount'),
+  importWarningsCount: document.getElementById('importWarningsCount'),
+  importTaskId: document.getElementById('importTaskId'),
+  importProgressBar: document.getElementById('importProgressBar'),
+  importProgressText: document.getElementById('importProgressText'),
+  importProgressTotal: document.getElementById('importProgressTotal'),
+  importStatusMessage: document.getElementById('importStatusMessage'),
+  importOutputErrors: document.getElementById('importOutputErrors'),
+  importOutputWarnings: document.getElementById('importOutputWarnings'),
+  importOutputSummary: document.getElementById('importOutputSummary'),
+  exportProfile: document.getElementById('exportProfile'),
+  exportEntityType: document.getElementById('exportEntityType'),
+  exportSelectionMethod: document.getElementById('exportSelectionMethod'),
+  exportEntityIds: document.getElementById('exportEntityIds'),
+  exportTag: document.getElementById('exportTag'),
+  exportFormat: document.getElementById('exportFormat'),
+  exportLayout: document.getElementById('exportLayout'),
+  exportIncludeMetadata: document.getElementById('exportIncludeMetadata'),
+  exportFlatten: document.getElementById('exportFlatten'),
+  exportEmbedImages: document.getElementById('exportEmbedImages'),
+  exportZipOutput: document.getElementById('exportZipOutput'),
+  exportTheme: document.getElementById('exportTheme'),
+  previewExportBtn: document.getElementById('previewExportBtn'),
+  runExportBtn: document.getElementById('runExportBtn'),
+  exportResults: document.getElementById('exportResults'),
+  exportedCount: document.getElementById('exportedCount'),
+  exportFailedCount: document.getElementById('exportFailedCount'),
+  exportWarningsCount: document.getElementById('exportWarningsCount'),
+  exportTaskId: document.getElementById('exportTaskId'),
+  exportProgressBar: document.getElementById('exportProgressBar'),
+  exportProgressText: document.getElementById('exportProgressText'),
+  exportProgressTotal: document.getElementById('exportProgressTotal'),
+  exportStatusMessage: document.getElementById('exportStatusMessage'),
+  exportFilesList: document.getElementById('exportFilesList'),
+  downloadAllBtn: document.getElementById('downloadAllBtn'),
+  modeTabs: document.querySelectorAll('.mode-tab'),
+  contentTabs: document.querySelectorAll('.content-tab'),
+  outputTabs: document.querySelectorAll('.output-tab'),
+};
+
+// Handlers
+function switchMode(mode) {
+  currentMode = mode;
+  els.importContent.classList.toggle('active', mode === 'import');
+  els.exportContent.classList.toggle('active', mode === 'export');
+
+  els.modeTabs.forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.mode === mode);
+  });
+}
+
+// File Upload Handlers
+function handleFileDrop(e) {
+  e.preventDefault();
+  els.dropZone.classList.remove('dragover');
+
+  const files = e.dataTransfer.files;
+  Array.from(files).forEach(addFile);
+}
+
+function handleFileSelect(e) {
+  Array.from(e.target.files).forEach(addFile);
+}
+
+function addFile(file) {
+  if (selectedFiles.length >= 100) {
+    alert('Maximum 100 files allowed');
+    return;
+  }
+
+  // Validate file type
+  const validExtensions = Object.values(IMPORT_FORMATS).flat();
+  const ext = Path.extname(file.name).toLowerCase();
+
+  if (!validExtensions.includes(ext) && !file.name.endsWith('.zip')) {
+    alert(`Unsupported file type: ${ext}`);
+    return;
+  }
+
+  selectedFiles.push({
+    name: file.name,
+    size: file.size,
+    file: file
+  });
+
+  renderFileList();
+}
+
+function removeFile(index) {
+  selectedFiles.splice(index, 1);
+  renderFileList();
+}
+
+function renderFileList() {
+  els.fileList.innerHTML = selectedFiles.map((file, index) => `
+    <li class="file-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+      <span class="file-name">${file.name}</span>
+      <span class="file-size">${formatBytes(file.size)}</span>
+      <div class="remove-file" onclick="removeFile(${index})">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </div>
+    </li>
+  `).join('');
+}
+
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Progress Bar
+function updateProgressBar(progressBar, text, total, current) {
+  const percentage = total > 0 ? (current / total) * 100 : 0;
+  progressBar.style.width = `${percentage}%`;
+  text.textContent = `Progress: ${current}/${total} (${percentage.toFixed(0)}%)`;
+}
+
+// API Functions
+async function apiRequest(endpoint, method = 'GET', body = null) {
+  const url = `/api/plugins/import-export-pipeline${endpoint}`;
+  const options = {
+    method,
+    headers: {'Content-Type': 'application/json'},
+  };
+
+  if (body) options.body = JSON.stringify(body);
+
+  try {
+    const response = await fetch(url, options);
+    return await response.json();
+  } catch (error) {
+    console.error('API error:', error);
+    throw error;
+  }
+}
+
+// Import Handlers
+async function previewImport() {
+  if (selectedFiles.length === 0) {
+    alert('Please select at least one file');
+    return;
+  }
+
+  const previewData = {
+    files: selectedFiles.map(f => ({
+      name: f.name,
+      format: els.importFormat.value,
+      entity_type: els.importEntityType.value,
+      mode: els.importMode.value,
+    })),
+  };
+
+  // For now, just show a preview of the configuration
+  const previewHtml = `
+    <h3>Import Preview</h3>
+    <p>Format: ${els.importFormat.value}</p>
+    <p>Entity Type: ${els.importEntityType.value}</p>
+    <p>Mode: ${els.importMode.value}</p>
+    <p>Files to process: ${selectedFiles.length}</p>
+    <details>
+      <summary>Options</summary>
+      <ul>
+        <li>Replace filled fields: ${els.replaceFilledFields.checked ? 'Yes' : 'No'}</li>
+        <li>Add missing fields: ${els.addMissingFields.checked ? 'Yes' : 'No'}</li>
+        <li>Remove orphaned fields: ${els.removeOrphanedFields.checked ? 'Yes' : 'No'}</li>
+        <li>Replace markdown body: ${els.replaceMarkdownBody.checked ? 'Yes' : 'No'}</li>
+        <li>Batch size: ${els.batchSize.value}</li>
+        <li>Parallel workers: ${els.parallelWorkers.value}</li>
+      </ul>
+    </details>
+  `;
+
+  alert('Preview mode - see console for configuration');
+  console.log('Preview config:', previewData);
+}
+
+async function runImport() {
+  if (selectedFiles.length === 0) {
+    alert('Please select at least one file');
+    return;
+  }
+
+  isProcessing = true;
+  showImportResults();
+
+  // Reset results
+  els.importedCount.textContent = '0';
+  els.importFailedCount.textContent = '0';
+  els.importWarningsCount.textContent = '0';
+  els.importTaskId.textContent = '...';
+  els.importProgressBar.style.width = '0%';
+  els.importOutputErrors.textContent = '';
+  els.importOutputWarnings.textContent = '';
+
+  // Simulate import with progress
+  let total = selectedFiles.length;
+  let imported = 0;
+  let failed = 0;
+  let warnings = 0;
+
+  // Use the actual API when ready
+  // const result = await apiRequest('/import/batch', 'POST', {
+  //   files: selectedFiles.map(f => f.name),
+  //   format: els.importFormat.value,
+  //   entity_type: els.importEntityType.value,
+  //   mode: els.importMode.value,
+  //   replace_filled_fields: els.replaceFilledFields.checked,
+  // });
+
+  // For demo, simulate progress
+  for (let i = 0; i < total; i++) {
+    await new Promise(r => setTimeout(r, 500)); // Simulate processing
+
+    // Randomly succeed or fail (90% success rate)
+    if (Math.random() > 0.1) {
+      imported++;
+    } else {
+      failed++;
+    }
+
+    if (Math.random() > 0.8) warnings++;
+
+    updateProgressBar(els.importProgressBar, els.importProgressText, total, i + 1);
+
+    // Update counts periodically
+    if ((i + 1) % 5 === 0 || i === total - 1) {
+      els.importedCount.textContent = imported;
+      els.importFailedCount.textContent = failed;
+      els.importWarningsCount.textContent = warnings;
+      els.importTaskId.textContent = 'SIM-' + Date.now();
+    }
+  }
+
+  if (failed === 0) {
+    els.importStatusMessage.innerHTML = '<span class="status-success">✓ Import completed</span>';
+  } else {
+    els.importStatusMessage.innerHTML = `<span class="status-warning">! Partial success (${imported}/${total})</span>`;
+  }
+
+  isProcessing = false;
+}
+
+// Export Handlers
+async function previewExport() {
+  const entityIds = els.exportEntityIds.value.split(',').map(id => id.trim()).filter(id => id);
+
+  const previewData = {
+    entity_type: els.exportEntityType.value,
+    entity_ids: entityIds,
+    format: els.exportFormat.value,
+    layout: els.exportLayout.value,
+    include_metadata: els.exportIncludeMetadata.checked,
+    flatten_hierarchy: els.exportFlatten.checked,
+    embed_images: els.exportEmbedImages.checked,
+    theme: els.exportTheme.value,
+  };
+
+  alert('Export Preview - see console for configuration');
+  console.log('Export preview:', previewData);
+}
+
+async function runExport() {
+  const entityIds = els.exportEntityIds.value.split(',').map(id => id.trim()).filter(id => id);
+
+  if (entityIds.length === 0) {
+    alert('Please select at least one entity');
+    return;
+  }
+
+  isProcessing = true;
+  showExportResults();
+
+  // Reset results
+  els.exportedCount.textContent = '0';
+  els.exportFailedCount.textContent = '0';
+  els.exportWarningsCount.textContent = '0';
+  els.exportTaskId.textContent = '...';
+  els.exportProgressBar.style.width = '0%';
+  els.exportFilesList.innerHTML = '';
+  els.downloadAllBtn.style.display = 'none';
+
+  // Simulate export with progress
+  let total = entityIds.length;
+  let exported = 0;
+  let failed = 0;
+  let warnings = 0;
+  const outputFiles = [];
+
+  for (let i = 0; i < total; i++) {
+    await new Promise(r => setTimeout(r, 800)); // Simulate processing
+
+    if (Math.random() > 0.1) {
+      exported++;
+      const ext = EXPORT_FORMATS[els.exportFormat.value];
+      outputFiles.push(`exports/${els.exportEntityType.value}/${entityIds[i]}${ext}`);
+    } else {
+      failed++;
+    }
+
+    if (Math.random() > 0.9) warnings++;
+
+    updateProgressBar(els.exportProgressBar, els.exportProgressText, total, i + 1);
+
+    // Update counts periodically
+    if ((i + 1) % 5 === 0 || i === total - 1) {
+      els.exportedCount.textContent = exported;
+      els.exportFailedCount.textContent = failed;
+      els.exportWarningsCount.textContent = warnings;
+      els.exportTaskId.textContent = 'EXPORT-' + Date.now();
+    }
+  }
+
+  // Render output files
+  els.exportFilesList.innerHTML = outputFiles.map(file => `
+    <li class="file-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+        <polyline points="13 2 13 9 20 9"/>
+      </svg>
+      <span class="file-name">${file}</span>
+    </li>
+  `).join('');
+
+  els.downloadAllBtn.style.display = 'inline-flex';
+
+  if (failed === 0) {
+    els.exportStatusMessage.innerHTML = '<span class="status-success">✓ Export completed</span>';
+  } else {
+    els.exportStatusMessage.innerHTML = `<span class="status-warning">! Partial success (${exported}/${total})</span>`;
+  }
+
+  isProcessing = false;
+}
+
+function downloadAll() {
+  alert('Downloading all exported files...');
+}
+
+function showImportResults() {
+  els.exportResults.style.display = 'none';
+  els.importResults.style.display = 'block';
+}
+
+function showExportResults() {
+  els.importResults.style.display = 'none';
+  els.exportResults.style.display = 'block';
+}
+
+function handleOutputTabClick(e) {
+  const outputTabs = e.currentTarget.parentElement.querySelectorAll('.output-tab');
+  const outputContents = e.currentTarget.parentElement.nextElementSibling.querySelectorAll('.output-content > *');
+
+  outputTabs.forEach(tab => tab.classList.remove('active'));
+  outputContents.forEach(content => content.style.display = 'none');
+
+  e.target.classList.add('active');
+  const outputName = e.target.dataset.output;
+
+  if (currentMode === 'import') {
+    document.getElementById(`importOutput${outputName.charAt(0).toUpperCase() + outputName.slice(1)}`).style.display = 'block';
+  } else {
+    document.getElementById(`exportOutput${outputName.charAt(0).toUpperCase() + outputName.slice(1)}`).style.display = 'block';
+  }
+}
+
+// System Status Check
+async function checkSystemStatus() {
+  try {
+    const status = await apiRequest('/');
+    document.getElementById('pipelineVersion').textContent = status.version || 'Unknown';
+    document.getElementById('supportedImports').textContent = (status.features?.match(/import_/g) || []).length;
+    document.getElementById('supportedExports').textContent = (status.features?.match(/export_/g) || []).length;
+  } catch (error) {
+    console.error('Failed to check system status:', error);
+  }
+}
+
+// Event Listeners
+window.addEventListener('DOMContentLoaded', () => {
+  // Mode tabs
+  els.modeTabs.forEach(tab => {
+    tab.addEventListener('click', () => switchMode(tab.dataset.mode));
+  });
+
+  // File upload
+  els.dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    els.dropZone.classList.add('dragover');
+  });
+
+  els.dropZone.addEventListener('dragleave', () => {
+    els.dropZone.classList.remove('dragover');
+  });
+
+  els.dropZone.addEventListener('drop', handleFileDrop);
+  els.fileInput.addEventListener('change', handleFileSelect);
+  els.browseFiles.addEventListener('click', () => els.fileInput.click());
+
+  // Output tabs
+  document.querySelectorAll('.output-tabs').forEach(container => {
+    container.addEventListener('click', e => {
+      if (e.target.classList.contains('output-tab')) {
+        handleOutputTabClick(e);
+      }
+    });
+  });
+
+  // Action buttons
+  els.previewImportBtn.addEventListener('click', previewImport);
+  els.runImportBtn.addEventListener('click', runImport);
+  els.previewExportBtn.addEventListener('click', previewExport);
+  els.runExportBtn.addEventListener('click', runExport);
+  els.downloadAllBtn.addEventListener('click', downloadAll);
+
+  // Conditionally show export selection methods
+  els.exportSelectionMethod.addEventListener('change', e => {
+    if (e.target.value === 'manual') {
+      document.getElementById('manualSelection').style.display = 'block';
+      document.getElementById('tagSelection').style.display = 'none';
+    } else if (e.target.value === 'tag') {
+      document.getElementById('manualSelection').style.display = 'none';
+      document.getElementById('tagSelection').style.display = 'block';
+    } else {
+      document.getElementById('manualSelection').style.display = 'none';
+      document.getElementById('tagSelection').style.display = 'none';
+    }
+  });
+
+  // Initialize
+  checkSystemStatus();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: #0f0f1e;
+    color: var(--surface-base-text);
+  }
+
+  /* ── Page Header ─────────────────────────────────── */
+  .page-header {
+    max-width: 1000px;
+    margin: 0 auto 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--plugin-accent) 0%, var(--surface-warning-border) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--surface-elevated-bg);
+    flex-shrink: 0;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-warning-border));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle {
+    color: var(--surface-base-text-secondary);
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  /* ── Stats Row ───────────────────────────────────── */
+  .stats-row {
+    max-width: 1000px;
+    margin: 0 auto 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--plugin-accent);
+  }
+  .stat-value.blue { color: var(--surface-info-text-secondary); }
+  .stat-value.green { color: var(--surface-success-border); }
+  .stat-value.purple { color: var(--surface-secondary-text-secondary); }
+
+  /* ── Section ─────────────────────────────────────── */
+  .section {
+    max-width: 1000px;
+    margin: 0 auto 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .section-badge {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    background: var(--surface-elevated-bg);
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+
+  /* ── Entity Grid ─────────────────────────────────── */
+  .entity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .entity-card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .entity-card:hover {
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.15);
+  }
+  .entity-card.selected {
+    border-color: var(--plugin-accent);
+    background: rgba(255, 215, 0, 0.05);
+  }
+  .entity-card-type {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--plugin-accent);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .entity-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-bottom: 4px;
+  }
+  .entity-card-count {
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+  }
+  .entity-card-check {
+    display: none;
+    float: right;
+    width: 18px;
+    height: 18px;
+    background: var(--plugin-accent);
+    border-radius: 50%;
+    color: var(--surface-elevated-bg);
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .entity-card.selected .entity-card-check { display: block; }
+
+  /* ── Batch Export Panel ──────────────────────────── */
+  .export-panel {
+    max-width: 1000px;
+    margin: 0 auto 24px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .export-panel-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--plugin-accent);
+  }
+  .export-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .export-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--surface-base-text-secondary);
+  }
+  .export-option input[type="checkbox"] {
+    accent-color: var(--plugin-accent);
+    width: 14px;
+    height: 14px;
+  }
+  .export-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+  }
+  .btn:hover { border-color: var(--plugin-accent); color: var(--plugin-accent); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--plugin-accent) 0%, var(--surface-warning-border) 100%);
+    color: var(--surface-elevated-bg);
+    border: none;
+    font-weight: 700;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-sm {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+
+  /* ── Code Preview ────────────────────────────────── */
+  .code-section {
+    max-width: 1000px;
+    margin: 0 auto 24px;
+  }
+  .code-block {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 20px;
+    font-family: 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--surface-base-text-secondary);
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+    white-space: pre;
+    position: relative;
+  }
+  .code-block .kw { color: var(--plugin-accent); font-weight: 600; }
+  .code-block .type { color: var(--surface-info-text-secondary); }
+  .code-block .str { color: var(--surface-success-border); }
+  .code-block .num { color: var(--surface-warning-text-secondary); }
+  .code-block .comment { color: var(--surface-elevated-border); font-style: italic; }
+  .code-block .op { color: var(--surface-secondary-text-secondary); }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .code-title { font-size: 14px; font-weight: 600; color: var(--surface-base-text); }
+  .code-actions { display: flex; gap: 8px; }
+
+  /* ── Status Toast ────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 999;
+    transition: all 0.3s;
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  .toast.visible { transform: translateY(0); opacity: 1; }
+  .toast.success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: var(--surface-success-border);
+  }
+  .toast.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: var(--surface-error-border);
+  }
+  .toast.info {
+    background: rgba(255, 215, 0, 0.15);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    color: var(--plugin-accent);
+  }
+
+  /* ── Settings Panel ──────────────────────────────── */
+  .settings-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+  }
+  .setting-item {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .setting-label {
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+  }
+  .setting-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+  }
+  .setting-value.gold { color: var(--plugin-accent); }
+
+  /* ── Loading ─────────────────────────────────────── */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--plugin-accent);
+    gap: 8px;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--surface-elevated-bg);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Entity List (expandable) ────────────────────── */
+  .entity-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s;
+  }
+  .entity-list.expanded {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  .entity-list-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 6px;
+    padding: 12px 0;
+  }
+  .entity-list-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .entity-list-item:hover {
+    border-color: var(--plugin-accent);
+    color: var(--plugin-accent);
+  }
+  .entity-list-item.checked {
+    border-color: var(--plugin-accent);
+    background: rgba(255, 215, 0, 0.05);
+    color: var(--plugin-accent);
+  }
+  .entity-list-item input[type="checkbox"] {
+    accent-color: var(--plugin-accent);
+    width: 12px;
+    height: 12px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ── Header ────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="logo">U</div>
+    <div>
+      <h1 class="page-title">UEFN Exporter</h1>
+      <p class="page-subtitle">Generate Verse data structures, device configs, and Creative island metadata</p>
+    </div>
+  </div>
+
+  <!-- ── Stats ─────────────────────────────────────── -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Entity Types</div>
+      <div class="stat-value" id="stat-types">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Entities</div>
+      <div class="stat-value blue" id="stat-total">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Verse Module</div>
+      <div class="stat-value green" id="stat-module" style="font-size: 16px;">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Creative Version</div>
+      <div class="stat-value purple" id="stat-version">--</div>
+    </div>
+  </div>
+
+  <!-- ── Current Settings ──────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Configuration</div>
+    </div>
+    <div class="settings-row" id="settings-row">
+      <div class="loading"><div class="spinner"></div> Loading settings...</div>
+    </div>
+  </div>
+
+  <!-- ── Entity Types ──────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Available Entities</div>
+      <span class="section-badge" id="entities-badge">Loading...</span>
+    </div>
+    <div class="entity-grid" id="entity-grid">
+      <div class="loading"><div class="spinner"></div> Scanning entities...</div>
+    </div>
+  </div>
+
+  <!-- ── Batch Export ──────────────────────────────── -->
+  <div class="export-panel">
+    <div class="export-panel-title">Batch Export</div>
+
+    <div style="margin-bottom: 14px;">
+      <label style="font-size: 13px; color: var(--surface-base-text-secondary); display: block; margin-bottom: 6px;">Select Entity Type</label>
+      <select id="batch-type" style="width: 100%; padding: 8px 12px; background: var(--surface-base-bg); border: 1px solid var(--surface-elevated-bg); border-radius: 6px; color: var(--surface-base-text); font-size: 13px;">
+        <option value="">-- Select type --</option>
+      </select>
+    </div>
+
+    <!-- Entity selection list -->
+    <div class="entity-list" id="entity-select-list">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <span style="font-size: 12px; color: var(--surface-base-text-secondary);" id="select-count">0 selected</span>
+        <div>
+          <button class="btn btn-sm" onclick="selectAllEntities()">Select All</button>
+          <button class="btn btn-sm" onclick="deselectAllEntities()">Deselect All</button>
+        </div>
+      </div>
+      <div class="entity-list-items" id="entity-list-items"></div>
+    </div>
+
+    <div class="export-options">
+      <label class="export-option">
+        <input type="checkbox" id="batch-class" checked>
+        Generate Verse class definitions
+      </label>
+      <label class="export-option">
+        <input type="checkbox" id="batch-instances" checked>
+        Generate data instances
+      </label>
+      <label class="export-option">
+        <input type="checkbox" id="batch-devices" checked>
+        Generate device configurations
+      </label>
+      <label class="export-option">
+        <input type="checkbox" id="batch-dialogue">
+        Include dialogue exports (characters)
+      </label>
+    </div>
+
+    <div class="export-actions">
+      <button class="btn btn-primary" id="btn-batch-export" onclick="runBatchExport()">
+        Export Selected
+      </button>
+      <button class="btn" onclick="previewBatchClass()">Preview Class</button>
+      <button class="btn" onclick="viewIslandMetadata()">View Island Metadata</button>
+      <span id="batch-status" style="font-size: 12px; color: var(--surface-base-text-secondary);"></span>
+    </div>
+  </div>
+
+  <!-- ── Code Preview ──────────────────────────────── -->
+  <div class="code-section" id="code-section" style="display: none;">
+    <div class="code-header">
+      <span class="code-title" id="code-title">Generated Code</span>
+      <div class="code-actions">
+        <button class="btn btn-sm" onclick="copyGeneratedCode()">Copy</button>
+        <button class="btn btn-sm" onclick="hideCodeSection()">Close</button>
+      </div>
+    </div>
+    <div class="code-block" id="code-block"></div>
+  </div>
+
+  <!-- ── Toast ─────────────────────────────────────── -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API_BASE = '/api/ext/uefn-exporter';
+    let entityTypes = [];
+    let selectedType = '';
+    let selectedEntityIds = new Set();
+    let generatedCode = '';
+
+    // ── Init ──────────────────────────────────────────
+    async function init() {
+      try {
+        const [statusRes, typesRes] = await Promise.all([
+          fetch(`${API_BASE}/`).then(r => r.json()),
+          fetch(`${API_BASE}/entity-types`).then(r => r.json()),
+        ]);
+
+        // Stats
+        const counts = statusRes.entity_counts || {};
+        const totalEntities = Object.values(counts).reduce((a, b) => a + b, 0);
+        document.getElementById('stat-types').textContent = Object.keys(counts).length;
+        document.getElementById('stat-total').textContent = totalEntities;
+        document.getElementById('stat-module').textContent = statusRes.verse_module || 'CityOfBrains';
+        document.getElementById('stat-version').textContent = statusRes.creative_version || '31.00';
+
+        // Settings
+        const settings = statusRes.settings || {};
+        renderSettings(settings, statusRes);
+
+        // Entity grid
+        entityTypes = typesRes.entity_types || [];
+        renderEntityGrid(entityTypes);
+        populateBatchDropdown(entityTypes);
+
+      } catch (err) {
+        showToast('Failed to load plugin data: ' + err.message, 'error');
+      }
+    }
+
+    function renderSettings(settings, status) {
+      const el = document.getElementById('settings-row');
+      el.innerHTML = `
+        <div class="setting-item">
+          <span class="setting-label">Project Path</span>
+          <span class="setting-value ${settings.uefn_project_path ? 'gold' : ''}">${settings.uefn_project_path || 'Not configured'}</span>
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">Verse Module</span>
+          <span class="setting-value gold">${status.verse_module || 'CityOfBrains'}</span>
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">Creative Version</span>
+          <span class="setting-value">${status.creative_version || '31.00'}</span>
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">NPC Behavior</span>
+          <span class="setting-value">${settings.npc_behavior_template || 'dialogue'}</span>
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">Device Configs</span>
+          <span class="setting-value">${settings.generate_device_configs !== false ? 'Enabled' : 'Disabled'}</span>
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">Quest Mapping</span>
+          <span class="setting-value">${settings.quest_to_device_mapping !== false ? 'Enabled' : 'Disabled'}</span>
+        </div>
+      `;
+    }
+
+    function renderEntityGrid(types) {
+      const grid = document.getElementById('entity-grid');
+      const badge = document.getElementById('entities-badge');
+      const total = types.reduce((sum, t) => sum + t.count, 0);
+      badge.textContent = `${total} entities across ${types.length} types`;
+
+      if (types.length === 0) {
+        grid.innerHTML = '<div style="color: var(--surface-base-text-secondary); padding: 20px;">No entities found.</div>';
+        return;
+      }
+
+      grid.innerHTML = types
+        .filter(t => t.count > 0)
+        .map(t => `
+          <div class="entity-card" onclick="selectEntityType('${t.entity_type}')" id="type-card-${t.entity_type}">
+            <div class="entity-card-check">&#10003;</div>
+            <div class="entity-card-type">${t.entity_type}</div>
+            <div class="entity-card-name">${t.directory}</div>
+            <div class="entity-card-count">${t.count} ${t.count === 1 ? 'entity' : 'entities'}</div>
+          </div>
+        `).join('');
+    }
+
+    function populateBatchDropdown(types) {
+      const select = document.getElementById('batch-type');
+      types.filter(t => t.count > 0).forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.entity_type;
+        opt.textContent = `${t.entity_type} (${t.count})`;
+        select.appendChild(opt);
+      });
+
+      select.addEventListener('change', async () => {
+        selectedType = select.value;
+        selectedEntityIds.clear();
+        if (!selectedType) {
+          document.getElementById('entity-select-list').classList.remove('expanded');
+          return;
+        }
+        await loadEntityList(selectedType);
+      });
+    }
+
+    async function loadEntityList(entityType) {
+      const listEl = document.getElementById('entity-select-list');
+      const itemsEl = document.getElementById('entity-list-items');
+      listEl.classList.add('expanded');
+      itemsEl.innerHTML = '<div class="loading"><div class="spinner"></div> Loading...</div>';
+
+      try {
+        const res = await fetch(`${API_BASE}/entities/${entityType}`);
+        const data = await res.json();
+        const ids = data.entity_ids || [];
+
+        if (ids.length === 0) {
+          itemsEl.innerHTML = '<div style="color: var(--surface-base-text-secondary); padding: 12px;">No entities found.</div>';
+          return;
+        }
+
+        itemsEl.innerHTML = ids.map(id => `
+          <label class="entity-list-item" id="eli-${id}">
+            <input type="checkbox" onchange="toggleEntity('${id}', this.checked)" checked>
+            <span>${id}</span>
+          </label>
+        `).join('');
+
+        // Auto-select all
+        ids.forEach(id => selectedEntityIds.add(id));
+        updateSelectCount();
+
+      } catch (err) {
+        itemsEl.innerHTML = `<div style="color: var(--surface-error-border); padding: 12px;">Error: ${err.message}</div>`;
+      }
+    }
+
+    function toggleEntity(id, checked) {
+      if (checked) {
+        selectedEntityIds.add(id);
+      } else {
+        selectedEntityIds.delete(id);
+      }
+      const el = document.getElementById('eli-' + id);
+      if (el) el.classList.toggle('checked', checked);
+      updateSelectCount();
+    }
+
+    function selectAllEntities() {
+      document.querySelectorAll('#entity-list-items input[type="checkbox"]').forEach(cb => {
+        cb.checked = true;
+        const id = cb.parentElement.querySelector('span').textContent;
+        selectedEntityIds.add(id);
+        cb.parentElement.classList.add('checked');
+      });
+      updateSelectCount();
+    }
+
+    function deselectAllEntities() {
+      document.querySelectorAll('#entity-list-items input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        const id = cb.parentElement.querySelector('span').textContent;
+        selectedEntityIds.delete(id);
+        cb.parentElement.classList.remove('checked');
+      });
+      updateSelectCount();
+    }
+
+    function updateSelectCount() {
+      document.getElementById('select-count').textContent = `${selectedEntityIds.size} selected`;
+    }
+
+    function selectEntityType(type) {
+      // Update card UI
+      document.querySelectorAll('.entity-card').forEach(c => c.classList.remove('selected'));
+      const card = document.getElementById('type-card-' + type);
+      if (card) card.classList.add('selected');
+
+      // Update dropdown
+      document.getElementById('batch-type').value = type;
+      selectedType = type;
+      selectedEntityIds.clear();
+      loadEntityList(type);
+    }
+
+    // ── Batch Export ──────────────────────────────────
+    async function runBatchExport() {
+      if (!selectedType) {
+        showToast('Select an entity type first.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-batch-export');
+      btn.disabled = true;
+      btn.textContent = 'Exporting...';
+      document.getElementById('batch-status').textContent = 'Processing...';
+
+      try {
+        const body = {
+          entity_type: selectedType,
+          entity_ids: Array.from(selectedEntityIds),
+          include_class: document.getElementById('batch-class').checked,
+          include_instances: document.getElementById('batch-instances').checked,
+          include_devices: document.getElementById('batch-devices').checked,
+          include_dialogue: document.getElementById('batch-dialogue').checked,
+        };
+
+        const res = await fetch(`${API_BASE}/batch-export`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.detail || 'Batch export failed');
+        }
+
+        const data = await res.json();
+        const fileCount = data.files_written ? data.files_written.length : 0;
+
+        let statusMsg = `Exported ${data.total_exported} entities`;
+        if (data.total_errors > 0) statusMsg += ` (${data.total_errors} errors)`;
+        if (fileCount > 0) statusMsg += ` — ${fileCount} files written`;
+        document.getElementById('batch-status').textContent = statusMsg;
+
+        // Show generated class code
+        if (data.class_code) {
+          showCodeSection('Verse Class Definition — ' + selectedType, data.class_code);
+        }
+
+        showToast(`Batch export complete: ${data.total_exported} entities`, 'success');
+
+      } catch (err) {
+        document.getElementById('batch-status').textContent = 'Error: ' + err.message;
+        showToast('Export error: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Export Selected';
+      }
+    }
+
+    async function previewBatchClass() {
+      if (!selectedType) {
+        showToast('Select an entity type first.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/verse/${selectedType}`);
+        if (!res.ok) throw new Error('Failed to generate class');
+        const code = await res.text();
+        showCodeSection('Verse Class — ' + selectedType, code);
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    async function viewIslandMetadata() {
+      try {
+        const res = await fetch(`${API_BASE}/island-metadata`);
+        if (!res.ok) throw new Error('Failed to load metadata');
+        const data = await res.json();
+        showCodeSection('Creative Island Metadata', JSON.stringify(data, null, 2));
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    // ── Code Section ─────────────────────────────────
+    function highlightVerse(code) {
+      // Check if it's JSON
+      if (code.trim().startsWith('{') || code.trim().startsWith('[')) {
+        return code
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"([^"]+)":/g, '"<span class="kw">$1</span>":')
+          .replace(/: "([^"]*)"/g, ': "<span class="str">$1</span>"')
+          .replace(/: (\d+)/g, ': <span class="num">$1</span>');
+      }
+
+      return code
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/(#.*)/gm, '<span class="comment">$1</span>')
+        .replace(/\b(using|class|struct|module|var|if|else|for|return|set|block|spawn|defer|loop|break|not|and|or|true|false)\b/g, '<span class="kw">$1</span>')
+        .replace(/\b(string|int|float|logic|void|vector3|vector2|rotation|color|player|agent|creative_device|tracker_device|item_granter_device)\b/g, '<span class="type">$1</span>')
+        .replace(/"([^"]*)"/g, '"<span class="str">$1</span>"')
+        .replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>')
+        .replace(/(:=|=|:)/g, '<span class="op">$1</span>');
+    }
+
+    function showCodeSection(title, code) {
+      generatedCode = code;
+      document.getElementById('code-title').textContent = title;
+      document.getElementById('code-block').innerHTML = highlightVerse(code);
+      document.getElementById('code-section').style.display = '';
+      document.getElementById('code-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function hideCodeSection() {
+      document.getElementById('code-section').style.display = 'none';
+    }
+
+    function copyGeneratedCode() {
+      if (!generatedCode) return;
+      try {
+        navigator.clipboard.writeText(generatedCode);
+        showToast('Code copied to clipboard', 'success');
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = generatedCode;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Code copied to clipboard', 'success');
+      }
+    }
+
+    // ── Toast ─────────────────────────────────────────
+    function showToast(msg, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'toast ' + type + ' visible';
+      setTimeout(() => {
+        toast.classList.remove('visible');
+      }, 3500);
+    }
+
+    // ── Start ─────────────────────────────────────────
+    init();
+  </script>
+</body>
+</html>

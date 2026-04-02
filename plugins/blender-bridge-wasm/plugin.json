@@ -1,0 +1,83 @@
+{
+  "id": "blender-bridge-wasm",
+  "name": "Blender Bridge (WASM)",
+  "version": "0.2.0",
+  "description": "Export entities to Blender scenes, sync character/location data as Blender properties, and trigger renders from Studio.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "3d-creative-tools",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "blender-dashboard",
+          "route": "/plugins/blender-bridge-wasm",
+          "label": "Blender Bridge",
+          "icon": "box",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "blender-export",
+          "label": "Export to Blender",
+          "location": "entity-sidebar",
+          "icon": "upload"
+        },
+        {
+          "id": "blender-scene",
+          "label": "Blender Scene",
+          "location": "entity-tab",
+          "icon": "clapperboard"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "network:local",
+    "filesystem:read",
+    "filesystem:write"
+  ],
+  "settings_schema": {
+    "blender_path": {
+      "type": "string",
+      "label": "Blender Executable Path",
+      "description": "Full path to the Blender executable (e.g. C:/Program Files/Blender Foundation/Blender 4.0/blender.exe)",
+      "required": false,
+      "default": "",
+      "scope": "instance"
+    },
+    "blender_port": {
+      "type": "number",
+      "label": "Blender RPC Port",
+      "description": "Port for the Blender command server addon",
+      "required": true,
+      "default": 8400,
+      "scope": "instance"
+    },
+    "output_dir": {
+      "type": "string",
+      "label": "Render Output Directory",
+      "description": "Directory where Blender renders are saved",
+      "required": false,
+      "default": "",
+      "scope": "instance"
+    },
+    "auto_export": {
+      "type": "boolean",
+      "label": "Auto-export on Entity Update",
+      "description": "Automatically re-export entity data to Blender when saved",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#E87D0D",
+  "runtime": "wasm"
+}

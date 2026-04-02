@@ -1,0 +1,81 @@
+{
+  "id": "version-history-wasm",
+  "name": "Version History (WASM)",
+  "version": "1.0.0",
+  "description": "Git-backed version history for entity markdown files. Diff viewer, rollback support, and timeline view showing the full evolution of every entity.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "project-management",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "version-dashboard",
+          "route": "/plugins/version-history-wasm",
+          "label": "Version History",
+          "icon": "git-branch",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "entity-history",
+          "label": "Version History",
+          "location": "entity-tab",
+          "icon": "history"
+        },
+        {
+          "id": "version-sidebar",
+          "label": "Recent Versions",
+          "location": "entity-sidebar",
+          "icon": "git-commit"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read",
+    "filesystem:read",
+    "filesystem:write"
+  ],
+  "settings_schema": {
+    "auto_commit": {
+      "type": "boolean",
+      "label": "Auto-commit on Save",
+      "description": "Automatically create a git commit when entities are saved",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    },
+    "commit_message_template": {
+      "type": "string",
+      "label": "Commit Message Template",
+      "description": "Template for auto-commit messages. Use {entity_type}, {entity_id}, {action}",
+      "required": false,
+      "default": "Update {entity_type}: {entity_id}",
+      "scope": "instance"
+    },
+    "max_history": {
+      "type": "number",
+      "label": "Max History Entries",
+      "description": "Maximum number of history entries to show per entity",
+      "required": false,
+      "default": 50,
+      "scope": "user"
+    },
+    "diff_context_lines": {
+      "type": "number",
+      "label": "Diff Context Lines",
+      "description": "Number of context lines to show around each change in diffs",
+      "required": false,
+      "default": 3,
+      "scope": "user"
+    }
+  },
+  "accent_color": "var(--surface-primary-bg)",
+  "runtime": "wasm"
+}

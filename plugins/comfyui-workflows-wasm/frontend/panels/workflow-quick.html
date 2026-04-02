@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header svg {
+    width: 16px;
+    height: 16px;
+    color: var(--plugin-accent);
+  }
+
+  .entity-info {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--surface-elevated-bg);
+    border-radius: 99px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .badge.comfy { background: rgba(0, 212, 170, 0.12); color: var(--plugin-accent); }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--surface-elevated-bg);
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 11px;
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.connected { background: var(--plugin-accent); box-shadow: 0 0 6px rgba(0, 212, 170, 0.5); }
+  .status-dot.disconnected { background: var(--surface-error-border); box-shadow: 0 0 6px rgba(239, 68, 68, 0.5); }
+  .status-dot.checking { background: var(--surface-warning-border); animation: pulse 1s ease-in-out infinite; }
+  .status-text { color: var(--surface-base-text-secondary); flex: 1; }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .form-group {
+    margin-bottom: 10px;
+  }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .select-input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+  .select-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
+  }
+
+  .workflow-card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .workflow-card:hover { border-color: var(--plugin-accent); }
+  .workflow-card.selected { border-color: var(--plugin-accent); background: rgba(0, 212, 170, 0.06); }
+  .workflow-card-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .workflow-card-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+  }
+  .workflow-card-meta .tag {
+    padding: 1px 5px;
+    background: rgba(0, 212, 170, 0.1);
+    color: var(--plugin-accent);
+    border-radius: 3px;
+    font-size: 9px;
+  }
+
+  .input-overrides {
+    margin-bottom: 10px;
+  }
+  .override-item {
+    margin-bottom: 6px;
+  }
+  .override-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 5px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .override-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
+  }
+  textarea.override-input {
+    resize: vertical;
+    min-height: 50px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-execute {
+    background: var(--plugin-accent);
+    color: var(--surface-base-bg);
+  }
+  .btn-execute:hover { background: var(--plugin-accent); }
+  .btn-execute:disabled {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    cursor: not-allowed;
+  }
+
+  .feedback {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: none;
+  }
+  .feedback.success {
+    display: block;
+    background: rgba(0, 212, 170, 0.1);
+    border: 1px solid rgba(0, 212, 170, 0.3);
+    color: var(--plugin-accent);
+  }
+  .feedback.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--surface-error-border);
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(15, 23, 42, 0.3);
+    border-top-color: var(--surface-base-bg);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state {
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    padding: 20px 8px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .workflow-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+  }
+  .workflow-list::-webkit-scrollbar { width: 4px; }
+  .workflow-list::-webkit-scrollbar-track { background: transparent; }
+  .workflow-list::-webkit-scrollbar-thumb { background: var(--surface-elevated-border); border-radius: 2px; }
+
+  .queue-info {
+    display: flex;
+    gap: 12px;
+    padding: 6px 10px;
+    background: var(--surface-elevated-bg);
+    border-radius: 6px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .queue-info span { color: var(--plugin-accent); font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
+    </svg>
+    Quick Workflow
+  </div>
+
+  <div class="entity-info">
+    <span class="badge" id="entity-type-badge">Loading...</span>
+    <span class="badge" id="entity-name-badge">...</span>
+  </div>
+
+  <div class="status-bar" id="status-bar">
+    <div class="status-dot checking" id="status-dot"></div>
+    <span class="status-text" id="status-text">Checking ComfyUI...</span>
+  </div>
+
+  <div id="main-content">
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <select class="select-input" id="category-select" onchange="filterWorkflows()">
+        <option value="">All Categories</option>
+      </select>
+    </div>
+
+    <div class="workflow-list" id="workflow-list">
+      <div class="empty-state">Loading workflows...</div>
+    </div>
+
+    <div class="input-overrides" id="input-overrides" style="display:none;">
+      <label class="form-label">Input Overrides</label>
+      <div id="overrides-container"></div>
+    </div>
+
+    <button class="btn btn-execute" id="execute-btn" onclick="executeWorkflow()" disabled>
+      Select a Workflow
+    </button>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="queue-info" id="queue-info" style="display:none;">
+      Running: <span id="queue-running">0</span> &bull;
+      Pending: <span id="queue-pending">0</span>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api/ext/comfyui-workflows';
+    const ctx = window.PLUGIN_CONTEXT || {};
+
+    const entityType = ctx.entityType || '';
+    const entityId = ctx.entityId || '';
+
+    document.getElementById('entity-type-badge').textContent = entityType ? entityType.replace(/_/g, ' ') : 'no entity';
+    document.getElementById('entity-name-badge').textContent = entityId ? entityId.substring(0, 14) + '...' : '--';
+
+    let workflows = [];
+    let selectedWorkflow = null;
+    let comfyConnected = false;
+
+    // Check ComfyUI connection
+    async function checkStatus() {
+      try {
+        const resp = await fetch(`${API}/`);
+        const data = await resp.json();
+        const dot = document.getElementById('status-dot');
+        const text = document.getElementById('status-text');
+
+        if (data.comfyui && data.comfyui.connected) {
+          dot.className = 'status-dot connected';
+          text.textContent = 'ComfyUI Connected';
+          comfyConnected = true;
+        } else {
+          dot.className = 'status-dot disconnected';
+          text.textContent = data.comfyui?.error || 'ComfyUI Offline';
+          comfyConnected = false;
+        }
+      } catch (err) {
+        const dot = document.getElementById('status-dot');
+        const text = document.getElementById('status-text');
+        dot.className = 'status-dot disconnected';
+        text.textContent = 'Plugin API Unreachable';
+      }
+    }
+
+    // Load workflows
+    async function loadWorkflows() {
+      try {
+        const resp = await fetch(`${API}/workflows`);
+        const data = await resp.json();
+        workflows = data.workflows || [];
+
+        // Populate categories
+        const catSelect = document.getElementById('category-select');
+        const categories = data.categories || [];
+        catSelect.innerHTML = '<option value="">All (' + workflows.length + ')</option>' +
+          categories.map(c => `<option value="${c}">${c.charAt(0).toUpperCase() + c.slice(1)}</option>`).join('');
+
+        renderWorkflows(workflows);
+      } catch (err) {
+        document.getElementById('workflow-list').innerHTML =
+          '<div class="empty-state">Failed to load workflows</div>';
+      }
+    }
+
+    function filterWorkflows() {
+      const cat = document.getElementById('category-select').value;
+      const filtered = cat ? workflows.filter(w => w.category === cat) : workflows;
+      renderWorkflows(filtered);
+    }
+
+    function renderWorkflows(list) {
+      const container = document.getElementById('workflow-list');
+      if (list.length === 0) {
+        container.innerHTML = '<div class="empty-state">No workflows found</div>';
+        return;
+      }
+
+      container.innerHTML = list.map(w => {
+        const features = (w.features || []).slice(0, 3).map(f =>
+          `<span class="tag">${f}</span>`
+        ).join('');
+        const selected = selectedWorkflow && selectedWorkflow.id === w.id ? ' selected' : '';
+        return `
+          <div class="workflow-card${selected}" onclick="selectWorkflow('${w.id}')" data-id="${w.id}">
+            <div class="workflow-card-name">${w.id.replace(/_/g, ' ')}</div>
+            <div class="workflow-card-meta">
+              <span>${w.node_count} nodes</span>
+              <span>${w.inputs.length} inputs</span>
+              ${features}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectWorkflow(workflowId) {
+      selectedWorkflow = workflows.find(w => w.id === workflowId);
+      if (!selectedWorkflow) return;
+
+      // Highlight selected card
+      document.querySelectorAll('.workflow-card').forEach(card => {
+        card.classList.toggle('selected', card.dataset.id === workflowId);
+      });
+
+      // Show input overrides
+      const overridesDiv = document.getElementById('input-overrides');
+      const container = document.getElementById('overrides-container');
+
+      if (selectedWorkflow.inputs && selectedWorkflow.inputs.length > 0) {
+        // Filter to show only text/string/integer inputs
+        const editableInputs = selectedWorkflow.inputs.filter(inp =>
+          ['string', 'text', 'integer', 'float'].includes(inp.type)
+        );
+
+        if (editableInputs.length > 0) {
+          overridesDiv.style.display = 'block';
+          container.innerHTML = editableInputs.map(inp => {
+            const inputTag = inp.type === 'text'
+              ? `<textarea class="override-input" data-input="${inp.name}" placeholder="${inp.default_value || ''}">${inp.default_value || ''}</textarea>`
+              : `<input class="override-input" data-input="${inp.name}" type="${inp.type === 'integer' || inp.type === 'float' ? 'number' : 'text'}" value="${inp.default_value || ''}" placeholder="${inp.name}">`;
+            return `
+              <div class="override-item">
+                <label class="form-label">${inp.name.replace(/_/g, ' ')}</label>
+                ${inputTag}
+              </div>
+            `;
+          }).join('');
+        } else {
+          overridesDiv.style.display = 'none';
+        }
+      } else {
+        overridesDiv.style.display = 'none';
+      }
+
+      // Enable execute button
+      const btn = document.getElementById('execute-btn');
+      btn.disabled = !comfyConnected;
+      btn.textContent = comfyConnected ? 'Execute Workflow' : 'ComfyUI Offline';
+    }
+
+    async function executeWorkflow() {
+      if (!selectedWorkflow) return;
+
+      const btn = document.getElementById('execute-btn');
+      const feedback = document.getElementById('feedback');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Queueing...';
+      feedback.className = 'feedback';
+      feedback.style.display = 'none';
+
+      // Gather input overrides
+      const overrides = {};
+      document.querySelectorAll('.override-input').forEach(inp => {
+        const name = inp.dataset.input;
+        const val = inp.value.trim();
+        if (val) overrides[name] = val;
+      });
+
+      try {
+        const resp = await fetch(`${API}/execute`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            workflow_id: selectedWorkflow.id,
+            entity_type: entityType || undefined,
+            entity_id: entityId || undefined,
+            input_overrides: Object.keys(overrides).length > 0 ? overrides : undefined,
+          }),
+        });
+
+        const data = await resp.json();
+
+        if (resp.ok) {
+          feedback.className = 'feedback success';
+          feedback.textContent = data.message || 'Workflow queued!';
+          feedback.style.display = 'block';
+          loadQueue();
+        } else {
+          feedback.className = 'feedback error';
+          feedback.textContent = data.detail || 'Failed to queue workflow';
+          feedback.style.display = 'block';
+        }
+      } catch (err) {
+        feedback.className = 'feedback error';
+        feedback.textContent = 'Network error: ' + err.message;
+        feedback.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Execute Workflow';
+      }
+
+      if (feedback.classList.contains('success')) {
+        setTimeout(() => { feedback.style.display = 'none'; }, 5000);
+      }
+    }
+
+    async function loadQueue() {
+      try {
+        const resp = await fetch(`${API}/queue`);
+        const data = await resp.json();
+        const info = document.getElementById('queue-info');
+        if (data.running > 0 || data.pending > 0) {
+          info.style.display = 'flex';
+          document.getElementById('queue-running').textContent = data.running;
+          document.getElementById('queue-pending').textContent = data.pending;
+        } else {
+          info.style.display = 'none';
+        }
+      } catch (err) {}
+    }
+
+    // Initialize
+    checkStatus();
+    loadWorkflows();
+    loadQueue();
+
+    // Refresh queue status periodically
+    setInterval(loadQueue, 10000);
+  </script>
+</body>
+</html>

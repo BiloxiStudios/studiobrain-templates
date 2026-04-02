@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: transparent;
+        color: var(--surface-base-text);
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .panel-container {
+        background: var(--surface-elevated-bg);
+        border: 1px solid var(--surface-elevated-border);
+        border-radius: 8px;
+        padding: 14px;
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .panel-header .icon {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .panel-header .icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: var(--plugin-accent);
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .panel-header .title {
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--surface-base-text);
+    }
+
+    .entity-context {
+        font-size: 11px;
+        color: var(--surface-base-text-secondary);
+        margin-bottom: 12px;
+        padding: 6px 8px;
+        background: var(--surface-base-bg);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .entity-context .entity-type {
+        background: var(--plugin-accent);
+        color: white;
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .entity-context .entity-name {
+        color: var(--surface-base-text-secondary);
+        font-weight: 500;
+    }
+
+    .template-select-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .template-select-row select {
+        flex: 1;
+        background: var(--surface-base-bg);
+        border: 1px solid var(--surface-elevated-border);
+        color: var(--surface-base-text);
+        padding: 7px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        padding-right: 28px;
+    }
+
+    .template-select-row select:focus {
+        outline: none;
+        border-color: var(--plugin-accent);
+    }
+
+    .export-btn {
+        width: 100%;
+        padding: 9px 16px;
+        background: var(--plugin-accent);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .export-btn:hover {
+        background: var(--surface-primary-hover);
+    }
+
+    .export-btn:disabled {
+        background: var(--surface-elevated-border);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .export-btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .preview-btn {
+        flex: 1;
+        padding: 7px 12px;
+        background: transparent;
+        color: var(--surface-base-text-secondary);
+        border: 1px solid var(--surface-elevated-border);
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .preview-btn:hover {
+        border-color: var(--plugin-accent);
+        color: var(--plugin-accent);
+    }
+
+    /* Loading spinner */
+    .spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .loading .spinner {
+        display: block;
+    }
+
+    .loading .btn-text {
+        display: none;
+    }
+
+    /* Status message */
+    .status-msg {
+        display: none;
+        margin-top: 8px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+    }
+
+    .status-msg.success {
+        display: block;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: var(--surface-success-border);
+    }
+
+    .status-msg.error {
+        display: block;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--surface-error-border);
+    }
+
+    .no-entity {
+        text-align: center;
+        color: var(--surface-base-text-secondary);
+        padding: 20px 0;
+        font-size: 12px;
+    }
+</style>
+</head>
+<body>
+    <div class="panel-container">
+        <div class="panel-header">
+            <div class="icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+            </div>
+            <span class="title">PDF Export</span>
+        </div>
+
+        <div id="entityContext" class="entity-context" style="display:none;">
+            <span id="entityTypeBadge" class="entity-type"></span>
+            <span id="entityNameLabel" class="entity-name"></span>
+        </div>
+
+        <div id="noEntity" class="no-entity" style="display:none;">
+            No entity selected
+        </div>
+
+        <div id="exportControls" style="display:none;">
+            <div class="template-select-row">
+                <select id="templateSelect">
+                    <option value="">Auto-detect template</option>
+                </select>
+            </div>
+
+            <button class="export-btn" id="exportBtn" onclick="doExport()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span class="btn-text">Export PDF</span>
+                <div class="spinner"></div>
+            </button>
+
+            <div class="btn-row">
+                <button class="preview-btn" onclick="doPreview()">Preview</button>
+                <button class="preview-btn" onclick="openBatchPage()">Batch Export</button>
+            </div>
+        </div>
+
+        <div id="statusMsg" class="status-msg"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/ext/pdf-exporter';
+        const ctx = window.PLUGIN_CONTEXT || {};
+        const entityType = ctx.entityType || '';
+        const entityId = ctx.entityId || '';
+
+        async function init() {
+            if (!entityType || !entityId) {
+                document.getElementById('noEntity').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('exportControls').style.display = 'block';
+            document.getElementById('entityTypeBadge').textContent = entityType;
+
+            // Fetch entity name
+            try {
+                const resp = await fetch(`/api/entity/${entityType}/${entityId}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const nameField = {
+                        character: 'character_name',
+                        location: 'name',
+                        faction: 'name',
+                        item: 'item_name',
+                        brand: 'brand_name',
+                        district: 'district_name',
+                    }[entityType] || 'name';
+                    const name = data[nameField] || data.name ||
+                                 entityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                    document.getElementById('entityNameLabel').textContent = name;
+                } else {
+                    document.getElementById('entityNameLabel').textContent =
+                        entityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                }
+            } catch (e) {
+                document.getElementById('entityNameLabel').textContent =
+                    entityId.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            }
+            document.getElementById('entityContext').style.display = 'flex';
+
+            // Load templates
+            try {
+                const resp = await fetch(`${API_BASE}/templates`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const select = document.getElementById('templateSelect');
+                    data.templates.forEach(t => {
+                        if (t.entity_types.includes(entityType) || t.id === 'entity-summary') {
+                            const opt = document.createElement('option');
+                            opt.value = t.id;
+                            opt.textContent = t.name;
+                            select.appendChild(opt);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load templates:', e);
+            }
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('statusMsg');
+            el.className = `status-msg ${type}`;
+            el.textContent = msg;
+            if (type === 'success') {
+                setTimeout(() => { el.style.display = 'none'; }, 5000);
+            }
+        }
+
+        function doExport() {
+            const btn = document.getElementById('exportBtn');
+            const template = document.getElementById('templateSelect').value;
+            const params = template ? `?template=${template}` : '';
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            const url = `${API_BASE}/export/${entityType}/${entityId}${params}`;
+            window.open(url, '_blank');
+
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                showStatus('Export opened in new tab. Use Ctrl+P / Cmd+P to save as PDF.', 'success');
+            }, 1000);
+        }
+
+        function doPreview() {
+            const template = document.getElementById('templateSelect').value;
+            const params = template ? `?template=${template}` : '';
+            const url = `${API_BASE}/export/${entityType}/${entityId}${params}`;
+            window.open(url, '_blank');
+        }
+
+        function openBatchPage() {
+            window.open(`/api/plugins/page/pdf-exporter`, '_blank');
+        }
+
+        init();
+    </script>
+</body>
+</html>

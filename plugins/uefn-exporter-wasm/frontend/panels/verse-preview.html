@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  /* ── Header ──────────────────────────────────────── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--plugin-accent);
+  }
+  .header-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-warning-border));
+    color: var(--surface-elevated-bg);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  /* ── Context Info ────────────────────────────────── */
+  .context-info {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .context-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .context-label { font-size: 11px; color: var(--surface-base-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+  .context-value { font-size: 14px; color: var(--surface-base-text); font-weight: 500; }
+  .context-value.gold { color: var(--plugin-accent); }
+
+  /* ── Tab Bar ─────────────────────────────────────── */
+  .tab-bar {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 16px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .tab-btn:hover { color: var(--plugin-accent); background: rgba(255, 215, 0, 0.05); }
+  .tab-btn.active {
+    background: var(--surface-elevated-bg);
+    color: var(--plugin-accent);
+    font-weight: 600;
+  }
+
+  /* ── Code Display ────────────────────────────────── */
+  .code-container {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .code-block {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--surface-base-text-secondary);
+    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
+    white-space: pre;
+    tab-size: 4;
+  }
+  .code-block .kw { color: var(--plugin-accent); font-weight: 600; }
+  .code-block .type { color: var(--surface-info-text-secondary); }
+  .code-block .str { color: var(--surface-success-border); }
+  .code-block .num { color: var(--surface-warning-text-secondary); }
+  .code-block .comment { color: var(--surface-elevated-border); font-style: italic; }
+  .code-block .op { color: var(--surface-secondary-text-secondary); }
+  .code-block .decl { color: var(--surface-secondary-text-secondary); }
+
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 10px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 4px;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    z-index: 10;
+  }
+  .copy-btn:hover { background: var(--surface-elevated-bg); color: var(--plugin-accent); border-color: var(--plugin-accent); }
+  .copy-btn.copied { background: var(--surface-success-border); color: white; border-color: var(--surface-success-border); }
+
+  /* ── Loading/Error ───────────────────────────────── */
+  .loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--plugin-accent);
+    font-size: 14px;
+    gap: 8px;
+  }
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--surface-elevated-bg);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-state {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    padding: 16px;
+    color: var(--surface-error-border);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    padding: 40px 20px;
+    font-size: 13px;
+  }
+  .empty-state strong { color: var(--surface-base-text-secondary); }
+
+  /* ── Action Bar ──────────────────────────────────── */
+  .action-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .action-btn:hover { border-color: var(--plugin-accent); color: var(--plugin-accent); }
+  .action-btn.primary {
+    background: linear-gradient(135deg, var(--plugin-accent) 0%, var(--surface-warning-border) 100%);
+    color: var(--surface-elevated-bg);
+    border: none;
+    font-weight: 600;
+  }
+  .action-btn.primary:hover { opacity: 0.9; }
+
+  /* ── Stats Bar ───────────────────────────────────── */
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .stat-chip .val { color: var(--plugin-accent); font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <span class="header-icon">V</span>
+      <span class="header-title">Verse Code Preview</span>
+    </div>
+  </div>
+
+  <div class="context-info">
+    <div class="context-item">
+      <span class="context-label">Entity Type</span>
+      <span class="context-value gold" id="ctx-type">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Entity ID</span>
+      <span class="context-value" id="ctx-id">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Module</span>
+      <span class="context-value" id="ctx-module">CityOfBrains</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Creative Version</span>
+      <span class="context-value" id="ctx-version">31.00</span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="instance" onclick="switchTab('instance')">Data Instance</button>
+    <button class="tab-btn" data-tab="class" onclick="switchTab('class')">Class Definition</button>
+    <button class="tab-btn" data-tab="device" onclick="switchTab('device')">Device Config</button>
+    <button class="tab-btn" data-tab="dialogue" onclick="switchTab('dialogue')">Dialogue</button>
+  </div>
+
+  <div class="stats-bar" id="stats-bar"></div>
+
+  <div class="code-container">
+    <button class="copy-btn" id="copy-btn" onclick="copyCode()">Copy</button>
+    <div class="code-block" id="code-block">
+      <div class="loading-state" id="loading-state">
+        <div class="spinner"></div>
+        Loading Verse preview...
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="action-btn primary" onclick="exportToProject()">Export to UEFN Project</button>
+    <button class="action-btn" onclick="refreshPreview()">Refresh</button>
+  </div>
+
+  <script>
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const API_BASE = '/api/ext/uefn-exporter';
+
+    let currentTab = 'instance';
+    let codeCache = {};
+    let rawCode = '';
+
+    // Set context
+    document.getElementById('ctx-type').textContent = ctx.entityType || 'unknown';
+    document.getElementById('ctx-id').textContent = ctx.entityId || 'new';
+
+    // Fetch plugin status for module/version
+    fetch(`${API_BASE}/`)
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('ctx-module').textContent = data.verse_module || 'CityOfBrains';
+        document.getElementById('ctx-version').textContent = data.creative_version || '31.00';
+      })
+      .catch(() => {});
+
+    function highlightVerse(code) {
+      return code
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/(#.*)/gm, '<span class="comment">$1</span>')
+        .replace(/\b(using|class|struct|module|var|if|else|for|return|set|block|spawn|defer|loop|break|not|and|or)\b/g, '<span class="kw">$1</span>')
+        .replace(/\b(true|false)\b/g, '<span class="kw">$1</span>')
+        .replace(/\b(string|int|float|logic|void|vector3|vector2|rotation|color|player|agent|creative_device|tracker_device|item_granter_device)\b/g, '<span class="type">$1</span>')
+        .replace(/"([^"]*)"/g, '"<span class="str">$1</span>"')
+        .replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>')
+        .replace(/(:=|=|:)/g, '<span class="op">$1</span>');
+    }
+
+    function showCode(code) {
+      rawCode = code;
+      const block = document.getElementById('code-block');
+      block.innerHTML = highlightVerse(code);
+      updateStats(code);
+    }
+
+    function showLoading() {
+      document.getElementById('code-block').innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          Loading...
+        </div>`;
+    }
+
+    function showError(msg) {
+      document.getElementById('code-block').innerHTML = `
+        <div class="error-state">${msg}</div>`;
+    }
+
+    function showEmpty(msg) {
+      document.getElementById('code-block').innerHTML = `
+        <div class="empty-state">${msg}</div>`;
+    }
+
+    function updateStats(code) {
+      const lines = code.split('\n').length;
+      const fields = (code.match(/:=/g) || []).length;
+      const bytes = new Blob([code]).size;
+      document.getElementById('stats-bar').innerHTML = `
+        <div class="stat-chip">Lines: <span class="val">${lines}</span></div>
+        <div class="stat-chip">Declarations: <span class="val">${fields}</span></div>
+        <div class="stat-chip">Size: <span class="val">${bytes > 1024 ? (bytes / 1024).toFixed(1) + ' KB' : bytes + ' B'}</span></div>
+      `;
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+      loadTabContent(tab);
+    }
+
+    async function loadTabContent(tab) {
+      if (!ctx.entityType || !ctx.entityId) {
+        showEmpty('No entity context available.<br>Open an entity to see its Verse preview.');
+        return;
+      }
+
+      // Use cache if available
+      if (codeCache[tab]) {
+        showCode(codeCache[tab]);
+        return;
+      }
+
+      showLoading();
+
+      try {
+        let url = '';
+        switch (tab) {
+          case 'instance':
+            url = `${API_BASE}/preview/${ctx.entityType}/${ctx.entityId}`;
+            break;
+          case 'class':
+            url = `${API_BASE}/verse/${ctx.entityType}`;
+            break;
+          case 'device':
+            url = `${API_BASE}/preview-device/${ctx.entityType}/${ctx.entityId}`;
+            break;
+          case 'dialogue':
+            url = `${API_BASE}/dialogue/${ctx.entityId}`;
+            break;
+        }
+
+        const res = await fetch(url);
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: 'Request failed' }));
+          throw new Error(err.detail || `HTTP ${res.status}`);
+        }
+
+        const code = await res.text();
+        codeCache[tab] = code;
+        showCode(code);
+      } catch (err) {
+        showError('Failed to load: ' + err.message);
+      }
+    }
+
+    async function copyCode() {
+      if (!rawCode) return;
+      try {
+        await navigator.clipboard.writeText(rawCode);
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      } catch {
+        // Fallback for sandboxed iframes
+        const ta = document.createElement('textarea');
+        ta.value = rawCode;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      }
+    }
+
+    function refreshPreview() {
+      codeCache = {};
+      loadTabContent(currentTab);
+    }
+
+    async function exportToProject() {
+      if (!ctx.entityType || !ctx.entityId) return;
+
+      showLoading();
+      try {
+        const res = await fetch(`${API_BASE}/export/${ctx.entityType}/${ctx.entityId}?include_device=true&include_dialogue=${ctx.entityType === 'character'}`, {
+          method: 'POST'
+        });
+        if (!res.ok) throw new Error('Export failed');
+        const data = await res.json();
+
+        const fileCount = data.files_written ? data.files_written.length : 0;
+        if (fileCount > 0) {
+          showCode(`# Export successful!\n# ${fileCount} file(s) written:\n` +
+            data.files_written.map(f => `#   ${f}`).join('\n') +
+            '\n\n' + (data.verse_code || ''));
+        } else {
+          showCode(`# Export complete (no project path configured)\n# Configure uefn_project_path in plugin settings to write files.\n\n` +
+            (data.verse_code || ''));
+        }
+      } catch (err) {
+        showError('Export error: ' + err.message);
+      }
+    }
+
+    // Load initial content
+    loadTabContent('instance');
+  </script>
+</body>
+</html>

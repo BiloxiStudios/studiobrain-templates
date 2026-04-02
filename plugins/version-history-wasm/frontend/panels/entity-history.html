@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-bg));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: white; flex-shrink: 0;
+  }
+  .header-title { font-size: 18px; font-weight: 700; color: var(--surface-base-text); }
+  .header-sub { font-size: 12px; color: var(--surface-base-text-secondary); margin-top: 2px; }
+  .refresh-btn {
+    padding: 6px 14px;
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .refresh-btn:hover { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+
+  /* ---- Stats bar ---- */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-border);
+    font-size: 12px;
+  }
+  .stat-chip .num { font-weight: 700; color: var(--plugin-accent); }
+  .stat-chip .lbl { color: var(--surface-base-text-secondary); }
+
+  /* ---- Loading / Error / Empty ---- */
+  .state-box {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+  }
+  .state-box.error { color: var(--surface-error-border); }
+  .spinner {
+    width: 24px; height: 24px;
+    border: 3px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---- Timeline ---- */
+  .timeline { position: relative; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--surface-elevated-border);
+  }
+
+  .commit-item {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 4px;
+  }
+  .commit-dot {
+    position: absolute;
+    left: 10px;
+    top: 14px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--surface-elevated-border);
+    border: 2px solid var(--surface-elevated-border);
+    z-index: 1;
+    transition: all 0.2s;
+  }
+  .commit-item.active .commit-dot,
+  .commit-item:hover .commit-dot {
+    background: var(--plugin-accent);
+    border-color: var(--surface-info-text-secondary);
+  }
+
+  .commit-card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .commit-card:hover {
+    border-color: var(--plugin-accent);
+    background: var(--surface-elevated-bg);
+  }
+  .commit-item.active .commit-card {
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+  }
+
+  .commit-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .commit-msg {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 70%;
+  }
+  .commit-sha {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--plugin-accent);
+    background: rgba(59, 130, 246, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .commit-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .commit-author { color: var(--surface-base-text-secondary); }
+  .commit-date { color: var(--surface-base-text-secondary); }
+
+  /* ---- Diff viewer ---- */
+  .diff-container {
+    margin-top: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-out;
+  }
+  .commit-item.active .diff-container {
+    max-height: 2000px;
+    transition: max-height 0.5s ease-in;
+  }
+  .diff-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+  }
+  .diff-stat {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .diff-stat .add { color: var(--surface-success-border); }
+  .diff-stat .del { color: var(--surface-error-border); }
+  .rollback-btn {
+    padding: 5px 12px;
+    background: var(--surface-secondary-hover);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .rollback-btn:hover { background: var(--surface-secondary-active); }
+  .rollback-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .diff-content {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-top: none;
+    padding: 0;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .diff-line {
+    padding: 1px 12px 1px 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border-left: 3px solid transparent;
+  }
+  .diff-line.add {
+    background: rgba(74, 222, 128, 0.08);
+    color: var(--surface-success-border);
+    border-left-color: var(--surface-success-border);
+  }
+  .diff-line.del {
+    background: rgba(248, 113, 113, 0.08);
+    color: var(--surface-error-border);
+    border-left-color: var(--surface-error-border);
+  }
+  .diff-line.hunk {
+    background: rgba(59, 130, 246, 0.08);
+    color: var(--surface-info-text-secondary);
+    padding: 4px 12px;
+    margin-top: 4px;
+    font-weight: 600;
+    font-size: 11px;
+  }
+  .diff-line.ctx { color: var(--surface-base-text-secondary); }
+  .diff-loading {
+    padding: 20px;
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+  }
+
+  /* ---- Rollback confirmation ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal-box {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 14px;
+    padding: 28px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--surface-base-text);
+  }
+  .modal-body {
+    font-size: 13px;
+    color: var(--surface-base-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .modal-body code {
+    background: var(--surface-base-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: var(--plugin-accent);
+    font-size: 12px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  .modal-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .modal-btn.cancel {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .modal-btn.cancel:hover { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+  .modal-btn.confirm {
+    background: var(--surface-secondary-hover);
+    color: white;
+  }
+  .modal-btn.confirm:hover { background: var(--surface-secondary-active); }
+  .modal-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ---- Toast ---- */
+  .toast {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 200;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+  }
+  .toast.success { display: block; background: var(--surface-success-hover); color: var(--surface-accent-active); border: 1px solid var(--surface-accent-active); }
+  .toast.error   { display: block; background: var(--surface-error-bg); color: var(--surface-error-text); border: 1px solid var(--surface-error-hover); }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/></svg>
+      </div>
+      <div>
+        <div class="header-title">Version History</div>
+        <div class="header-sub" id="header-sub">Loading...</div>
+      </div>
+    </div>
+    <button class="refresh-btn" onclick="loadHistory()">Refresh</button>
+  </div>
+
+  <div class="stats-bar" id="stats-bar" style="display:none;">
+    <div class="stat-chip"><span class="num" id="stat-total">0</span><span class="lbl">versions</span></div>
+    <div class="stat-chip"><span class="num" id="stat-authors">0</span><span class="lbl">contributors</span></div>
+  </div>
+
+  <div id="content">
+    <div class="state-box">
+      <div class="spinner"></div>
+      Loading version history...
+    </div>
+  </div>
+
+  <!-- Rollback confirmation modal -->
+  <div class="modal-overlay" id="rollback-modal">
+    <div class="modal-box">
+      <div class="modal-title">Rollback to Previous Version</div>
+      <div class="modal-body" id="rollback-body">
+        Are you sure you want to rollback to commit <code id="rollback-sha"></code>?
+        <br><br>
+        This will replace the current file contents with the version from that commit and create a new commit recording the rollback.
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="closeRollbackModal()">Cancel</button>
+        <button class="modal-btn confirm" id="rollback-confirm-btn" onclick="confirmRollback()">Rollback</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE = '/api/ext/version-history';
+  const ctx = window.PLUGIN_CONTEXT || {};
+  const entityType = ctx.entityType || '';
+  const entityId = ctx.entityId || '';
+
+  let commits = [];
+  let activeIndex = -1;
+  let pendingRollbackSha = null;
+
+  document.getElementById('header-sub').textContent =
+    entityType && entityId ? `${entityType} / ${entityId}` : 'No entity context';
+
+  // ---- Data loading ----
+
+  async function loadHistory() {
+    if (!entityType || !entityId) {
+      document.getElementById('content').innerHTML =
+        '<div class="state-box">No entity context available. Open an entity to view its version history.</div>';
+      return;
+    }
+
+    document.getElementById('content').innerHTML =
+      '<div class="state-box"><div class="spinner"></div>Loading version history...</div>';
+
+    try {
+      const resp = await fetch(`${API_BASE}/history/${entityType}/${entityId}?limit=50`);
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      commits = data.commits || [];
+      renderTimeline();
+    } catch (e) {
+      document.getElementById('content').innerHTML =
+        `<div class="state-box error">Failed to load history: ${escHtml(e.message)}</div>`;
+    }
+  }
+
+  // ---- Rendering ----
+
+  function renderTimeline() {
+    if (commits.length === 0) {
+      document.getElementById('content').innerHTML =
+        '<div class="state-box">No version history found for this entity. Changes will appear here after the first git commit.</div>';
+      document.getElementById('stats-bar').style.display = 'none';
+      return;
+    }
+
+    const authors = new Set(commits.map(c => c.author_name));
+    document.getElementById('stat-total').textContent = commits.length;
+    document.getElementById('stat-authors').textContent = authors.size;
+    document.getElementById('stats-bar').style.display = 'flex';
+
+    const html = '<div class="timeline">' + commits.map((c, i) => `
+      <div class="commit-item${i === activeIndex ? ' active' : ''}" id="ci-${i}">
+        <div class="commit-dot"></div>
+        <div class="commit-card" onclick="toggleCommit(${i})">
+          <div class="commit-top">
+            <div class="commit-msg">${escHtml(c.message)}</div>
+            <span class="commit-sha">${c.sha.substring(0, 7)}</span>
+          </div>
+          <div class="commit-meta">
+            <span class="commit-author">${escHtml(c.author_name)}</span>
+            <span class="commit-date">${formatDate(c.date)}</span>
+          </div>
+        </div>
+        <div class="diff-container" id="diff-${i}">
+          <div class="diff-content" id="diff-content-${i}">
+            <div class="diff-loading">Loading diff...</div>
+          </div>
+          <div class="diff-toolbar" id="diff-toolbar-${i}">
+            <span class="diff-stat" id="diff-stat-${i}"></span>
+            <button class="rollback-btn" onclick="openRollbackModal('${c.sha}', event)">Rollback to this version</button>
+          </div>
+        </div>
+      </div>
+    `).join('') + '</div>';
+
+    document.getElementById('content').innerHTML = html;
+  }
+
+  async function toggleCommit(index) {
+    if (activeIndex === index) {
+      activeIndex = -1;
+      renderTimeline();
+      return;
+    }
+    activeIndex = index;
+    renderTimeline();
+    await loadDiff(index);
+  }
+
+  async function loadDiff(index) {
+    const c = commits[index];
+    const contentEl = document.getElementById(`diff-content-${index}`);
+    const statEl = document.getElementById(`diff-stat-${index}`);
+    if (!contentEl) return;
+
+    contentEl.innerHTML = '<div class="diff-loading"><div class="spinner"></div>Loading diff...</div>';
+
+    try {
+      const resp = await fetch(`${API_BASE}/diff/${entityType}/${entityId}/${c.sha}`);
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      renderDiff(contentEl, statEl, data.diff, data.stat);
+    } catch (e) {
+      contentEl.innerHTML = `<div class="diff-loading" style="color:var(--surface-error-border);">Error: ${escHtml(e.message)}</div>`;
+    }
+  }
+
+  function renderDiff(container, statEl, diffText, statText) {
+    if (!diffText || !diffText.trim()) {
+      container.innerHTML = '<div class="diff-loading">No changes in this file for this commit.</div>';
+      if (statEl) statEl.textContent = '';
+      return;
+    }
+
+    const lines = diffText.split('\n');
+    let adds = 0, dels = 0;
+    const html = lines.map(line => {
+      if (line.startsWith('@@')) {
+        return `<div class="diff-line hunk">${escHtml(line)}</div>`;
+      } else if (line.startsWith('+') && !line.startsWith('+++')) {
+        adds++;
+        return `<div class="diff-line add">${escHtml(line)}</div>`;
+      } else if (line.startsWith('-') && !line.startsWith('---')) {
+        dels++;
+        return `<div class="diff-line del">${escHtml(line)}</div>`;
+      } else if (line.startsWith('diff ') || line.startsWith('index ') || line.startsWith('---') || line.startsWith('+++')) {
+        return ''; // skip header lines
+      } else {
+        return `<div class="diff-line ctx">${escHtml(line)}</div>`;
+      }
+    }).join('');
+
+    container.innerHTML = html;
+    if (statEl) {
+      statEl.innerHTML = `<span class="add">+${adds}</span> / <span class="del">-${dels}</span>`;
+    }
+  }
+
+  // ---- Rollback ----
+
+  function openRollbackModal(sha, event) {
+    event.stopPropagation();
+    pendingRollbackSha = sha;
+    document.getElementById('rollback-sha').textContent = sha.substring(0, 8);
+    document.getElementById('rollback-modal').classList.add('visible');
+  }
+
+  function closeRollbackModal() {
+    document.getElementById('rollback-modal').classList.remove('visible');
+    pendingRollbackSha = null;
+  }
+
+  async function confirmRollback() {
+    if (!pendingRollbackSha) return;
+    const btn = document.getElementById('rollback-confirm-btn');
+    btn.disabled = true;
+    btn.textContent = 'Rolling back...';
+
+    try {
+      const resp = await fetch(`${API_BASE}/rollback/${entityType}/${entityId}/${pendingRollbackSha}`, {
+        method: 'POST',
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.detail || `HTTP ${resp.status}`);
+
+      closeRollbackModal();
+      showToast(data.message || 'Rollback successful', 'success');
+      // Reload history after rollback
+      activeIndex = -1;
+      await loadHistory();
+    } catch (e) {
+      showToast(`Rollback failed: ${e.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Rollback';
+    }
+  }
+
+  // ---- Utilities ----
+
+  function showToast(msg, type) {
+    const el = document.getElementById('toast');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    setTimeout(() => { el.className = 'toast'; }, 4000);
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMs / 3600000);
+    const diffDay = Math.floor(diffMs / 86400000);
+
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHr < 24) return `${diffHr}h ago`;
+    if (diffDay < 7) return `${diffDay}d ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+  }
+
+  // ---- Init ----
+  loadHistory();
+</script>
+</body>
+</html>

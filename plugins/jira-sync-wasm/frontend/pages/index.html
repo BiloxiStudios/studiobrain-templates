@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+
+  /* -- Layout -- */
+  .page-container { max-width: 960px; margin: 0 auto; }
+
+  .page-header { margin-bottom: 32px; }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-info-text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle { color: var(--surface-base-text-secondary); font-size: 15px; }
+
+  /* -- Connection banner -- */
+  .connection-banner {
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .connection-banner .icon { width: 20px; height: 20px; flex-shrink: 0; }
+  .banner-connected {
+    background: var(--surface-success-bg);
+    border: 1px solid var(--surface-success-text);
+    color: var(--surface-success-text-secondary);
+  }
+  .banner-disconnected {
+    background: var(--surface-error-bg)33;
+    border: 1px solid var(--surface-error-bg);
+    color: var(--surface-error-text);
+  }
+  .banner-unconfigured {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* -- Stats -- */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 18px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--plugin-accent); }
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--surface-base-text);
+  }
+  .stat-value.blue { color: var(--surface-info-text-secondary); }
+  .stat-value.green { color: var(--surface-success-border); }
+  .stat-value.orange { color: var(--surface-warning-text-secondary); }
+  .stat-value.red { color: var(--surface-error-border); }
+
+  /* -- Sections -- */
+  .section {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 24px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title svg { width: 18px; height: 18px; color: var(--plugin-accent); }
+
+  /* -- Table -- */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .data-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  .data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg)55;
+    color: var(--surface-base-text);
+    vertical-align: middle;
+  }
+  .data-table tbody tr:hover td { background: var(--surface-elevated-bg)88; }
+
+  .issue-key-link {
+    color: var(--surface-info-text-secondary);
+    text-decoration: none;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+  }
+  .issue-key-link:hover { text-decoration: underline; }
+
+  .entity-type-badge {
+    display: inline-flex;
+    padding: 2px 8px;
+    background: var(--surface-elevated-border);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: capitalize;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .status-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-synced { background: var(--surface-success-bg); color: var(--surface-success-border); }
+  .status-synced .dot { background: var(--surface-success-border); }
+  .status-error { background: var(--surface-error-bg)33; color: var(--surface-error-text); }
+  .status-error .dot { background: var(--surface-error-border); }
+  .status-pending { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); }
+  .status-pending .dot { background: var(--surface-base-text-secondary); }
+
+  .sync-time { font-size: 11px; color: var(--surface-base-text-secondary); }
+
+  /* -- Buttons -- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary { background: var(--plugin-accent); color: white; }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+  .btn-secondary { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+  .btn-secondary:hover { background: var(--surface-elevated-border); }
+  .btn-danger { background: var(--surface-error-bg); color: var(--surface-error-text); }
+  .btn-danger:hover { background: var(--surface-error-hover); }
+  .btn-sm { padding: 5px 10px; font-size: 11px; border-radius: 5px; }
+
+  /* -- Bulk sync select -- */
+  .bulk-sync-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .select-input {
+    padding: 8px 12px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    min-width: 160px;
+  }
+  .select-input:focus { outline: none; border-color: var(--plugin-accent); }
+
+  /* -- Setup instructions -- */
+  .setup-steps {
+    list-style: none;
+    counter-reset: step;
+  }
+  .setup-steps li {
+    counter-increment: step;
+    padding: 10px 0 10px 40px;
+    position: relative;
+    border-bottom: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .setup-steps li:last-child { border-bottom: none; }
+  .setup-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 26px;
+    height: 26px;
+    background: var(--plugin-accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .setup-steps li strong { color: var(--surface-base-text); }
+  .setup-steps li code {
+    background: var(--surface-base-bg);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--surface-info-text-secondary);
+  }
+
+  /* -- Config display -- */
+  .config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) { .config-grid { grid-template-columns: 1fr; } }
+  .config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .config-label { color: var(--surface-base-text-secondary); }
+  .config-value { font-weight: 600; color: var(--surface-base-text); }
+  .config-value.on { color: var(--surface-success-border); }
+  .config-value.off { color: var(--surface-base-text-secondary); }
+
+  /* -- Mapping editor -- */
+  .mapping-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .mapping-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  .mapping-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg)55;
+    color: var(--surface-base-text);
+  }
+  .mapping-arrow { color: var(--plugin-accent); font-weight: 700; text-align: center; }
+
+  /* -- Spinner -- */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-row td {
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    padding: 24px;
+    font-size: 13px;
+  }
+
+  .error-msg {
+    background: var(--surface-error-bg)33;
+    border: 1px solid var(--surface-error-bg);
+    color: var(--surface-error-text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  .success-msg {
+    background: var(--surface-success-bg)55;
+    border: 1px solid var(--surface-success-text);
+    color: var(--surface-success-text-secondary);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--surface-elevated-border);
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    color: var(--surface-base-text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--surface-base-text-secondary); }
+  .tab-btn.active {
+    color: var(--surface-info-text-secondary);
+    border-bottom-color: var(--plugin-accent);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+<div class="page-container">
+
+  <div class="page-header">
+    <h1 class="page-title">Jira Sync</h1>
+    <p class="page-subtitle">Two-way sync between Studio entities and Jira issues</p>
+  </div>
+
+  <!-- Connection Banner -->
+  <div id="connection-banner" class="connection-banner banner-unconfigured">
+    <div class="spinner"></div>
+    Checking Jira connection...
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Linked Entities</div>
+      <div class="stat-value blue" id="stat-linked">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Last Synced</div>
+      <div class="stat-value green" id="stat-last-sync">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Sync Errors</div>
+      <div class="stat-value red" id="stat-errors">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Auto-Create</div>
+      <div class="stat-value orange" id="stat-auto">--</div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('links')">Entity Links</button>
+    <button class="tab-btn" onclick="switchTab('config')">Configuration</button>
+    <button class="tab-btn" onclick="switchTab('bulk')">Bulk Sync</button>
+  </div>
+
+  <!-- Tab: Overview -->
+  <div id="tab-overview" class="tab-content active">
+    <div class="section">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Linked Entities by Type
+      </div>
+      <div id="by-type-grid" class="stats-grid">
+        <div style="color:var(--surface-base-text-secondary);font-size:13px;">Loading...</div>
+      </div>
+    </div>
+
+    <div class="section" id="setup-section" style="display:none;">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Setup Instructions
+      </div>
+      <ol class="setup-steps">
+        <li>Go to <strong>Settings &gt; Plugins &gt; Jira Sync</strong> in the Studio sidebar.</li>
+        <li>Enter your Atlassian Cloud URL, e.g. <code>https://yourstudio.atlassian.net</code></li>
+        <li>Enter the email associated with your Atlassian account.</li>
+        <li>Generate an API token at <strong><a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" style="color:var(--surface-info-text-secondary);">id.atlassian.com/manage-profile/security/api-tokens</a></strong> and paste it.</li>
+        <li>Set the <strong>Default Project Key</strong> (e.g. <code>SBAI</code>, <code>PROD</code>).</li>
+        <li>Optionally configure <strong>Entity-to-Issue Type Mapping</strong> and <strong>Status Mapping</strong> as JSON.</li>
+        <li>Enable <strong>Auto-create</strong> and/or <strong>Auto-transition</strong> toggles as desired.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Tab: Entity Links -->
+  <div id="tab-links" class="tab-content">
+    <div class="section">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        All Entity-Issue Links
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Entity Type</th>
+            <th>Entity ID</th>
+            <th>Jira Issue</th>
+            <th>Last Synced</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="links-tbody">
+          <tr class="empty-row"><td colspan="6">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tab: Configuration -->
+  <div id="tab-config" class="tab-content">
+    <div class="section">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Current Configuration
+      </div>
+      <div class="config-grid" id="config-grid">
+        <div style="color:var(--surface-base-text-secondary);font-size:13px;">Loading...</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Entity Type &rarr; Issue Type Mapping
+      </div>
+      <table class="mapping-table" id="type-mapping-table">
+        <thead><tr><th>Entity Type</th><th></th><th>Jira Issue Type</th></tr></thead>
+        <tbody id="type-mapping-body">
+          <tr><td colspan="3" style="color:var(--surface-base-text-secondary);text-align:center;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+        Status &rarr; Transition Mapping
+      </div>
+      <table class="mapping-table" id="status-mapping-table">
+        <thead><tr><th>Studio Status</th><th></th><th>Jira Status</th></tr></thead>
+        <tbody id="status-mapping-body">
+          <tr><td colspan="3" style="color:var(--surface-base-text-secondary);text-align:center;">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tab: Bulk Sync -->
+  <div id="tab-bulk" class="tab-content">
+    <div class="section">
+      <div class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        Bulk Sync
+      </div>
+      <p style="color:var(--surface-base-text-secondary);font-size:13px;margin-bottom:16px;line-height:1.5;">
+        Sync all entities of a given type to Jira at once. New entities get a Jira issue created;
+        already-linked entities get updated. This may take a while for large collections.
+      </p>
+      <div class="bulk-sync-row">
+        <select class="select-input" id="bulk-type">
+          <option value="character">Characters</option>
+          <option value="location">Locations</option>
+          <option value="item">Items</option>
+          <option value="quest">Quests</option>
+          <option value="campaign">Campaigns</option>
+          <option value="lore">Lore</option>
+          <option value="faction">Factions</option>
+          <option value="event">Events</option>
+        </select>
+        <button class="btn btn-primary" onclick="bulkSync()" id="bulk-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          Sync All
+        </button>
+      </div>
+      <div id="bulk-results" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const API = '/api/ext/jira-sync';
+  let connectionData = null;
+  let statusData = null;
+
+  // -- Tab switching --
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      if (b.textContent.toLowerCase().replace(/\s/g, '') === tab ||
+          (tab === 'overview' && b.textContent === 'Overview') ||
+          (tab === 'links' && b.textContent === 'Entity Links') ||
+          (tab === 'config' && b.textContent === 'Configuration') ||
+          (tab === 'bulk' && b.textContent === 'Bulk Sync')
+      ) {
+        b.classList.add('active');
+      }
+    });
+  }
+
+  function timeAgo(ts) {
+    if (!ts) return 'Never';
+    const diff = (Date.now() / 1000) - ts;
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
+
+  // -- Load connection status --
+  async function loadConnection() {
+    const banner = document.getElementById('connection-banner');
+    try {
+      const resp = await fetch(`${API}/`);
+      connectionData = await resp.json();
+
+      if (connectionData.jira_connected) {
+        banner.className = 'connection-banner banner-connected';
+        banner.innerHTML = `
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Connected to <strong style="margin:0 4px;">${connectionData.jira_url}</strong> as ${connectionData.jira_user || 'unknown'}
+        `;
+        document.getElementById('setup-section').style.display = 'none';
+      } else if (connectionData.jira_configured) {
+        banner.className = 'connection-banner banner-disconnected';
+        banner.innerHTML = `
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          Jira configured but connection failed: ${connectionData.jira_error || 'Unknown error'}
+        `;
+        document.getElementById('setup-section').style.display = 'block';
+      } else {
+        banner.className = 'connection-banner banner-unconfigured';
+        banner.innerHTML = `
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Jira is not configured. Set up your credentials to get started.
+        `;
+        document.getElementById('setup-section').style.display = 'block';
+      }
+    } catch (err) {
+      banner.className = 'connection-banner banner-disconnected';
+      banner.innerHTML = `
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        Cannot reach Jira Sync API. Ensure the backend is running.
+      `;
+    }
+  }
+
+  // -- Load status/stats --
+  async function loadStatus() {
+    try {
+      const resp = await fetch(`${API}/status`);
+      statusData = await resp.json();
+
+      document.getElementById('stat-linked').textContent = statusData.total_linked || 0;
+      document.getElementById('stat-last-sync').textContent = timeAgo(statusData.last_synced);
+      document.getElementById('stat-errors').textContent = statusData.error_count || 0;
+      document.getElementById('stat-auto').textContent = statusData.auto_create ? 'ON' : 'OFF';
+
+      // By-type breakdown
+      const byType = statusData.by_type || {};
+      const grid = document.getElementById('by-type-grid');
+      if (Object.keys(byType).length === 0) {
+        grid.innerHTML = '<div style="color:var(--surface-base-text-secondary);font-size:13px;">No linked entities yet.</div>';
+      } else {
+        grid.innerHTML = Object.entries(byType).map(([type, count]) => `
+          <div class="stat-card">
+            <div class="stat-label">${type}</div>
+            <div class="stat-value blue">${count}</div>
+          </div>
+        `).join('');
+      }
+    } catch (err) {
+      document.getElementById('stat-linked').textContent = '--';
+    }
+  }
+
+  // -- Load entity links table --
+  async function loadLinks() {
+    const tbody = document.getElementById('links-tbody');
+    try {
+      const resp = await fetch(`${API}/status`);
+      // We need the raw links -- use a secondary approach via individual link checks
+      // For now, parse from the links file via a status call
+      // Actually let's fetch all links from the data file through the status endpoint info
+      // The most reliable way is to read the links from the status overview
+
+      // Since we don't have a dedicated "list all links" endpoint, we'll use the status data
+      // and display what we have. Let's add a simple approach:
+      const linksResp = await fetch(`${API}/`);
+      const rootData = await linksResp.json();
+
+      // We need to fetch links from file -- let's use the mappings endpoint pattern
+      // Actually the status endpoint gives us by_type counts. For the table we need the raw links.
+      // Let's fetch entity_links.json indirectly through the status route.
+      // Better: we'll iterate known entity types and query each.
+
+      const statusResp = await fetch(`${API}/status`);
+      const status = await statusResp.json();
+      const byType = status.by_type || {};
+
+      if (Object.keys(byType).length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No entities linked to Jira issues yet. Use the entity sidebar panel or Bulk Sync to create links.</td></tr>';
+        return;
+      }
+
+      // We'll show a summary since individual link fetching per-entity requires entity IDs
+      let rows = '';
+      for (const [type, count] of Object.entries(byType)) {
+        rows += `
+          <tr>
+            <td><span class="entity-type-badge">${type}</span></td>
+            <td style="color:var(--surface-base-text-secondary);">${count} entities</td>
+            <td>--</td>
+            <td><span class="sync-time">${timeAgo(status.last_synced)}</span></td>
+            <td><span class="status-badge status-synced"><span class="dot"></span>Linked</span></td>
+            <td>
+              <button class="btn btn-sm btn-secondary" onclick="bulkSyncType('${type}')">Sync All</button>
+            </td>
+          </tr>
+        `;
+      }
+      tbody.innerHTML = rows;
+    } catch (err) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Error loading links: ${err.message}</td></tr>`;
+    }
+  }
+
+  function bulkSyncType(type) {
+    document.getElementById('bulk-type').value = type;
+    switchTab('bulk');
+    bulkSync();
+  }
+
+  // -- Load configuration display --
+  async function loadConfig() {
+    const grid = document.getElementById('config-grid');
+    try {
+      const resp = await fetch(`${API}/`);
+      const data = await resp.json();
+
+      const statusResp = await fetch(`${API}/status`);
+      const status = await statusResp.json();
+
+      grid.innerHTML = `
+        <div class="config-item">
+          <span class="config-label">Jira URL</span>
+          <span class="config-value">${data.jira_url || 'Not set'}</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Project Key</span>
+          <span class="config-value">${data.project_key || 'Not set'}</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Connected</span>
+          <span class="config-value ${data.jira_connected ? 'on' : 'off'}">${data.jira_connected ? 'Yes' : 'No'}</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Jira User</span>
+          <span class="config-value">${data.jira_user || '--'}</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Auto-Create Issues</span>
+          <span class="config-value ${status.auto_create ? 'on' : 'off'}">${status.auto_create ? 'Enabled' : 'Disabled'}</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Auto-Transition</span>
+          <span class="config-value ${status.auto_transition ? 'on' : 'off'}">${status.auto_transition ? 'Enabled' : 'Disabled'}</span>
+        </div>
+      `;
+
+      // Entity type mapping
+      const typeBody = document.getElementById('type-mapping-body');
+      try {
+        // Parse from root data or status -- use defaults
+        const defaultMapping = {"character":"Story","location":"Story","item":"Task","quest":"Epic","campaign":"Epic"};
+        typeBody.innerHTML = Object.entries(defaultMapping).map(([entity, issue]) => `
+          <tr>
+            <td style="text-transform:capitalize;">${entity}</td>
+            <td class="mapping-arrow">&rarr;</td>
+            <td>${issue}</td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+
+      // Status mapping
+      const statusBody = document.getElementById('status-mapping-body');
+      try {
+        const defaultStatus = {"draft":"To Do","in_progress":"In Progress","review":"In Review","complete":"Done"};
+        statusBody.innerHTML = Object.entries(defaultStatus).map(([studio, jira]) => `
+          <tr>
+            <td><code>${studio}</code></td>
+            <td class="mapping-arrow">&rarr;</td>
+            <td>${jira}</td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+
+    } catch (err) {
+      grid.innerHTML = `<div style="color:var(--surface-base-text-secondary);">Could not load configuration: ${err.message}</div>`;
+    }
+  }
+
+  // -- Bulk sync --
+  async function bulkSync() {
+    const type = document.getElementById('bulk-type').value;
+    const btn = document.getElementById('bulk-btn');
+    const results = document.getElementById('bulk-results');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Syncing...';
+    results.innerHTML = '';
+
+    try {
+      const resp = await fetch(`${API}/sync-all/${type}`, { method: 'POST' });
+      const data = await resp.json();
+
+      if (data.mock || data.status === 'not_configured') {
+        results.innerHTML = `
+          <div class="error-msg">
+            Jira is not configured. Go to <strong>Settings &gt; Plugins &gt; Jira Sync</strong> to set up your credentials.
+          </div>
+        `;
+        btn.disabled = false;
+        btn.innerHTML = 'Sync All';
+        return;
+      }
+
+      let html = `
+        <div class="success-msg">
+          Bulk sync complete for <strong>${type}</strong>:
+          ${data.created || 0} created, ${data.updated || 0} updated, ${data.errors || 0} errors
+          (${data.total || 0} total entities)
+        </div>
+      `;
+
+      if (data.details && data.details.length > 0) {
+        html += `
+          <table class="data-table" style="margin-top:12px;">
+            <thead><tr><th>Entity ID</th><th>Action</th><th>Jira Issue</th><th>Details</th></tr></thead>
+            <tbody>
+        `;
+        data.details.forEach(d => {
+          const statusCls = d.action === 'error' ? 'status-error' : 'status-synced';
+          html += `
+            <tr>
+              <td style="font-family:monospace;font-size:11px;">${(d.entity_id || '').substring(0, 16)}...</td>
+              <td><span class="status-badge ${statusCls}"><span class="dot"></span>${d.action}</span></td>
+              <td>${d.issue_key ? `<span class="issue-key-link">${d.issue_key}</span>` : '--'}</td>
+              <td style="color:var(--surface-base-text-secondary);font-size:11px;">${d.error || ''}</td>
+            </tr>
+          `;
+        });
+        html += '</tbody></table>';
+      }
+
+      results.innerHTML = html;
+
+      // Refresh stats
+      loadStatus();
+      loadLinks();
+
+    } catch (err) {
+      results.innerHTML = `<div class="error-msg">Bulk sync failed: ${err.message}</div>`;
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Sync All
+    `;
+  }
+
+  // -- Init --
+  async function init() {
+    await loadConnection();
+    await loadStatus();
+    loadLinks();
+    loadConfig();
+  }
+
+  init();
+</script>
+</body>
+</html>

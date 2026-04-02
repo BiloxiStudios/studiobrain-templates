@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Manager - Dashboard</title>
+<style>
+  :root {
+    --bg-primary: var(--surface-base-bg);
+    --bg-secondary: var(--surface-base-bg);
+    --bg-tertiary: var(--surface-elevated-bg);
+    --bg-hover: var(--surface-elevated-bg);
+    --bg-input: var(--surface-base-bg);
+    --text-primary: var(--surface-base-text);
+    --text-secondary: var(--surface-base-text-secondary);
+    --text-muted: var(--surface-base-text-secondary);
+    --accent: var(--plugin-accent);
+    --accent-hover: var(--surface-error-border);
+    --accent-dim: rgba(255, 0, 0, 0.12);
+    --border: var(--surface-elevated-border);
+    --border-focus: var(--surface-elevated-border);
+    --success: var(--surface-success-border);
+    --success-dim: rgba(46, 160, 67, 0.15);
+    --warning: var(--surface-warning-border);
+    --warning-dim: rgba(210, 153, 34, 0.15);
+    --error: var(--surface-error-border);
+    --error-dim: rgba(248, 81, 73, 0.15);
+    --info: var(--surface-info-text-secondary);
+    --info-dim: rgba(88, 166, 255, 0.15);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+
+  /* -- Page Header -- */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .page-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .yt-logo {
+    width: 42px;
+    height: 30px;
+    background: var(--accent);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .yt-logo::after {
+    content: '';
+    width: 0; height: 0;
+    border-left: 12px solid white;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    margin-left: 2px;
+  }
+  .page-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .page-header h1 small {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .mode-pill {
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .mode-pill.mock { background: var(--accent-dim); color: var(--accent); }
+  .mode-pill.live { background: var(--success-dim); color: var(--success); }
+
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .btn-accent:hover { background: var(--accent-hover); }
+
+  /* -- Stats Row -- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .stat-card .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+  .stat-card .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .stat-card .stat-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .stat-card.accent .stat-value { color: var(--accent); }
+  .stat-card.success .stat-value { color: var(--success); }
+  .stat-card.warning .stat-value { color: var(--warning); }
+  .stat-card.info .stat-value { color: var(--info); }
+
+  /* -- Sections -- */
+  .section {
+    margin-bottom: 28px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-header h2 {
+    font-size: 17px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-header .count {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* -- Filter bar -- */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    padding: 5px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .filter-chip:hover { background: var(--bg-tertiary); }
+  .filter-chip.active {
+    background: var(--accent-dim);
+    border-color: rgba(255,0,0,0.3);
+    color: var(--accent);
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 6px 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--border-focus); }
+
+  /* -- Video table -- */
+  .video-table {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .vt-header {
+    display: grid;
+    grid-template-columns: 50px 120px 1fr 100px 90px 80px 80px;
+    padding: 10px 16px;
+    background: var(--bg-tertiary);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .vt-row {
+    display: grid;
+    grid-template-columns: 50px 120px 1fr 100px 90px 80px 80px;
+    padding: 10px 16px;
+    align-items: center;
+    border-bottom: 1px solid rgba(51,51,51,0.5);
+    transition: background 0.15s;
+    font-size: 13px;
+  }
+  .vt-row:last-child { border-bottom: none; }
+  .vt-row:hover { background: var(--bg-hover); }
+
+  .vt-num {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .vt-thumb {
+    width: 96px;
+    height: 54px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .vt-thumb .play {
+    width: 0; height: 0;
+    border-left: 12px solid var(--text-muted);
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+  }
+  .vt-title-cell {
+    min-width: 0;
+  }
+  .vt-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .vt-entity {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .vt-privacy {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-transform: capitalize;
+  }
+  .vt-date {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  .status-badge.uploaded { background: var(--success-dim); color: var(--success); }
+  .status-badge.pending { background: var(--warning-dim); color: var(--warning); }
+  .status-badge.failed { background: var(--error-dim); color: var(--error); }
+  .status-badge.processing { background: var(--info-dim); color: var(--info); }
+
+  .vt-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+  .icon-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .icon-btn:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+  .icon-btn.danger:hover { color: var(--error); }
+
+  /* -- Channel info -- */
+  .channel-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 28px;
+  }
+  .channel-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .channel-avatar .yt-sm {
+    width: 24px;
+    height: 17px;
+    background: var(--accent);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .channel-avatar .yt-sm::after {
+    content: '';
+    width: 0; height: 0;
+    border-left: 7px solid white;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    margin-left: 1px;
+  }
+  .channel-info {
+    flex: 1;
+  }
+  .channel-name {
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .channel-id {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: monospace;
+  }
+  .channel-stats {
+    display: flex;
+    gap: 24px;
+  }
+  .channel-stat {
+    text-align: center;
+  }
+  .channel-stat .cs-val {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .channel-stat .cs-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  /* -- Empty state -- */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+  .empty-state .big-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.35;
+  }
+  .empty-state h3 {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .empty-state p {
+    font-size: 13px;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  /* -- Loading -- */
+  .loading-block {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+  }
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* -- Toast -- */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 22px;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 1000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: transform 0.3s, opacity 0.3s;
+    box-shadow: var(--shadow);
+  }
+  .toast.visible { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--error); }
+
+  /* -- Responsive -- */
+  @media (max-width: 900px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .vt-header, .vt-row { grid-template-columns: 50px 1fr 80px 80px; }
+    .vt-header > :nth-child(2), .vt-row > :nth-child(2),
+    .vt-header > :nth-child(5), .vt-row > :nth-child(5),
+    .vt-header > :nth-child(6), .vt-row > :nth-child(6) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="yt-logo"></div>
+      <h1>
+        YouTube Manager
+        <small>Upload and manage videos for your creative entities</small>
+      </h1>
+    </div>
+    <div class="header-actions">
+      <span class="mode-pill mock" id="modePill">Mock Mode</span>
+      <button class="btn-accent" onclick="refreshAll()">&#8635; Refresh</button>
+    </div>
+  </div>
+
+  <!-- Channel Bar -->
+  <div class="channel-bar" id="channelBar">
+    <div class="channel-avatar"><span class="yt-sm"></span></div>
+    <div class="channel-info">
+      <div class="channel-name" id="channelName">City of Brains Studio</div>
+      <div class="channel-id" id="channelId">No channel configured</div>
+    </div>
+    <div class="channel-stats" id="channelStats">
+      <div class="channel-stat">
+        <div class="cs-val" id="statTotal">--</div>
+        <div class="cs-label">Total</div>
+      </div>
+      <div class="channel-stat">
+        <div class="cs-val" id="statUploaded">--</div>
+        <div class="cs-label">Uploaded</div>
+      </div>
+      <div class="channel-stat">
+        <div class="cs-val" id="statPending">--</div>
+        <div class="cs-label">Pending</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card accent">
+      <div class="stat-label">Total Videos</div>
+      <div class="stat-value" id="cardTotal">--</div>
+      <div class="stat-sub">Tracked in plugin</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-label">Uploaded</div>
+      <div class="stat-value" id="cardUploaded">--</div>
+      <div class="stat-sub">Successfully on YouTube</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value" id="cardPending">--</div>
+      <div class="stat-sub">Awaiting upload</div>
+    </div>
+    <div class="stat-card info">
+      <div class="stat-label">Entities</div>
+      <div class="stat-value" id="cardEntities">--</div>
+      <div class="stat-sub">With linked videos</div>
+    </div>
+  </div>
+
+  <!-- All Videos -->
+  <div class="section">
+    <div class="section-header">
+      <h2>
+        All Videos
+        <span class="count" id="videosCount"></span>
+      </h2>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">All</button>
+      <button class="filter-chip" data-filter="uploaded" onclick="setFilter('uploaded')">Uploaded</button>
+      <button class="filter-chip" data-filter="pending" onclick="setFilter('pending')">Pending</button>
+      <button class="filter-chip" data-filter="failed" onclick="setFilter('failed')">Failed</button>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search videos..." oninput="applyFilters()">
+    </div>
+
+    <div id="videosContent">
+      <div class="loading-block">
+        <div class="spinner"></div>
+        Loading videos...
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Uploads -->
+  <div class="section" id="recentSection" style="display:none;">
+    <div class="section-header">
+      <h2>Recent Uploads</h2>
+    </div>
+    <div id="recentContent"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = '/api/ext/youtube-manager';
+let allVideos = [];
+let currentFilter = 'all';
+
+// -- Init --
+async function init() {
+  await Promise.all([loadStatus(), loadVideos()]);
+}
+
+// -- Load status --
+async function loadStatus() {
+  try {
+    const resp = await fetch(`${API_BASE}/`);
+    const data = await resp.json();
+
+    // Mode badge
+    const pill = document.getElementById('modePill');
+    if (data.mode === 'live') {
+      pill.textContent = 'Live';
+      pill.className = 'mode-pill live';
+    } else {
+      pill.textContent = 'Mock Mode';
+      pill.className = 'mode-pill mock';
+    }
+
+    // Channel
+    if (data.channel_id) {
+      document.getElementById('channelId').textContent = data.channel_id;
+    }
+
+    // Stats in channel bar
+    document.getElementById('statTotal').textContent = data.total_videos || 0;
+    document.getElementById('statUploaded').textContent = data.uploaded || 0;
+    document.getElementById('statPending').textContent = data.pending || 0;
+  } catch (err) {
+    console.error('Status load failed:', err);
+  }
+}
+
+// -- Load videos --
+async function loadVideos() {
+  const container = document.getElementById('videosContent');
+
+  try {
+    const resp = await fetch(`${API_BASE}/videos`);
+    const data = await resp.json();
+    allVideos = data.videos || [];
+
+    // Stat cards
+    const uploaded = allVideos.filter(v => v.status === 'uploaded').length;
+    const pending = allVideos.filter(v => v.status === 'pending').length;
+    const entities = new Set(allVideos.map(v => `${v.entity_type}:${v.entity_id}`)).size;
+
+    document.getElementById('cardTotal').textContent = allVideos.length;
+    document.getElementById('cardUploaded').textContent = uploaded;
+    document.getElementById('cardPending').textContent = pending;
+    document.getElementById('cardEntities').textContent = entities;
+    document.getElementById('videosCount').textContent = `(${allVideos.length})`;
+
+    applyFilters();
+
+    // Recent uploads section
+    const recent = allVideos.slice(0, 5);
+    if (recent.length > 0) {
+      document.getElementById('recentSection').style.display = 'block';
+      document.getElementById('recentContent').innerHTML = recentCards(recent);
+    }
+
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="big-icon">&#9888;</div>
+      <h3>Connection Error</h3>
+      <p>Could not reach the YouTube Manager backend. Make sure the service is running on port 8201.</p>
+    </div>`;
+  }
+}
+
+function applyFilters() {
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  let filtered = allVideos;
+
+  if (currentFilter !== 'all') {
+    filtered = filtered.filter(v => v.status === currentFilter);
+  }
+  if (search) {
+    filtered = filtered.filter(v =>
+      (v.title || '').toLowerCase().includes(search) ||
+      (v.entity_id || '').toLowerCase().includes(search) ||
+      (v.entity_type || '').toLowerCase().includes(search) ||
+      (v.tags || []).some(t => t.toLowerCase().includes(search))
+    );
+  }
+
+  renderVideoTable(filtered);
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c =>
+    c.classList.toggle('active', c.dataset.filter === f)
+  );
+  applyFilters();
+}
+
+function renderVideoTable(videos) {
+  const container = document.getElementById('videosContent');
+
+  if (videos.length === 0) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="big-icon">&var(--surface-success-border);</div>
+      <h3>No Videos Found</h3>
+      <p>Upload your first video from an entity's Video Manager tab, or adjust your filters.</p>
+    </div>`;
+    return;
+  }
+
+  let html = `<div class="video-table">
+    <div class="vt-header">
+      <div>#</div>
+      <div>Thumbnail</div>
+      <div>Title</div>
+      <div>Status</div>
+      <div>Privacy</div>
+      <div>Date</div>
+      <div></div>
+    </div>`;
+
+  videos.forEach((v, i) => {
+    const statusClass = v.status || 'pending';
+    const dateStr = v.created_at ? new Date(v.created_at).toLocaleDateString() : '--';
+    html += `
+      <div class="vt-row">
+        <div class="vt-num">${i + 1}</div>
+        <div><div class="vt-thumb"><span class="play"></span></div></div>
+        <div class="vt-title-cell">
+          <div class="vt-title">${escapeHtml(v.title)}</div>
+          <div class="vt-entity">${escapeHtml(v.entity_type)}/${escapeHtml(v.entity_id)}${v.mock ? ' &middot; mock' : ''}</div>
+        </div>
+        <div><span class="status-badge ${statusClass}">${statusClass}</span></div>
+        <div class="vt-privacy">${escapeHtml(v.privacy || 'unlisted')}</div>
+        <div class="vt-date">${dateStr}</div>
+        <div class="vt-actions">
+          ${v.youtube_url ? `<a class="icon-btn" href="${v.youtube_url}" target="_blank" title="Watch on YouTube">&#8599;</a>` : ''}
+          <button class="icon-btn danger" onclick="deleteVideo('${v.id}')" title="Remove">&var(--surface-accent-bg);</button>
+        </div>
+      </div>`;
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function recentCards(videos) {
+  return `<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+    ${videos.map(v => {
+      const dateStr = v.created_at ? new Date(v.created_at).toLocaleDateString() : '';
+      return `<div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;" ${v.youtube_url ? `onclick="window.open('${v.youtube_url}','_blank')"` : ''}>
+        <div style="height:110px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;">
+          <span style="width:0;height:0;border-left:18px solid var(--text-muted);border-top:12px solid transparent;border-bottom:12px solid transparent;"></span>
+        </div>
+        <div style="padding:10px 12px;">
+          <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(v.title)}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">${escapeHtml(v.entity_type)}/${escapeHtml(v.entity_id)} &middot; ${dateStr}</div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+async function deleteVideo(id) {
+  if (!confirm('Remove this video from tracking? This will not delete it from YouTube.')) return;
+  try {
+    await fetch(`${API_BASE}/videos/${id}`, { method: 'DELETE' });
+    showToast('Video removed from tracking', 'success');
+    await loadVideos();
+  } catch (err) {
+    showToast('Failed to remove video: ' + err.message, 'error');
+  }
+}
+
+function refreshAll() {
+  loadStatus();
+  loadVideos();
+  showToast('Dashboard refreshed', 'success');
+}
+
+// -- Utilities --
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} visible`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('visible'), 3500);
+}
+
+// Boot
+init();
+</script>
+</body>
+</html>

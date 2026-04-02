@@ -1,0 +1,271 @@
+{
+  "id": "import-export-pipeline-wasm",
+  "name": "Import/Export Pipeline (WASM)",
+  "version": "1.0.0",
+  "description": "Unified pipeline for multi-format import and export operations. Consolidates import (Markdown, JSON, CSV, OPML, Verse, ZIP) and export (PDF, DOCX, HTML, JSON, CSV) into a single domain-agnostic tool with configurable profiles.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "import-export",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "import-export-dashboard",
+          "route": "/plugins/import-export-pipeline-wasm",
+          "label": "Import/Export Pipeline",
+          "icon": "git-merge",
+          "nav_section": "plugins"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "frontend": {
+      "playwright": {
+        "required": false,
+        "description": "Optional: For PDF export via headless browser"
+      }
+    }
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "filesystem:read",
+    "filesystem:write"
+  ],
+  "settings_schema": {
+    "default_import_format": {
+      "type": "string",
+      "label": "Default Import Format",
+      "description": "Auto-detect format when import format is not specified",
+      "options": [
+        "auto",
+        "markdown",
+        "json",
+        "csv",
+        "opml",
+        "verse",
+        "zip"
+      ],
+      "default": "auto",
+      "scope": "instance"
+    },
+    "default_export_format": {
+      "type": "string",
+      "label": "Default Export Format",
+      "description": "Default format when no format is specified",
+      "options": [
+        "markdown",
+        "json",
+        "csv",
+        "html",
+        "pdf",
+        "docx"
+      ],
+      "default": "markdown",
+      "scope": "instance"
+    },
+    "batch_size_limit": {
+      "type": "number",
+      "label": "Batch Import Limit",
+      "description": "Maximum number of files to process in a single batch import",
+      "default": 100,
+      "minimum": 1,
+      "maximum": 1000,
+      "scope": "instance"
+    },
+    "max_file_size_mb": {
+      "type": "number",
+      "label": "Maximum File Size (MB)",
+      "description": "Maximum size of individual files to process",
+      "default": 50,
+      "minimum": 1,
+      "maximum": 500,
+      "scope": "instance"
+    },
+    "profile_configs": {
+      "type": "object",
+      "label": "Profile Configurations",
+      "description": "Domain-specific import/export profiles by entity type",
+      "scope": "instance",
+      "properties": {
+        "character": {
+          "type": "object",
+          "properties": {
+            "import_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json",
+                "csv",
+                "verse"
+              ]
+            },
+            "export_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json",
+                "pdf",
+                "docx"
+              ]
+            },
+            "default_layout": {
+              "type": "string",
+              "default": "gdd_standard"
+            },
+            "preserve_images": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "import_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json",
+                "csv"
+              ]
+            },
+            "export_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json",
+                "pdf",
+                "html"
+              ]
+            },
+            "default_layout": {
+              "type": "string",
+              "default": "gdd_standard"
+            },
+            "preserve_terrain_data": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        "quest": {
+          "type": "object",
+          "properties": {
+            "import_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json",
+                "opml"
+              ]
+            },
+            "export_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json",
+                "pdf",
+                "html"
+              ]
+            },
+            "default_layout": {
+              "type": "string",
+              "default": "script_format"
+            }
+          }
+        },
+        "dialogue": {
+          "type": "object",
+          "properties": {
+            "import_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json",
+                "csv"
+              ]
+            },
+            "export_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json",
+                "pdf",
+                "docx"
+              ]
+            },
+            "default_layout": {
+              "type": "string",
+              "default": "script_format"
+            }
+          }
+        },
+        "assembly": {
+          "type": "object",
+          "properties": {
+            "import_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json"
+              ]
+            },
+            "export_formats": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "markdown",
+                "json",
+                "csv"
+              ]
+            },
+            "default_layout": {
+              "type": "string",
+              "default": "gdd_standard"
+            },
+            "flatten_hierarchy": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      }
+    }
+  },
+  "accent_color": "#10B981",
+  "runtime": "wasm"
+}

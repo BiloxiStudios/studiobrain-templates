@@ -1,0 +1,105 @@
+{
+  "id": "unity-exporter-wasm",
+  "name": "Unity Game Exporter (WASM)",
+  "version": "0.2.0",
+  "description": "Export characters, items, and locations as Unity-ready ScriptableObjects with metadata, portraits, and prefab stubs. Generate C# data classes, batch export for game data pipelines, and integrate directly with Unity projects.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "3d-creative-tools",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "unity-export",
+          "route": "/plugins/unity-exporter-wasm",
+          "label": "Unity Exporter",
+          "icon": "gamepad-2",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "unity-export",
+          "label": "Export to Unity",
+          "location": "entity-sidebar",
+          "icon": "download"
+        },
+        {
+          "id": "unity-preview",
+          "label": "Unity Preview",
+          "location": "entity-tab",
+          "icon": "code"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read",
+    "filesystem:read",
+    "filesystem:write"
+  ],
+  "settings_schema": {
+    "unity_project_path": {
+      "type": "string",
+      "label": "Unity Project Path",
+      "description": "Path to the Unity project root (contains Assets folder)",
+      "required": true,
+      "default": "",
+      "scope": "instance"
+    },
+    "output_subdir": {
+      "type": "string",
+      "label": "Output Subdirectory",
+      "description": "Subdirectory under Assets/ for exported data (e.g., Data/CityOfBrains)",
+      "required": false,
+      "default": "Assets/Data/CityOfBrains",
+      "scope": "instance"
+    },
+    "namespace": {
+      "type": "string",
+      "label": "C# Namespace",
+      "description": "Namespace for generated ScriptableObject scripts",
+      "required": false,
+      "default": "CityOfBrains.Data",
+      "scope": "instance"
+    },
+    "generate_enums": {
+      "type": "boolean",
+      "label": "Generate Enums",
+      "description": "Generate C# enum types from entity field options (e.g., Gender, Faction)",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    },
+    "export_portraits": {
+      "type": "boolean",
+      "label": "Export Portraits",
+      "description": "Include entity portrait images in export",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "generate_prefab_stubs": {
+      "type": "boolean",
+      "label": "Generate Prefab Stubs",
+      "description": "Create empty prefab stub references for exported entities",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "auto_generate_meta": {
+      "type": "boolean",
+      "label": "Generate .meta Files",
+      "description": "Create Unity .meta files alongside exported assets for stable GUIDs",
+      "required": false,
+      "default": true,
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#3DDC84",
+  "runtime": "wasm"
+}

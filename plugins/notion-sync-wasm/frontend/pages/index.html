@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+
+  /* --- Layout --- */
+  .container { max-width: 960px; margin: 0 auto; }
+
+  .page-header { margin-bottom: 32px; }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--surface-base-bg), var(--surface-elevated-border));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* Fallback for dark-on-dark */
+    background: linear-gradient(135deg, var(--surface-base-text), var(--surface-base-text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle {
+    color: var(--surface-base-text-secondary);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* --- Connection banner --- */
+  .connection-banner {
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .connection-banner.connected {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+  }
+  .connection-banner.disconnected {
+    background: rgba(234, 179, 8, 0.08);
+    border: 1px solid rgba(234, 179, 8, 0.25);
+  }
+  .connection-banner.error {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+  }
+  .conn-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .conn-dot.connected { background: var(--surface-success-border); box-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
+  .conn-dot.disconnected { background: var(--surface-warning-border); }
+  .conn-dot.error { background: var(--surface-error-border); }
+  .conn-info { flex: 1; }
+  .conn-title { font-weight: 600; font-size: 14px; }
+  .conn-detail { font-size: 12px; color: var(--surface-base-text-secondary); margin-top: 2px; }
+
+  /* --- Section --- */
+  .section {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    border: 1px solid var(--surface-elevated-border);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title svg { color: var(--surface-base-text-secondary); }
+
+  /* --- Database selector --- */
+  .db-select-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .db-select {
+    flex: 1;
+    min-width: 200px;
+    padding: 9px 12px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    appearance: none;
+    cursor: pointer;
+  }
+  .db-select:focus {
+    outline: none;
+    border-color: var(--surface-base-text);
+  }
+  .db-select option { background: var(--surface-base-bg); color: var(--surface-base-text); }
+
+  .btn-refresh-db {
+    padding: 9px 14px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+  .btn-refresh-db:hover {
+    border-color: var(--surface-base-text);
+    color: var(--surface-base-text);
+  }
+
+  /* --- Mapping table --- */
+  .mapping-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .mapping-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    border-bottom: 1px solid var(--surface-elevated-border);
+    font-weight: 600;
+  }
+  .mapping-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    vertical-align: middle;
+  }
+  .mapping-table tr:last-child td { border-bottom: none; }
+  .mapping-table tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+  .mapping-input {
+    width: 100%;
+    padding: 6px 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .mapping-input:focus {
+    outline: none;
+    border-color: var(--surface-base-text);
+  }
+
+  .mapping-type-select {
+    padding: 6px 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+    appearance: none;
+    cursor: pointer;
+  }
+  .mapping-type-select:focus {
+    outline: none;
+    border-color: var(--surface-base-text);
+  }
+
+  .entity-type-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .entity-type-tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    border: 1px solid transparent;
+    transition: all 0.15s;
+  }
+  .entity-type-tab:hover {
+    color: var(--surface-base-text);
+    border-color: var(--surface-elevated-border);
+  }
+  .entity-type-tab.active {
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    border-color: var(--surface-elevated-border);
+  }
+
+  .mapping-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: flex-end;
+  }
+
+  /* --- Overview grid --- */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .overview-card {
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .overview-count {
+    font-size: 28px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .overview-count.green { color: var(--surface-success-border); }
+  .overview-count.yellow { color: var(--surface-warning-border); }
+  .overview-count.red { color: var(--surface-error-border); }
+  .overview-count.blue { color: var(--surface-info-text-secondary); }
+  .overview-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-top: 4px;
+  }
+
+  /* --- Sync log --- */
+  .sync-log-list {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .sync-log-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--surface-base-bg);
+    font-size: 12px;
+  }
+  .sync-log-item:last-child { border-bottom: none; }
+  .sync-log-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .sync-log-dot.success { background: var(--surface-success-border); }
+  .sync-log-dot.fail { background: var(--surface-error-border); }
+  .sync-log-info { flex: 1; min-width: 0; }
+  .sync-log-name {
+    font-weight: 600;
+    color: var(--surface-base-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sync-log-detail {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 2px;
+  }
+  .sync-log-time {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--surface-elevated-border);
+    font-size: 13px;
+  }
+
+  /* --- Buttons --- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--surface-elevated-bg);
+    border-color: var(--surface-base-text);
+  }
+  .btn-secondary {
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    color: var(--surface-base-text);
+    border-color: var(--surface-elevated-border);
+  }
+  .btn-danger {
+    background: transparent;
+    color: var(--surface-error-border);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.1);
+  }
+  .btn-sync-all {
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    border: 1px solid var(--surface-elevated-border);
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  .btn-sync-all:hover:not(:disabled) {
+    background: var(--surface-elevated-bg);
+    border-color: var(--surface-base-text);
+  }
+
+  /* --- Add mapping row --- */
+  .add-mapping-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  .add-mapping-row input,
+  .add-mapping-row select {
+    flex: 1;
+    padding: 7px 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .add-mapping-row input:focus,
+  .add-mapping-row select:focus {
+    outline: none;
+    border-color: var(--surface-base-text);
+  }
+  .btn-add-mapping {
+    padding: 7px 12px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1;
+  }
+  .btn-add-mapping:hover {
+    border-color: var(--surface-base-text);
+    color: var(--surface-base-text);
+  }
+
+  .btn-remove-mapping {
+    background: none;
+    border: none;
+    color: var(--surface-elevated-border);
+    cursor: pointer;
+    padding: 4px;
+    font-size: 14px;
+    transition: color 0.15s;
+  }
+  .btn-remove-mapping:hover { color: var(--surface-error-border); }
+
+  /* --- Setup instructions --- */
+  .setup-steps {
+    list-style: none;
+    counter-reset: step;
+  }
+  .setup-steps li {
+    counter-increment: step;
+    padding: 10px 0 10px 36px;
+    position: relative;
+    font-size: 13px;
+    color: var(--surface-base-text-secondary);
+    line-height: 1.5;
+    border-bottom: 1px solid var(--surface-base-bg);
+  }
+  .setup-steps li:last-child { border-bottom: none; }
+  .setup-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--surface-base-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .setup-steps a {
+    color: var(--surface-base-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* --- Scrollbar --- */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface-elevated-border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--surface-elevated-border); }
+
+  /* --- Toast --- */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 1000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .toast.success {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--surface-success-border);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .toast.error {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--surface-error-border);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  /* --- Loading --- */
+  .loading-bar {
+    height: 3px;
+    background: var(--surface-elevated-bg);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .loading-bar.active { display: block; }
+  .loading-bar-fill {
+    height: 100%;
+    width: 30%;
+    background: var(--surface-base-text);
+    border-radius: 2px;
+    animation: loadSlide 1.2s ease-in-out infinite;
+  }
+  @keyframes loadSlide {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(200%); }
+    100% { transform: translateX(400%); }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <h1 class="page-title">Notion Sync</h1>
+      <p class="page-subtitle">Sync Studio entities with Notion databases. Map fields, manage connections, and keep your team wiki in sync.</p>
+    </div>
+
+    <!-- Loading bar -->
+    <div class="loading-bar" id="loading-bar"><div class="loading-bar-fill"></div></div>
+
+    <!-- Connection banner -->
+    <div class="connection-banner disconnected" id="conn-banner">
+      <div class="conn-dot disconnected" id="conn-dot"></div>
+      <div class="conn-info">
+        <div class="conn-title" id="conn-title">Checking connection...</div>
+        <div class="conn-detail" id="conn-detail">Verifying Notion integration</div>
+      </div>
+    </div>
+
+    <!-- Setup instructions (shown when not configured) -->
+    <div class="section" id="setup-section" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Setup Required
+        </div>
+      </div>
+      <ol class="setup-steps">
+        <li>Go to <a href="https://www.notion.so/my-integrations" target="_blank">notion.so/my-integrations</a> and create a new internal integration</li>
+        <li>Copy the Internal Integration Token</li>
+        <li>Open Studio <strong>Settings > Plugins > Notion Sync</strong> and paste the token</li>
+        <li>In Notion, open your database and click <strong>... > Connections > Add your integration</strong></li>
+        <li>Return here and select your database below</li>
+      </ol>
+    </div>
+
+    <!-- Database selector -->
+    <div class="section" id="db-section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Notion Database
+        </div>
+      </div>
+      <div class="db-select-container">
+        <select class="db-select" id="db-select">
+          <option value="">-- Select a database --</option>
+        </select>
+        <button class="btn-refresh-db" onclick="loadDatabases()" title="Refresh database list">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+            <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+      <div id="db-properties" style="margin-top: 12px; font-size: 12px; color: var(--surface-base-text-secondary);"></div>
+    </div>
+
+    <!-- Field Mapping -->
+    <div class="section" id="mapping-section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="8 6 3 12 8 18"/><polyline points="16 6 21 12 16 18"/></svg>
+          Field Mappings
+        </div>
+      </div>
+
+      <!-- Entity type tabs -->
+      <div class="entity-type-tabs" id="entity-type-tabs"></div>
+
+      <!-- Mapping table -->
+      <div id="mapping-table-container">
+        <table class="mapping-table">
+          <thead>
+            <tr>
+              <th style="width: 30%;">Studio Field</th>
+              <th style="width: 35%;">Notion Property</th>
+              <th style="width: 25%;">Property Type</th>
+              <th style="width: 10%;"></th>
+            </tr>
+          </thead>
+          <tbody id="mapping-tbody"></tbody>
+        </table>
+
+        <!-- Add row -->
+        <div class="add-mapping-row">
+          <input type="text" id="new-studio-field" placeholder="Studio field name">
+          <input type="text" id="new-notion-prop" placeholder="Notion property name">
+          <select id="new-notion-type">
+            <option value="title">Title</option>
+            <option value="rich_text">Rich Text</option>
+            <option value="select">Select</option>
+            <option value="multi_select">Multi Select</option>
+            <option value="number">Number</option>
+            <option value="checkbox">Checkbox</option>
+            <option value="url">URL</option>
+          </select>
+          <button class="btn-add-mapping" onclick="addMapping()" title="Add mapping">+</button>
+        </div>
+      </div>
+
+      <div class="mapping-actions">
+        <button class="btn btn-secondary" onclick="resetMappings()">Reset to Defaults</button>
+        <button class="btn btn-primary" onclick="saveMappings()">Save Mappings</button>
+      </div>
+    </div>
+
+    <!-- Sync Overview -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Sync Overview
+        </div>
+        <button class="btn btn-sync-all" id="btn-sync-all" onclick="syncAll()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+            <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+          </svg>
+          Sync All
+        </button>
+      </div>
+
+      <div class="overview-grid" id="overview-grid">
+        <div class="overview-card">
+          <div class="overview-count blue" id="ov-total">0</div>
+          <div class="overview-label">Total Tracked</div>
+        </div>
+        <div class="overview-card">
+          <div class="overview-count green" id="ov-synced">0</div>
+          <div class="overview-label">Synced</div>
+        </div>
+        <div class="overview-card">
+          <div class="overview-count yellow" id="ov-pending">0</div>
+          <div class="overview-label">Pending</div>
+        </div>
+        <div class="overview-card">
+          <div class="overview-count red" id="ov-error">0</div>
+          <div class="overview-label">Errors</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Sync Log -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Recent Sync Activity
+        </div>
+        <button class="btn btn-secondary" onclick="loadSyncLog()" style="padding: 6px 12px; font-size: 12px;">Refresh</button>
+      </div>
+      <div class="sync-log-list" id="sync-log-list">
+        <div class="empty-state">No sync activity yet</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+<script>
+  const API = '/api/ext/notion-sync';
+
+  let currentMappings = {};
+  let activeMappingType = 'character';
+  let databases = [];
+  let pluginStatus = null;
+
+  // -----------------------------------------------------------------------
+  // Init
+  // -----------------------------------------------------------------------
+
+  async function init() {
+    showLoading(true);
+
+    try {
+      // Load status, mappings, overview, and log in parallel
+      const [statusRes, mappingsRes, overviewRes, logRes] = await Promise.all([
+        fetch(`${API}/`).then(r => r.json()),
+        fetch(`${API}/mappings`).then(r => r.json()),
+        fetch(`${API}/overview`).then(r => r.json()),
+        fetch(`${API}/sync-log?limit=30`).then(r => r.json()),
+      ]);
+
+      pluginStatus = statusRes;
+      currentMappings = mappingsRes.mappings || {};
+
+      // Connection banner
+      renderConnection(statusRes);
+
+      // Setup section
+      if (!statusRes.api_key_configured) {
+        document.getElementById('setup-section').style.display = 'block';
+      }
+
+      // Entity type tabs
+      const entityTypes = overviewRes.entity_types || Object.keys(currentMappings);
+      renderEntityTypeTabs(entityTypes);
+
+      // Overview cards
+      renderOverview(statusRes.sync_stats || {});
+
+      // Sync log
+      renderSyncLog(logRes.items || []);
+
+      // Load databases if configured
+      if (statusRes.api_key_configured) {
+        loadDatabases();
+      }
+
+    } catch (err) {
+      console.error('Init error:', err);
+      showToast('Failed to load plugin data', 'error');
+    }
+
+    showLoading(false);
+  }
+
+  // -----------------------------------------------------------------------
+  // Connection
+  // -----------------------------------------------------------------------
+
+  function renderConnection(status) {
+    const banner = document.getElementById('conn-banner');
+    const dot = document.getElementById('conn-dot');
+    const title = document.getElementById('conn-title');
+    const detail = document.getElementById('conn-detail');
+
+    banner.className = 'connection-banner';
+    dot.className = 'conn-dot';
+
+    if (!status.api_key_configured) {
+      banner.classList.add('disconnected');
+      dot.classList.add('disconnected');
+      title.textContent = 'Not Configured';
+      detail.textContent = 'Add your Notion integration token in plugin settings';
+    } else if (status.notion_connected) {
+      banner.classList.add('connected');
+      dot.classList.add('connected');
+      title.textContent = 'Connected to Notion';
+      detail.textContent = status.workspace_name
+        ? `Workspace: ${status.workspace_name} | Auto-sync: ${status.auto_sync ? 'On' : 'Off'} | Direction: ${status.sync_direction}`
+        : `Auto-sync: ${status.auto_sync ? 'On' : 'Off'} | Direction: ${status.sync_direction}`;
+    } else {
+      banner.classList.add('error');
+      dot.classList.add('error');
+      title.textContent = 'Connection Failed';
+      detail.textContent = 'API key is set but Notion could not be reached. Check your token.';
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Databases
+  // -----------------------------------------------------------------------
+
+  async function loadDatabases() {
+    try {
+      const res = await fetch(`${API}/databases`).then(r => r.json());
+      databases = res.databases || [];
+
+      const select = document.getElementById('db-select');
+      select.innerHTML = '<option value="">-- Select a database --</option>';
+
+      const configuredId = pluginStatus?.database_id_configured ? '' : '';
+
+      databases.forEach(db => {
+        const opt = document.createElement('option');
+        opt.value = db.id;
+        opt.textContent = `${db.title} (${db.property_count} properties)`;
+        select.appendChild(opt);
+      });
+
+      // Listen for selection changes
+      select.onchange = function() {
+        const dbId = this.value;
+        const db = databases.find(d => d.id === dbId);
+        if (db) {
+          renderDatabaseProperties(db);
+        } else {
+          document.getElementById('db-properties').textContent = '';
+        }
+      };
+
+      if (databases.length === 0 && res.status === 'not_configured') {
+        document.getElementById('db-properties').innerHTML =
+          '<span style="color: var(--surface-warning-border);">Configure your API key first</span>';
+      } else if (databases.length === 0) {
+        document.getElementById('db-properties').innerHTML =
+          '<span style="color: var(--surface-base-text-secondary);">No databases found. Make sure you shared your database with the integration.</span>';
+      }
+
+    } catch (err) {
+      console.error('Error loading databases:', err);
+    }
+  }
+
+  function renderDatabaseProperties(db) {
+    const container = document.getElementById('db-properties');
+    if (!db.properties || Object.keys(db.properties).length === 0) {
+      container.textContent = 'No properties found in this database.';
+      return;
+    }
+    const propList = Object.entries(db.properties)
+      .map(([name, info]) => `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:var(--surface-base-bg);border-radius:4px;margin:2px;font-size:11px;"><strong>${name}</strong> <span style="color:var(--surface-base-text-secondary);">(${info.type})</span></span>`)
+      .join('');
+    container.innerHTML = `<div style="margin-top:4px;">Properties: ${propList}</div>`;
+  }
+
+  // -----------------------------------------------------------------------
+  // Field Mappings
+  // -----------------------------------------------------------------------
+
+  function renderEntityTypeTabs(types) {
+    const container = document.getElementById('entity-type-tabs');
+    container.innerHTML = '';
+
+    // Include defaults if not in list
+    const allTypes = [...new Set([...types, ...Object.keys(currentMappings)])];
+
+    allTypes.forEach(t => {
+      const tab = document.createElement('button');
+      tab.className = 'entity-type-tab' + (t === activeMappingType ? ' active' : '');
+      tab.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+      tab.onclick = () => {
+        activeMappingType = t;
+        renderEntityTypeTabs(allTypes);
+        renderMappingTable();
+      };
+      container.appendChild(tab);
+    });
+
+    // If active type not in list, select first
+    if (!allTypes.includes(activeMappingType) && allTypes.length > 0) {
+      activeMappingType = allTypes[0];
+    }
+
+    renderMappingTable();
+  }
+
+  function renderMappingTable() {
+    const tbody = document.getElementById('mapping-tbody');
+    const typeMap = currentMappings[activeMappingType] || {};
+
+    if (Object.keys(typeMap).length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" style="text-align:center; color:var(--surface-elevated-border); padding:20px;">
+            No mappings configured for "${activeMappingType}". Add one below.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    for (const [studioField, mapping] of Object.entries(typeMap)) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input class="mapping-input" value="${studioField}" data-field="${studioField}" onchange="updateMappingField(this, '${studioField}', 'studio_field')"></td>
+        <td><input class="mapping-input" value="${mapping.notion_property}" data-field="${studioField}" onchange="updateMappingField(this, '${studioField}', 'notion_property')"></td>
+        <td>
+          <select class="mapping-type-select" data-field="${studioField}" onchange="updateMappingField(this, '${studioField}', 'notion_type')">
+            <option value="title" ${mapping.notion_type === 'title' ? 'selected' : ''}>Title</option>
+            <option value="rich_text" ${mapping.notion_type === 'rich_text' ? 'selected' : ''}>Rich Text</option>
+            <option value="select" ${mapping.notion_type === 'select' ? 'selected' : ''}>Select</option>
+            <option value="multi_select" ${mapping.notion_type === 'multi_select' ? 'selected' : ''}>Multi Select</option>
+            <option value="number" ${mapping.notion_type === 'number' ? 'selected' : ''}>Number</option>
+            <option value="checkbox" ${mapping.notion_type === 'checkbox' ? 'selected' : ''}>Checkbox</option>
+            <option value="url" ${mapping.notion_type === 'url' ? 'selected' : ''}>URL</option>
+          </select>
+        </td>
+        <td><button class="btn-remove-mapping" onclick="removeMapping('${studioField}')" title="Remove mapping">x</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+
+  function updateMappingField(el, originalField, prop) {
+    if (!currentMappings[activeMappingType]) currentMappings[activeMappingType] = {};
+    const typeMap = currentMappings[activeMappingType];
+
+    if (prop === 'studio_field') {
+      const newField = el.value.trim();
+      if (newField && newField !== originalField) {
+        typeMap[newField] = typeMap[originalField];
+        delete typeMap[originalField];
+        renderMappingTable();
+      }
+    } else if (prop === 'notion_property') {
+      if (typeMap[originalField]) {
+        typeMap[originalField].notion_property = el.value.trim();
+      }
+    } else if (prop === 'notion_type') {
+      if (typeMap[originalField]) {
+        typeMap[originalField].notion_type = el.value;
+      }
+    }
+  }
+
+  function addMapping() {
+    const studioField = document.getElementById('new-studio-field').value.trim();
+    const notionProp = document.getElementById('new-notion-prop').value.trim();
+    const notionType = document.getElementById('new-notion-type').value;
+
+    if (!studioField || !notionProp) {
+      showToast('Enter both Studio field and Notion property names', 'error');
+      return;
+    }
+
+    if (!currentMappings[activeMappingType]) currentMappings[activeMappingType] = {};
+    currentMappings[activeMappingType][studioField] = {
+      notion_property: notionProp,
+      notion_type: notionType,
+    };
+
+    document.getElementById('new-studio-field').value = '';
+    document.getElementById('new-notion-prop').value = '';
+    renderMappingTable();
+  }
+
+  function removeMapping(field) {
+    if (currentMappings[activeMappingType]) {
+      delete currentMappings[activeMappingType][field];
+      renderMappingTable();
+    }
+  }
+
+  async function saveMappings() {
+    try {
+      const resp = await fetch(`${API}/mappings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mappings: currentMappings }),
+      });
+      if (!resp.ok) throw new Error('Failed to save');
+      showToast('Mappings saved', 'success');
+    } catch (err) {
+      showToast('Failed to save mappings: ' + err.message, 'error');
+    }
+  }
+
+  async function resetMappings() {
+    if (!confirm('Reset all field mappings to defaults? This will overwrite your custom mappings.')) return;
+    try {
+      const resp = await fetch(`${API}/mappings`).then(r => r.json());
+      // Reload from backend defaults by clearing file and re-loading
+      // For now, just reload
+      currentMappings = resp.mappings || {};
+      renderMappingTable();
+      showToast('Mappings reset to defaults', 'success');
+    } catch (err) {
+      showToast('Failed to reset mappings', 'error');
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Overview
+  // -----------------------------------------------------------------------
+
+  function renderOverview(stats) {
+    document.getElementById('ov-total').textContent = stats.total_tracked || 0;
+    document.getElementById('ov-synced').textContent = stats.synced || 0;
+    document.getElementById('ov-pending').textContent = stats.pending || 0;
+    document.getElementById('ov-error').textContent = stats.error || 0;
+  }
+
+  // -----------------------------------------------------------------------
+  // Sync All
+  // -----------------------------------------------------------------------
+
+  async function syncAll() {
+    const btn = document.getElementById('btn-sync-all');
+    btn.disabled = true;
+    btn.innerHTML = `
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;">
+        <polyline points="23 4 23 10 17 10"/>
+        <polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+        <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+      </svg>
+      Syncing...`;
+    showLoading(true);
+
+    try {
+      const resp = await fetch(`${API}/sync-all`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity_type: activeMappingType }),
+      });
+      const data = await resp.json();
+
+      if (data.status === 'not_configured') {
+        showToast('API key not configured', 'error');
+      } else {
+        showToast(`Synced ${data.synced || 0} of ${data.total || 0} entities (${data.errors || 0} errors)`, data.errors > 0 ? 'error' : 'success');
+        // Refresh overview and log
+        refreshOverviewAndLog();
+      }
+    } catch (err) {
+      showToast('Sync failed: ' + err.message, 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/>
+        <polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+        <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+      </svg>
+      Sync All`;
+    showLoading(false);
+  }
+
+  async function refreshOverviewAndLog() {
+    try {
+      const [statusRes, logRes] = await Promise.all([
+        fetch(`${API}/`).then(r => r.json()),
+        fetch(`${API}/sync-log?limit=30`).then(r => r.json()),
+      ]);
+      renderOverview(statusRes.sync_stats || {});
+      renderSyncLog(logRes.items || []);
+    } catch {}
+  }
+
+  // -----------------------------------------------------------------------
+  // Sync Log
+  // -----------------------------------------------------------------------
+
+  async function loadSyncLog() {
+    try {
+      const res = await fetch(`${API}/sync-log?limit=30`).then(r => r.json());
+      renderSyncLog(res.items || []);
+    } catch {}
+  }
+
+  function renderSyncLog(items) {
+    const container = document.getElementById('sync-log-list');
+
+    if (!items || items.length === 0) {
+      container.innerHTML = '<div class="empty-state">No sync activity yet. Sync an entity to get started.</div>';
+      return;
+    }
+
+    container.innerHTML = items.map(item => `
+      <div class="sync-log-item">
+        <div class="sync-log-dot ${item.success ? 'success' : 'fail'}"></div>
+        <div class="sync-log-info">
+          <div class="sync-log-name">${escapeHtml(item.entity_name || item.entity_id || 'Unknown')}</div>
+          <div class="sync-log-detail">${escapeHtml(item.entity_type || '')} &middot; ${escapeHtml(item.action || '')}${item.error ? ' &middot; ' + escapeHtml(item.error.substring(0, 80)) : ''}</div>
+        </div>
+        <div class="sync-log-time">${formatTime(item.timestamp)}</div>
+      </div>
+    `).join('');
+  }
+
+  // -----------------------------------------------------------------------
+  // Helpers
+  // -----------------------------------------------------------------------
+
+  function formatTime(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      const now = new Date();
+      const diff = now - d;
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      return d.toLocaleDateString();
+    } catch {
+      return iso;
+    }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showLoading(active) {
+    document.getElementById('loading-bar').classList.toggle('active', active);
+  }
+
+  function showToast(message, type) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast ' + type;
+    requestAnimationFrame(() => {
+      toast.classList.add('show');
+    });
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 4000);
+  }
+
+  // -----------------------------------------------------------------------
+  // Boot
+  // -----------------------------------------------------------------------
+  init();
+</script>
+</body>
+</html>

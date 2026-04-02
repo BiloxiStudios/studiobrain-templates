@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+
+  /* ---- Layout ---- */
+  .page-container { max-width: 1100px; margin: 0 auto; }
+
+  .page-header { margin-bottom: 28px; }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--plugin-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle { color: var(--surface-base-text-secondary); font-size: 15px; }
+
+  /* ---- Connection banner ---- */
+  .connection-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    border: 1px solid var(--surface-elevated-border);
+    background: var(--surface-elevated-bg);
+  }
+  .conn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .conn-icon.connected { background: rgba(52, 168, 83, 0.15); }
+  .conn-icon.disconnected { background: rgba(100, 116, 139, 0.2); }
+  .conn-icon svg { width: 22px; height: 22px; }
+  .conn-info { flex: 1; }
+  .conn-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--surface-base-text-secondary); margin-bottom: 2px; }
+  .conn-status { font-size: 15px; font-weight: 600; }
+  .conn-status.ok { color: var(--plugin-accent); }
+  .conn-status.warn { color: var(--surface-warning-border); }
+  .conn-status.off { color: var(--surface-base-text-secondary); }
+  .conn-detail { font-size: 12px; color: var(--surface-base-text-secondary); margin-top: 2px; }
+
+  /* ---- Config section ---- */
+  .section {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    border: 1px solid var(--surface-elevated-border);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title svg { opacity: 0.6; }
+  .section-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+  .badge-green { background: rgba(52, 168, 83, 0.15); color: var(--plugin-accent); }
+  .badge-gray { background: rgba(100, 116, 139, 0.15); color: var(--surface-base-text-secondary); }
+  .badge-blue { background: rgba(66, 133, 244, 0.15); color: var(--plugin-accent); }
+
+  /* ---- Form controls ---- */
+  .form-group { margin-bottom: 14px; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(52, 168, 83, 0.15);
+  }
+  .form-input::placeholder { color: var(--surface-elevated-border); }
+  .form-hint { font-size: 11px; color: var(--surface-elevated-border); margin-top: 4px; }
+
+  .form-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+  .form-row .form-group { flex: 1; margin-bottom: 0; }
+
+  /* ---- Buttons ---- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    color: white;
+  }
+  .btn:hover { filter: brightness(1.1); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+  .btn svg { width: 14px; height: 14px; }
+
+  .btn-primary { background: var(--plugin-accent); }
+  .btn-primary:hover { background: var(--surface-success-border); }
+  .btn-secondary { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+  .btn-secondary:hover { background: #3d4f65; }
+  .btn-danger { background: rgba(234, 67, 53, 0.15); color: var(--surface-error-border); border: 1px solid rgba(234, 67, 53, 0.3); }
+  .btn-danger:hover { background: rgba(234, 67, 53, 0.25); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-outline:hover { border-color: var(--plugin-accent); color: var(--plugin-accent); }
+
+  .btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* ---- Tabs ---- */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--surface-elevated-border);
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--surface-base-text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .tab:hover { color: var(--surface-base-text); }
+  .tab.active {
+    color: var(--plugin-accent);
+    border-bottom-color: var(--plugin-accent);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ---- Data table ---- */
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  thead { background: var(--surface-base-bg); }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  td {
+    padding: 9px 14px;
+    color: var(--surface-base-text-secondary);
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  tr:hover td { background: rgba(52, 168, 83, 0.04); }
+  td:first-child {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* ---- Field mapping ---- */
+  .mapping-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mapping-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .mapping-item:hover { border-color: var(--surface-elevated-border); }
+  .mapping-check {
+    accent-color: var(--plugin-accent);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .mapping-field {
+    font-size: 12px;
+    font-family: 'SF Mono', Monaco, monospace;
+    color: var(--surface-base-text-secondary);
+    width: 120px;
+    flex-shrink: 0;
+  }
+  .mapping-arrow {
+    color: var(--surface-elevated-border);
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .mapping-col-input {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .mapping-col-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+  }
+  .mapping-order {
+    font-size: 11px;
+    color: var(--surface-elevated-border);
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* ---- Sync log ---- */
+  .log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .log-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 6px;
+    font-size: 12px;
+    border-left: 3px solid var(--surface-elevated-border);
+  }
+  .log-entry.ok { border-left-color: var(--plugin-accent); }
+  .log-entry.error { border-left-color: var(--surface-error-border); }
+  .log-entry.pending { border-left-color: var(--surface-warning-border); }
+  .log-time {
+    font-size: 10px;
+    color: var(--surface-elevated-border);
+    white-space: nowrap;
+    min-width: 60px;
+    padding-top: 1px;
+  }
+  .log-body { flex: 1; }
+  .log-action {
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-right: 6px;
+  }
+  .log-detail { color: var(--surface-base-text-secondary); }
+  .log-type {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: rgba(52, 168, 83, 0.12);
+    color: var(--plugin-accent);
+    margin-left: 4px;
+  }
+
+  /* ---- Entity type pills ---- */
+  .type-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .type-pill {
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--surface-elevated-border);
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    transition: all 0.15s;
+  }
+  .type-pill:hover { border-color: var(--plugin-accent); color: var(--surface-base-text); }
+  .type-pill.active {
+    background: rgba(52, 168, 83, 0.12);
+    border-color: var(--plugin-accent);
+    color: var(--plugin-accent);
+  }
+
+  /* ---- Stats row ---- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--surface-elevated-border);
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-value.accent { color: var(--plugin-accent); }
+  .stat-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+  }
+
+  /* ---- Empty / loading ---- */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--surface-base-text-secondary);
+  }
+  .empty-state svg { opacity: 0.3; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; margin-bottom: 6px; }
+  .empty-state small { font-size: 12px; color: var(--surface-elevated-border); }
+
+  .loading-inline {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 360px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--plugin-accent); color: white; }
+  .toast.error { background: var(--surface-error-border); color: white; }
+  .toast.info { background: var(--plugin-accent); color: white; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface-elevated-border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--surface-elevated-border); }
+</style>
+</head>
+<body>
+
+<div class="page-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">Google Sheets Sync</h1>
+    <p class="page-subtitle">Sync entity data with Google Sheets for team spreadsheet workflows and bulk editing</p>
+  </div>
+
+  <!-- Connection banner -->
+  <div class="connection-banner" id="connection-banner">
+    <div class="conn-icon disconnected" id="conn-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--surface-base-text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+      </svg>
+    </div>
+    <div class="conn-info">
+      <div class="conn-label">Connection Status</div>
+      <div class="conn-status off" id="conn-status">Checking...</div>
+      <div class="conn-detail" id="conn-detail"></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" id="btn-sync-all" onclick="syncAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 2v6h-6M3 12a9 9 0 0115.3-6.4L21 8M3 22v-6h6M21 12a9 9 0 01-15.3 6.4L3 16"/>
+        </svg>
+        Sync All
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card">
+      <div class="stat-value accent" id="stat-types">--</div>
+      <div class="stat-label">Entity Types</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-synced">--</div>
+      <div class="stat-label">Last Sync</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-events">--</div>
+      <div class="stat-label">Sync Events</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-sheet">--</div>
+      <div class="stat-label">Spreadsheet</div>
+    </div>
+  </div>
+
+  <!-- Spreadsheet config -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Configuration
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom: 14px;">
+      <div class="form-group">
+        <label class="form-label">Spreadsheet ID</label>
+        <input type="text" class="form-input" id="input-spreadsheet-id" placeholder="e.g., 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+        <div class="form-hint">Found in the Google Sheets URL between /d/ and /edit</div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSpreadsheetId()" style="margin-bottom: 0; height: 38px;">
+        Save
+      </button>
+    </div>
+  </div>
+
+  <!-- Main tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('preview')">Preview Data</button>
+    <button class="tab" onclick="switchTab('mapping')">Field Mapping</button>
+    <button class="tab" onclick="switchTab('export')">Export / Import</button>
+    <button class="tab" onclick="switchTab('log')">Sync Log</button>
+  </div>
+
+  <!-- TAB: Preview -->
+  <div class="tab-content active" id="tab-preview">
+    <div class="type-pills" id="preview-type-pills"></div>
+    <div id="preview-table-area">
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+          <line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
+        </svg>
+        <p>Select an entity type above to preview data</p>
+        <small>Data will appear as it would in the spreadsheet</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Mapping -->
+  <div class="tab-content" id="tab-mapping">
+    <div class="type-pills" id="mapping-type-pills"></div>
+    <div id="mapping-area">
+      <div class="empty-state">
+        <p>Select an entity type to configure field mapping</p>
+        <small>Choose which fields become columns in your spreadsheet</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Export -->
+  <div class="tab-content" id="tab-export">
+    <div class="section" style="margin-bottom: 0; background: transparent; border: none; padding: 0;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <!-- Export card -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Export Entities
+            </div>
+          </div>
+          <p style="font-size: 13px; color: var(--surface-base-text-secondary); margin-bottom: 16px;">
+            Download entity data as CSV files. You can paste these into Google Sheets manually or use them for backup.
+          </p>
+          <div class="type-pills" id="export-type-pills" style="margin-bottom: 12px;"></div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="exportSelected('csv')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Export CSV
+            </button>
+            <button class="btn btn-secondary" onclick="exportSelected('json')">
+              Export JSON
+            </button>
+          </div>
+        </div>
+
+        <!-- Import card -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              Import from Sheets
+            </div>
+            <span class="section-badge badge-gray">Coming Soon</span>
+          </div>
+          <p style="font-size: 13px; color: var(--surface-base-text-secondary); margin-bottom: 16px;">
+            Import entity data from a Google Sheet or uploaded CSV. Requires Google API credentials to be configured in plugin settings.
+          </p>
+          <div class="btn-group">
+            <button class="btn btn-outline" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              Import CSV
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Log -->
+  <div class="tab-content" id="tab-log">
+    <div class="section-header">
+      <div class="section-title">Sync Activity Log</div>
+      <button class="btn btn-danger" onclick="clearState()" style="font-size: 11px; padding: 6px 12px;">
+        Clear Log
+      </button>
+    </div>
+    <div class="log-list" id="log-list">
+      <div class="empty-state">
+        <p>No sync activity yet</p>
+        <small>Sync events will appear here</small>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '/api/ext/google-sheets-sync';
+
+// Known entity types
+const ENTITY_TYPES = [
+  'character', 'location', 'item', 'brand', 'district',
+  'faction', 'job', 'quest', 'event', 'campaign', 'assembly'
+];
+
+let currentPreviewType = null;
+let currentMappingType = null;
+let selectedExportTypes = new Set(['character', 'location', 'item']);
+
+// -----------------------------------------------------------------------
+// Init
+// -----------------------------------------------------------------------
+async function init() {
+  try {
+    const [statusRes, mappingRes, historyRes] = await Promise.all([
+      fetch(`${API}/`).then(r => r.json()),
+      fetch(`${API}/mapping`).then(r => r.json()),
+      fetch(`${API}/history?limit=50`).then(r => r.json()),
+    ]);
+
+    // Connection banner
+    updateConnectionBanner(statusRes);
+
+    // Stats
+    updateStats(statusRes);
+
+    // Spreadsheet ID
+    if (statusRes.spreadsheet_id) {
+      document.getElementById('input-spreadsheet-id').value = statusRes.spreadsheet_id;
+    }
+
+    // Build type pills
+    const configuredTypes = Object.keys(mappingRes.mapping || {});
+    buildTypePills('preview-type-pills', configuredTypes, 'preview');
+    buildTypePills('mapping-type-pills', configuredTypes, 'mapping');
+    buildExportTypePills(configuredTypes);
+
+    // Render sync log
+    renderSyncLog(historyRes.entries || []);
+
+  } catch (err) {
+    console.error('Init error:', err);
+    showToast('Failed to connect to plugin backend', 'error');
+  }
+}
+
+function updateConnectionBanner(status) {
+  const icon = document.getElementById('conn-icon');
+  const statusEl = document.getElementById('conn-status');
+  const detail = document.getElementById('conn-detail');
+
+  if (status.status === 'ok') {
+    icon.className = 'conn-icon connected';
+    icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--plugin-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>';
+    statusEl.className = 'conn-status ok';
+    statusEl.textContent = 'Plugin Active';
+
+    if (status.spreadsheet_id) {
+      detail.textContent = `Spreadsheet linked | ${status.configured_types?.length || 0} types configured`;
+    } else {
+      statusEl.className = 'conn-status warn';
+      statusEl.textContent = 'Plugin Active (CSV Mode)';
+      detail.textContent = 'No spreadsheet linked. Using CSV export as fallback.';
+    }
+  } else {
+    statusEl.className = 'conn-status off';
+    statusEl.textContent = 'Disconnected';
+    detail.textContent = 'Cannot reach plugin backend';
+  }
+}
+
+function updateStats(status) {
+  document.getElementById('stat-types').textContent = status.configured_types?.length || 0;
+
+  if (status.last_sync) {
+    const d = new Date(status.last_sync);
+    const now = new Date();
+    const diffMin = Math.floor((now - d) / 60000);
+    let ts;
+    if (diffMin < 1) ts = 'Now';
+    else if (diffMin < 60) ts = `${diffMin}m`;
+    else if (diffMin < 1440) ts = `${Math.floor(diffMin / 60)}h`;
+    else ts = `${Math.floor(diffMin / 1440)}d`;
+    document.getElementById('stat-synced').textContent = ts;
+  } else {
+    document.getElementById('stat-synced').textContent = 'Never';
+  }
+
+  document.getElementById('stat-events').textContent = status.total_sync_events || 0;
+  document.getElementById('stat-sheet').textContent = status.spreadsheet_id ? 'Linked' : 'None';
+}
+
+// -----------------------------------------------------------------------
+// Type pills
+// -----------------------------------------------------------------------
+function buildTypePills(containerId, types, context) {
+  const container = document.getElementById(containerId);
+  const allTypes = types.length > 0 ? types : ENTITY_TYPES.slice(0, 5);
+  container.innerHTML = allTypes.map(t =>
+    `<button class="type-pill" data-type="${t}" onclick="selectType('${t}', '${context}')">${t}</button>`
+  ).join('');
+}
+
+function buildExportTypePills(types) {
+  const container = document.getElementById('export-type-pills');
+  const allTypes = types.length > 0 ? types : ENTITY_TYPES.slice(0, 5);
+  container.innerHTML = allTypes.map(t =>
+    `<button class="type-pill ${selectedExportTypes.has(t) ? 'active' : ''}"
+       data-type="${t}" onclick="toggleExportType('${t}', this)">${t}</button>`
+  ).join('');
+}
+
+function selectType(type, context) {
+  if (context === 'preview') {
+    currentPreviewType = type;
+    // Update active pill
+    document.querySelectorAll('#preview-type-pills .type-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.type === type);
+    });
+    loadPreview(type);
+  } else if (context === 'mapping') {
+    currentMappingType = type;
+    document.querySelectorAll('#mapping-type-pills .type-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.type === type);
+    });
+    loadMapping(type);
+  }
+}
+
+function toggleExportType(type, el) {
+  if (selectedExportTypes.has(type)) {
+    selectedExportTypes.delete(type);
+    el.classList.remove('active');
+  } else {
+    selectedExportTypes.add(type);
+    el.classList.add('active');
+  }
+}
+
+// -----------------------------------------------------------------------
+// Tabs
+// -----------------------------------------------------------------------
+function switchTab(tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  // Activate the tab button
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.textContent.toLowerCase().includes(tabId.replace('-', ' ').substring(0, 4))) {
+      t.classList.add('active');
+    }
+  });
+}
+
+// -----------------------------------------------------------------------
+// Preview
+// -----------------------------------------------------------------------
+async function loadPreview(entityType) {
+  const area = document.getElementById('preview-table-area');
+  area.innerHTML = '<div style="text-align:center; padding: 30px; color: var(--surface-base-text-secondary);"><span class="loading-inline"></span> Loading preview...</div>';
+
+  try {
+    const res = await fetch(`${API}/preview/${entityType}?limit=50`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (!data.rows || data.rows.length === 0) {
+      area.innerHTML = `
+        <div class="empty-state">
+          <p>No ${entityType} entities found</p>
+          <small>Create some entities first, then preview them here</small>
+        </div>`;
+      return;
+    }
+
+    const columns = data.columns || [];
+    const fields = columns.map(c => c.field);
+    const colNames = columns.map(c => c.column_name);
+
+    let html = `
+      <div style="margin-bottom: 10px; font-size: 12px; color: var(--surface-base-text-secondary);">
+        Showing ${data.preview_count} of ${data.total_entities} ${entityType}(s)
+        | ${columns.length} columns
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr>${colNames.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+          <tbody>`;
+
+    for (const row of data.rows) {
+      html += '<tr>';
+      for (const field of fields) {
+        let val = row[field] ?? '';
+        if (typeof val === 'object') val = JSON.stringify(val);
+        html += `<td title="${esc(String(val))}">${esc(String(val).substring(0, 80))}</td>`;
+      }
+      html += '</tr>';
+    }
+
+    html += '</tbody></table></div>';
+    area.innerHTML = html;
+
+  } catch (err) {
+    area.innerHTML = `<div class="empty-state"><p>Failed to load preview</p><small>${esc(err.message)}</small></div>`;
+  }
+}
+
+// -----------------------------------------------------------------------
+// Mapping
+// -----------------------------------------------------------------------
+async function loadMapping(entityType) {
+  const area = document.getElementById('mapping-area');
+  area.innerHTML = '<div style="text-align:center; padding: 30px; color: var(--surface-base-text-secondary);"><span class="loading-inline"></span> Loading mapping...</div>';
+
+  try {
+    const res = await fetch(`${API}/mapping`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const typeMapping = data.mapping[entityType] || {};
+    const fields = Object.entries(typeMapping).sort((a, b) => (a[1].order || 0) - (b[1].order || 0));
+
+    if (fields.length === 0) {
+      area.innerHTML = `
+        <div class="empty-state">
+          <p>No fields configured for ${entityType}</p>
+          <small>Fields will be auto-discovered on first sync</small>
+        </div>`;
+      return;
+    }
+
+    let html = '<div class="mapping-list">';
+    for (const [field, config] of fields) {
+      const checked = config.enabled !== false ? 'checked' : '';
+      const colName = config.column || field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+      html += `
+        <div class="mapping-item">
+          <span class="mapping-order">${(config.order || 0) + 1}</span>
+          <input type="checkbox" class="mapping-check" ${checked}
+                 data-field="${field}" onchange="onMappingChange()">
+          <span class="mapping-field">${esc(field)}</span>
+          <span class="mapping-arrow">&rarr;</span>
+          <input type="text" class="mapping-col-input" value="${esc(colName)}"
+                 data-field="${field}" onchange="onMappingChange()">
+        </div>`;
+    }
+    html += '</div>';
+    html += `<div style="margin-top: 12px;">
+      <button class="btn btn-primary" id="btn-save-mapping" onclick="saveMapping('${entityType}')">
+        Save Mapping
+      </button>
+    </div>`;
+    area.innerHTML = html;
+
+  } catch (err) {
+    area.innerHTML = `<div class="empty-state"><p>Failed to load mapping</p><small>${esc(err.message)}</small></div>`;
+  }
+}
+
+function onMappingChange() {
+  // Visual feedback that changes exist
+  const btn = document.getElementById('btn-save-mapping');
+  if (btn) btn.textContent = 'Save Mapping *';
+}
+
+async function saveMapping(entityType) {
+  const items = document.querySelectorAll('.mapping-item');
+  const mapping = {};
+
+  items.forEach(item => {
+    const checkbox = item.querySelector('.mapping-check');
+    const colInput = item.querySelector('.mapping-col-input');
+    const field = checkbox.dataset.field;
+    const orderEl = item.querySelector('.mapping-order');
+
+    mapping[field] = {
+      column: colInput.value,
+      enabled: checkbox.checked,
+      order: parseInt(orderEl.textContent) - 1,
+    };
+  });
+
+  const btn = document.getElementById('btn-save-mapping');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try {
+    const res = await fetch(`${API}/mapping`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mapping: { [entityType]: mapping } }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    btn.textContent = 'Save Mapping';
+    showToast(`Mapping saved for ${entityType}`, 'success');
+  } catch (err) {
+    showToast('Failed to save mapping: ' + err.message, 'error');
+    btn.textContent = 'Save Mapping';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// -----------------------------------------------------------------------
+// Export
+// -----------------------------------------------------------------------
+async function exportSelected(format) {
+  if (selectedExportTypes.size === 0) {
+    showToast('Select at least one entity type to export', 'info');
+    return;
+  }
+
+  for (const type of selectedExportTypes) {
+    try {
+      if (format === 'csv') {
+        // Trigger download
+        const a = document.createElement('a');
+        a.href = `${API}/export/${type}?format=csv`;
+        a.download = `${type}s_export.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        const res = await fetch(`${API}/export/${type}?format=json`, { method: 'POST' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        // Download as JSON file
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${type}s_export.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      showToast(`Export failed for ${type}: ${err.message}`, 'error');
+      return;
+    }
+  }
+
+  showToast(`Exported ${selectedExportTypes.size} type(s) as ${format.toUpperCase()}`, 'success');
+  // Refresh log
+  refreshLog();
+}
+
+// -----------------------------------------------------------------------
+// Sync
+// -----------------------------------------------------------------------
+async function syncAll() {
+  const btn = document.getElementById('btn-sync-all');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-inline"></span> Syncing...';
+
+  try {
+    const res = await fetch(`${API}/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    showToast(
+      `Synced ${data.total_entities} entities across ${data.synced_types} type(s)`,
+      'success'
+    );
+
+    // Refresh everything
+    init();
+
+  } catch (err) {
+    showToast('Sync failed: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 2v6h-6M3 12a9 9 0 0115.3-6.4L21 8M3 22v-6h6M21 12a9 9 0 01-15.3 6.4L3 16"/>
+      </svg>
+      Sync All`;
+  }
+}
+
+// -----------------------------------------------------------------------
+// Spreadsheet ID
+// -----------------------------------------------------------------------
+async function saveSpreadsheetId() {
+  const id = document.getElementById('input-spreadsheet-id').value.trim();
+  if (!id) {
+    showToast('Enter a spreadsheet ID', 'info');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/set-spreadsheet?spreadsheet_id=${encodeURIComponent(id)}`, {
+      method: 'POST',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    showToast('Spreadsheet ID saved', 'success');
+    init();
+  } catch (err) {
+    showToast('Failed to save: ' + err.message, 'error');
+  }
+}
+
+// -----------------------------------------------------------------------
+// Sync log
+// -----------------------------------------------------------------------
+function renderSyncLog(entries) {
+  const list = document.getElementById('log-list');
+  if (!entries || entries.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>No sync activity yet</p><small>Sync events will appear here</small></div>';
+    return;
+  }
+
+  list.innerHTML = entries.map(e => {
+    const d = new Date(e.timestamp);
+    const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    const statusClass = e.status || 'ok';
+
+    return `
+      <div class="log-entry ${statusClass}">
+        <div class="log-time">${dateStr}<br>${timeStr}</div>
+        <div class="log-body">
+          <span class="log-action">${esc(e.action)}</span>
+          ${e.entity_type ? `<span class="log-type">${esc(e.entity_type)}</span>` : ''}
+          <br>
+          <span class="log-detail">${esc(e.detail || '')}${e.count ? ` (${e.count} entities)` : ''}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function refreshLog() {
+  try {
+    const res = await fetch(`${API}/history?limit=50`);
+    if (!res.ok) return;
+    const data = await res.json();
+    renderSyncLog(data.entries || []);
+  } catch {}
+}
+
+async function clearState() {
+  if (!confirm('Clear all sync state and logs? This cannot be undone.')) return;
+  try {
+    const res = await fetch(`${API}/clear-state`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    showToast('Sync state cleared', 'success');
+    init();
+  } catch (err) {
+    showToast('Failed to clear state: ' + err.message, 'error');
+  }
+}
+
+// -----------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------
+function esc(s) {
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type}`;
+  // Force reflow
+  void el.offsetWidth;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// -----------------------------------------------------------------------
+// Boot
+// -----------------------------------------------------------------------
+init();
+</script>
+</body>
+</html>

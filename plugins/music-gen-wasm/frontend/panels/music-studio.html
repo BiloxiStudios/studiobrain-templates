@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  .header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-icon { color: var(--plugin-accent); }
+  .header-sub {
+    font-size: 13px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 20px;
+  }
+
+  /* Context bar */
+  .context-info {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .context-item { display: flex; flex-direction: column; gap: 2px; }
+  .context-label { font-size: 11px; color: var(--surface-base-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+  .context-value { font-size: 13px; color: var(--surface-base-text); font-weight: 500; }
+
+  /* Section cards */
+  .section {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title svg { width: 16px; height: 16px; color: var(--plugin-accent); }
+
+  /* Form elements */
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 5px;
+  }
+  .form-textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 10px 12px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(236,72,153,0.15);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  .form-select, .form-input {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .form-select:focus, .form-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(236,72,153,0.15);
+  }
+  .form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn svg { width: 14px; height: 14px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-bg));
+    color: white;
+  }
+  .btn-primary:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text);
+  }
+  .btn-secondary:hover:not(:disabled) { background: var(--surface-elevated-border); }
+
+  .btn-danger {
+    background: rgba(239,68,68,0.15);
+    color: var(--surface-error-text);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .btn-danger:hover:not(:disabled) { background: rgba(239,68,68,0.25); }
+
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+
+  /* Progress/spinner */
+  .gen-progress {
+    display: none;
+    margin-top: 12px;
+  }
+  .gen-progress.show { display: block; }
+  .progress-bar-wrap {
+    width: 100%;
+    height: 6px;
+    background: var(--surface-elevated-border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--plugin-accent), var(--surface-secondary-bg));
+    border-radius: 3px;
+    width: 0%;
+    animation: progressAnim 3s ease-in-out infinite;
+  }
+  @keyframes progressAnim {
+    0% { width: 5%; }
+    50% { width: 80%; }
+    100% { width: 95%; }
+  }
+  .progress-text {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* Track list */
+  .track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .track-item {
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--surface-elevated-bg);
+    transition: border-color 0.15s;
+  }
+  .track-item:hover { border-color: var(--surface-elevated-border); }
+
+  .track-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .track-info { flex: 1; min-width: 0; }
+  .track-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .track-details {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .track-badge {
+    padding: 1px 6px;
+    background: rgba(236,72,153,0.15);
+    color: var(--plugin-accent);
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .track-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  /* Mini player in track list */
+  .track-player {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .track-play-btn {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--plugin-accent);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .track-play-btn:hover { background: var(--plugin-accent); }
+  .track-play-btn svg { width: 12px; height: 12px; fill: white; }
+
+  .track-progress-wrap {
+    flex: 1;
+    height: 4px;
+    background: var(--surface-elevated-border);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .track-progress-fill {
+    height: 100%;
+    background: var(--plugin-accent);
+    border-radius: 2px;
+    width: 0%;
+  }
+  .track-time {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* Empty track list */
+  .empty-tracks {
+    text-align: center;
+    padding: 30px 16px;
+    color: var(--surface-base-text-secondary);
+  }
+  .empty-tracks-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+  }
+  .empty-tracks-text {
+    font-size: 13px;
+  }
+
+  /* Status messages */
+  .status-bar {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-top: 12px;
+    display: none;
+  }
+  .status-bar.show { display: flex; align-items: center; gap: 6px; }
+  .status-bar.info { background: rgba(59,130,246,0.12); color: var(--surface-info-text); }
+  .status-bar.success { background: rgba(34,197,94,0.12); color: var(--surface-success-text-secondary); }
+  .status-bar.error { background: rgba(239,68,68,0.12); color: var(--surface-error-text); }
+
+  /* Spinner */
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Prompt preview */
+  .prompt-preview {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    line-height: 1.5;
+    margin-top: 8px;
+    display: none;
+  }
+  .prompt-preview.show { display: block; }
+  .prompt-preview strong { color: var(--surface-base-text); }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <svg class="header-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+    </svg>
+    Music Studio
+  </div>
+  <div class="header-sub">Generate and manage music tracks for this entity</div>
+
+  <div class="context-info">
+    <div class="context-item">
+      <span class="context-label">Entity Type</span>
+      <span class="context-value" id="ctx-type">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Entity ID</span>
+      <span class="context-value" id="ctx-id">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Provider</span>
+      <span class="context-value" id="ctx-provider">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Tracks</span>
+      <span class="context-value" id="ctx-tracks">0</span>
+    </div>
+  </div>
+
+  <!-- Generation section -->
+  <div class="section">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+      </svg>
+      Generate Music
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Prompt</label>
+      <textarea class="form-textarea" id="prompt-input" placeholder="Describe the music you want to generate...&#10;&#10;e.g., Dark ambient music for an underground dungeon with dripping water and echoing footsteps. Tense and foreboding atmosphere."></textarea>
+    </div>
+
+    <div class="btn-row" style="margin-bottom: 14px;">
+      <button class="btn btn-secondary btn-sm" onclick="autoGeneratePrompt()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/>
+        </svg>
+        Auto-Generate Prompt
+      </button>
+    </div>
+
+    <div class="prompt-preview" id="prompt-preview"></div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Duration (seconds)</label>
+        <input type="number" class="form-input" id="duration-input" value="30" min="5" max="300" step="5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Genre</label>
+        <select class="form-select" id="genre-select">
+          <option value="ambient">Ambient</option>
+          <option value="orchestral">Orchestral</option>
+          <option value="dark ambient">Dark Ambient</option>
+          <option value="folk">Folk</option>
+          <option value="classical">Classical</option>
+          <option value="electronic">Electronic</option>
+          <option value="cinematic">Cinematic</option>
+          <option value="world">World</option>
+          <option value="lo-fi">Lo-Fi</option>
+          <option value="synthwave">Synthwave</option>
+          <option value="epic">Epic</option>
+          <option value="jazz">Jazz</option>
+          <option value="metal">Metal</option>
+          <option value="rock">Rock</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mood</label>
+        <select class="form-select" id="mood-select">
+          <option value="">Auto</option>
+          <option value="mysterious">Mysterious</option>
+          <option value="epic">Epic</option>
+          <option value="dark">Dark</option>
+          <option value="serene">Serene</option>
+          <option value="tense">Tense</option>
+          <option value="uplifting">Uplifting</option>
+          <option value="melancholic">Melancholic</option>
+          <option value="majestic">Majestic</option>
+          <option value="playful">Playful</option>
+          <option value="contemplative">Contemplative</option>
+          <option value="aggressive">Aggressive</option>
+          <option value="romantic">Romantic</option>
+          <option value="desolate">Desolate</option>
+          <option value="triumphant">Triumphant</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="generate-btn" onclick="generateMusic()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+        </svg>
+        Generate Track
+      </button>
+    </div>
+
+    <div class="gen-progress" id="gen-progress">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-inner"></div>
+      </div>
+      <div class="progress-text" id="progress-text">Generating music...</div>
+    </div>
+
+    <div class="status-bar" id="status-bar"></div>
+  </div>
+
+  <!-- Track list section -->
+  <div class="section">
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10"/><path d="M3 15h18v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4z"/>
+      </svg>
+      Entity Tracks
+    </div>
+
+    <div class="track-list" id="track-list">
+      <div class="empty-tracks">
+        <div class="empty-tracks-icon">&#9835;</div>
+        <div class="empty-tracks-text">No tracks generated yet.<br>Use the form above to create music.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden audio element for track playback -->
+  <audio id="studio-audio" preload="metadata"></audio>
+
+<script>
+  const API_BASE = '/api/ext/music-gen';
+  const ctx = window.PLUGIN_CONTEXT || {};
+  const entityType = ctx.entityType || 'character';
+  const entityId = ctx.entityId || '';
+
+  document.getElementById('ctx-type').textContent = entityType;
+  document.getElementById('ctx-id').textContent = entityId || 'new';
+
+  let tracks = [];
+  let activeTrackIdx = -1;
+  let isPlaying = false;
+  const audioEl = document.getElementById('studio-audio');
+
+  // ------ Status & UI helpers ------
+
+  function showStatus(msg, type) {
+    const el = document.getElementById('status-bar');
+    el.innerHTML = msg;
+    el.className = 'status-bar show ' + type;
+    if (type !== 'info') {
+      setTimeout(() => { el.className = 'status-bar'; }, 5000);
+    }
+  }
+
+  function setGenerating(on) {
+    const btn = document.getElementById('generate-btn');
+    const progress = document.getElementById('gen-progress');
+    btn.disabled = on;
+    if (on) {
+      btn.innerHTML = '<span class="spinner"></span> Generating...';
+      progress.classList.add('show');
+    } else {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+      </svg> Generate Track`;
+      progress.classList.remove('show');
+    }
+  }
+
+  // ------ Load plugin status ------
+
+  async function loadStatus() {
+    try {
+      const resp = await fetch(`${API_BASE}/`);
+      const data = await resp.json();
+      document.getElementById('ctx-provider').textContent =
+        data.provider + (data.api_configured ? '' : ' (no key)');
+      document.getElementById('duration-input').value = data.default_duration || 30;
+
+      // Set default genre
+      const genreSelect = document.getElementById('genre-select');
+      const defaultGenre = data.default_genre || 'ambient';
+      for (const opt of genreSelect.options) {
+        if (opt.value === defaultGenre) { opt.selected = true; break; }
+      }
+    } catch (err) {
+      console.error('Failed to load status:', err);
+    }
+  }
+
+  // ------ Auto-generate prompt ------
+
+  async function autoGeneratePrompt() {
+    if (!entityId) {
+      showStatus('Save the entity first before auto-generating a prompt.', 'error');
+      return;
+    }
+
+    const preview = document.getElementById('prompt-preview');
+    preview.innerHTML = 'Analyzing entity data...';
+    preview.classList.add('show');
+
+    try {
+      const resp = await fetch(`${API_BASE}/auto-prompt/${entityType}/${entityId}`, {
+        method: 'POST',
+      });
+      const data = await resp.json();
+
+      if (data.success) {
+        document.getElementById('prompt-input').value = data.prompt;
+
+        // Set suggested genre and mood
+        const genreSelect = document.getElementById('genre-select');
+        for (const opt of genreSelect.options) {
+          if (opt.value === data.suggested_genre) { opt.selected = true; break; }
+        }
+        const moodSelect = document.getElementById('mood-select');
+        for (const opt of moodSelect.options) {
+          if (opt.value === data.suggested_mood) { opt.selected = true; break; }
+        }
+
+        preview.innerHTML =
+          `<strong>Auto-generated for:</strong> ${data.entity_name}<br>` +
+          `<strong>Suggested genre:</strong> ${data.suggested_genre} | ` +
+          `<strong>Mood:</strong> ${data.suggested_mood}`;
+        preview.classList.add('show');
+
+        showStatus('Prompt generated from entity data!', 'success');
+      } else {
+        preview.classList.remove('show');
+        showStatus('Failed to generate prompt.', 'error');
+      }
+    } catch (err) {
+      preview.classList.remove('show');
+      showStatus('Error: ' + err.message, 'error');
+    }
+  }
+
+  // ------ Generate music ------
+
+  async function generateMusic() {
+    const prompt = document.getElementById('prompt-input').value.trim();
+    if (!prompt) {
+      showStatus('Please enter a prompt describing the music.', 'error');
+      return;
+    }
+    if (!entityId) {
+      showStatus('Save the entity first before generating music.', 'error');
+      return;
+    }
+
+    const duration = parseInt(document.getElementById('duration-input').value) || 30;
+    const genre = document.getElementById('genre-select').value;
+    const mood = document.getElementById('mood-select').value;
+
+    setGenerating(true);
+    document.getElementById('progress-text').textContent = 'Sending to generation service...';
+
+    try {
+      const resp = await fetch(`${API_BASE}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt,
+          duration,
+          genre,
+          mood: mood || undefined,
+          entity_type: entityType,
+          entity_id: entityId,
+        }),
+      });
+      const data = await resp.json();
+
+      if (data.success) {
+        const mockNote = data.mock ? ' (mock mode - configure API key for real generation)' : '';
+        showStatus('Track generated successfully!' + mockNote, 'success');
+        await loadTracks();
+      } else {
+        showStatus('Generation failed: ' + (data.message || 'Unknown error'), 'error');
+      }
+    } catch (err) {
+      showStatus('Error: ' + err.message, 'error');
+    }
+
+    setGenerating(false);
+  }
+
+  // ------ Load and render tracks ------
+
+  async function loadTracks() {
+    if (!entityId) return;
+    try {
+      const resp = await fetch(`${API_BASE}/tracks/${entityType}/${entityId}`);
+      const data = await resp.json();
+      tracks = data.tracks || [];
+      document.getElementById('ctx-tracks').textContent = tracks.length;
+      renderTracks();
+    } catch (err) {
+      console.error('Failed to load tracks:', err);
+    }
+  }
+
+  function renderTracks() {
+    const list = document.getElementById('track-list');
+
+    if (tracks.length === 0) {
+      list.innerHTML = `
+        <div class="empty-tracks">
+          <div class="empty-tracks-icon">&#9835;</div>
+          <div class="empty-tracks-text">No tracks generated yet.<br>Use the form above to create music.</div>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = tracks.map((t, i) => {
+      const title = t.prompt ? t.prompt.substring(0, 60) : t.filename;
+      const date = t.created_at ? new Date(t.created_at * 1000).toLocaleDateString() : '';
+      return `
+        <div class="track-item" id="track-item-${i}">
+          <div class="track-header">
+            <div class="track-info">
+              <div class="track-title" title="${(t.prompt || t.filename).replace(/"/g, '&quot;')}">${title}</div>
+              <div class="track-details">
+                <span class="track-badge">${t.genre || 'unknown'}</span>
+                ${t.mood ? `<span class="track-badge">${t.mood}</span>` : ''}
+                <span>${t.duration ? t.duration + 's' : ''}</span>
+                <span>${t.provider || ''}</span>
+                <span>${date}</span>
+              </div>
+            </div>
+            <div class="track-actions">
+              <a class="btn btn-secondary btn-sm" href="${t.audio_url}" download="${t.filename}" title="Download">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </a>
+              <button class="btn btn-danger btn-sm" onclick="deleteTrack('${t.id}', ${i})" title="Delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                  <polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="track-player">
+            <button class="track-play-btn" onclick="toggleTrack(${i})" id="track-btn-${i}">
+              <svg class="t-play-icon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            <div class="track-progress-wrap" onclick="seekTrack(event, ${i})" id="track-prog-wrap-${i}">
+              <div class="track-progress-fill" id="track-prog-${i}"></div>
+            </div>
+            <span class="track-time" id="track-time-${i}">0:00</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ------ Track playback ------
+
+  function fmtTime(sec) {
+    if (!sec || isNaN(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  audioEl.addEventListener('timeupdate', () => {
+    if (activeTrackIdx < 0 || !audioEl.duration) return;
+    const pct = (audioEl.currentTime / audioEl.duration) * 100;
+    const progEl = document.getElementById(`track-prog-${activeTrackIdx}`);
+    const timeEl = document.getElementById(`track-time-${activeTrackIdx}`);
+    if (progEl) progEl.style.width = pct + '%';
+    if (timeEl) timeEl.textContent = fmtTime(audioEl.currentTime);
+  });
+
+  audioEl.addEventListener('ended', () => {
+    isPlaying = false;
+    if (activeTrackIdx >= 0) {
+      updatePlayButton(activeTrackIdx, false);
+    }
+  });
+
+  function updatePlayButton(idx, playing) {
+    const btn = document.getElementById(`track-btn-${idx}`);
+    if (!btn) return;
+    if (playing) {
+      btn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/></svg>`;
+    } else {
+      btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>`;
+    }
+  }
+
+  function toggleTrack(idx) {
+    if (activeTrackIdx === idx && isPlaying) {
+      audioEl.pause();
+      isPlaying = false;
+      updatePlayButton(idx, false);
+      return;
+    }
+
+    // Stop previous
+    if (activeTrackIdx >= 0 && activeTrackIdx !== idx) {
+      updatePlayButton(activeTrackIdx, false);
+      const prevProg = document.getElementById(`track-prog-${activeTrackIdx}`);
+      if (prevProg) prevProg.style.width = '0%';
+    }
+
+    if (activeTrackIdx !== idx) {
+      audioEl.src = tracks[idx].audio_url;
+      activeTrackIdx = idx;
+    }
+
+    audioEl.play().catch(() => {});
+    isPlaying = true;
+    updatePlayButton(idx, true);
+  }
+
+  function seekTrack(e, idx) {
+    if (activeTrackIdx !== idx || !audioEl.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    audioEl.currentTime = pct * audioEl.duration;
+  }
+
+  // ------ Delete track ------
+
+  async function deleteTrack(trackId, idx) {
+    if (!confirm('Delete this track? The audio file will also be removed.')) return;
+
+    // Stop playback if this track is playing
+    if (activeTrackIdx === idx) {
+      audioEl.pause();
+      isPlaying = false;
+      activeTrackIdx = -1;
+    }
+
+    try {
+      const resp = await fetch(`${API_BASE}/tracks/${trackId}`, { method: 'DELETE' });
+      const data = await resp.json();
+      if (data.success) {
+        showStatus('Track deleted.', 'success');
+        await loadTracks();
+      } else {
+        showStatus('Failed to delete: ' + (data.message || data.detail || ''), 'error');
+      }
+    } catch (err) {
+      showStatus('Error: ' + err.message, 'error');
+    }
+  }
+
+  // ------ Init ------
+  loadStatus();
+  loadTracks();
+</script>
+</body>
+</html>

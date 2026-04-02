@@ -1,0 +1,112 @@
+{
+  "id": "showrunner-exporter-wasm",
+  "name": "Showrunner Exporter (WASM)",
+  "version": "1.0.0",
+  "description": "Export entities and narratives to Showrunner.xyz for AI-powered show production. Push character bibles, episode outlines, dialogue scripts, and world data to Showrunner projects.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "ai-generation",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "showrunner-dashboard",
+          "route": "/plugins/showrunner-exporter-wasm",
+          "label": "Showrunner",
+          "icon": "clapperboard",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "showrunner-status",
+          "label": "Showrunner Export",
+          "location": "entity-sidebar",
+          "icon": "upload"
+        },
+        {
+          "id": "showrunner-preview",
+          "label": "Showrunner Preview",
+          "location": "entity-tab",
+          "icon": "eye"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read",
+    "network:external",
+    "filesystem:read",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "showrunner_api_key": {
+      "type": "secret",
+      "label": "Showrunner API Key",
+      "description": "API key for your Showrunner.xyz account",
+      "required": true,
+      "scope": "instance"
+    },
+    "project_id": {
+      "type": "string",
+      "label": "Showrunner Project ID",
+      "description": "Target project/show ID in Showrunner",
+      "required": true,
+      "scope": "instance"
+    },
+    "auto_sync": {
+      "type": "boolean",
+      "label": "Auto-sync on Entity Update",
+      "description": "Automatically push entity changes to Showrunner when they are updated",
+      "required": false,
+      "default": false,
+      "scope": "instance"
+    },
+    "include_voice_data": {
+      "type": "boolean",
+      "label": "Include Voice Data",
+      "description": "Include voice style and voice reference data in character exports",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "showrunner_api_url": {
+      "type": "string",
+      "label": "Showrunner API URL",
+      "description": "Base URL for the Showrunner.xyz API",
+      "required": false,
+      "default": "https://api.showrunner.xyz",
+      "scope": "instance"
+    },
+    "export_mode": {
+      "type": "string",
+      "label": "Export Mode",
+      "description": "What to export: characters-only, full-bible (characters + locations + factions), episode-pack (includes quests as episodes)",
+      "required": false,
+      "default": "full-bible",
+      "scope": "instance"
+    },
+    "dialogue_format": {
+      "type": "string",
+      "label": "Dialogue Format",
+      "description": "Script format for dialogue exports: screenplay, fountain, showrunner-native",
+      "required": false,
+      "default": "showrunner-native",
+      "scope": "instance"
+    },
+    "include_portraits": {
+      "type": "boolean",
+      "label": "Include Character Portraits",
+      "description": "Upload entity portraits as character reference images",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    }
+  },
+  "accent_color": "#FF6B35",
+  "runtime": "wasm"
+}

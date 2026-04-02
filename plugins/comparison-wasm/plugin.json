@@ -1,0 +1,49 @@
+{
+  "id": "comparison-wasm",
+  "name": "Entity Comparison (WASM)",
+  "version": "1.0.0",
+  "description": "Side-by-side entity and version comparison tool. Compare two entities of the same type, two versions of the same entity, or an entity against its template.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "development",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "comparison-dashboard",
+          "route": "/plugins/comparison-wasm",
+          "label": "Comparison",
+          "icon": "git-compare",
+          "nav_section": "plugins"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read"
+  ],
+  "settings_schema": {
+    "brains_root": {
+      "type": "string",
+      "label": "Brains Repository Root",
+      "description": "Path to the Brains repository. Use environment variable BRAINS_ROOT or default to '.' (current directory)",
+      "required": false,
+      "default": ".",
+      "scope": "instance"
+    },
+    "diff_context_lines": {
+      "type": "number",
+      "label": "Diff Context Lines",
+      "description": "Number of context lines to show around each change in diffs",
+      "required": false,
+      "default": 3,
+      "scope": "user"
+    }
+  },
+  "accent_color": "var(--surface-primary-bg)",
+  "runtime": "wasm"
+}

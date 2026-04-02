@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  .header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-warning-border));
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-icon svg { width: 16px; height: 16px; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 20px;
+  }
+  .tab {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .tab.active {
+    background: var(--surface-elevated-bg);
+    color: var(--plugin-accent);
+  }
+  .tab:hover:not(.active) { color: var(--surface-base-text-secondary); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Section styling */
+  .section {
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 10px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+  }
+
+  /* Data table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .data-table td {
+    padding: 5px 8px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+  }
+  .data-table td:first-child {
+    color: var(--surface-base-text-secondary);
+    width: 120px;
+  }
+  .data-table td:last-child {
+    color: var(--surface-base-text);
+    font-weight: 500;
+  }
+
+  /* Export data viewer */
+  .json-viewer {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Fira Code', 'SF Mono', monospace;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.6;
+  }
+  .json-key { color: var(--plugin-accent); }
+  .json-string { color: var(--surface-success-border); }
+  .json-number { color: var(--plugin-accent); }
+  .json-null { color: var(--surface-base-text-secondary); }
+
+  /* Scene setup */
+  .scene-setup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .setup-item {
+    background: var(--surface-base-bg);
+    border-radius: 6px;
+    padding: 10px;
+  }
+  .setup-label { font-size: 10px; color: var(--surface-base-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .setup-value { font-size: 13px; color: var(--plugin-accent); font-weight: 600; }
+
+  /* Render settings */
+  .form-group {
+    margin-bottom: 12px;
+  }
+  .form-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  select, input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(232,125,13,0.2);
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Render queue */
+  .render-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .render-status {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .render-status.pending { background: var(--surface-warning-border); }
+  .render-status.queued { background: var(--plugin-accent); animation: pulse 1s infinite; }
+  .render-status.completed { background: var(--surface-success-border); }
+  .render-status.failed { background: var(--surface-error-border); }
+  .render-info { flex: 1; }
+  .render-name { font-size: 12px; font-weight: 500; color: var(--surface-base-text); }
+  .render-detail { font-size: 11px; color: var(--surface-base-text-secondary); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-full { width: 100%; }
+  .btn-primary { background: var(--plugin-accent); color: white; }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+  .btn-secondary { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); }
+  .btn-secondary:hover { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+  .btn svg { width: 14px; height: 14px; }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state {
+    text-align: center;
+    padding: 24px;
+    color: var(--surface-elevated-border);
+    font-size: 13px;
+  }
+  .empty-state svg { margin-bottom: 8px; opacity: 0.4; }
+
+  .error-msg {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--surface-error-text);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 10px;
+    display: none;
+  }
+  .success-msg {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--surface-success-text-secondary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  /* Color swatch */
+  .color-swatch {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 4px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+        <line x1="12" y1="22.08" x2="12" y2="12"/>
+      </svg>
+    </div>
+    Blender Scene
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('scene')">Scene Setup</button>
+    <button class="tab" onclick="switchTab('render')">Render</button>
+    <button class="tab" onclick="switchTab('data')">Export Data</button>
+  </div>
+
+  <!-- Scene Setup Tab -->
+  <div class="tab-content active" id="tab-scene">
+    <div class="section">
+      <div class="section-title">Entity Properties</div>
+      <div class="card">
+        <table class="data-table" id="entity-table">
+          <tbody id="entity-props-body">
+            <tr><td colspan="2" style="color:var(--surface-elevated-border);text-align:center">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section" id="dimensions-section" style="display:none">
+      <div class="section-title">Blender Dimensions</div>
+      <div class="scene-setup-grid" id="dimensions-grid"></div>
+    </div>
+
+    <div class="section" id="scene-setup-section" style="display:none">
+      <div class="section-title">Scene Environment</div>
+      <div class="scene-setup-grid" id="scene-setup-grid"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary btn-full" id="export-scene-btn" onclick="exportEntity()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Export to Blender
+      </button>
+    </div>
+    <div class="success-msg" id="scene-success"></div>
+    <div class="error-msg" id="scene-error"></div>
+  </div>
+
+  <!-- Render Tab -->
+  <div class="tab-content" id="tab-render">
+    <div class="section">
+      <div class="section-title">Render Settings</div>
+      <div class="card">
+        <div class="form-group">
+          <div class="form-label">Render Engine</div>
+          <select id="render-engine">
+            <option value="CYCLES">Cycles</option>
+            <option value="EEVEE">Eevee</option>
+            <option value="WORKBENCH">Workbench</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Width</div>
+            <input type="number" id="render-width" value="1920">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Height</div>
+            <input type="number" id="render-height" value="1080">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <div class="form-label">Samples</div>
+            <input type="number" id="render-samples" value="128">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Format</div>
+            <select id="render-format">
+              <option value="PNG">PNG</option>
+              <option value="JPEG">JPEG</option>
+              <option value="EXR">OpenEXR</option>
+              <option value="TIFF">TIFF</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">Scene File (optional)</div>
+          <input type="text" id="render-scene" placeholder="Leave blank for current scene">
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="render-btn" onclick="requestRender()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+          <line x1="7" y1="2" x2="7" y2="22"/>
+          <line x1="17" y1="2" x2="17" y2="22"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <line x1="2" y1="7" x2="7" y2="7"/>
+          <line x1="2" y1="17" x2="7" y2="17"/>
+          <line x1="17" y1="7" x2="22" y2="7"/>
+          <line x1="17" y1="17" x2="22" y2="17"/>
+        </svg>
+        Request Render
+      </button>
+      <div class="success-msg" id="render-success"></div>
+      <div class="error-msg" id="render-error"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Render Queue</div>
+      <div id="render-queue">
+        <div class="empty-state">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+            <line x1="7" y1="2" x2="7" y2="22"/>
+            <line x1="17" y1="2" x2="17" y2="22"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+          </svg>
+          <div>No renders queued</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Data Tab -->
+  <div class="tab-content" id="tab-data">
+    <div class="section">
+      <div class="section-title">Blender Export JSON</div>
+      <div class="json-viewer" id="json-viewer">Loading export data...</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Export History</div>
+      <div id="export-history">
+        <div class="empty-state">Loading...</div>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary btn-full" onclick="copyExportJson()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+      Copy JSON to Clipboard
+    </button>
+  </div>
+
+  <script>
+    const API = '/api/ext/blender-bridge';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || 'character';
+    const entityId = ctx.entityId || '';
+    let exportData = null;
+
+    // ---- Tab switching ----
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // ---- Init ----
+    async function init() {
+      if (!entityId) {
+        document.getElementById('entity-props-body').innerHTML =
+          '<tr><td colspan="2" style="color:var(--surface-elevated-border);text-align:center">No entity selected</td></tr>';
+        return;
+      }
+      await Promise.all([loadExportData(), loadRenderQueue(), loadExportHistory()]);
+    }
+
+    async function loadExportData() {
+      try {
+        const resp = await fetch(`${API}/export-format/${entityType}/${entityId}`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        exportData = data.blender_data;
+        renderEntityProps(exportData);
+        renderJsonViewer(exportData);
+
+        if (entityType === 'character' && exportData.dimensions) {
+          renderDimensions(exportData.dimensions);
+        }
+        if (entityType === 'location' && exportData.scene_setup) {
+          renderSceneSetup(exportData.scene_setup);
+        }
+      } catch (e) {
+        console.error('Failed to load export data', e);
+      }
+    }
+
+    function renderEntityProps(data) {
+      const tbody = document.getElementById('entity-props-body');
+      const props = data.properties || {};
+      let html = '';
+
+      html += `<tr><td>Name</td><td>${data.name || '--'}</td></tr>`;
+      html += `<tr><td>Blender Type</td><td>${data.blender_type || '--'}</td></tr>`;
+
+      Object.entries(props).forEach(([key, val]) => {
+        if (val === null || val === undefined || val === '') return;
+        const display = Array.isArray(val) ? val.join(', ') : String(val);
+        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+        // Color preview for color fields
+        if (key.includes('color') && typeof val === 'string') {
+          html += `<tr><td>${label}</td><td>${display}</td></tr>`;
+        } else {
+          html += `<tr><td>${label}</td><td>${display}</td></tr>`;
+        }
+      });
+
+      tbody.innerHTML = html || '<tr><td colspan="2" style="color:var(--surface-elevated-border);text-align:center">No properties found</td></tr>';
+    }
+
+    function renderDimensions(dims) {
+      const section = document.getElementById('dimensions-section');
+      section.style.display = 'block';
+      const grid = document.getElementById('dimensions-grid');
+      grid.innerHTML = `
+        <div class="setup-item">
+          <div class="setup-label">Height</div>
+          <div class="setup-value">${dims.height_meters}m</div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-label">Build</div>
+          <div class="setup-value">${dims.build}</div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-label">Width Scale</div>
+          <div class="setup-value">${dims.width_scale_factor}x</div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-label">Armature Scale</div>
+          <div class="setup-value">[${dims.armature_scale.map(v => v.toFixed(2)).join(', ')}]</div>
+        </div>
+      `;
+    }
+
+    function renderSceneSetup(setup) {
+      const section = document.getElementById('scene-setup-section');
+      section.style.display = 'block';
+      const grid = document.getElementById('scene-setup-grid');
+      const env = setup.environment || {};
+      grid.innerHTML = `
+        <div class="setup-item">
+          <div class="setup-label">HDRI</div>
+          <div class="setup-value">${env.hdri_suggestion || '--'}</div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-label">Sun Intensity</div>
+          <div class="setup-value">${env.sun_intensity || '--'}</div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-label">Interior</div>
+          <div class="setup-value">${setup.is_interior ? 'Yes' : 'No'}</div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-label">Exterior</div>
+          <div class="setup-value">${setup.has_exterior ? 'Yes' : 'No'}</div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-label">Category</div>
+          <div class="setup-value">${setup.category || '--'}</div>
+        </div>
+        <div class="setup-item">
+          <div class="setup-label">Position</div>
+          <div class="setup-value">${setup.world_coordinates ? `${setup.world_coordinates.x}, ${setup.world_coordinates.y}, ${setup.world_coordinates.z}` : '--'}</div>
+        </div>
+      `;
+    }
+
+    function renderJsonViewer(data) {
+      const viewer = document.getElementById('json-viewer');
+      const jsonStr = JSON.stringify(data, null, 2);
+      // Simple syntax highlighting
+      const highlighted = jsonStr
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"([^"]+)":/g, '"<span class="json-key">$1</span>":')
+        .replace(/: "([^"]*)"/g, ': "<span class="json-string">$1</span>"')
+        .replace(/: (\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
+        .replace(/: (null)/g, ': <span class="json-null">null</span>')
+        .replace(/: (true|false)/g, ': <span class="json-number">$1</span>');
+      viewer.innerHTML = highlighted;
+    }
+
+    async function copyExportJson() {
+      if (!exportData) return;
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(exportData, null, 2));
+      } catch (e) {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = JSON.stringify(exportData, null, 2);
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+    }
+
+    // ---- Export ----
+    async function exportEntity() {
+      const btn = document.getElementById('export-scene-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Exporting...';
+      hideMsg('scene');
+
+      try {
+        const resp = await fetch(`${API}/export/${entityType}/${entityId}`, { method: 'POST' });
+        const data = await resp.json();
+        if (data.success) {
+          let msg = `Exported "${data.name}"`;
+          msg += data.sent_to_blender ? ' and pushed to Blender' : ' (saved locally)';
+          showMsg('scene', 'success', msg);
+          await loadExportHistory();
+        } else {
+          showMsg('scene', 'error', 'Export failed');
+        }
+      } catch (e) {
+        showMsg('scene', 'error', 'Network error: ' + e.message);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Export to Blender`;
+    }
+
+    // ---- Render ----
+    async function requestRender() {
+      const btn = document.getElementById('render-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Requesting...';
+      hideMsg('render');
+
+      const settings = {
+        engine: document.getElementById('render-engine').value,
+        samples: parseInt(document.getElementById('render-samples').value) || 128,
+        resolution_x: parseInt(document.getElementById('render-width').value) || 1920,
+        resolution_y: parseInt(document.getElementById('render-height').value) || 1080,
+        output_format: document.getElementById('render-format').value,
+      };
+
+      try {
+        const resp = await fetch(`${API}/render-request`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            scene_file: document.getElementById('render-scene').value || '',
+            entity_ids: [entityId],
+            render_settings: settings,
+          }),
+        });
+        const data = await resp.json();
+        if (data.success) {
+          showMsg('render', 'success', `Render queued (ID: ${data.request_id})`);
+          await loadRenderQueue();
+        } else {
+          showMsg('render', 'error', 'Failed to queue render');
+        }
+      } catch (e) {
+        showMsg('render', 'error', 'Network error: ' + e.message);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+          <line x1="7" y1="2" x2="7" y2="22"/>
+          <line x1="17" y1="2" x2="17" y2="22"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+        </svg>
+        Request Render`;
+    }
+
+    async function loadRenderQueue() {
+      try {
+        const resp = await fetch(`${API}/renders`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const container = document.getElementById('render-queue');
+
+        const queue = (data.queue || []).filter(r =>
+          r.entity_ids && r.entity_ids.includes(entityId)
+        );
+
+        if (queue.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+                <line x1="7" y1="2" x2="7" y2="22"/>
+                <line x1="17" y1="2" x2="17" y2="22"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+              </svg>
+              <div>No renders for this entity</div>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = queue.map(r => {
+          const date = new Date((r.created_at || 0) * 1000);
+          return `
+            <div class="render-item">
+              <div class="render-status ${r.status}"></div>
+              <div class="render-info">
+                <div class="render-name">${r.id}</div>
+                <div class="render-detail">${r.status} -- ${date.toLocaleDateString()} ${date.toLocaleTimeString()}</div>
+                <div class="render-detail">${r.render_settings?.engine || 'CYCLES'} ${r.render_settings?.resolution_x || 1920}x${r.render_settings?.resolution_y || 1080}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error('Failed to load render queue', e);
+      }
+    }
+
+    async function loadExportHistory() {
+      try {
+        const resp = await fetch(`${API}/exports/${entityType}/${entityId}`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const container = document.getElementById('export-history');
+
+        if (!data.exports || data.exports.length === 0) {
+          container.innerHTML = '<div class="empty-state">No exports yet</div>';
+          return;
+        }
+
+        container.innerHTML = data.exports.slice(0, 10).map(exp => {
+          const date = new Date(exp.created * 1000);
+          const size = (exp.size / 1024).toFixed(1);
+          return `
+            <div class="render-item">
+              <div class="render-status completed"></div>
+              <div class="render-info">
+                <div class="render-name">${exp.filename}</div>
+                <div class="render-detail">${date.toLocaleDateString()} ${date.toLocaleTimeString()} -- ${size} KB</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error('Failed to load export history', e);
+      }
+    }
+
+    // ---- Helpers ----
+    function showMsg(prefix, type, msg) {
+      const el = document.getElementById(`${prefix}-${type}`);
+      if (el) { el.textContent = msg; el.style.display = 'block'; }
+    }
+    function hideMsg(prefix) {
+      const s = document.getElementById(`${prefix}-success`);
+      const e = document.getElementById(`${prefix}-error`);
+      if (s) s.style.display = 'none';
+      if (e) e.style.display = 'none';
+    }
+
+    init();
+  </script>
+</body>
+</html>

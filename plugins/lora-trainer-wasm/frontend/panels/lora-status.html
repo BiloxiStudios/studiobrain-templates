@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header svg {
+    width: 16px;
+    height: 16px;
+    color: var(--plugin-accent);
+  }
+
+  /* Status card */
+  .status-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.trained { background: var(--surface-success-border); box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+  .status-dot.training { background: var(--plugin-accent); box-shadow: 0 0 6px rgba(249,115,22,0.5); animation: pulse 1.5s ease-in-out infinite; }
+  .status-dot.pending { background: var(--surface-warning-border); box-shadow: 0 0 6px rgba(234,179,8,0.4); }
+  .status-dot.none { background: var(--surface-elevated-border); }
+  .status-info { flex: 1; min-width: 0; }
+  .status-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .status-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Progress bar */
+  .progress-container {
+    margin-bottom: 12px;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--surface-elevated-bg);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--plugin-accent), var(--plugin-accent));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+  .progress-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* LoRA file info */
+  .lora-info {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-border);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+  .lora-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    font-size: 12px;
+  }
+  .lora-info-label { color: var(--surface-base-text-secondary); }
+  .lora-info-value { color: var(--surface-base-text); font-weight: 500; }
+  .lora-info-value.mono { font-family: 'SF Mono', 'Cascadia Code', monospace; font-size: 11px; }
+
+  .trigger-word {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(249, 115, 22, 0.15);
+    border: 1px solid rgba(249, 115, 22, 0.3);
+    border-radius: 4px;
+    color: var(--plugin-accent);
+    font-family: 'SF Mono', 'Cascadia Code', monospace;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .trigger-word:hover {
+    background: rgba(249, 115, 22, 0.25);
+  }
+
+  /* Buttons */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-train {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-train:hover { background: var(--plugin-accent); }
+  .btn-train:disabled {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    cursor: not-allowed;
+  }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    margin-top: 6px;
+  }
+  .btn-secondary:hover { border-color: var(--plugin-accent); color: var(--surface-base-text); }
+
+  .btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: rgba(34,197,94,0.15); border: 1px solid var(--surface-success-border); color: var(--surface-success-border); }
+  .toast.error { background: rgba(239,68,68,0.15); border: 1px solid var(--surface-error-border); color: var(--surface-error-border); }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+  }
+  .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 16px 8px;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .empty-icon {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto 8px;
+    opacity: 0.4;
+  }
+  .empty-icon svg { width: 100%; height: 100%; color: var(--surface-base-text-secondary); }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93L12 22"/>
+      <path d="M8 6a4 4 0 0 1 .68-2.24"/>
+      <path d="M15.32 3.76A4 4 0 0 1 16 6c0 1.95-1.4 3.58-3.25 3.93"/>
+      <path d="M6 12h12"/>
+      <path d="M8 16h8"/>
+    </svg>
+    LoRA Status
+  </div>
+
+  <div id="panel-content">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      Loading LoRA status...
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '/api/ext/lora-trainer';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || 'character';
+    const entityId = ctx.entityId || '';
+
+    let refreshTimer = null;
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + type;
+      setTimeout(() => { t.className = 'toast'; }, 2500);
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '--';
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function formatEta(seconds) {
+      if (!seconds || seconds <= 0) return '--';
+      if (seconds < 60) return seconds + 's';
+      if (seconds < 3600) return Math.floor(seconds / 60) + 'm ' + (seconds % 60) + 's';
+      return Math.floor(seconds / 3600) + 'h ' + Math.floor((seconds % 3600) / 60) + 'm';
+    }
+
+    function copyTrigger(word) {
+      navigator.clipboard.writeText(word).then(() => {
+        showToast('Trigger word copied!');
+      });
+    }
+
+    async function loadStatus() {
+      if (!entityId) {
+        document.getElementById('panel-content').innerHTML =
+          '<div class="loading" style="padding:16px 0">No entity selected</div>';
+        return;
+      }
+
+      try {
+        const res = await fetch(API + '/loras/' + entityType + '/' + entityId);
+        if (!res.ok) throw new Error('Failed to load');
+        const data = await res.json();
+        renderPanel(data);
+
+        // Auto-refresh if training is active
+        if (data.active_jobs && data.active_jobs.length > 0) {
+          if (!refreshTimer) {
+            refreshTimer = setInterval(loadStatus, 3000);
+          }
+        } else {
+          if (refreshTimer) {
+            clearInterval(refreshTimer);
+            refreshTimer = null;
+          }
+        }
+      } catch (err) {
+        document.getElementById('panel-content').innerHTML =
+          '<div class="loading" style="color:var(--surface-error-border)">Failed to load LoRA status<br><small style="color:var(--surface-base-text-secondary)">' + err.message + '</small></div>';
+      }
+    }
+
+    function renderPanel(data) {
+      const { loras, active_jobs, completed_jobs, has_lora } = data;
+      const hasActive = active_jobs && active_jobs.length > 0;
+      const activeJob = hasActive ? active_jobs[0] : null;
+
+      let statusDotClass = 'none';
+      let statusText = 'No LoRA';
+
+      if (hasActive) {
+        if (activeJob.status === 'training') {
+          statusDotClass = 'training';
+          statusText = 'Training...';
+        } else {
+          statusDotClass = 'pending';
+          statusText = 'Queued';
+        }
+      } else if (has_lora || loras.length > 0) {
+        statusDotClass = 'trained';
+        statusText = 'Trained';
+      }
+
+      let html = '';
+
+      // Status indicator
+      html += '<div class="status-card">';
+      html += '  <div class="status-dot ' + statusDotClass + '"></div>';
+      html += '  <div class="status-info">';
+      html += '    <div class="status-label">LoRA Model</div>';
+      html += '    <div class="status-value">' + statusText + '</div>';
+      html += '  </div>';
+      html += '</div>';
+
+      // Active training progress
+      if (hasActive && activeJob.status === 'training') {
+        const progress = activeJob.progress || 0;
+        const currentStep = activeJob.current_step || 0;
+        const totalSteps = (activeJob.config && activeJob.config.steps) || 1500;
+        const eta = activeJob.eta_seconds;
+        const rate = activeJob.steps_per_sec;
+
+        html += '<div class="progress-container">';
+        html += '  <div class="progress-header"><span>Training Progress</span><span>' + progress.toFixed(1) + '%</span></div>';
+        html += '  <div class="progress-bar"><div class="progress-fill" style="width:' + progress + '%"></div></div>';
+        html += '  <div class="progress-detail">';
+        html += '    <span>Step ' + currentStep + ' / ' + totalSteps + '</span>';
+        html += '    <span>' + (rate ? rate.toFixed(1) + ' it/s' : '') + '</span>';
+        html += '  </div>';
+        if (eta) {
+          html += '  <div class="progress-detail"><span></span><span>ETA: ' + formatEta(eta) + '</span></div>';
+        }
+        html += '</div>';
+      } else if (hasActive && activeJob.status === 'pending') {
+        html += '<div class="progress-container">';
+        html += '  <div class="progress-header"><span>Waiting in queue...</span><span>0%</span></div>';
+        html += '  <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>';
+        html += '</div>';
+      }
+
+      // Show LoRA file info if trained
+      if (loras.length > 0) {
+        const lora = loras[0]; // most recent
+        html += '<div class="lora-info">';
+        html += '  <div class="lora-info-row"><span class="lora-info-label">File</span><span class="lora-info-value mono">' + (lora.filename || '--').substring(0, 28) + '</span></div>';
+        html += '  <div class="lora-info-row"><span class="lora-info-label">Size</span><span class="lora-info-value">' + (lora.size_mb || '?') + ' MB</span></div>';
+        html += '  <div class="lora-info-row"><span class="lora-info-label">Steps</span><span class="lora-info-value">' + (lora.steps || '--') + '</span></div>';
+        html += '  <div class="lora-info-row"><span class="lora-info-label">Rank</span><span class="lora-info-value">' + (lora.rank || '--') + '</span></div>';
+        html += '  <div class="lora-info-row"><span class="lora-info-label">Created</span><span class="lora-info-value">' + formatDate(lora.created) + '</span></div>';
+        if (lora.trigger_word) {
+          html += '  <div class="lora-info-row"><span class="lora-info-label">Trigger</span><span class="trigger-word" onclick="copyTrigger(\'' + lora.trigger_word + '\')" title="Click to copy">' + lora.trigger_word + '</span></div>';
+        }
+        html += '</div>';
+
+        if (loras.length > 1) {
+          html += '<div style="font-size:11px;color:var(--surface-base-text-secondary);text-align:center;margin-bottom:8px;">+ ' + (loras.length - 1) + ' more LoRA' + (loras.length > 2 ? 's' : '') + '</div>';
+        }
+      } else if (completed_jobs > 0) {
+        html += '<div class="lora-info">';
+        html += '  <div class="lora-info-row"><span class="lora-info-label">Completed Jobs</span><span class="lora-info-value">' + completed_jobs + '</span></div>';
+        html += '</div>';
+      }
+
+      // No LoRA empty state
+      if (!has_lora && !hasActive) {
+        html += '<div class="empty-state">';
+        html += '  <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></div>';
+        html += '  No LoRA model trained yet.<br>Add images to assets and start training.';
+        html += '</div>';
+      }
+
+      // Train button (show unless actively training)
+      if (!hasActive) {
+        html += '<button class="btn btn-train" onclick="startTraining()">';
+        html += '  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+        html += '  Start Training';
+        html += '</button>';
+      } else {
+        html += '<button class="btn btn-secondary" onclick="cancelTraining(\'' + activeJob.id + '\')" style="border-color:rgba(239,68,68,0.3);color:var(--surface-error-border);">';
+        html += '  Cancel Training';
+        html += '</button>';
+      }
+
+      // Link to full trainer page
+      html += '<button class="btn btn-secondary" onclick="window.open(\'/plugins/lora-trainer\', \'_top\')">';
+      html += '  Open Training Dashboard';
+      html += '</button>';
+
+      document.getElementById('panel-content').innerHTML = html;
+    }
+
+    async function startTraining() {
+      try {
+        const res = await fetch(API + '/train', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_type: entityType,
+            entity_id: entityId,
+            config: {},
+          }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message || 'Training queued!');
+          setTimeout(loadStatus, 500);
+        } else {
+          showToast(data.detail || 'Failed to queue training', 'error');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    async function cancelTraining(jobId) {
+      try {
+        const res = await fetch(API + '/jobs/' + jobId + '/cancel', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Training cancelled');
+          setTimeout(loadStatus, 500);
+        } else {
+          showToast(data.detail || 'Failed to cancel', 'error');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    loadStatus();
+  </script>
+</body>
+</html>
