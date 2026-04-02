@@ -2,6 +2,8 @@
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "entity"
+ui_icon: "Flag"
+ui_color: "#14b8a6"
 editable: true
 marketplace_eligible: true
 id: "[snake_case_name]"  # Must match folder name (e.g., main_story)

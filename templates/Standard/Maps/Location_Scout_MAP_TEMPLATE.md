@@ -1,5 +1,7 @@
 ---
 template_category: map
+ui_icon: "Navigation"
+ui_color: "#059669"
 template_name: Location Scout
 template_id: location-scout
 description: Real-world geographic map for location scouting with address search, route planning, and geo-fencing.

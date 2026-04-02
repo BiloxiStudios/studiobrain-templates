@@ -2,6 +2,8 @@
 # METADATA
 template_version: "2.0"
 template_category: "entity"
+ui_icon: "Layers"
+ui_color: "#a855f7"
 editable: true
 marketplace_eligible: true
 id: "[assembly_id]"

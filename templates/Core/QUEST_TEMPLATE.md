@@ -2,6 +2,8 @@
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "core"
+ui_icon: "Compass"
+ui_color: "#eab308"
 editable: false
 marketplace_eligible: false
 id: "[snake_case_name]"  # Must match folder name (e.g., find_the_cure)

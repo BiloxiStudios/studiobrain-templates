@@ -3,6 +3,8 @@
 # NOTE: Section headers (like "# METADATA") are for documentation only - DO NOT include them as literal content
 template_version: "1.0"
 template_category: "entity"
+ui_icon: "Briefcase"
+ui_color: "#06b6d4"
 editable: true
 marketplace_eligible: true
 id: "unique_lowercase_id"  # Must match folder name (e.g., nerdent_technician)

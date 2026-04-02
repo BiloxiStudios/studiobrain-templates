@@ -5,6 +5,8 @@ name: "Biome Display Name"
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "entity"
+ui_icon: "Trees"
+ui_color: "#22c55e"
 editable: true
 marketplace_eligible: true
 entity_type: "biome"

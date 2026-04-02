@@ -2,6 +2,8 @@
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "entity"
+ui_icon: "Compass"
+ui_color: "#eab308"
 editable: true
 marketplace_eligible: false
 id: "[snake_case_name]"

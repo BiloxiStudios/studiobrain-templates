@@ -2,6 +2,8 @@
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "entity"
+ui_icon: "Calendar"
+ui_color: "#ec4899"
 editable: true
 marketplace_eligible: true
 id: "[snake_case_name]"  # Must match folder name (e.g., zombie_horde_attack)

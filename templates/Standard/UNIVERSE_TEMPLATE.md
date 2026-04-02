@@ -2,6 +2,8 @@
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "document"
+ui_icon: "Globe"
+ui_color: "#0ea5e9"
 editable: true
 marketplace_eligible: true
 id: "[snake_case_name]"  # e.g., city_of_brains

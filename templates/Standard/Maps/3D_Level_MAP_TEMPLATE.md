@@ -1,5 +1,7 @@
 ---
 template_category: map
+ui_icon: "Box"
+ui_color: "#0891b2"
 template_name: 3D Level Preview
 template_id: 3d-level
 description: Interactive 3D scene for level previews with entity markers, model imports, and multiple camera modes.

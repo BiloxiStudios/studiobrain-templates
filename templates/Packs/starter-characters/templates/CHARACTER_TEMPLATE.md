@@ -1,6 +1,8 @@
 ---
 # METADATA
 template_version: "2.0"
+ui_icon: "Users"
+ui_color: "#6366f1"
 id: "[snake_case_name]"
 entity_type: "character"
 created_date: "[YYYY-MM-DD]"

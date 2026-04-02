@@ -2,6 +2,8 @@
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "core"
+ui_icon: "MessageSquare"
+ui_color: "#3b82f6"
 editable: false
 marketplace_eligible: false
 id: "unique_lowercase_id"  # Must match folder name (e.g., quest_001_intro)

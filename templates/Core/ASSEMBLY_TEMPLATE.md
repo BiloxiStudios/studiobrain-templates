@@ -2,6 +2,8 @@
 # METADATA
 template_version: "1.0"
 template_category: "core"
+ui_icon: "Layers"
+ui_color: "#a855f7"
 editable: false
 marketplace_eligible: false
 id: "[snake_case_name]"
