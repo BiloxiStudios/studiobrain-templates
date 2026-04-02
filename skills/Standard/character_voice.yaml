@@ -1,0 +1,95 @@
+---
+skill_id: character_voice
+name: Character Voice Generator
+description: Generates dialogue and internal monologue in a character's unique voice.
+  Uses the character's speech patterns, vocabulary level, personality traits, and
+  backstory to produce authentic dialogue that sounds like no one else. Supports
+  context-aware generation -- the character reacts differently in combat than in
+  casual conversation.
+version: "1.0"
+category: generation
+applies_to: character
+tags: [dialogue, voice, generation, writing]
+capabilities: [entity_read, ai_generate]
+min_tier: free
+
+# Input requirements
+inputs:
+  required:
+    - entity_id          # The character to generate dialogue for
+    - context            # The scene or situation prompt
+  optional:
+    - length             # short, medium, long
+    - tone               # override for emotional register
+    - audience           # who the character is speaking to (entity_id)
+    - format             # dialogue, monologue, letter, journal
+
+# AI prompt configuration
+prompts:
+  system: |
+    You are writing dialogue for {entity_name}, a character with the following profile:
+
+    **Personality**: {personality_traits}
+    **Voice Style**: {ai_voice_style}
+    **Background**: {ai_bio_summary}
+    **Fears**: {fears}
+    **Motivations**: {motivations}
+
+    Speech pattern reference:
+    {dialogue_samples}
+
+    Rules:
+    - Match their vocabulary level and sentence structure exactly
+    - Reflect their emotional state given the context
+    - Use their established catchphrases and speech quirks naturally (not forced)
+    - Reference their relationships and backstory when relevant
+    - Never break character voice for exposition
+    - If they would not know something, they do not reference it
+    - Their fears and motivations subtly influence word choice and topic avoidance
+
+  user: |
+    Generate a {length} piece of {format} for {entity_name} in the following context:
+
+    {context}
+
+    {audience_context}
+
+# Parameter definitions
+parameters:
+  length:
+    type: string
+    default: short
+    enum: [short, medium, long]
+    description: "short = 1-3 sentences, medium = 1-2 paragraphs, long = 3+ paragraphs"
+  context:
+    type: string
+    required: true
+    description: "The scene, situation, or conversational context for the dialogue"
+  tone:
+    type: string
+    required: false
+    enum: [neutral, angry, afraid, sad, joyful, sarcastic, desperate, confident, suspicious]
+    description: "Override the character's default emotional register for this generation"
+  audience:
+    type: string
+    required: false
+    description: "Entity ID of the character being spoken to (loads their profile for relationship context)"
+  format:
+    type: string
+    default: dialogue
+    enum: [dialogue, monologue, letter, journal]
+    description: "Output format -- dialogue is spoken, monologue is internal thought, letter and journal are written"
+
+# Output configuration
+output:
+  format: markdown
+  includes_attribution: true
+  max_tokens: 1000
+
+# Quality checks
+validation:
+  - "Does the output match the character's established voice?"
+  - "Are speech patterns consistent with dialogue_samples?"
+  - "Does vocabulary match the character's education and background?"
+  - "Is the emotional register appropriate to the context?"
+  - "Does the character reference only things they would know?"

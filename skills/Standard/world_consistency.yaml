@@ -1,0 +1,101 @@
+---
+skill_id: world_consistency
+name: World Consistency Checker
+description: Analyzes entities across a project for internal contradictions, broken
+  references, timeline conflicts, and lore inconsistencies. Reads multiple entity
+  files and cross-references their claims against each other. Reports conflicts with
+  severity levels and suggested resolutions.
+version: "1.0"
+category: validation
+applies_to: all
+tags: [consistency, validation, lore, cross-reference, quality]
+capabilities: [entity_read, entity_list, project_scan]
+min_tier: free
+
+# Input requirements
+inputs:
+  required: []
+  optional:
+    - scope             # all, entity_type, entity_id list
+    - check_types       # which checks to run
+    - severity_filter   # minimum severity to report
+
+# AI prompt configuration
+prompts:
+  system: |
+    You are a continuity editor reviewing a creative project for internal consistency.
+    You have access to all entities in the project. Your job is to find contradictions,
+    broken references, and logical impossibilities.
+
+    Check categories:
+    1. **Reference integrity**: Do entity cross-references point to entities that exist?
+       Characters referencing locations, items referencing vendors, biomes referencing
+       connected biomes -- every reference must resolve.
+    2. **Timeline consistency**: Do dates, ages, and event sequences make sense?
+       A character cannot be born after they start working. An event cannot happen
+       before its cause.
+    3. **Spatial consistency**: Do locations, districts, and biomes form a coherent
+       geography? Connected biomes must have plausible transitions. Locations must
+       fit within their parent areas.
+    4. **Relationship symmetry**: If Character A lists Character B as a friend,
+       does Character B acknowledge Character A? Asymmetric relationships are noted
+       but not always errors.
+    5. **Lore alignment**: Do entity descriptions align with world rules, faction
+       cultures, and established canon? A character in a technology-restricted setting
+       should not reference modern devices.
+    6. **Stat balance**: Do item stats, threat levels, and difficulty ratings follow
+       consistent scales across the project?
+
+    Report each finding as:
+    - **Entity**: which entity has the issue
+    - **Category**: which check category
+    - **Severity**: error (must fix), warning (should fix), info (consider)
+    - **Description**: what the inconsistency is
+    - **Suggestion**: how to resolve it
+
+  user: |
+    Run consistency checks on the following scope:
+
+    Scope: {scope}
+    Check types: {check_types}
+    Minimum severity: {severity_filter}
+
+    Entity data:
+    {entity_data}
+
+# Parameter definitions
+parameters:
+  scope:
+    type: string
+    default: all
+    description: "What to check: 'all' for entire project, an entity_type (e.g. 'character'),
+      or a comma-separated list of entity IDs"
+  check_types:
+    type: array
+    default: [references, timeline, spatial, relationships, lore, balance]
+    items:
+      type: string
+      enum: [references, timeline, spatial, relationships, lore, balance]
+    description: "Which consistency checks to run"
+  severity_filter:
+    type: string
+    default: warning
+    enum: [info, warning, error]
+    description: "Minimum severity level to include in the report"
+
+# Output configuration
+output:
+  format: markdown
+  sections:
+    - summary          # Total issues by severity
+    - errors           # Must-fix issues
+    - warnings         # Should-fix issues
+    - info             # Informational findings
+  max_tokens: 3000
+
+# Quality checks
+validation:
+  - "Were all referenced entities loaded and checked?"
+  - "Are timeline calculations mathematically correct?"
+  - "Were bidirectional relationships checked in both directions?"
+  - "Does the report include actionable suggestions?"

@@ -1,0 +1,93 @@
+---
+rule_id: character_generation
+name: Character Generation Rules
+description: AI generation constraints for creating consistent, well-rounded characters
+version: "1.0"
+scope: standard
+priority: medium
+entity_type: character
+applies_to:
+  - character
+associated_skill: character_writer
+
+rules:
+  - id: chargen_001
+    category: naming
+    description: Names must be culturally appropriate for the character's stated background,
+      ethnicity, and setting. Avoid anachronistic or culturally mismatched names unless
+      the character's backstory explains the discrepancy.
+    severity: warning
+    applies_to: [character]
+
+  - id: chargen_002
+    category: appearance
+    description: Physical appearance must be consistent with stated age. A 25-year-old
+      should not have deep wrinkles. A 70-year-old should not be described as youthful
+      without explanation. Growth, aging, and wear affect build, posture, skin, and hair.
+    severity: error
+    applies_to: [character]
+
+  - id: chargen_003
+    category: personality
+    description: Characters must have at least one meaningful flaw and one genuine strength.
+      Flaws are not quirks -- they must create real consequences or friction. Strengths
+      are not superpowers -- they must feel earned or innate to the character's history.
+    severity: suggestion
+    applies_to: [character]
+
+  - id: chargen_004
+    category: motivation
+    description: Character motivations must connect to their backstory. A desire for
+      revenge needs a wrong suffered. A drive for wealth needs a history of scarcity
+      or ambition. Abstract motivations (justice, freedom) need a concrete personal origin.
+    severity: warning
+    applies_to: [character]
+
+  - id: chargen_005
+    category: voice
+    description: Each character's dialogue samples must sound distinct from other characters
+      in the same project. Vocabulary, sentence length, speech patterns, and emotional
+      register should reflect their background, education, and personality.
+    severity: warning
+    applies_to: [character]
+
+  - id: chargen_006
+    category: relationships
+    description: Characters should not exist in isolation. At minimum, one relationship
+      (family, friend, enemy, mentor, rival) should be defined to ground the character
+      in the world. Orphaned characters with zero connections are harder to integrate
+      into narratives.
+    severity: suggestion
+    applies_to: [character]
+
+  - id: chargen_007
+    category: skills
+    description: Character skills should be justified by their backstory. A scholar
+      should not be an expert swordsman without training. A street kid should not speak
+      five languages without exposure. Skills reflect lived experience.
+    severity: warning
+    applies_to: [character]
+
+  - id: chargen_008
+    category: consistency
+    description: All frontmatter fields must align with the markdown body. If the
+      frontmatter says age 30, the backstory must not describe decades of career
+      experience. If personality_traits lists "shy," dialogue samples must not show
+      a gregarious extrovert.
+    severity: error
+    applies_to: [character]
+
+defaults:
+  min_backstory_length: 100
+  require_personality_section: true
+  require_relationships: true
+  require_dialogue_samples: true
+  min_personality_traits: 3
+  min_dialogue_samples: 3
+
+validation:
+  - "Is the character's name culturally appropriate for their background?"
+  - "Does their physical description match their stated age?"
+  - "Do they have at least one flaw and one strength?"
+  - "Are their motivations rooted in their backstory?"
+  - "Does their voice sound distinct in dialogue samples?"

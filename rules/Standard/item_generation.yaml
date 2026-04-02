@@ -1,0 +1,96 @@
+---
+rule_id: item_generation
+name: Item Generation Rules
+description: AI generation constraints for creating balanced, lore-consistent items
+version: "1.0"
+scope: standard
+priority: medium
+entity_type: item
+applies_to:
+  - item
+associated_skill: item_writer
+
+rules:
+  - id: itemgen_001
+    category: naming
+    description: Item names must reflect their function, origin, or cultural context.
+      A weapon forged by dwarves should have a dwarven-style name. A mass-produced
+      consumer product should have a brand-appropriate name. Names should be memorable
+      and pronounceable.
+    severity: warning
+    applies_to: [item]
+
+  - id: itemgen_002
+    category: balance
+    description: Item stats must be proportional to rarity and acquisition difficulty.
+      Common items are weak but accessible. Legendary items are powerful but require
+      significant effort to obtain. No item should trivialize the challenges of its tier.
+    severity: error
+    applies_to: [item]
+
+  - id: itemgen_003
+    category: lore
+    description: Items with historical or narrative significance must have a backstory
+      that explains their properties. A cursed sword needs a curse origin. A healing
+      potion needs ingredients that exist in the world. Lore grounds items in the setting.
+    severity: warning
+    applies_to: [item]
+
+  - id: itemgen_004
+    category: categorization
+    description: Item type must match its primary function. Weapons deal damage. Armor
+      provides defense. Consumables are used up. Tools enable actions. Cosmetics alter
+      appearance. An item that crosses categories should use its primary function as
+      its type with secondary functions noted in description.
+    severity: error
+    applies_to: [item]
+
+  - id: itemgen_005
+    category: economy
+    description: Item value must be consistent with its rarity, materials, and the
+      setting's economy. A common iron dagger costs less than a rare enchanted blade.
+      Crafting materials should have values that make crafting economically viable but
+      not trivially profitable.
+    severity: warning
+    applies_to: [item]
+
+  - id: itemgen_006
+    category: availability
+    description: Spawn locations and vendor availability must make sense. A desert
+      merchant does not sell snow gear. A weapon appears in locations where combat
+      occurred. Rare items appear in dangerous or hidden locations. Vendors stock items
+      appropriate to their trade.
+    severity: warning
+    applies_to: [item]
+
+  - id: itemgen_007
+    category: crafting
+    description: If an item is craftable, its recipe must use materials available in
+      the world. Required skill levels must be achievable. Crafting time should be
+      proportional to item complexity. Components should be individually acquirable.
+    severity: suggestion
+    applies_to: [item]
+
+  - id: itemgen_008
+    category: visual
+    description: Physical description must be consistent with the item's materials,
+      age, and condition. A well-maintained weapon gleams. A salvaged piece of armor
+      shows repair marks. A magical item may glow, hum, or feel warm. Visual details
+      aid artist generation.
+    severity: suggestion
+    applies_to: [item]
+
+defaults:
+  require_description: true
+  require_item_type: true
+  require_rarity: true
+  min_description_length: 50
+  balance_check: true
+
+validation:
+  - "Does the item name fit its origin and setting?"
+  - "Are stats proportional to rarity and difficulty?"
+  - "Does the lore explain the item's properties?"
+  - "Is the item type consistent with its function?"
+  - "Is the value consistent with the setting's economy?"
+  - "Do spawn locations make geographic and narrative sense?"

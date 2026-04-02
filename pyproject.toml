@@ -38,4 +38,6 @@ studiobrain_templates = [
     "plugins/**/*.py",
     "plugins/**/*.js",
     "schemas/**/*.json",
+    "skills/**/*.yaml",
+    "skills/**/*.yml",
 ]
