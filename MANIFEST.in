@@ -1,4 +1,7 @@
-recursive-include studiobrain_templates/templates *.md *.json *.yaml *.yml
-recursive-include studiobrain_templates/rules *.md *.yaml *.yml
-recursive-include studiobrain_templates/plugins *.json *.css *.html *.py *.js
-recursive-include studiobrain_templates/schemas *.json
+recursive-include studiobrain_templates/_TEMPLATES *.md *.json *.yaml *.yml
+recursive-include studiobrain_templates/_RULES *.md *.yaml *.yml
+recursive-include studiobrain_templates/_PLUGINS *.json *.css *.html *.py *.js
+recursive-include studiobrain_templates/_SCHEMAS *.json
+recursive-include studiobrain_templates/_MAPS *.md *.json *.yaml *.yml
+recursive-include studiobrain_templates/_DOCUMENTS *.md *.json *.yaml *.yml
+recursive-include studiobrain_templates/_SKILLS *.md *.json *.yaml *.yml

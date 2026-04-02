@@ -39,10 +39,10 @@ router = APIRouter(prefix="/api/plugins/entity-validator", tags=["entity-validat
 # ---------------------------------------------------------------------------
 
 def _locate_schemas_dir() -> Path:
-    """Locate the ``schemas/`` directory.
+    """Locate the ``_SCHEMAS/`` directory.
 
     Checks ``STUDIOBRAIN_SCHEMAS_DIR`` environment variable first, then walks
-    up from this file's location until a ``schemas/`` directory is found.
+    up from this file's location until a ``_SCHEMAS/`` directory is found.
     Raises ``RuntimeError`` if the directory cannot be located.
     """
     env_override = os.environ.get("STUDIOBRAIN_SCHEMAS_DIR")
@@ -55,15 +55,15 @@ def _locate_schemas_dir() -> Path:
             "directory does not exist."
         )
 
-    # Walk up to find schemas/ relative to this file
+    # Walk up to find _SCHEMAS/ relative to this file
     current = Path(__file__).resolve().parent
     for _ in range(10):
-        candidate = current / "schemas"
+        candidate = current / "_SCHEMAS"
         if candidate.is_dir():
             return candidate
         current = current.parent
     raise RuntimeError(
-        "Could not locate the 'schemas/' directory. "
+        "Could not locate the '_SCHEMAS/' directory. "
         "Set the STUDIOBRAIN_SCHEMAS_DIR environment variable to the absolute path."
     )
 

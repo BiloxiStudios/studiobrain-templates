@@ -12,24 +12,27 @@ Entity templates, AI generation rules, and plugin SDK for StudioBrain. Pure data
 
 ```
 studiobrain-templates/
-├── templates/
-│   ├── Standard/                       # 14 entity templates (CHARACTER, LOCATION, ITEM, etc.)
+├── _TEMPLATES/
+│   ├── Standard/                       # Entity templates (CHARACTER, LOCATION, ITEM, etc.)
 │   ├── Core/                           # Core templates (ASSEMBLY, DIALOGUE, QUEST, TIMELINE)
 │   ├── Custom/                         # User-created templates (.gitkeep)
 │   ├── Layouts/                        # UI layout definitions (JSON)
 │   ├── Packs/                          # Template packs (starter-characters, starter-locations, etc.)
 │   └── ExampleImplementation/          # Example entities using the templates
-├── rules/
-│   ├── *.md                            # 17 rule files (CHARACTER_RULES, LOCATION_RULES, etc.)
-│   ├── Core/                           # Core rules (assembly_constraints.yaml, dialogue_flow.yaml)
-│   ├── Standard/                       # Standard rules (character_consistency, style_guide, world_lore)
+├── _MAPS/                              # Map templates (3D Level, Dungeon Grid, Location Scout)
+├── _DOCUMENTS/                         # Document templates (Style Bible, Lore, etc.)
+├── _RULES/
+│   ├── Standard/                       # Core rule files (CHARACTER_RULES, LOCATION_RULES, etc.)
+│   │                                   # + yaml constraint files (character_consistency, etc.)
 │   ├── Custom/                         # User-created rules (.gitkeep)
 │   └── User/                           # Per-user rule overrides (.gitkeep)
-├── plugins/                            # 22 plugin definitions
+├── _PLUGINS/                           # 22 plugin definitions
 │   ├── _plugins.json                   # Plugin registry
 │   ├── _plugin_settings.json           # Default settings
 │   ├── _shared/plugin-theme.css        # Shared plugin CSS
 │   └── <plugin-name>/                  # Each plugin: plugin.json + backend/ + frontend/
+├── _SCHEMAS/                           # JSON Schema definitions for entity frontmatter
+├── _SKILLS/                            # Agent skill definitions (.gitkeep)
 ├── package.json                        # @studiobrain/templates (npm package)
 ├── LICENSE                             # Apache 2.0
 └── .github/workflows/ci.yml           # YAML frontmatter validation
@@ -42,7 +45,7 @@ studiobrain-templates/
 pip install pyyaml
 python3 scripts/validate.py             # If scripts/ exists, or inline validation
 
-# Manual validation: every .md file in templates/ and rules/ must have valid YAML frontmatter
+# Manual validation: every .md file in _TEMPLATES/, _MAPS/, _DOCUMENTS/ and _RULES/ must have valid YAML frontmatter
 ```
 
 There is no build step. This is a data-only package consumed by the StudioBrain backend at runtime.
@@ -61,5 +64,6 @@ There is no build step. This is a data-only package consumed by the StudioBrain 
 - **Apache 2.0 license.** This repo will be public. Do not add proprietary code or credentials.
 - **Plugins are self-contained.** Each plugin directory has `plugin.json` (manifest), optional `backend/` (routes.py, events.py), and `frontend/` (HTML pages/panels). Plugin backends run inside the StudioBrain backend process.
 - **Do not modify `_plugins.json` or `_plugin_settings.json` without updating the corresponding plugin directories.**
-- **Template packs** in `templates/Packs/` must include a `pack.json` manifest with metadata.
-- When adding a new entity type, add both the template file (in `templates/Standard/`) and a corresponding rules file (in `rules/`).
+- **Template packs** in `_TEMPLATES/Packs/` must include a `pack.json` manifest with metadata.
+- When adding a new entity type, add both the template file (in `_TEMPLATES/Standard/`) and a corresponding rules file (in `_RULES/Standard/`).
+- Map templates belong in `_MAPS/`; document templates (Style Bible, Lore, etc.) belong in `_DOCUMENTS/`.

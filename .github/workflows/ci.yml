@@ -16,31 +16,33 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install pyyaml
-      - name: Validate YAML frontmatter in all templates
+      - name: Validate YAML frontmatter in all templates, maps, and documents
         run: |
           python3 -c "
           import yaml, sys, pathlib
 
           SKIP_FILES = {'README.md'}
+          SCAN_DIRS = ['_TEMPLATES', '_MAPS', '_DOCUMENTS']
 
           errors = []
-          for md in sorted(pathlib.Path('templates').rglob('*.md')):
-              if md.name in SKIP_FILES:
-                  continue
-              text = md.read_text(encoding='utf-8')
-              if not text.startswith('---'):
-                  errors.append(f'{md}: missing YAML frontmatter delimiter')
-                  continue
-              parts = text.split('---', 2)
-              if len(parts) < 3:
-                  errors.append(f'{md}: malformed frontmatter (no closing ---)')
-                  continue
-              try:
-                  data = yaml.safe_load(parts[1])
-                  if not isinstance(data, dict):
-                      errors.append(f'{md}: frontmatter is not a YAML mapping')
-              except yaml.YAMLError as e:
-                  errors.append(f'{md}: YAML parse error: {e}')
+          for scan_dir in SCAN_DIRS:
+              for md in sorted(pathlib.Path(scan_dir).rglob('*.md')):
+                  if md.name in SKIP_FILES:
+                      continue
+                  text = md.read_text(encoding='utf-8')
+                  if not text.startswith('---'):
+                      errors.append(f'{md}: missing YAML frontmatter delimiter')
+                      continue
+                  parts = text.split('---', 2)
+                  if len(parts) < 3:
+                      errors.append(f'{md}: malformed frontmatter (no closing ---)')
+                      continue
+                  try:
+                      data = yaml.safe_load(parts[1])
+                      if not isinstance(data, dict):
+                          errors.append(f'{md}: frontmatter is not a YAML mapping')
+                  except yaml.YAMLError as e:
+                      errors.append(f'{md}: YAML parse error: {e}')
 
           if errors:
               for e in errors:
@@ -68,7 +70,7 @@ jobs:
           SKIP_FILES = {'README.md', 'RULES_INDEX.md'}
 
           errors = []
-          for md in sorted(pathlib.Path('rules').rglob('*.md')):
+          for md in sorted(pathlib.Path('_RULES').rglob('*.md')):
               if md.name in SKIP_FILES:
                   continue
               text = md.read_text(encoding='utf-8')
@@ -102,16 +104,16 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install "jsonschema>=4.17"
-      - name: Validate JSON Schemas in schemas/
+      - name: Validate JSON Schemas in _SCHEMAS/
         run: |
           python3 -c "
           import json, sys, pathlib
           from jsonschema import Draft202012Validator
 
           errors = []
-          schema_files = sorted(pathlib.Path('schemas').glob('*.json'))
+          schema_files = sorted(pathlib.Path('_SCHEMAS').glob('*.json'))
           if not schema_files:
-              print('ERROR: No schema files found in schemas/', file=sys.stderr)
+              print('ERROR: No schema files found in _SCHEMAS/', file=sys.stderr)
               sys.exit(1)
 
           for schema_file in schema_files:
@@ -133,14 +135,14 @@ jobs:
               print(f'All {len(schema_files)} schema(s) valid.')
           "
 
-      - name: Validate plugin manifests in plugins/
+      - name: Validate plugin manifests in _PLUGINS/
         run: |
           python3 -c "
           import json, sys, pathlib
 
           errors = []
           REQUIRED_KEYS = {'id', 'name', 'version', 'description', 'type', 'author'}
-          for manifest in sorted(pathlib.Path('plugins').glob('*/plugin.json')):
+          for manifest in sorted(pathlib.Path('_PLUGINS').glob('*/plugin.json')):
               try:
                   data = json.loads(manifest.read_text(encoding='utf-8'))
               except json.JSONDecodeError as e:

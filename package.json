@@ -5,9 +5,13 @@
   "main": "index.js",
   "types": "index.d.ts",
   "files": [
-    "templates/",
-    "rules/",
-    "plugins/",
+    "_TEMPLATES/",
+    "_RULES/",
+    "_PLUGINS/",
+    "_SCHEMAS/",
+    "_MAPS/",
+    "_DOCUMENTS/",
+    "_SKILLS/",
     "index.js",
     "index.d.ts"
   ],

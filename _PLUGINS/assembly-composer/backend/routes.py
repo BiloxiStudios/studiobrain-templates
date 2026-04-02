@@ -24,7 +24,7 @@ router = APIRouter()
 DATA_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 ASSEMBLIES_DIR = os.path.join(DATA_ROOT, "Assemblies")
 EXPORT_PROFILES_DIR = os.path.join(
-    DATA_ROOT, "templates", "Standard", "ExportProfiles"
+    DATA_ROOT, "_TEMPLATES", "Standard", "ExportProfiles"
 )
 
 
