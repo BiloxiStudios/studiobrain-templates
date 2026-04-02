@@ -18,6 +18,117 @@ associated_rules:
   - CHARACTER_RULES.md
   - CHARACTER_WORKFLOW.md
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  hair_color:
+    widget: color-palette
+    options:
+      - { label: "Black", hex: "#1A1A1A" }
+      - { label: "Dark Brown", hex: "#3B2314" }
+      - { label: "Medium Brown", hex: "#6B4226" }
+      - { label: "Light Brown", hex: "#A0724A" }
+      - { label: "Auburn", hex: "#922724" }
+      - { label: "Red", hex: "#B7410E" }
+      - { label: "Dark Blonde", hex: "#C2A868" }
+      - { label: "Blonde", hex: "#E8D44D" }
+      - { label: "Platinum Blonde", hex: "#F0E6D3" }
+      - { label: "Grey", hex: "#8A8A8A" }
+      - { label: "White", hex: "#F0F0F0" }
+      - { label: "Strawberry Blonde", hex: "#D4A76A" }
+  eye_color:
+    widget: color-palette
+    options:
+      - { label: "Dark Blue", hex: "#1A3A5C" }
+      - { label: "Dark Brown", hex: "#3D2B1F" }
+      - { label: "Indigo", hex: "#2E0854" }
+      - { label: "Grey", hex: "#6B7B8D" }
+      - { label: "Dark Green", hex: "#1A4D2E" }
+      - { label: "Dark Teal", hex: "#1A5C5C" }
+      - { label: "Mocha", hex: "#6B4226" }
+      - { label: "Honey", hex: "#B8860B" }
+      - { label: "Blue", hex: "#4A90D9" }
+      - { label: "Green", hex: "#2E8B57" }
+      - { label: "Zombie", hex: "#A8B820" }
+  skin_tone:
+    widget: color-palette
+    multi_swatch: true
+    options:
+      - { label: "Light-Medium Warm Beige", description: "Warm beige tones with peachy undertones", base: "#C9A58C", midtone: "#A67C63", shadow: "#7A5440", highlight: "#E8C9B4" }
+      - { label: "Medium-Deep Rich Brown", description: "Rich brown tones with warm red undertones", base: "#A8554A", midtone: "#8B453D", shadow: "#5C2E28", highlight: "#D49A8A" }
+      - { label: "Deep Cool Ebony", description: "Deep ebony tones with cool undertones", base: "#5D3C33", midtone: "#422822", shadow: "#2A1814", highlight: "#8A6558" }
+  nail_color:
+    widget: color-picker
+  family:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 10
+    relationship_types:
+      - { value: "parent", label: "Parent" }
+      - { value: "child", label: "Child" }
+      - { value: "sibling", label: "Sibling" }
+      - { value: "spouse", label: "Spouse" }
+      - { value: "cousin", label: "Cousin" }
+      - { value: "grandparent", label: "Grandparent" }
+      - { value: "grandchild", label: "Grandchild" }
+  friends:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 15
+    relationship_types:
+      - { value: "close", label: "Close Friend" }
+      - { value: "casual", label: "Casual Friend" }
+      - { value: "acquaintance", label: "Acquaintance" }
+      - { value: "best_friend", label: "Best Friend" }
+  enemies:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 10
+    relationship_types:
+      - { value: "rival", label: "Rival" }
+      - { value: "nemesis", label: "Nemesis" }
+      - { value: "antagonist", label: "Antagonist" }
+      - { value: "hostile", label: "Hostile" }
+  romantic:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 5
+    relationship_types:
+      - { value: "partner", label: "Partner" }
+      - { value: "ex", label: "Ex" }
+      - { value: "crush", label: "Crush" }
+      - { value: "complicated", label: "Complicated" }
+  primary_location:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 1
+  faction:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 1
+  job:
+    widget: entity-selector
+    reference_type: job
+    max_selections: 1
+  associated_brands:
+    widget: entity-selector
+    reference_type: brand
+    max_selections: 5
+    relationship_types:
+      - { value: "employee", label: "Employee" }
+      - { value: "customer", label: "Customer" }
+      - { value: "owner", label: "Owner" }
+      - { value: "sponsor", label: "Sponsor" }
+      - { value: "ambassador", label: "Ambassador" }
+  birth_year:
+    widget: year
+    min: 1900
+    max: 1998
+  death_year:
+    widget: year
+    min: 1900
+    max: 1998
+
 status: "active"
 
 # PRODUCTION STATUS TRACKING
