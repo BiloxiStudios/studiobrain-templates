@@ -19,6 +19,54 @@ last_updated: "YYYY-MM-DD"
 associated_rules:
   - BRAND_RULES.md
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  color_palette:
+    widget: color-group
+    swatches:
+      - key: primary
+        label: "Primary Color"
+      - key: secondary
+        label: "Secondary Color"
+      - key: accent
+        label: "Accent Color"
+  founded:
+    widget: year
+    min: 1800
+    max: 1998
+  defunct_year:
+    widget: year
+    min: 1800
+    max: 1998
+  parent_company:
+    widget: entity-selector
+    reference_type: brand
+    max_selections: 1
+  subsidiaries:
+    widget: entity-selector
+    reference_type: brand
+    max_selections: 20
+  headquarters:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 1
+  job_positions:
+    widget: entity-selector
+    reference_type: job
+    max_selections: 20
+  key_personnel:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 10
+    relationship_types:
+      - { value: "ceo", label: "CEO" }
+      - { value: "cfo", label: "CFO" }
+      - { value: "coo", label: "COO" }
+      - { value: "marketing_director", label: "Marketing Director" }
+      - { value: "founder", label: "Founder" }
+      - { value: "board_member", label: "Board Member" }
+
 status: "active"  # active, defunct, merged, archived, draft
 
 # PRODUCTION STATUS TRACKING

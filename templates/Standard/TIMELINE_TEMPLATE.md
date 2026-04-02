@@ -12,6 +12,45 @@ asset_subfolders:
   - images
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# FIELD WIDGET CONFIGURATION
+field_config:
+  campaign_id:
+    widget: entity-selector
+    reference_type: campaign
+    max_selections: 1
+  quest_id:
+    widget: entity-selector
+    reference_type: quest
+    max_selections: 1
+  event_id:
+    widget: entity-selector
+    reference_type: event
+    max_selections: 1
+  dialogue_id:
+    widget: entity-selector
+    reference_type: dialogue
+    max_selections: 1
+  characters_involved:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 20
+  locations_involved:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 20
+  brands_involved:
+    widget: entity-selector
+    reference_type: brand
+    max_selections: 10
+  factions_involved:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 10
+  game_year:
+    widget: year
+    min: 1900
+    max: 1998
+
 status: "active"
 
 # PRODUCTION STATUS TRACKING

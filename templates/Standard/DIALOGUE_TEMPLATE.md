@@ -13,6 +13,33 @@ asset_subfolders:
   - images
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# FIELD WIDGET CONFIGURATION
+field_config:
+  quest_id:
+    widget: entity-selector
+    reference_type: quest
+    max_selections: 1
+  campaign_id:
+    widget: entity-selector
+    reference_type: campaign
+    max_selections: 1
+  event_id:
+    widget: entity-selector
+    reference_type: event
+    max_selections: 1
+  location_id:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 1
+  participants:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 10
+  primary_speaker:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 1
+
 status: "draft"
 
 # PRODUCTION STATUS TRACKING

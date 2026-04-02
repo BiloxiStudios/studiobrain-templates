@@ -16,6 +16,38 @@ created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
 associated_rules: []
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  protagonist_characters:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 10
+  supporting_characters:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 20
+  antagonist_characters:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 10
+  involved_factions:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 10
+  primary_locations:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 20
+  secondary_locations:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 20
+  starting_location:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 1
+
 status: "active"  # active, completed, upcoming, archived, draft
 
 # PRODUCTION STATUS TRACKING

@@ -19,6 +19,43 @@ last_updated: "YYYY-MM-DD"
 associated_rules:
   - FACTION_RULES.md
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  leadership:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 10
+    relationship_types:
+      - { value: "supreme_leader", label: "Supreme Leader" }
+      - { value: "second_command", label: "Second in Command" }
+      - { value: "advisor", label: "Advisor" }
+      - { value: "officer", label: "Officer" }
+  headquarters:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 1
+  allies:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 10
+    relationship_types:
+      - { value: "military_alliance", label: "Military Alliance" }
+      - { value: "trade_partner", label: "Trade Partner" }
+      - { value: "political_ally", label: "Political Ally" }
+  enemies:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 10
+    relationship_types:
+      - { value: "open_warfare", label: "Open Warfare" }
+      - { value: "cold_war", label: "Cold War" }
+      - { value: "rival", label: "Rival" }
+  neutral:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 10
+
 status: "active"  # active, disbanded, underground, archived, draft
 
 # PRODUCTION STATUS TRACKING

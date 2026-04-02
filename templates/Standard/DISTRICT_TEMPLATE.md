@@ -19,6 +19,22 @@ last_updated: "YYYY-MM-DD"
 associated_rules:
   - DISTRICT_RULES.md
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  governing_faction:
+    widget: entity-selector
+    reference_type: faction
+    max_selections: 1
+  district_council:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 10
+    relationship_types:
+      - { value: "district_leader", label: "District Leader" }
+      - { value: "security_chief", label: "Security Chief" }
+      - { value: "council_member", label: "Council Member" }
+
 status: "active"  # active, quarantined, destroyed, archived, draft
 
 # PRODUCTION STATUS TRACKING

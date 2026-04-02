@@ -20,6 +20,22 @@ associated_rules:
   - ITEM_RULES.md
   - ITEM_WORKFLOW.md
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  brand_id:
+    widget: entity-selector
+    reference_type: brand
+    max_selections: 1
+  spawn_locations:
+    widget: entity-selector
+    reference_type: location
+    max_selections: 20
+  vendors:
+    widget: entity-selector
+    reference_type: character
+    max_selections: 20
+
 status: "active"  # active, deprecated, prototype, archived, draft
 
 # PRODUCTION STATUS TRACKING

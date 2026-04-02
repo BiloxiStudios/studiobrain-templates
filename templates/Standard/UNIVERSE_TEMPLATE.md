@@ -17,6 +17,23 @@ last_updated: "YYYY-MM-DD"
 associated_rules:
   - UNIVERSE_RULES.md
 associated_skills: []
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  primary_colors:
+    widget: color-group
+    swatches:
+      - key: synth_pink
+        label: "Synth Pink"
+      - key: vapor_teal
+        label: "Vapor Teal"
+      - key: moon_white
+        label: "Moon White"
+      - key: static_purple
+        label: "Static Purple"
+      - key: grime_grey
+        label: "Grime Grey"
+
 status: "active"  # active, development, archived
 
 # PRIMARY IMAGE
