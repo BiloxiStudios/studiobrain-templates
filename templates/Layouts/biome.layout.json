@@ -1,0 +1,469 @@
+{
+  "entity_type": "biome",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "Trees",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Biome ID",
+          "ui_component": "read-only-text",
+          "required": true,
+          "auto_generate_from": "name",
+          "placeholder": "auto-generated from name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores"
+        },
+        {
+          "key": "name",
+          "label": "Biome Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Temperate Rainforest"
+        },
+        {
+          "key": "biome_type",
+          "label": "Biome Type",
+          "ui_component": "select",
+          "options": [
+            {"value": "forest", "label": "Forest"},
+            {"value": "desert", "label": "Desert"},
+            {"value": "grassland", "label": "Grassland"},
+            {"value": "tundra", "label": "Tundra"},
+            {"value": "wetland", "label": "Wetland"},
+            {"value": "mountain", "label": "Mountain"},
+            {"value": "ocean", "label": "Ocean"},
+            {"value": "coastal", "label": "Coastal"},
+            {"value": "volcanic", "label": "Volcanic"},
+            {"value": "cave", "label": "Cave / Underground"},
+            {"value": "urban", "label": "Urban"},
+            {"value": "magical", "label": "Magical / Fantastical"},
+            {"value": "other", "label": "Other"}
+          ]
+        },
+        {
+          "key": "climate",
+          "label": "Climate",
+          "ui_component": "select",
+          "options": [
+            {"value": "tropical", "label": "Tropical"},
+            {"value": "arid", "label": "Arid"},
+            {"value": "temperate", "label": "Temperate"},
+            {"value": "continental", "label": "Continental"},
+            {"value": "polar", "label": "Polar"},
+            {"value": "mediterranean", "label": "Mediterranean"},
+            {"value": "oceanic", "label": "Oceanic"},
+            {"value": "subarctic", "label": "Subarctic"},
+            {"value": "other", "label": "Other"}
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "pristine", "label": "Pristine"},
+            {"value": "healthy", "label": "Healthy"},
+            {"value": "degraded", "label": "Degraded"},
+            {"value": "endangered", "label": "Endangered"},
+            {"value": "destroyed", "label": "Destroyed"},
+            {"value": "magical", "label": "Magically Altered"},
+            {"value": "archived", "label": "Archived"}
+          ]
+        },
+        {
+          "key": "narrative_importance",
+          "label": "Narrative Importance",
+          "ui_component": "select",
+          "options": [
+            {"value": "critical", "label": "Critical"},
+            {"value": "major", "label": "Major"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "minor", "label": "Minor"}
+          ]
+        },
+        {
+          "key": "primary_image",
+          "label": "Primary Image",
+          "ui_component": "text"
+        }
+      ]
+    },
+    {
+      "id": "block_primary_image",
+      "title": "Primary Image",
+      "icon": "ImageIcon",
+      "component": "primary-image",
+      "component_config": {
+        "object_fit": "cover"
+      },
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false
+    },
+    {
+      "id": "environment",
+      "title": "Environment",
+      "icon": "Mountain",
+      "columns": 3,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "terrain",
+          "label": "Terrain",
+          "ui_component": "select",
+          "options": [
+            {"value": "flat", "label": "Flat"},
+            {"value": "rolling_hills", "label": "Rolling Hills"},
+            {"value": "mountainous", "label": "Mountainous"},
+            {"value": "canyon", "label": "Canyon"},
+            {"value": "plateau", "label": "Plateau"},
+            {"value": "coastal_cliffs", "label": "Coastal Cliffs"},
+            {"value": "volcanic", "label": "Volcanic"},
+            {"value": "swamp", "label": "Swamp"},
+            {"value": "mixed", "label": "Mixed"}
+          ]
+        },
+        {
+          "key": "elevation",
+          "label": "Elevation",
+          "ui_component": "select",
+          "options": [
+            {"value": "below_sea_level", "label": "Below Sea Level"},
+            {"value": "sea_level", "label": "Sea Level"},
+            {"value": "low", "label": "Low"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "high", "label": "High"},
+            {"value": "alpine", "label": "Alpine"},
+            {"value": "variable", "label": "Variable"}
+          ]
+        },
+        {
+          "key": "size",
+          "label": "Size",
+          "ui_component": "select",
+          "options": [
+            {"value": "tiny", "label": "Tiny (clearing)"},
+            {"value": "small", "label": "Small (valley)"},
+            {"value": "medium", "label": "Medium (region)"},
+            {"value": "large", "label": "Large (province)"},
+            {"value": "vast", "label": "Vast (continental)"}
+          ]
+        },
+        {
+          "key": "temperature_range",
+          "label": "Temperature Range",
+          "ui_component": "select",
+          "options": [
+            {"value": "frigid", "label": "Frigid (below -10C)"},
+            {"value": "cold", "label": "Cold (-10C to 5C)"},
+            {"value": "cool", "label": "Cool (5C to 15C)"},
+            {"value": "temperate", "label": "Temperate (15C to 25C)"},
+            {"value": "warm", "label": "Warm (25C to 35C)"},
+            {"value": "hot", "label": "Hot (35C+)"},
+            {"value": "extreme", "label": "Extreme Variation"}
+          ]
+        },
+        {
+          "key": "humidity",
+          "label": "Humidity",
+          "ui_component": "select",
+          "options": [
+            {"value": "arid", "label": "Arid"},
+            {"value": "dry", "label": "Dry"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "humid", "label": "Humid"},
+            {"value": "saturated", "label": "Saturated"}
+          ]
+        },
+        {
+          "key": "water_sources",
+          "label": "Water Sources",
+          "ui_component": "tag-input",
+          "column_span": 3,
+          "placeholder": "Add water source (river, lake, spring, etc.)..."
+        }
+      ]
+    },
+    {
+      "id": "ecology",
+      "title": "Ecology",
+      "icon": "Leaf",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "flora",
+          "label": "Flora (Plant Life)",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "placeholder": "Add plant species or vegetation type...",
+          "help": "Major plant species, trees, fungi, and vegetation types found in this biome"
+        },
+        {
+          "key": "fauna",
+          "label": "Fauna (Animal Life)",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "placeholder": "Add animal species or creature type...",
+          "help": "Major animal species, creatures, and wildlife found in this biome"
+        },
+        {
+          "key": "natural_resources",
+          "label": "Natural Resources",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "placeholder": "Add resource (timber, ore, herbs, etc.)...",
+          "help": "Harvestable or collectible resources available in this biome"
+        },
+        {
+          "key": "biodiversity",
+          "label": "Biodiversity",
+          "ui_component": "select",
+          "options": [
+            {"value": "barren", "label": "Barren"},
+            {"value": "low", "label": "Low"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "rich", "label": "Rich"},
+            {"value": "extremely_rich", "label": "Extremely Rich"}
+          ]
+        },
+        {
+          "key": "dominant_species",
+          "label": "Dominant Species",
+          "ui_component": "text",
+          "placeholder": "The apex predator or keystone species..."
+        }
+      ]
+    },
+    {
+      "id": "hazards_weather",
+      "title": "Hazards & Weather",
+      "icon": "AlertTriangle",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "weather_patterns",
+          "label": "Weather Patterns",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "placeholder": "Add weather pattern (monsoon, blizzard, fog, etc.)...",
+          "help": "Common weather events and seasonal patterns"
+        },
+        {
+          "key": "natural_hazards",
+          "label": "Natural Hazards",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "help": "Dangers and environmental threats in this biome",
+          "sub_fields": [
+            {"key": "type", "label": "Hazard Type", "ui_component": "text", "placeholder": "e.g., quicksand, volcanic eruption, avalanche"},
+            {
+              "key": "severity",
+              "label": "Severity",
+              "ui_component": "select",
+              "options": [
+                {"value": "minor", "label": "Minor"},
+                {"value": "moderate", "label": "Moderate"},
+                {"value": "severe", "label": "Severe"},
+                {"value": "deadly", "label": "Deadly"}
+              ]
+            },
+            {
+              "key": "frequency",
+              "label": "Frequency",
+              "ui_component": "select",
+              "options": [
+                {"value": "rare", "label": "Rare"},
+                {"value": "occasional", "label": "Occasional"},
+                {"value": "frequent", "label": "Frequent"},
+                {"value": "constant", "label": "Constant"}
+              ]
+            }
+          ]
+        },
+        {
+          "key": "threat_level",
+          "label": "Overall Threat Level",
+          "ui_component": "select",
+          "options": [
+            {"value": "safe", "label": "Safe"},
+            {"value": "low", "label": "Low"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "high", "label": "High"},
+            {"value": "extreme", "label": "Extreme"}
+          ]
+        },
+        {
+          "key": "traversal_difficulty",
+          "label": "Traversal Difficulty",
+          "ui_component": "select",
+          "options": [
+            {"value": "easy", "label": "Easy"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "difficult", "label": "Difficult"},
+            {"value": "treacherous", "label": "Treacherous"},
+            {"value": "impassable", "label": "Impassable"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sensory_details",
+      "title": "Sensory Details",
+      "icon": "Eye",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "visual_description",
+          "label": "Visual Description",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 3,
+          "placeholder": "What does this biome look like? Dominant colors, textures, vistas..."
+        },
+        {
+          "key": "sounds",
+          "label": "Sounds",
+          "ui_component": "tag-input",
+          "placeholder": "Add ambient sound (wind, birdsong, rushing water, etc.)..."
+        },
+        {
+          "key": "smells",
+          "label": "Smells",
+          "ui_component": "tag-input",
+          "placeholder": "Add scent (pine, decay, salt air, etc.)..."
+        },
+        {
+          "key": "color_palette.primary",
+          "label": "Primary Color",
+          "ui_component": "color"
+        },
+        {
+          "key": "color_palette.secondary",
+          "label": "Secondary Color",
+          "ui_component": "color"
+        },
+        {
+          "key": "color_palette.accent",
+          "label": "Accent Color",
+          "ui_component": "color"
+        },
+        {
+          "key": "time_of_day_variation",
+          "label": "Time-of-Day Variation",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 2,
+          "placeholder": "How does the biome change between dawn, day, dusk, and night?"
+        }
+      ]
+    },
+    {
+      "id": "connected_locations",
+      "title": "Connected Locations",
+      "icon": "MapPin",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "locations",
+          "label": "Locations in This Biome",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "location",
+          "relationship_types": [
+            {"value": "contains", "label": "Contains"},
+            {"value": "borders", "label": "Borders"},
+            {"value": "overlaps", "label": "Overlaps"}
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for locations within or bordering this biome...",
+          "max_selections": 25
+        },
+        {
+          "key": "adjacent_biomes",
+          "label": "Adjacent Biomes",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "biome",
+          "relationship_types": [
+            {"value": "borders", "label": "Borders"},
+            {"value": "transitions_to", "label": "Transitions Into"},
+            {"value": "enclosed_by", "label": "Enclosed By"}
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for neighboring biomes...",
+          "max_selections": 10
+        },
+        {
+          "key": "faction_presence",
+          "label": "Faction Presence",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "faction",
+          "relationship_types": [
+            {"value": "controls", "label": "Controls"},
+            {"value": "patrols", "label": "Patrols"},
+            {"value": "harvests", "label": "Harvests Resources"},
+            {"value": "sacred", "label": "Sacred Territory"}
+          ],
+          "show_relationship_selector": true,
+          "placeholder": "Search for factions with presence here...",
+          "max_selections": 10
+        }
+      ],
+      "surface": "secondary"
+    },
+    {
+      "id": "ai_context",
+      "title": "AI Generation Helpers",
+      "icon": "Brain",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "ai_atmosphere_description",
+          "label": "Atmosphere Description",
+          "ui_component": "textarea",
+          "rows": 3,
+          "placeholder": "Brief atmospheric description for AI scene generation...",
+          "help": "Used for AI environmental generation and image prompts"
+        },
+        {
+          "key": "ai_visual_style",
+          "label": "Visual Style",
+          "ui_component": "text",
+          "placeholder": "Art style keywords for AI image generation (e.g., photorealistic, painterly, stylized)...",
+          "help": "Used for visual generation and image prompts"
+        },
+        {
+          "key": "ai_bio_summary",
+          "label": "Biome Summary",
+          "ui_component": "textarea",
+          "rows": 3,
+          "placeholder": "Concise 2-3 sentence biome description for AI context...",
+          "help": "Brief context for AI generation without full markdown content"
+        }
+      ]
+    },
+    {
+      "id": "comfyui",
+      "component": "entity-workflow-trigger"
+    },
+    {
+      "id": "block_assets",
+      "title": "Asset Browser",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin"
+    }
+  ],
+  "view_config": {
+    "layout_driven": true
+  }
+}
