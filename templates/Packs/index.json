@@ -1,0 +1,11 @@
+[
+  { "id": "core-essentials", "path": "templates/Packs/core-essentials" },
+  { "id": "full-starter", "path": "templates/Packs/full-starter" },
+  { "id": "starter-assemblies", "path": "templates/Packs/starter-assemblies" },
+  { "id": "starter-brands", "path": "templates/Packs/starter-brands" },
+  { "id": "starter-characters", "path": "templates/Packs/starter-characters" },
+  { "id": "starter-factions", "path": "templates/Packs/starter-factions" },
+  { "id": "starter-items", "path": "templates/Packs/starter-items" },
+  { "id": "starter-jobs", "path": "templates/Packs/starter-jobs" },
+  { "id": "starter-locations", "path": "templates/Packs/starter-locations" }
+]
