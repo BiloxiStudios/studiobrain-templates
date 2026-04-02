@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "studiobrain-templates"
-version = "0.1.0"
+version = "0.2.0"
 description = "StudioBrain entity templates, generation rules, and plugin definitions"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -29,10 +29,6 @@ studiobrain_templates = [
     "templates/**/*.json",
     "templates/**/*.yaml",
     "templates/**/*.yml",
-    "maps/**/*.md",
-    "documents/**/*.md",
-    "skills/**/*.md",
-    "skills/**/*.yaml",
     "rules/**/*.md",
     "rules/**/*.yaml",
     "rules/**/*.yml",
