@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 16px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+  .subheader { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--surface-base-text-secondary); margin-bottom: 8px; margin-top: 16px; font-weight: 600; }
+
+  /* ── Variable list ───────────────────────────────────── */
+  .var-list { display: flex; flex-direction: column; gap: 6px; }
+  .var-item {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .var-item:hover { border-color: var(--plugin-accent); }
+  .var-token { font-family: 'Fira Code', 'SF Mono', monospace; font-size: 12px; color: var(--plugin-accent); font-weight: 600; }
+  .var-desc { font-size: 12px; color: var(--surface-base-text-secondary); margin-top: 3px; }
+  .var-form { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; background: var(--surface-base-bg); color: var(--surface-base-text-secondary); vertical-align: middle; }
+
+  /* ── Quick insert ────────────────────────────────────── */
+  .insert-area {
+    margin-top: 16px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .insert-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--surface-base-text-secondary); margin-bottom: 8px; font-weight: 600; }
+  .insert-row { display: flex; gap: 6px; }
+  input {
+    flex: 1;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--surface-base-text);
+    font-family: 'Fira Code', 'SF Mono', monospace;
+    font-size: 12px;
+  }
+  input:focus { outline: none; border-color: var(--plugin-accent); }
+  .copy-btn {
+    padding: 6px 12px;
+    background: var(--plugin-accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+  .copy-btn:hover { opacity: 0.85; }
+
+  /* ── Tips ────────────────────────────────────────────── */
+  .tip {
+    margin-top: 16px;
+    padding: 10px 12px;
+    background: var(--surface-elevated-bg);
+    border-left: 3px solid var(--plugin-accent);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    line-height: 1.5;
+  }
+  .tip code { font-family: 'Fira Code', 'SF Mono', monospace; color: var(--plugin-accent); }
+
+  .copied-toast {
+    display: none;
+    font-size: 11px;
+    color: var(--surface-success-border, #27ae60);
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="header">Prompt Variables</div>
+
+  <!-- Variables derived from the current entity's fields -->
+  <div class="subheader">This Entity's Local Fields</div>
+  <div class="var-list" id="local-vars">
+    <div style="color:var(--surface-base-text-secondary);font-size:12px;">Loading entity fields…</div>
+  </div>
+
+  <!-- Cross-entity quick references -->
+  <div class="subheader">Cross-Entity Examples</div>
+  <div class="var-list">
+    <div class="var-item" onclick="setInsert('$character.name')">
+      <span class="var-token">$character.name</span><span class="var-form">implicit</span>
+      <div class="var-desc">Name of the nearest character in context</div>
+    </div>
+    <div class="var-item" onclick="setInsert('$location.name')">
+      <span class="var-token">$location.name</span><span class="var-form">implicit</span>
+      <div class="var-desc">Name of the active location</div>
+    </div>
+    <div class="var-item" onclick="setInsert('$item.name')">
+      <span class="var-token">$item.name</span><span class="var-form">implicit</span>
+      <div class="var-desc">Name of the nearest item in context</div>
+    </div>
+    <div class="var-item" onclick="setInsert('$faction.name')">
+      <span class="var-token">$faction.name</span><span class="var-form">implicit</span>
+      <div class="var-desc">Name of the active faction</div>
+    </div>
+  </div>
+
+  <!-- Quick insert widget -->
+  <div class="insert-area">
+    <div class="insert-label">Quick Copy</div>
+    <div class="insert-row">
+      <input id="insert-input" type="text" value="$character.name" placeholder="$type:id.field" />
+      <button class="copy-btn" onclick="copyToken()">Copy</button>
+    </div>
+    <div class="copied-toast" id="copied-toast">Copied to clipboard ✓</div>
+  </div>
+
+  <!-- Tips -->
+  <div class="tip">
+    <strong>Explicit pinning:</strong> use <code>$type:entity_id.field</code> to always reference a specific entity regardless of context.<br><br>
+    <strong>Nested paths:</strong> <code>$character.appearance.hair_color.hex</code> traverses nested fields.
+  </div>
+
+  <script>
+    // Inject entity context provided by the StudioBrain host shell
+    // The host exposes window.__sb_entity = { type, id, fields: {fieldName: value, …} }
+    function renderLocalVars() {
+      const entity = window.__sb_entity || null;
+      const container = document.getElementById("local-vars");
+      if (!entity || !entity.fields) {
+        container.innerHTML = '<div style="color:var(--surface-base-text-secondary);font-size:12px;">No entity context available.</div>';
+        return;
+      }
+      container.innerHTML = "";
+      Object.entries(entity.fields).forEach(([key, val]) => {
+        if (val === null || val === undefined || val === "") return;
+        const item = document.createElement("div");
+        item.className = "var-item";
+        item.onclick = () => setInsert("$" + key);
+        item.innerHTML = `
+          <span class="var-token">$${key}</span><span class="var-form">local</span>
+          <div class="var-desc">${String(val).substring(0, 60)}${String(val).length > 60 ? "…" : ""}</div>
+        `;
+        container.appendChild(item);
+      });
+      if (!container.children.length) {
+        container.innerHTML = '<div style="color:var(--surface-base-text-secondary);font-size:12px;">No populated fields found.</div>';
+      }
+    }
+
+    function setInsert(token) {
+      document.getElementById("insert-input").value = token;
+    }
+
+    async function copyToken() {
+      const val = document.getElementById("insert-input").value;
+      try {
+        await navigator.clipboard.writeText(val);
+      } catch {
+        // fallback
+        const el = document.getElementById("insert-input");
+        el.select();
+        document.execCommand("copy");
+      }
+      const toast = document.getElementById("copied-toast");
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 1500);
+    }
+
+    // Run on load and whenever the host updates the entity context
+    renderLocalVars();
+    window.addEventListener("sb:entity:changed", renderLocalVars);
+  </script>
+</body>
+</html>
