@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 24px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  /* ── Header ───────────────────────────────────── */
+  .studio-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .studio-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-active));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .studio-icon svg { width: 22px; height: 22px; }
+  .studio-title { font-size: 20px; font-weight: 700; color: var(--surface-base-text); }
+  .studio-subtitle { font-size: 13px; color: var(--surface-base-text-secondary); }
+
+  /* ── Layout ───────────────────────────────────── */
+  .studio-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+  }
+  @media (max-width: 800px) {
+    .studio-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Cards ────────────────────────────────────── */
+  .card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title svg { width: 16px; height: 16px; opacity: 0.7; }
+
+  /* ── Form Controls ────────────────────────────── */
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.5;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(139,92,246,0.2);
+  }
+  select, input[type="text"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  input[type="text"] { background-image: none; }
+  select:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(139,92,246,0.2);
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .form-group { margin-bottom: 14px; }
+
+  /* ── Buttons ──────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn svg { width: 16px; height: 16px; }
+  .btn-generate {
+    background: linear-gradient(135deg, var(--plugin-accent), var(--plugin-accent));
+    color: white;
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+  .btn-generate:hover { background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-active)); box-shadow: 0 4px 16px rgba(139,92,246,0.3); }
+  .btn-generate:disabled {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .btn-ghost:hover { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+  .btn-danger { background: transparent; color: var(--surface-error-border); border: 1px solid rgba(248,113,113,0.3); }
+  .btn-danger:hover { background: rgba(248,113,113,0.1); }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Style Selector Pills ─────────────────────── */
+  .style-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .style-pill {
+    padding: 6px 14px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .style-pill:hover { border-color: var(--plugin-accent); color: var(--surface-base-text); }
+  .style-pill.active {
+    background: var(--plugin-accent);
+    border-color: var(--plugin-accent);
+    color: white;
+    font-weight: 500;
+  }
+
+  /* ── Audio Player ─────────────────────────────── */
+  .audio-player {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 10px;
+    padding: 16px;
+    display: none;
+  }
+  .audio-player.visible { display: block; }
+  .player-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .play-btn-lg {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--plugin-accent));
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    box-shadow: 0 2px 12px rgba(139,92,246,0.3);
+  }
+  .play-btn-lg:hover { transform: scale(1.05); box-shadow: 0 4px 20px rgba(139,92,246,0.4); }
+  .play-btn-lg svg { fill: white; width: 18px; height: 18px; }
+
+  .player-meta { flex: 1; min-width: 0; }
+  .player-meta-name { font-size: 13px; font-weight: 500; color: var(--surface-base-text); }
+  .player-meta-info { font-size: 11px; color: var(--surface-base-text-secondary); }
+
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: var(--surface-elevated-bg);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--plugin-accent), var(--surface-secondary-hover));
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.1s linear;
+    position: relative;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -5px;
+    top: -2px;
+    width: 10px; height: 10px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .progress-track:hover .progress-fill::after { opacity: 1; }
+  .time-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--surface-elevated-border);
+  }
+
+  /* ── Waveform Visualization ───────────────────── */
+  .waveform {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: 32px;
+    margin: 10px 0;
+  }
+  .waveform-bar {
+    width: 3px;
+    background: var(--plugin-accent);
+    border-radius: 2px;
+    height: 8px;
+    opacity: 0.4;
+    transition: height 0.15s ease;
+  }
+  .waveform.active .waveform-bar {
+    animation: waveAnim 0.8s ease-in-out infinite alternate;
+    opacity: 0.8;
+  }
+  @keyframes waveAnim {
+    0% { height: 4px; opacity: 0.3; }
+    100% { height: 28px; opacity: 1; }
+  }
+
+  /* ── History List ─────────────────────────────── */
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .history-list::-webkit-scrollbar { width: 4px; }
+  .history-list::-webkit-scrollbar-track { background: transparent; }
+  .history-list::-webkit-scrollbar-thumb { background: var(--surface-elevated-border); border-radius: 2px; }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    transition: border-color 0.15s;
+  }
+  .history-item:hover { border-color: var(--plugin-accent); }
+  .history-play-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface-elevated-border);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .history-play-btn:hover { background: var(--plugin-accent); }
+  .history-play-btn svg { fill: var(--surface-base-text); width: 12px; height: 12px; }
+  .history-info { flex: 1; min-width: 0; }
+  .history-name {
+    font-size: 12px;
+    color: var(--surface-base-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .history-meta { font-size: 10px; color: var(--surface-base-text-secondary); display: flex; gap: 8px; margin-top: 2px; }
+  .history-actions { display: flex; gap: 4px; }
+
+  .style-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    background: rgba(139,92,246,0.15);
+    color: var(--surface-secondary-hover);
+    border-radius: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--surface-elevated-border);
+    padding: 32px 16px;
+    font-size: 13px;
+  }
+  .empty-state svg { margin-bottom: 8px; opacity: 0.4; }
+
+  /* ── Voice Profile Card ───────────────────────── */
+  .profile-card {
+    padding: 12px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  .profile-label { color: var(--surface-base-text-secondary); }
+  .profile-value { color: var(--surface-base-text); font-weight: 500; }
+
+  .char-count {
+    font-size: 11px;
+    color: var(--surface-elevated-border);
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  .alert {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .alert-error {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--surface-error-text);
+  }
+  .alert-success {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--surface-success-text-secondary);
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="studio-header">
+    <div class="studio-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+      </svg>
+    </div>
+    <div>
+      <div class="studio-title">Voice Studio</div>
+      <div class="studio-subtitle" id="entity-label">Character voice generation</div>
+    </div>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert alert-error" id="alert-error"></div>
+  <div class="alert alert-success" id="alert-success"></div>
+
+  <div class="studio-grid">
+    <!-- ── Left Column: Generation ── -->
+    <div class="left-col">
+
+      <!-- Text Input -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Dialogue Text
+        </div>
+        <div class="form-group">
+          <textarea id="text-input" placeholder="Enter dialogue text to generate as speech..."></textarea>
+          <div class="char-count"><span id="char-count">0</span> characters</div>
+        </div>
+
+        <!-- Style -->
+        <label>Voice Style / Mood</label>
+        <div class="style-pills" id="style-pills">
+          <button class="style-pill active" data-style="normal" onclick="setStyle('normal', this)">Normal</button>
+          <button class="style-pill" data-style="angry" onclick="setStyle('angry', this)">Angry</button>
+          <button class="style-pill" data-style="whisper" onclick="setStyle('whisper', this)">Whisper</button>
+          <button class="style-pill" data-style="excited" onclick="setStyle('excited', this)">Excited</button>
+          <button class="style-pill" data-style="sad" onclick="setStyle('sad', this)">Sad</button>
+        </div>
+
+        <!-- Voice + Model selectors -->
+        <div class="form-row">
+          <div>
+            <label>Voice</label>
+            <select id="voice-select">
+              <option value="">Loading...</option>
+            </select>
+          </div>
+          <div>
+            <label>Model</label>
+            <select id="model-select">
+              <option value="eleven_multilingual_v2">Multilingual v2</option>
+              <option value="eleven_turbo_v2">Turbo v2</option>
+              <option value="eleven_monolingual_v1">Monolingual v1</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Generate -->
+        <button class="btn btn-generate" id="generate-btn" onclick="generate()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+          Generate Voice
+        </button>
+      </div>
+
+      <!-- Player -->
+      <div class="card audio-player" id="main-player">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          Generated Audio
+        </div>
+
+        <!-- Waveform -->
+        <div class="waveform" id="waveform"></div>
+
+        <div class="player-controls">
+          <button class="play-btn-lg" id="play-btn" onclick="togglePlay()">
+            <svg id="play-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+          <div class="player-meta">
+            <div class="player-meta-name" id="player-name">--</div>
+            <div class="player-meta-info" id="player-info">--</div>
+          </div>
+        </div>
+
+        <div class="progress-track" id="progress-track" onclick="seekAudio(event)">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="time-row">
+          <span id="time-current">0:00</span>
+          <span id="time-total">0:00</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Right Column: History + Profile ── -->
+    <div class="right-col">
+
+      <!-- Voice Profile -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Voice Profile
+        </div>
+        <div class="profile-card" id="profile-card">
+          <div class="profile-row">
+            <span class="profile-label">Assigned Voice</span>
+            <span class="profile-value" id="profile-voice">None</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-label">Voice ID</span>
+            <span class="profile-value" id="profile-voice-id" style="font-size:10px;color:var(--surface-base-text-secondary)">--</span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-ghost" onclick="assignVoiceProfile()" style="width:100%">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M12 5v14M5 12h14"/></svg>
+          Assign Current Voice
+        </button>
+      </div>
+
+      <!-- Generation History -->
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>
+          Generation History
+        </div>
+        <div class="history-list" id="history-list">
+          <div class="empty-state">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <line x1="23" y1="9" x2="17" y2="15"/>
+              <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+            <div>No audio generated yet.<br>Use the form to generate your first clip.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <audio id="audio-el" preload="auto"></audio>
+
+  <script>
+    const API = '/api/ext/voice-forge';
+    const ENTITY_API = '/api/entity';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || 'character';
+    const entityId = ctx.entityId || '';
+
+    let voices = [];
+    let currentStyle = 'normal';
+    let audioEl = document.getElementById('audio-el');
+    let isPlaying = false;
+    let currentProfile = null;
+
+    // ── Init ──────────────────────────────────────
+    async function init() {
+      buildWaveform();
+      await Promise.all([loadEntity(), loadVoices(), loadHistory(), loadProfile()]);
+      document.getElementById('text-input').addEventListener('input', updateCharCount);
+    }
+
+    function buildWaveform() {
+      const wf = document.getElementById('waveform');
+      const barCount = 40;
+      let html = '';
+      for (let i = 0; i < barCount; i++) {
+        const delay = (Math.random() * 0.6).toFixed(2);
+        const h = 4 + Math.random() * 20;
+        html += `<div class="waveform-bar" style="animation-delay:${delay}s;height:${h}px"></div>`;
+      }
+      wf.innerHTML = html;
+    }
+
+    async function loadEntity() {
+      if (!entityId) return;
+      try {
+        const resp = await fetch(`${ENTITY_API}/${entityType}/${entityId}`);
+        if (!resp.ok) return;
+        const entity = await resp.json();
+        const name = entity.name || entity.title || entityId;
+        document.getElementById('entity-label').textContent = `Voice studio for ${name}`;
+
+        // Pre-populate text from entity data
+        const md = entity.markdown || entity.content || '';
+        let dialogueLines = [];
+        const regex = /"([^"]{5,})"/g;
+        let match;
+        while ((match = regex.exec(md)) !== null) {
+          dialogueLines.push(match[1]);
+        }
+        if (dialogueLines.length > 0) {
+          document.getElementById('text-input').value = dialogueLines.join('\n\n');
+          updateCharCount();
+        } else if (entity.ai_voice_style) {
+          document.getElementById('text-input').value = entity.ai_voice_style;
+          updateCharCount();
+        }
+      } catch(e) { console.error('Failed to load entity', e); }
+    }
+
+    async function loadVoices() {
+      try {
+        const resp = await fetch(`${API}/voices`);
+        const data = await resp.json();
+        voices = data.voices || [];
+        const sel = document.getElementById('voice-select');
+        sel.innerHTML = '<option value="">-- Select Voice --</option>';
+        voices.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.voice_id;
+          opt.textContent = `${v.name}${v.category ? ` (${v.category})` : ''}`;
+          sel.appendChild(opt);
+        });
+        // Set from profile if available
+        if (currentProfile) sel.value = currentProfile.voice_id;
+      } catch(e) { console.error('Failed to load voices', e); }
+    }
+
+    async function loadHistory() {
+      if (!entityId) return;
+      try {
+        const resp = await fetch(`${API}/history/${entityType}/${entityId}`);
+        const data = await resp.json();
+        renderHistory(data.files || []);
+      } catch(e) { console.error('Failed to load history', e); }
+    }
+
+    async function loadProfile() {
+      if (!entityId) return;
+      try {
+        const resp = await fetch(`${API}/voice-profiles`);
+        const data = await resp.json();
+        currentProfile = (data.profiles || {})[entityId] || null;
+        if (currentProfile) {
+          document.getElementById('profile-voice').textContent = currentProfile.voice_name || 'Assigned';
+          document.getElementById('profile-voice-id').textContent = currentProfile.voice_id;
+          const sel = document.getElementById('voice-select');
+          if (sel.querySelector(`option[value="${currentProfile.voice_id}"]`)) {
+            sel.value = currentProfile.voice_id;
+          }
+        }
+      } catch(e) { console.error('Failed to load profile', e); }
+    }
+
+    function updateCharCount() {
+      const count = document.getElementById('text-input').value.length;
+      document.getElementById('char-count').textContent = count;
+    }
+
+    function setStyle(style, el) {
+      currentStyle = style;
+      document.querySelectorAll('.style-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    // ── Generation ────────────────────────────────
+    async function generate() {
+      const text = document.getElementById('text-input').value.trim();
+      if (!text) { showAlert('error', 'Please enter dialogue text to generate.'); return; }
+
+      const voiceId = document.getElementById('voice-select').value || undefined;
+      const modelId = document.getElementById('model-select').value;
+      const btn = document.getElementById('generate-btn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Generating...';
+      hideAlerts();
+
+      try {
+        const resp = await fetch(`${API}/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: text,
+            voice_id: voiceId,
+            entity_type: entityType,
+            entity_id: entityId,
+            style: currentStyle,
+            model_id: modelId,
+          }),
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+          showAlert('success', `Audio generated: ${data.filename}`);
+          playGenerated(data);
+          await loadHistory();
+        } else {
+          showAlert('error', data.message || 'Generation failed.');
+        }
+      } catch(e) {
+        showAlert('error', 'Network error: ' + e.message);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        </svg>
+        Generate Voice`;
+    }
+
+    function playGenerated(data) {
+      const player = document.getElementById('main-player');
+      player.classList.add('visible');
+      document.getElementById('player-name').textContent = data.filename;
+      document.getElementById('player-info').textContent = `Style: ${data.style} | Voice: ${data.voice_id}`;
+      audioEl.src = data.audio_url;
+      audioEl.load();
+      audioEl.play();
+    }
+
+    // ── Player Controls ───────────────────────────
+    function togglePlay() {
+      if (!audioEl.src) return;
+      if (isPlaying) { audioEl.pause(); } else { audioEl.play(); }
+    }
+
+    audioEl.addEventListener('play', () => {
+      isPlaying = true;
+      document.getElementById('waveform').classList.add('active');
+      const btn = document.getElementById('play-btn');
+      if (btn) document.getElementById('play-icon').innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+    });
+    audioEl.addEventListener('pause', () => {
+      isPlaying = false;
+      document.getElementById('waveform').classList.remove('active');
+      const btn = document.getElementById('play-btn');
+      if (btn) document.getElementById('play-icon').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+    });
+    audioEl.addEventListener('ended', () => {
+      isPlaying = false;
+      document.getElementById('waveform').classList.remove('active');
+      document.getElementById('play-icon').innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      document.getElementById('progress-fill').style.width = '0%';
+    });
+    audioEl.addEventListener('timeupdate', () => {
+      if (!audioEl.duration) return;
+      const pct = (audioEl.currentTime / audioEl.duration) * 100;
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('time-current').textContent = formatTime(audioEl.currentTime);
+    });
+    audioEl.addEventListener('loadedmetadata', () => {
+      document.getElementById('time-total').textContent = formatTime(audioEl.duration);
+    });
+
+    function seekAudio(e) {
+      if (!audioEl.duration) return;
+      const track = document.getElementById('progress-track');
+      const rect = track.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      audioEl.currentTime = pct * audioEl.duration;
+    }
+
+    function formatTime(s) {
+      if (!s || isNaN(s)) return '0:00';
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+
+    // ── History ───────────────────────────────────
+    function renderHistory(files) {
+      const list = document.getElementById('history-list');
+      if (!files.length) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <line x1="23" y1="9" x2="17" y2="15"/>
+              <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+            <div>No audio generated yet.<br>Use the form to generate your first clip.</div>
+          </div>`;
+        return;
+      }
+      list.innerHTML = files.map(f => `
+        <div class="history-item">
+          <button class="history-play-btn" onclick="playHistoryItem('${f.url}', '${f.filename}', '${f.style}')">
+            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+          <div class="history-info">
+            <div class="history-name">${f.filename}</div>
+            <div class="history-meta">
+              <span class="style-badge">${f.style}</span>
+              <span>${formatBytes(f.size)}</span>
+              <span>${formatDate(f.created)}</span>
+            </div>
+          </div>
+          <div class="history-actions">
+            <a href="${f.url}" download class="btn btn-sm btn-ghost" title="Download">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </a>
+            <button class="btn btn-sm btn-danger" onclick="deleteAudio('${f.filename}')" title="Delete">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function playHistoryItem(url, filename, style) {
+      const player = document.getElementById('main-player');
+      player.classList.add('visible');
+      document.getElementById('player-name').textContent = filename;
+      document.getElementById('player-info').textContent = `Style: ${style}`;
+      audioEl.src = url;
+      audioEl.load();
+      audioEl.play();
+    }
+
+    async function deleteAudio(filename) {
+      if (!confirm(`Delete ${filename}?`)) return;
+      try {
+        await fetch(`${API}/audio/${entityType}/${entityId}/${filename}`, { method: 'DELETE' });
+        await loadHistory();
+        showAlert('success', 'Audio file deleted.');
+      } catch(e) {
+        showAlert('error', 'Failed to delete: ' + e.message);
+      }
+    }
+
+    // ── Voice Profile ─────────────────────────────
+    async function assignVoiceProfile() {
+      const voiceId = document.getElementById('voice-select').value;
+      if (!voiceId) { showAlert('error', 'Select a voice first.'); return; }
+      const sel = document.getElementById('voice-select');
+      const voiceName = sel.options[sel.selectedIndex].textContent;
+      try {
+        await fetch(`${API}/voice-profiles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_id: entityId,
+            voice_id: voiceId,
+            voice_name: voiceName,
+          }),
+        });
+        document.getElementById('profile-voice').textContent = voiceName;
+        document.getElementById('profile-voice-id').textContent = voiceId;
+        currentProfile = { voice_id: voiceId, voice_name: voiceName };
+        showAlert('success', `Voice profile assigned: ${voiceName}`);
+      } catch(e) {
+        showAlert('error', 'Failed to save profile.');
+      }
+    }
+
+    // ── Helpers ────────────────────────────────────
+    function showAlert(type, msg) {
+      hideAlerts();
+      const el = document.getElementById(`alert-${type}`);
+      el.textContent = msg;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 6000);
+    }
+    function hideAlerts() {
+      document.getElementById('alert-error').style.display = 'none';
+      document.getElementById('alert-success').style.display = 'none';
+    }
+
+    function formatBytes(b) {
+      if (!b) return '0 B';
+      if (b < 1024) return b + ' B';
+      if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+      return (b / 1048576).toFixed(1) + ' MB';
+    }
+
+    function formatDate(ts) {
+      if (!ts) return '';
+      const d = new Date(ts * 1000);
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--plugin-accent);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  /* Context badges */
+  .context-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-base-bg);
+    border-radius: 99px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .badge.ue {
+    border-color: var(--plugin-accent);
+    color: var(--plugin-accent);
+  }
+
+  /* Export format selector */
+  .format-section {
+    margin-bottom: 12px;
+  }
+  .format-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .format-options {
+    display: flex;
+    gap: 4px;
+  }
+  .format-opt {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .format-opt:hover {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+  }
+  .format-opt.selected {
+    border-color: var(--plugin-accent);
+    background: rgba(33, 150, 243, 0.12);
+    color: var(--plugin-accent);
+    font-weight: 600;
+  }
+
+  /* Export buttons */
+  .export-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--plugin-accent);
+    color: #ffffff;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--plugin-accent); }
+  .btn-secondary {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+  }
+  .btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+  }
+
+  /* Preview info */
+  .preview-info {
+    padding: 10px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-base-bg);
+    margin-top: 12px;
+    font-size: 11px;
+  }
+  .preview-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    color: var(--surface-base-text-secondary);
+  }
+  .preview-row .label { color: var(--surface-base-text-secondary); }
+  .preview-row .value { color: var(--surface-base-text); font-weight: 500; font-family: 'Fira Code', monospace; font-size: 10px; }
+
+  /* Status */
+  .status-msg {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    text-align: center;
+    display: none;
+  }
+  .status-msg.success {
+    display: block;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid var(--surface-success-border);
+    color: var(--surface-success-border);
+  }
+  .status-msg.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid var(--surface-error-border);
+    color: var(--surface-error-border);
+  }
+  .status-msg.loading {
+    display: block;
+    background: rgba(33, 150, 243, 0.12);
+    border: 1px solid var(--plugin-accent);
+    color: var(--plugin-accent);
+  }
+
+  /* Loading spinner */
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </div>
+    UE Export
+  </div>
+
+  <div class="context-bar">
+    <span class="badge ue">Unreal Engine</span>
+    <span class="badge" id="type-badge">--</span>
+    <span class="badge" id="id-badge">--</span>
+  </div>
+
+  <div class="format-section">
+    <div class="format-label">Export Format</div>
+    <div class="format-options">
+      <div class="format-opt selected" data-format="dataasset" onclick="selectFormat(this)">DataAsset</div>
+      <div class="format-opt" data-format="datatable" onclick="selectFormat(this)">DataTable</div>
+      <div class="format-opt" data-format="both" onclick="selectFormat(this)">Both</div>
+    </div>
+  </div>
+
+  <div class="export-actions">
+    <button class="btn btn-primary" id="btn-export" onclick="exportEntity()">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Export to Unreal
+    </button>
+    <button class="btn btn-secondary" onclick="previewAsset()">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Preview DataAsset
+    </button>
+    <button class="btn btn-secondary" onclick="copyUStruct()">
+      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy USTRUCT
+    </button>
+  </div>
+
+  <div id="preview-container"></div>
+  <div class="status-msg" id="status-msg"></div>
+
+  <script>
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const API = '/api/ext/unreal-exporter';
+    const entityType = ctx.entityType;
+    const entityId = ctx.entityId;
+    let selectedFormat = 'dataasset';
+
+    document.getElementById('type-badge').textContent = entityType || 'unknown';
+    document.getElementById('id-badge').textContent = entityId
+      ? entityId.substring(0, 16) + (entityId.length > 16 ? '...' : '')
+      : 'new';
+
+    function selectFormat(el) {
+      document.querySelectorAll('.format-opt').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedFormat = el.dataset.format;
+    }
+
+    function showStatus(msg, type) {
+      const el = document.getElementById('status-msg');
+      el.textContent = msg;
+      el.className = `status-msg ${type}`;
+      if (type !== 'loading') {
+        setTimeout(() => { el.className = 'status-msg'; }, 4000);
+      }
+    }
+
+    async function exportEntity() {
+      if (!entityType || !entityId) {
+        showStatus('No entity selected', 'error');
+        return;
+      }
+
+      showStatus('Exporting...', 'loading');
+      document.getElementById('btn-export').disabled = true;
+
+      try {
+        const res = await fetch(`${API}/export/${entityType}/${entityId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ format: selectedFormat }),
+        });
+        if (!res.ok) throw new Error(`Export failed (${res.status})`);
+        const data = await res.json();
+        showStatus(`Exported: ${data.asset_name}`, 'success');
+      } catch (err) {
+        showStatus(err.message, 'error');
+      } finally {
+        document.getElementById('btn-export').disabled = false;
+      }
+    }
+
+    async function previewAsset() {
+      if (!entityType || !entityId) {
+        showStatus('No entity selected', 'error');
+        return;
+      }
+
+      showStatus('Loading preview...', 'loading');
+
+      try {
+        const res = await fetch(`${API}/preview/${entityType}/${entityId}`);
+        if (!res.ok) throw new Error(`Preview failed (${res.status})`);
+        const data = await res.json();
+
+        const container = document.getElementById('preview-container');
+        let html = '<div class="preview-info">';
+        html += `<div class="preview-row"><span class="label">Asset Name</span><span class="value">${data.Name}</span></div>`;
+        html += `<div class="preview-row"><span class="label">Struct Type</span><span class="value">${data.Type}</span></div>`;
+        html += `<div class="preview-row"><span class="label">Fields</span><span class="value">${Object.keys(data.Properties).length}</span></div>`;
+        html += `<div class="preview-row"><span class="label">Source</span><span class="value">${data.Source}</span></div>`;
+        html += '</div>';
+        container.innerHTML = html;
+
+        document.getElementById('status-msg').className = 'status-msg';
+      } catch (err) {
+        showStatus(err.message, 'error');
+      }
+    }
+
+    async function copyUStruct() {
+      if (!entityType) {
+        showStatus('No entity type available', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/ustruct/${entityType}`);
+        if (!res.ok) throw new Error(`Failed to generate USTRUCT (${res.status})`);
+        const code = await res.text();
+
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(code);
+          showStatus('USTRUCT copied to clipboard', 'success');
+        } else {
+          // Fallback
+          const ta = document.createElement('textarea');
+          ta.value = code;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showStatus('USTRUCT copied to clipboard', 'success');
+        }
+      } catch (err) {
+        showStatus(err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

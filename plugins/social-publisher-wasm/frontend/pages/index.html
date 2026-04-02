@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    min-height: 100vh;
+  }
+
+  /* ---- Header ---- */
+  .page-header { max-width: 1100px; margin: 0 auto 32px; }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-info-text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle { color: var(--surface-base-text-secondary); font-size: 15px; }
+
+  /* ---- Grid layout ---- */
+  .dashboard { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+  .row { display: grid; gap: 20px; }
+  .row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .row.cols-2 { grid-template-columns: 1fr 1fr; }
+  .row.cols-1 { grid-template-columns: 1fr; }
+  @media (max-width: 900px) {
+    .row.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .row.cols-2 { grid-template-columns: 1fr; }
+  }
+
+  /* ---- Platform connection cards ---- */
+  .platform-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .platform-card:hover { border-color: var(--pc, var(--surface-elevated-border)); }
+  .pc-header { display: flex; align-items: center; gap: 10px; }
+  .pc-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--pc); flex-shrink: 0; }
+  .pc-name { font-size: 16px; font-weight: 700; color: var(--surface-base-text); }
+  .pc-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .pc-status.connected { background: rgba(34,197,94,0.12); color: var(--surface-success-border); }
+  .pc-status.mock { background: rgba(245,158,11,0.12); color: var(--surface-warning-border); }
+  .pc-posts { font-size: 13px; color: var(--surface-base-text-secondary); }
+  .pc-posts strong { color: var(--surface-base-text-secondary); }
+
+  /* ---- Stat cards ---- */
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--surface-base-text);
+  }
+  .stat-value.blue { color: var(--plugin-accent); }
+  .stat-value.green { color: var(--surface-success-border); }
+  .stat-value.amber { color: var(--surface-warning-border); }
+  .stat-value.red { color: var(--surface-error-border); }
+
+  /* ---- Section panels ---- */
+  .panel {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .panel-title { font-size: 16px; font-weight: 700; color: var(--surface-base-text); }
+  .panel-badge {
+    padding: 3px 10px;
+    background: var(--surface-elevated-border);
+    border-radius: 99px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    font-weight: 600;
+  }
+
+  /* ---- Tables ---- */
+  table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ---- Badges ---- */
+  .plat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+  }
+  .plat-badge.twitter { background: var(--plugin-accent); }
+  .plat-badge.bluesky { background: var(--surface-info-text-secondary); }
+  .plat-badge.instagram { background: var(--plugin-accent); }
+  .plat-badge.threads { background: #333; }
+  .status-badge {
+    display: inline-flex; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500;
+  }
+  .status-badge.success { background: rgba(34,197,94,0.15); color: var(--surface-success-border); }
+  .status-badge.failed { background: rgba(239,68,68,0.15); color: var(--surface-error-border); }
+  .status-badge.mock { background: rgba(245,158,11,0.15); color: var(--surface-warning-border); }
+  .status-badge.pending { background: rgba(59,130,246,0.15); color: var(--surface-info-text-secondary); }
+
+  .text-preview {
+    max-width: 280px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--surface-base-text-secondary);
+  }
+  .date-cell { color: var(--surface-base-text-secondary); font-size: 12px; white-space: nowrap; }
+  .link-cell a { color: var(--plugin-accent); text-decoration: none; font-size: 12px; }
+  .link-cell a:hover { text-decoration: underline; }
+
+  /* Cancel button */
+  .btn-cancel {
+    padding: 4px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .btn-cancel:hover { border-color: var(--surface-error-border); color: var(--surface-error-border); }
+
+  /* ---- Templates grid ---- */
+  .tpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .tpl-card {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 14px;
+    transition: border-color 0.2s;
+  }
+  .tpl-card:hover { border-color: var(--plugin-accent); }
+  .tpl-name { font-size: 14px; font-weight: 600; color: var(--surface-base-text); margin-bottom: 4px; }
+  .tpl-desc { font-size: 12px; color: var(--surface-base-text-secondary); margin-bottom: 8px; line-height: 1.4; }
+  .tpl-platforms { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tpl-plat-tag {
+    font-size: 10px; padding: 1px 6px; border-radius: 3px; color: white; font-weight: 600;
+  }
+
+  /* ---- Empty state ---- */
+  .empty {
+    text-align: center; padding: 30px; color: var(--surface-base-text-secondary); font-size: 13px;
+  }
+
+  /* ---- Analytics bar chart ---- */
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding: 0 8px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+  .bar {
+    width: 100%;
+    max-width: 60px;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 0.4s;
+  }
+  .bar-label { font-size: 10px; color: var(--surface-base-text-secondary); text-align: center; white-space: nowrap; }
+  .bar-value { font-size: 11px; font-weight: 600; color: var(--surface-base-text-secondary); }
+
+  /* ---- Scrollable tables ---- */
+  .table-scroll { max-height: 320px; overflow-y: auto; }
+  .table-scroll::-webkit-scrollbar { width: 5px; }
+  .table-scroll::-webkit-scrollbar-track { background: transparent; }
+  .table-scroll::-webkit-scrollbar-thumb { background: var(--surface-elevated-border); border-radius: 3px; }
+</style>
+</head>
+<body>
+  <div class="page-header">
+    <h1 class="page-title">Social Publisher</h1>
+    <p class="page-subtitle">Publish entity cards, lore posts, and AI art to X, Bluesky, Instagram, and Threads</p>
+  </div>
+
+  <div class="dashboard">
+
+    <!-- Platform connection status -->
+    <div class="row cols-4" id="platform-cards">
+      <div class="platform-card" style="--pc:var(--plugin-accent)" id="card-twitter">
+        <div class="pc-header"><span class="pc-dot"></span><span class="pc-name">X / Twitter</span></div>
+        <span class="pc-status mock" id="pcs-twitter">Loading...</span>
+        <div class="pc-posts"><strong id="pcc-twitter">0</strong> posts</div>
+      </div>
+      <div class="platform-card" style="--pc:var(--surface-info-text-secondary)" id="card-bluesky">
+        <div class="pc-header"><span class="pc-dot"></span><span class="pc-name">Bluesky</span></div>
+        <span class="pc-status mock" id="pcs-bluesky">Loading...</span>
+        <div class="pc-posts"><strong id="pcc-bluesky">0</strong> posts</div>
+      </div>
+      <div class="platform-card" style="--pc:var(--plugin-accent)" id="card-instagram">
+        <div class="pc-header"><span class="pc-dot"></span><span class="pc-name">Instagram</span></div>
+        <span class="pc-status mock" id="pcs-instagram">Loading...</span>
+        <div class="pc-posts"><strong id="pcc-instagram">0</strong> posts</div>
+      </div>
+      <div class="platform-card" style="--pc:#666" id="card-threads">
+        <div class="pc-header"><span class="pc-dot"></span><span class="pc-name">Threads</span></div>
+        <span class="pc-status mock" id="pcs-threads">Loading...</span>
+        <div class="pc-posts"><strong id="pcc-threads">0</strong> posts</div>
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="row cols-4">
+      <div class="stat-card">
+        <div class="stat-label">Total Posts</div>
+        <div class="stat-value blue" id="stat-total">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today</div>
+        <div class="stat-value green" id="stat-today">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Scheduled</div>
+        <div class="stat-value amber" id="stat-scheduled">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Failed</div>
+        <div class="stat-value red" id="stat-failed">0</div>
+      </div>
+    </div>
+
+    <!-- Analytics row -->
+    <div class="row cols-2">
+      <!-- Posts per platform -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Posts by Platform</span>
+        </div>
+        <div class="bar-chart" id="chart-platforms"></div>
+      </div>
+      <!-- Posts per entity type -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Posts by Entity Type</span>
+        </div>
+        <div class="bar-chart" id="chart-types"></div>
+      </div>
+    </div>
+
+    <!-- Scheduled posts queue -->
+    <div class="row cols-1">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Scheduled Posts</span>
+          <span class="panel-badge" id="sched-count">0</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Platforms</th>
+                <th>Scheduled For</th>
+                <th>Text</th>
+                <th>Entity</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="sched-body"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="sched-empty" style="display:none">No scheduled posts. Use the Quick Publish sidebar panel to schedule posts.</div>
+      </div>
+    </div>
+
+    <!-- Recent posts -->
+    <div class="row cols-1">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Recent Posts</span>
+          <span class="panel-badge" id="recent-count">0</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>Date</th>
+                <th>Entity</th>
+                <th>Text</th>
+                <th>Status</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody id="recent-body"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="recent-empty" style="display:none">No posts published yet.</div>
+      </div>
+    </div>
+
+    <!-- Post templates -->
+    <div class="row cols-1">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Post Templates</span>
+          <span class="panel-badge" id="tpl-count">0</span>
+        </div>
+        <div class="tpl-grid" id="tpl-grid"></div>
+        <div class="empty" id="tpl-empty" style="display:none">No templates loaded.</div>
+      </div>
+    </div>
+
+  </div><!-- /dashboard -->
+
+  <script>
+    const API = '/api/ext/social-publisher';
+    const PLAT_COLORS = { twitter: 'var(--plugin-accent)', bluesky: 'var(--surface-info-text-secondary)', instagram: 'var(--plugin-accent)', threads: '#666' };
+    const PLAT_LABELS = { twitter: 'X', bluesky: 'Bluesky', instagram: 'Instagram', threads: 'Threads' };
+
+    function formatDate(isoStr) {
+      if (!isoStr) return '--';
+      const d = new Date(isoStr);
+      return d.toLocaleString('default', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderBarChart(containerId, data, colorMap) {
+      const container = document.getElementById(containerId);
+      if (!data || Object.keys(data).length === 0) {
+        container.innerHTML = '<div class="empty">No data yet</div>';
+        return;
+      }
+      const max = Math.max(...Object.values(data), 1);
+      container.innerHTML = Object.entries(data).map(([key, count]) => {
+        const height = Math.max((count / max) * 100, 4);
+        const color = colorMap[key] || 'var(--surface-elevated-border)';
+        const label = PLAT_LABELS[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        return `<div class="bar-col">
+          <div class="bar-value">${count}</div>
+          <div class="bar" style="height:${height}px; background:${color}"></div>
+          <div class="bar-label">${label}</div>
+        </div>`;
+      }).join('');
+    }
+
+    async function cancelScheduled(postId) {
+      if (!confirm('Cancel this scheduled post?')) return;
+      try {
+        const resp = await fetch(`${API}/scheduled/${postId}`, { method: 'DELETE' });
+        if (resp.ok) loadScheduled();
+      } catch (err) {
+        console.error('Cancel error:', err);
+      }
+    }
+
+    // ---- Load functions ----
+
+    async function loadStatus() {
+      try {
+        const resp = await fetch(`${API}/`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        if (data.platforms) {
+          Object.entries(data.platforms).forEach(([id, info]) => {
+            const badge = document.getElementById(`pcs-${id}`);
+            if (badge) {
+              badge.textContent = info.configured ? 'Connected' : 'Not configured';
+              badge.className = `pc-status ${info.configured ? 'connected' : 'mock'}`;
+            }
+          });
+        }
+      } catch (err) { console.error('Status load error:', err); }
+    }
+
+    async function loadStats() {
+      try {
+        const resp = await fetch(`${API}/stats`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        document.getElementById('stat-total').textContent = data.total_posts || 0;
+        document.getElementById('stat-today').textContent = data.posts_today || 0;
+        document.getElementById('stat-failed').textContent = data.failed || 0;
+
+        // Platform counts for cards and chart
+        const pc = data.platform_counts || {};
+        Object.entries(pc).forEach(([p, count]) => {
+          const el = document.getElementById(`pcc-${p}`);
+          if (el) el.textContent = count;
+        });
+        renderBarChart('chart-platforms', pc, PLAT_COLORS);
+
+        // Entity type chart
+        const tc = data.entity_type_counts || {};
+        const typeColors = {};
+        const palette = ['var(--plugin-accent)', 'var(--surface-info-text-secondary)', 'var(--plugin-accent)', 'var(--surface-success-border)', 'var(--surface-warning-border)', 'var(--surface-secondary-bg)', 'var(--surface-error-border)'];
+        Object.keys(tc).forEach((k, i) => { typeColors[k] = palette[i % palette.length]; });
+        renderBarChart('chart-types', tc, typeColors);
+
+      } catch (err) { console.error('Stats load error:', err); }
+    }
+
+    async function loadScheduled() {
+      try {
+        const resp = await fetch(`${API}/scheduled`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const items = data.items || [];
+
+        document.getElementById('stat-scheduled').textContent = items.length;
+        document.getElementById('sched-count').textContent = items.length;
+
+        const body = document.getElementById('sched-body');
+        const empty = document.getElementById('sched-empty');
+
+        if (items.length === 0) {
+          body.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+
+        body.innerHTML = items.map(s => {
+          const platBadges = (s.platforms || []).map(p =>
+            `<span class="plat-badge ${p}">${PLAT_LABELS[p] || p}</span>`
+          ).join(' ');
+          const textPrev = (s.text || '').substring(0, 60) + ((s.text || '').length > 60 ? '...' : '');
+          const entityLabel = s.entity_type ? `${s.entity_type}/${(s.entity_id || '').substring(0, 8)}` : '--';
+
+          return `<tr>
+            <td>${platBadges}</td>
+            <td class="date-cell">${formatDate(s.schedule_at)}</td>
+            <td class="text-preview">${textPrev}</td>
+            <td style="font-size:12px;color:var(--surface-base-text-secondary)">${entityLabel}</td>
+            <td><button class="btn-cancel" onclick="cancelScheduled('${s.id}')">Cancel</button></td>
+          </tr>`;
+        }).join('');
+      } catch (err) { console.error('Scheduled load error:', err); }
+    }
+
+    async function loadRecent() {
+      try {
+        const resp = await fetch(`${API}/history?limit=50`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const items = data.items || [];
+
+        document.getElementById('recent-count').textContent = data.total || 0;
+
+        const body = document.getElementById('recent-body');
+        const empty = document.getElementById('recent-empty');
+
+        if (items.length === 0) {
+          body.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+
+        body.innerHTML = items.map(h => {
+          const platClass = h.platform || 'unknown';
+          const platLabel = PLAT_LABELS[h.platform] || h.platform;
+          const statusClass = h.mock ? 'mock' : (h.success ? 'success' : 'failed');
+          const statusLabel = h.mock ? 'Mock' : (h.success ? 'Sent' : 'Failed');
+          const textPrev = (h.text || '').substring(0, 60) + ((h.text || '').length > 60 ? '...' : '');
+          const entityLabel = h.entity_name || (h.entity_type ? `${h.entity_type}/${(h.entity_id || '').substring(0, 8)}` : '--');
+          const link = h.post_url ? `<a href="${h.post_url}" target="_blank" rel="noopener">View</a>` : '--';
+
+          return `<tr>
+            <td><span class="plat-badge ${platClass}">${platLabel}</span></td>
+            <td class="date-cell">${formatDate(h.posted_at)}</td>
+            <td style="font-size:12px;color:var(--surface-base-text-secondary)">${entityLabel}</td>
+            <td class="text-preview" title="${(h.text || '').replace(/"/g, '&quot;')}">${textPrev}</td>
+            <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+            <td class="link-cell">${link}</td>
+          </tr>`;
+        }).join('');
+      } catch (err) { console.error('Recent load error:', err); }
+    }
+
+    async function loadTemplates() {
+      try {
+        const resp = await fetch(`${API}/templates`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const templates = data.templates || [];
+
+        document.getElementById('tpl-count').textContent = templates.length;
+
+        const grid = document.getElementById('tpl-grid');
+        const empty = document.getElementById('tpl-empty');
+
+        if (templates.length === 0) {
+          grid.innerHTML = '';
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+
+        grid.innerHTML = templates.map(t => {
+          const platTags = (t.platforms || []).map(p =>
+            `<span class="tpl-plat-tag" style="background:${PLAT_COLORS[p] || 'var(--surface-elevated-border)'}">${PLAT_LABELS[p] || p}</span>`
+          ).join(' ');
+          return `<div class="tpl-card">
+            <div class="tpl-name">${t.name}</div>
+            <div class="tpl-desc">${t.description || ''}</div>
+            <div class="tpl-platforms">${platTags}</div>
+          </div>`;
+        }).join('');
+      } catch (err) { console.error('Templates load error:', err); }
+    }
+
+    // ---- Init ----
+    async function init() {
+      await Promise.all([
+        loadStatus(),
+        loadStats(),
+        loadScheduled(),
+        loadRecent(),
+        loadTemplates(),
+      ]);
+    }
+
+    init();
+    // Auto-refresh every 30 seconds
+    setInterval(init, 30000);
+  </script>
+</body>
+</html>

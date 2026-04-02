@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .page-header {
+    max-width: 960px;
+    margin: 0 auto 32px;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-base-bg));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle {
+    color: var(--surface-base-text-secondary);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .ue-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(33, 150, 243, 0.1);
+    border: 1px solid var(--plugin-accent);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--plugin-accent);
+    margin-top: 12px;
+  }
+
+  /* Section layout */
+  .main-layout {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .full-width { grid-column: 1 / -1; }
+
+  /* Cards */
+  .card {
+    background: var(--surface-base-bg);
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid var(--surface-base-bg);
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--plugin-accent); }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(33, 150, 243, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--plugin-accent);
+    fill: none;
+    stroke-width: 2;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+  }
+  .card-desc {
+    font-size: 13px;
+    color: var(--surface-base-text-secondary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  /* Entity type list */
+  .entity-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+  .entity-type-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-base-bg);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .entity-type-card:hover {
+    border-color: var(--plugin-accent);
+    background: rgba(33, 150, 243, 0.05);
+  }
+  .entity-type-card.selected {
+    border-color: var(--plugin-accent);
+    background: rgba(33, 150, 243, 0.1);
+  }
+  .et-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    text-transform: capitalize;
+  }
+  .et-count {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    background: var(--surface-base-bg);
+    padding: 2px 8px;
+    border-radius: 99px;
+  }
+  .et-check {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 2px solid var(--surface-elevated-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .entity-type-card.selected .et-check {
+    background: var(--plugin-accent);
+    border-color: var(--plugin-accent);
+  }
+  .et-check svg {
+    width: 10px;
+    height: 10px;
+    stroke: white;
+    fill: none;
+    stroke-width: 3;
+    opacity: 0;
+  }
+  .entity-type-card.selected .et-check svg { opacity: 1; }
+
+  /* Settings form */
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--surface-base-bg);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: 'Fira Code', monospace;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+  }
+  .form-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--surface-base-bg);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .form-hint {
+    font-size: 11px;
+    color: var(--surface-elevated-border);
+    margin-top: 2px;
+  }
+
+  /* Export format buttons */
+  .format-buttons {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .fmt-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--surface-base-bg);
+    border-radius: 8px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .fmt-btn:hover {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+  }
+  .fmt-btn.selected {
+    border-color: var(--plugin-accent);
+    background: rgba(33, 150, 243, 0.12);
+    color: var(--plugin-accent);
+  }
+
+  /* Action buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--plugin-accent);
+    color: #ffffff;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--plugin-accent); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-outline:hover:not(:disabled) {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+  }
+  .btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+  }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  /* Results / Log */
+  .results-panel {
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--surface-base-bg);
+    margin-top: 16px;
+    display: none;
+  }
+  .results-panel.show { display: block; }
+  .results-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-bottom: 10px;
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--surface-base-bg);
+    font-size: 12px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-label { color: var(--surface-base-text-secondary); }
+  .result-value { color: var(--surface-base-text); font-weight: 500; }
+  .result-value.success { color: var(--surface-success-border); }
+  .result-value.error { color: var(--surface-error-border); }
+
+  .log-line {
+    padding: 4px 0;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .log-line.ok { color: var(--surface-success-border); }
+  .log-line.err { color: var(--surface-error-border); }
+  .log-line.info { color: var(--plugin-accent); }
+
+  /* Status bar */
+  .status-section {
+    max-width: 960px;
+    margin: 24px auto 0;
+  }
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .status-card {
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--surface-base-bg);
+    text-align: center;
+  }
+  .status-number {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--plugin-accent);
+  }
+  .status-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  /* Loading overlay */
+  .loading-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 14, 31, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .loading-overlay.show { display: flex; }
+  .big-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--surface-base-bg);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    color: var(--surface-base-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="page-header">
+    <h1 class="page-title">Unreal Engine Exporter</h1>
+    <p class="page-subtitle">
+      Export City of Brains entities as Unreal Engine DataAssets, DataTable CSVs,
+      and C++ USTRUCT headers. Push game data via file export or UE Remote Control API.
+    </p>
+    <div class="ue-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Unreal Engine 5 Compatible
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="status-section" style="margin-bottom:32px">
+    <div class="status-grid" id="stats-grid">
+      <div class="status-card">
+        <div class="status-number" id="stat-types">--</div>
+        <div class="status-label">Entity Types</div>
+      </div>
+      <div class="status-card">
+        <div class="status-number" id="stat-entities">--</div>
+        <div class="status-label">Total Entities</div>
+      </div>
+      <div class="status-card">
+        <div class="status-number" id="stat-fields">--</div>
+        <div class="status-label">UE Structs</div>
+      </div>
+      <div class="status-card">
+        <div class="status-number" id="stat-status" style="font-size:16px;color:var(--surface-success-border)">--</div>
+        <div class="status-label">Plugin Status</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+
+    <!-- Batch Export Card -->
+    <div class="card full-width">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="card-title">Batch Export</div>
+      </div>
+      <div class="card-desc">
+        Select entity types and export format, then batch export all selected entities to Unreal Engine-ready files.
+      </div>
+
+      <!-- Entity type selection -->
+      <div style="margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:12px;font-weight:600;color:var(--surface-base-text-secondary)">Select Entity Types</span>
+          <button style="background:none;border:none;color:var(--plugin-accent);font-size:11px;cursor:pointer;font-weight:600" onclick="toggleAllTypes()">
+            Toggle All
+          </button>
+        </div>
+        <div class="entity-types-grid" id="entity-types-grid">
+          <div class="loading" style="grid-column:1/-1;padding:20px;font-size:12px;color:var(--surface-base-text-secondary)">Loading entity types...</div>
+        </div>
+      </div>
+
+      <!-- Format selection -->
+      <div style="margin-bottom:4px;font-size:12px;font-weight:600;color:var(--surface-base-text-secondary)">Export Format</div>
+      <div class="format-buttons">
+        <div class="fmt-btn" data-format="dataasset" onclick="selectExportFormat(this)">
+          DataAssets (JSON)
+        </div>
+        <div class="fmt-btn" data-format="datatable" onclick="selectExportFormat(this)">
+          DataTables (CSV)
+        </div>
+        <div class="fmt-btn selected" data-format="both" onclick="selectExportFormat(this)">
+          Both + Headers
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-batch-export" onclick="runBatchExport()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Run Batch Export
+        </button>
+        <button class="btn btn-outline" onclick="previewBatch()">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Preview
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div class="results-panel" id="export-results">
+        <div class="results-title">Export Results</div>
+        <div id="export-results-content"></div>
+      </div>
+    </div>
+
+    <!-- Project Config Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+        <div class="card-title">Project Configuration</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">UE Project Path</label>
+        <input class="form-input" id="cfg-project-path" type="text" placeholder="C:\Projects\MyGame" />
+        <div class="form-hint">Root folder containing the .uproject file</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Content Output Directory</label>
+        <input class="form-input" id="cfg-output-dir" type="text" value="CityOfBrains/Data" />
+        <div class="form-hint">Subdirectory under Content/ for exported assets</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">C++ Module Name</label>
+        <input class="form-input" id="cfg-module" type="text" value="CityOfBrains" />
+        <div class="form-hint">Used in MODULENAME_API macro for generated headers</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Struct Prefix</label>
+        <input class="form-input" id="cfg-prefix" type="text" value="F" />
+        <div class="form-hint">Prefix for struct names (e.g., F, FCB_)</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">UE Remote Control API URL</label>
+        <input class="form-input" id="cfg-api-url" type="text" placeholder="http://localhost:30010 (optional)" />
+        <div class="form-hint">Leave blank for file-only export</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="card-title">Quick Actions</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-outline" style="width:100%;justify-content:flex-start" onclick="generateAllStructs()">
+          <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Generate All C++ Headers
+        </button>
+        <button class="btn btn-outline" style="width:100%;justify-content:flex-start" onclick="exportAllDataTables()">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          Export All DataTable CSVs
+        </button>
+        <button class="btn btn-outline" style="width:100%;justify-content:flex-start" onclick="testConnection()">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Test UE Remote Control
+        </button>
+        <button class="btn btn-outline" style="width:100%;justify-content:flex-start" onclick="openExportsDir()">
+          <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          View Export Directory
+        </button>
+      </div>
+
+      <div class="results-panel" id="quick-results">
+        <div id="quick-results-content"></div>
+      </div>
+    </div>
+
+    <!-- Export Log Card -->
+    <div class="card full-width">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="card-title">Export Reference</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--surface-base-text-secondary);margin-bottom:8px">Output Structure</div>
+          <div style="background:var(--surface-base-bg);border-radius:8px;padding:12px;font-family:'Fira Code',monospace;font-size:11px;line-height:1.8;color:var(--surface-base-text-secondary);border:1px solid var(--surface-base-bg)">
+            <div style="color:var(--plugin-accent)">exports/</div>
+            <div>&nbsp;&nbsp;<span style="color:var(--surface-accent-hover)">DataAssets/</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;Character/</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DA_Character_*.json</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;Location/</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DA_Location_*.json</div>
+            <div>&nbsp;&nbsp;<span style="color:var(--surface-accent-hover)">DataTables/</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;DT_Character.csv</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;DT_Location.csv</div>
+            <div>&nbsp;&nbsp;<span style="color:var(--surface-accent-hover)">Source/</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;FCharacterData.h</div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;FLocationData.h</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--surface-base-text-secondary);margin-bottom:8px">API Endpoints</div>
+          <div style="background:var(--surface-base-bg);border-radius:8px;padding:12px;font-family:'Fira Code',monospace;font-size:11px;line-height:1.8;border:1px solid var(--surface-base-bg)">
+            <div><span style="color:var(--surface-success-border)">GET</span> <span style="color:var(--surface-base-text-secondary)">/api/ext/unreal-exporter/</span></div>
+            <div><span style="color:var(--surface-success-border)">GET</span> <span style="color:var(--surface-base-text-secondary)">/preview/{type}/{id}</span></div>
+            <div><span style="color:var(--plugin-accent)">GET</span> <span style="color:var(--surface-base-text-secondary)">/ustruct/{type}</span></div>
+            <div><span style="color:var(--plugin-accent)">GET</span> <span style="color:var(--surface-base-text-secondary)">/datatable/{type}</span></div>
+            <div><span style="color:var(--surface-warning-border)">POST</span> <span style="color:var(--surface-base-text-secondary)">/export/{type}/{id}</span></div>
+            <div><span style="color:var(--surface-warning-border)">POST</span> <span style="color:var(--surface-base-text-secondary)">/batch-export</span></div>
+            <div><span style="color:var(--surface-success-border)">GET</span> <span style="color:var(--surface-base-text-secondary)">/schema/{type}</span></div>
+            <div><span style="color:var(--surface-success-border)">GET</span> <span style="color:var(--surface-base-text-secondary)">/entity-types</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="big-spinner"></div>
+    <div class="loading-text" id="loading-text">Exporting...</div>
+  </div>
+
+  <script>
+    const API = '/api/ext/unreal-exporter';
+    let entityTypesData = [];
+    let selectedTypes = new Set();
+    let exportFormat = 'both';
+
+    // --------------- Init ---------------
+    async function init() {
+      await loadEntityTypes();
+      await loadPluginStatus();
+    }
+
+    async function loadPluginStatus() {
+      try {
+        const res = await fetch(`${API}/`);
+        if (!res.ok) throw new Error('Offline');
+        document.getElementById('stat-status').textContent = 'Online';
+        document.getElementById('stat-status').style.color = 'var(--surface-success-border)';
+      } catch {
+        document.getElementById('stat-status').textContent = 'Offline';
+        document.getElementById('stat-status').style.color = 'var(--surface-error-border)';
+      }
+    }
+
+    async function loadEntityTypes() {
+      try {
+        const res = await fetch(`${API}/entity-types`);
+        if (!res.ok) throw new Error('Failed');
+        const data = await res.json();
+        entityTypesData = data.entity_types;
+
+        // Update stats
+        document.getElementById('stat-types').textContent = entityTypesData.length;
+        document.getElementById('stat-entities').textContent = entityTypesData.reduce((s, t) => s + t.count, 0);
+        document.getElementById('stat-fields').textContent = entityTypesData.length;
+
+        // Render entity type cards
+        const grid = document.getElementById('entity-types-grid');
+        if (entityTypesData.length === 0) {
+          grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--surface-base-text-secondary);font-size:12px">No entities found in the project</div>';
+          return;
+        }
+
+        grid.innerHTML = entityTypesData.map(et => `
+          <div class="entity-type-card selected" data-type="${et.type}" onclick="toggleType(this)">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="et-check">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div>
+                <div class="et-name">${et.type}</div>
+                <div class="et-count">${et.count} entities</div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        // Select all by default
+        entityTypesData.forEach(et => selectedTypes.add(et.type));
+      } catch (err) {
+        document.getElementById('entity-types-grid').innerHTML =
+          `<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--surface-error-border);font-size:12px">Failed to load entity types: ${err.message}</div>`;
+      }
+    }
+
+    // --------------- Type Selection ---------------
+    function toggleType(el) {
+      const type = el.dataset.type;
+      if (selectedTypes.has(type)) {
+        selectedTypes.delete(type);
+        el.classList.remove('selected');
+      } else {
+        selectedTypes.add(type);
+        el.classList.add('selected');
+      }
+    }
+
+    function toggleAllTypes() {
+      const allSelected = selectedTypes.size === entityTypesData.length;
+      document.querySelectorAll('.entity-type-card').forEach(el => {
+        const type = el.dataset.type;
+        if (allSelected) {
+          selectedTypes.delete(type);
+          el.classList.remove('selected');
+        } else {
+          selectedTypes.add(type);
+          el.classList.add('selected');
+        }
+      });
+    }
+
+    // --------------- Format Selection ---------------
+    function selectExportFormat(el) {
+      document.querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      exportFormat = el.dataset.format;
+    }
+
+    // --------------- Batch Export ---------------
+    async function runBatchExport() {
+      if (selectedTypes.size === 0) {
+        alert('Please select at least one entity type to export.');
+        return;
+      }
+
+      showLoading('Batch exporting...');
+      document.getElementById('btn-batch-export').disabled = true;
+
+      try {
+        const outputPath = document.getElementById('cfg-project-path').value
+          ? document.getElementById('cfg-project-path').value.replace(/\\/g, '/') +
+            '/Content/' + document.getElementById('cfg-output-dir').value
+          : null;
+
+        const res = await fetch(`${API}/batch-export`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_types: Array.from(selectedTypes),
+            format: exportFormat,
+            output_path: outputPath,
+          }),
+        });
+
+        if (!res.ok) throw new Error(`Export failed (${res.status})`);
+        const data = await res.json();
+
+        // Show results
+        const resultsEl = document.getElementById('export-results');
+        const contentEl = document.getElementById('export-results-content');
+
+        let html = '';
+        html += `<div class="result-row"><span class="result-label">Types Exported</span><span class="result-value">${data.exported_types.length}</span></div>`;
+        html += `<div class="result-row"><span class="result-label">Total Entities</span><span class="result-value">${data.total_entities}</span></div>`;
+        html += `<div class="result-row"><span class="result-label">Files Written</span><span class="result-value success">${data.total_files}</span></div>`;
+        html += `<div class="result-row"><span class="result-label">Output Path</span><span class="result-value" style="font-family:'Fira Code',monospace;font-size:11px">${data.output_path}</span></div>`;
+
+        if (data.errors && data.errors.length > 0) {
+          html += `<div class="result-row"><span class="result-label">Errors</span><span class="result-value error">${data.errors.length}</span></div>`;
+          data.errors.forEach(e => {
+            html += `<div class="log-line err">${e}</div>`;
+          });
+        }
+
+        data.exported_types.forEach(et => {
+          html += `<div class="log-line ok">  ${et.type}: ${et.entity_count} entities, ${et.files.length} files</div>`;
+        });
+
+        contentEl.innerHTML = html;
+        resultsEl.classList.add('show');
+      } catch (err) {
+        const resultsEl = document.getElementById('export-results');
+        document.getElementById('export-results-content').innerHTML =
+          `<div class="log-line err">Export failed: ${err.message}</div>`;
+        resultsEl.classList.add('show');
+      } finally {
+        hideLoading();
+        document.getElementById('btn-batch-export').disabled = false;
+      }
+    }
+
+    // --------------- Preview ---------------
+    function previewBatch() {
+      const types = Array.from(selectedTypes);
+      if (types.length === 0) {
+        alert('Please select at least one entity type.');
+        return;
+      }
+
+      const resultsEl = document.getElementById('export-results');
+      const contentEl = document.getElementById('export-results-content');
+      let html = '<div class="results-title">Export Preview</div>';
+      html += `<div class="log-line info">Format: ${exportFormat}</div>`;
+      html += `<div class="log-line info">Selected types: ${types.join(', ')}</div>`;
+
+      const totalEntities = entityTypesData
+        .filter(et => selectedTypes.has(et.type))
+        .reduce((s, t) => s + t.count, 0);
+      html += `<div class="log-line info">Total entities: ${totalEntities}</div>`;
+
+      let fileEstimate = 0;
+      if (exportFormat === 'dataasset' || exportFormat === 'both') fileEstimate += totalEntities;
+      if (exportFormat === 'datatable' || exportFormat === 'both') fileEstimate += types.length;
+      if (exportFormat === 'both') fileEstimate += types.length; // headers
+      html += `<div class="log-line info">Estimated files: ~${fileEstimate}</div>`;
+
+      contentEl.innerHTML = html;
+      resultsEl.classList.add('show');
+    }
+
+    // --------------- Quick Actions ---------------
+    async function generateAllStructs() {
+      showLoading('Generating C++ headers...');
+      try {
+        const res = await fetch(`${API}/batch-export`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entity_types: [], format: 'dataasset' }),
+        });
+        if (!res.ok) throw new Error(`Failed (${res.status})`);
+        const data = await res.json();
+        showQuickResult(`Generated ${data.exported_types.length} C++ USTRUCT headers`, 'ok');
+      } catch (err) {
+        showQuickResult(`Error: ${err.message}`, 'err');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function exportAllDataTables() {
+      showLoading('Exporting DataTable CSVs...');
+      try {
+        const res = await fetch(`${API}/batch-export`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ entity_types: [], format: 'datatable' }),
+        });
+        if (!res.ok) throw new Error(`Failed (${res.status})`);
+        const data = await res.json();
+        showQuickResult(`Exported ${data.total_files} DataTable CSV files`, 'ok');
+      } catch (err) {
+        showQuickResult(`Error: ${err.message}`, 'err');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function testConnection() {
+      const url = document.getElementById('cfg-api-url').value;
+      if (!url) {
+        showQuickResult('No Remote Control URL configured', 'info');
+        return;
+      }
+      showLoading('Testing connection...');
+      try {
+        const res = await fetch(url + '/remote/info', { signal: AbortSignal.timeout(5000) });
+        if (res.ok) {
+          showQuickResult('UE Remote Control API is reachable', 'ok');
+        } else {
+          showQuickResult(`Connection returned status ${res.status}`, 'err');
+        }
+      } catch (err) {
+        showQuickResult(`Cannot reach UE Remote Control: ${err.message}`, 'err');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function openExportsDir() {
+      showQuickResult('Export directory: [plugin_root]/exports/', 'info');
+    }
+
+    function showQuickResult(msg, type) {
+      const el = document.getElementById('quick-results');
+      document.getElementById('quick-results-content').innerHTML = `<div class="log-line ${type}">${msg}</div>`;
+      el.classList.add('show');
+      setTimeout(() => { el.classList.remove('show'); }, 5000);
+    }
+
+    // --------------- Loading ---------------
+    function showLoading(text) {
+      document.getElementById('loading-text').textContent = text || 'Processing...';
+      document.getElementById('loading-overlay').classList.add('show');
+    }
+    function hideLoading() {
+      document.getElementById('loading-overlay').classList.remove('show');
+    }
+
+    // --------------- Boot ---------------
+    init();
+  </script>
+</body>
+</html>

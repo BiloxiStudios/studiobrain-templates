@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  .header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-icon svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--plugin-accent);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  /* Context info */
+  .context-info {
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    border: 1px solid var(--surface-base-bg);
+  }
+  .context-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .context-label { font-size: 11px; color: var(--surface-base-text-secondary); text-transform: uppercase; }
+  .context-value { font-size: 14px; color: var(--surface-base-text); font-weight: 500; }
+
+  /* Tab bar */
+  .tab-bar {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 16px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 3px;
+    border: 1px solid var(--surface-base-bg);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .tab-btn:hover { color: var(--surface-base-text); }
+  .tab-btn.active {
+    background: rgba(33, 150, 243, 0.15);
+    color: var(--plugin-accent);
+  }
+
+  /* Code preview */
+  .code-container {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .code-block {
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Fira Code', 'SF Mono', 'Cascadia Code', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 500px;
+    border: 1px solid var(--surface-base-bg);
+    white-space: pre;
+    tab-size: 4;
+    color: var(--surface-base-text);
+  }
+
+  /* C++ syntax highlighting */
+  .code-block .kw { color: #c586c0; }     /* keywords: struct, class, etc */
+  .code-block .type { color: var(--surface-accent-hover); }   /* types: FString, int32 */
+  .code-block .macro { color: #dcdcaa; }  /* macros: USTRUCT, UPROPERTY */
+  .code-block .str { color: #ce9178; }    /* strings */
+  .code-block .cmt { color: #6a9955; }    /* comments */
+  .code-block .num { color: #b5cea8; }    /* numbers */
+  .code-block .inc { color: #9cdcfe; }    /* includes */
+  .code-block .dir { color: #569cd6; }    /* preprocessor directives */
+
+  /* CSV preview */
+  .csv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--surface-base-bg);
+  }
+  .csv-table th {
+    background: var(--surface-base-bg);
+    color: var(--plugin-accent);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--surface-base-bg);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .csv-table td {
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .csv-table tr:hover td { background: rgba(33, 150, 243, 0.05); }
+
+  /* JSON preview */
+  .json-block {
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Fira Code', 'SF Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow: auto;
+    max-height: 500px;
+    border: 1px solid var(--surface-base-bg);
+    white-space: pre-wrap;
+    color: var(--surface-base-text);
+  }
+  .json-block .jk { color: #9cdcfe; }   /* keys */
+  .json-block .js { color: #ce9178; }   /* strings */
+  .json-block .jn { color: #b5cea8; }   /* numbers */
+  .json-block .jb { color: #569cd6; }   /* booleans */
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 10px;
+    background: rgba(33, 150, 243, 0.15);
+    border: 1px solid var(--plugin-accent);
+    border-radius: 4px;
+    color: var(--plugin-accent);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover {
+    background: rgba(33, 150, 243, 0.3);
+  }
+
+  /* Loading / empty states */
+  .loading {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--surface-base-text-secondary);
+  }
+  .loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--surface-base-bg);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Schema table */
+  .schema-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--surface-base-bg);
+    margin-bottom: 16px;
+  }
+  .schema-table th {
+    background: var(--surface-base-bg);
+    color: var(--plugin-accent);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--surface-base-bg);
+    font-size: 11px;
+  }
+  .schema-table td {
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+  }
+  .schema-table td:nth-child(2) {
+    color: var(--surface-accent-hover);
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    </div>
+    UE Code Preview
+  </div>
+
+  <div class="context-info">
+    <div class="context-item">
+      <span class="context-label">Entity Type</span>
+      <span class="context-value" id="ctx-type">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Entity ID</span>
+      <span class="context-value" id="ctx-id">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Struct Name</span>
+      <span class="context-value" id="ctx-struct" style="color:var(--surface-accent-hover)">--</span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('ustruct')">C++ USTRUCT</button>
+    <button class="tab-btn" onclick="switchTab('dataasset')">DataAsset JSON</button>
+    <button class="tab-btn" onclick="switchTab('datatable')">DataTable CSV</button>
+    <button class="tab-btn" onclick="switchTab('schema')">Schema</button>
+  </div>
+
+  <div class="tab-content active" id="tab-ustruct">
+    <div class="loading" id="ustruct-loading">
+      <div class="loading-spinner"></div>
+      Generating C++ USTRUCT...
+    </div>
+    <div class="code-container" id="ustruct-container" style="display:none">
+      <button class="copy-btn" onclick="copyContent('ustruct')">COPY</button>
+      <div class="code-block" id="ustruct-code"></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-dataasset">
+    <div class="loading" id="dataasset-loading">
+      <div class="loading-spinner"></div>
+      Loading DataAsset preview...
+    </div>
+    <div class="code-container" id="dataasset-container" style="display:none">
+      <button class="copy-btn" onclick="copyContent('dataasset')">COPY</button>
+      <div class="json-block" id="dataasset-code"></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-datatable">
+    <div class="loading" id="datatable-loading">
+      <div class="loading-spinner"></div>
+      Building DataTable CSV...
+    </div>
+    <div id="datatable-container" style="display:none"></div>
+  </div>
+
+  <div class="tab-content" id="tab-schema">
+    <div class="loading" id="schema-loading">
+      <div class="loading-spinner"></div>
+      Analyzing schema...
+    </div>
+    <div id="schema-container" style="display:none"></div>
+  </div>
+
+  <script>
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const API = '/api/ext/unreal-exporter';
+    const entityType = ctx.entityType;
+    const entityId = ctx.entityId;
+
+    // Raw content storage for copy functionality
+    const rawContent = { ustruct: '', dataasset: '', datatable: '' };
+
+    document.getElementById('ctx-type').textContent = entityType || 'unknown';
+    document.getElementById('ctx-id').textContent = entityId || 'new';
+
+    // Compute struct name
+    function sanitizeName(name) {
+      return name.split(/[_\s\-]+/).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+    }
+    if (entityType) {
+      document.getElementById('ctx-struct').textContent = `F${sanitizeName(entityType)}Data`;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach((b, i) => {
+        b.classList.toggle('active', b.textContent.toLowerCase().includes(tabId) ||
+          (tabId === 'ustruct' && i === 0) ||
+          (tabId === 'dataasset' && i === 1) ||
+          (tabId === 'datatable' && i === 2) ||
+          (tabId === 'schema' && i === 3));
+      });
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+
+      // Lazy-load content
+      if (tabId === 'ustruct' && !rawContent.ustruct) loadUStruct();
+      if (tabId === 'dataasset' && !rawContent.dataasset) loadDataAsset();
+      if (tabId === 'datatable' && !rawContent.datatable) loadDataTable();
+      if (tabId === 'schema' && !document.getElementById('schema-container').innerHTML) loadSchema();
+    }
+
+    // -- C++ Syntax Highlighting --
+    function highlightCpp(code) {
+      // Order matters: comments first, then strings, then keywords
+      let html = code
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        // Line comments
+        .replace(/(\/\/.*$)/gm, '<span class="cmt">$1</span>')
+        // Preprocessor directives
+        .replace(/^(\s*#\w+)/gm, '<span class="dir">$1</span>')
+        // Include paths
+        .replace(/"([^"]+\.h)"/g, '"<span class="inc">$1</span>"')
+        // Macros (USTRUCT, UPROPERTY, GENERATED_BODY, etc.)
+        .replace(/\b(USTRUCT|UPROPERTY|UCLASS|UFUNCTION|GENERATED_BODY|BlueprintType|EditAnywhere|BlueprintReadWrite|Category)\b/g,
+          '<span class="macro">$1</span>')
+        // Types
+        .replace(/\b(FString|int32|float|bool|uint8|int64|FName|FText|FVector|FRotator|FTransform|FLinearColor|TArray|TMap|TSubclassOf|TSoftObjectPtr|FTableRowBase|void)\b/g,
+          '<span class="type">$1</span>')
+        // Keywords
+        .replace(/\b(struct|class|public|private|protected|virtual|override|const|static|inline|return|if|else|for|while|namespace|using|typedef|enum)\b/g,
+          '<span class="kw">$1</span>')
+        // Strings
+        .replace(/"([^"]*?)"/g, '"<span class="str">$1</span>"');
+      return html;
+    }
+
+    // -- JSON Syntax Highlighting --
+    function highlightJson(obj) {
+      const raw = JSON.stringify(obj, null, 2);
+      return raw
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"([^"]+)":/g, '"<span class="jk">$1</span>":')
+        .replace(/: "([^"]*?)"/g, ': "<span class="js">$1</span>"')
+        .replace(/: (\d+\.?\d*)/g, ': <span class="jn">$1</span>')
+        .replace(/: (true|false)/g, ': <span class="jb">$1</span>');
+    }
+
+    // -- Load USTRUCT --
+    async function loadUStruct() {
+      if (!entityType) return;
+      try {
+        const res = await fetch(`${API}/ustruct/${entityType}`);
+        if (!res.ok) throw new Error(`${res.status}`);
+        const code = await res.text();
+        rawContent.ustruct = code;
+        document.getElementById('ustruct-code').innerHTML = highlightCpp(code);
+        document.getElementById('ustruct-loading').style.display = 'none';
+        document.getElementById('ustruct-container').style.display = 'block';
+      } catch (err) {
+        document.getElementById('ustruct-loading').innerHTML =
+          `<div style="color:var(--surface-error-border)">Failed to load USTRUCT: ${err.message}</div>`;
+      }
+    }
+
+    // -- Load DataAsset JSON --
+    async function loadDataAsset() {
+      if (!entityType || !entityId) {
+        document.getElementById('dataasset-loading').innerHTML =
+          '<div style="color:var(--surface-base-text-secondary)">Select an entity to preview DataAsset JSON</div>';
+        return;
+      }
+      try {
+        const res = await fetch(`${API}/preview/${entityType}/${entityId}`);
+        if (!res.ok) throw new Error(`${res.status}`);
+        const data = await res.json();
+        rawContent.dataasset = JSON.stringify(data, null, 2);
+        document.getElementById('dataasset-code').innerHTML = highlightJson(data);
+        document.getElementById('dataasset-loading').style.display = 'none';
+        document.getElementById('dataasset-container').style.display = 'block';
+      } catch (err) {
+        document.getElementById('dataasset-loading').innerHTML =
+          `<div style="color:var(--surface-error-border)">Failed to load DataAsset: ${err.message}</div>`;
+      }
+    }
+
+    // -- Load DataTable CSV --
+    async function loadDataTable() {
+      if (!entityType) return;
+      try {
+        const res = await fetch(`${API}/datatable/${entityType}`);
+        if (!res.ok) throw new Error(`${res.status}`);
+        const csv = await res.text();
+        rawContent.datatable = csv;
+
+        // Parse CSV into table
+        const lines = csv.trim().split('\n');
+        if (lines.length === 0) throw new Error('Empty CSV');
+
+        // Simple CSV parse (handles basic quoting)
+        function parseCsvLine(line) {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+          for (let i = 0; i < line.length; i++) {
+            if (line[i] === '"') {
+              inQuotes = !inQuotes;
+            } else if (line[i] === ',' && !inQuotes) {
+              result.push(current);
+              current = '';
+            } else {
+              current += line[i];
+            }
+          }
+          result.push(current);
+          return result;
+        }
+
+        const headers = parseCsvLine(lines[0]);
+        let tableHtml = '<table class="csv-table"><thead><tr>';
+        headers.forEach(h => { tableHtml += `<th>${h}</th>`; });
+        tableHtml += '</tr></thead><tbody>';
+
+        const maxRows = Math.min(lines.length, 51); // Show up to 50 data rows
+        for (let i = 1; i < maxRows; i++) {
+          const cols = parseCsvLine(lines[i]);
+          tableHtml += '<tr>';
+          cols.forEach(c => { tableHtml += `<td title="${c.replace(/"/g, '&quot;')}">${c}</td>`; });
+          tableHtml += '</tr>';
+        }
+        tableHtml += '</tbody></table>';
+
+        if (lines.length > 51) {
+          tableHtml += `<div style="text-align:center;padding:8px;color:var(--surface-base-text-secondary);font-size:11px">Showing 50 of ${lines.length - 1} rows</div>`;
+        }
+
+        document.getElementById('datatable-container').innerHTML = tableHtml;
+        document.getElementById('datatable-loading').style.display = 'none';
+        document.getElementById('datatable-container').style.display = 'block';
+      } catch (err) {
+        document.getElementById('datatable-loading').innerHTML =
+          `<div style="color:var(--surface-error-border)">Failed to load DataTable: ${err.message}</div>`;
+      }
+    }
+
+    // -- Load Schema --
+    async function loadSchema() {
+      if (!entityType) return;
+      try {
+        const res = await fetch(`${API}/schema/${entityType}`);
+        if (!res.ok) throw new Error(`${res.status}`);
+        const data = await res.json();
+
+        let html = `<div style="margin-bottom:12px;font-size:12px;color:var(--surface-base-text-secondary)">${data.entity_count} entities analyzed</div>`;
+        html += '<table class="schema-table"><thead><tr><th>Field</th><th>UE Type</th><th>C++ Name</th></tr></thead><tbody>';
+        data.fields.forEach(f => {
+          html += `<tr><td>${f.name}</td><td>${f.ue_type}</td><td>${f.display_name}</td></tr>`;
+        });
+        html += '</tbody></table>';
+
+        document.getElementById('schema-container').innerHTML = html;
+        document.getElementById('schema-loading').style.display = 'none';
+        document.getElementById('schema-container').style.display = 'block';
+      } catch (err) {
+        document.getElementById('schema-loading').innerHTML =
+          `<div style="color:var(--surface-error-border)">Failed to load schema: ${err.message}</div>`;
+      }
+    }
+
+    // -- Copy --
+    async function copyContent(type) {
+      const text = rawContent[type];
+      if (!text) return;
+      try {
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        const btn = event.target;
+        const orig = btn.textContent;
+        btn.textContent = 'COPIED';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      } catch (err) {
+        console.error('Copy failed:', err);
+      }
+    }
+
+    // Auto-load first tab
+    loadUStruct();
+  </script>
+</body>
+</html>

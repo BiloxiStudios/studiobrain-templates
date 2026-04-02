@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .header-total {
+    font-size: 14px;
+    color: var(--plugin-accent);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- Context badges --- */
+  .context-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: var(--surface-elevated-bg);
+    border-radius: 99px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    border: 1px solid var(--surface-elevated-border);
+  }
+
+  /* --- Table --- */
+  .table-wrap {
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead {
+    background: var(--surface-elevated-bg);
+  }
+  th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: rgba(59, 130, 246, 0.04); }
+
+  /* --- Columns --- */
+  .col-date { color: var(--surface-base-text-secondary); white-space: nowrap; }
+  .col-duration {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--surface-base-text);
+  }
+  .col-note {
+    color: var(--surface-base-text-secondary);
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .col-note.empty { color: var(--surface-elevated-border); font-style: italic; }
+
+  /* --- Billable badge --- */
+  .billable-badge {
+    display: inline-flex;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .billable-yes {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--surface-success-border);
+  }
+  .billable-no {
+    background: rgba(100, 116, 139, 0.15);
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* --- Delete button --- */
+  .btn-delete {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--surface-elevated-border);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+  .btn-delete:hover {
+    color: var(--surface-error-border);
+    border-color: var(--surface-error-border);
+    background: rgba(248, 113, 113, 0.1);
+  }
+
+  /* --- Footer totals --- */
+  .footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    margin-top: 12px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .footer-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+  }
+  .footer-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--plugin-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- Empty state --- */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--surface-elevated-border);
+  }
+  .empty-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+  .empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .empty-desc {
+    font-size: 13px;
+  }
+
+  /* --- Loading --- */
+  .loading {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--surface-base-text-secondary);
+  }
+  .loading-spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* --- Confirm dialog --- */
+  .confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .confirm-overlay.active { display: flex; }
+  .confirm-box {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 360px;
+    width: 90%;
+    text-align: center;
+  }
+  .confirm-msg {
+    font-size: 14px;
+    margin-bottom: 16px;
+    color: var(--surface-base-text);
+  }
+  .confirm-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .confirm-btn {
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .confirm-cancel {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text);
+  }
+  .confirm-cancel:hover { background: var(--surface-elevated-border); }
+  .confirm-delete {
+    background: var(--surface-error-border);
+    color: white;
+  }
+  .confirm-delete:hover { background: var(--surface-error-active); }
+</style>
+</head>
+<body>
+
+  <div id="loading-state" class="loading">
+    <div class="loading-spinner"></div>
+    <div>Loading time entries...</div>
+  </div>
+
+  <div id="main-ui" style="display:none;">
+    <div class="header">
+      <span class="header-title">Time Log</span>
+      <span class="header-total" id="header-total"></span>
+    </div>
+
+    <div class="context-bar">
+      <span class="badge" id="badge-type">--</span>
+      <span class="badge" id="badge-id">--</span>
+      <span class="badge" id="badge-count">0 entries</span>
+    </div>
+
+    <div id="entries-container"></div>
+
+    <div class="footer-row" id="footer-row" style="display:none;">
+      <div>
+        <span class="footer-label">Total time</span>
+      </div>
+      <div style="text-align:right;">
+        <div class="footer-value" id="footer-total">0h 0m</div>
+        <div style="font-size:11px;color:var(--surface-base-text-secondary);margin-top:2px;" id="footer-billable"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm delete dialog -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <div class="confirm-msg">Delete this time entry? This cannot be undone.</div>
+      <div class="confirm-actions">
+        <button class="confirm-btn confirm-cancel" onclick="cancelDelete()">Cancel</button>
+        <button class="confirm-btn confirm-delete" id="confirm-delete-btn" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const API = '/api/ext/time-tracker';
+  const ctx = window.PLUGIN_CONTEXT || {};
+  const entityType = ctx.entityType || '';
+  const entityId = ctx.entityId || '';
+
+  let deleteTargetId = null;
+
+  // -----------------------------------------------------------------------
+  // Init
+  // -----------------------------------------------------------------------
+
+  async function init() {
+    document.getElementById('badge-type').textContent = entityType || 'unknown';
+    document.getElementById('badge-id').textContent = entityId
+      ? (entityId.length > 20 ? entityId.substring(0, 20) + '...' : entityId)
+      : 'new';
+
+    await loadEntries();
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('main-ui').style.display = 'block';
+  }
+
+  async function loadEntries() {
+    try {
+      let url = `${API}/entries?limit=500`;
+      if (entityType) url += `&entity_type=${encodeURIComponent(entityType)}`;
+      if (entityId) url += `&entity_id=${encodeURIComponent(entityId)}`;
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      renderEntries(data.entries || []);
+    } catch (err) {
+      console.error('Failed to load entries:', err);
+      document.getElementById('entries-container').innerHTML =
+        '<div class="empty-state"><div class="empty-title" style="color:var(--surface-error-border);">Failed to load entries</div></div>';
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Render
+  // -----------------------------------------------------------------------
+
+  function renderEntries(entries) {
+    const container = document.getElementById('entries-container');
+    document.getElementById('badge-count').textContent = `${entries.length} entries`;
+
+    if (entries.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--surface-elevated-border)" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12,6 12,12 16,14"/>
+            </svg>
+          </div>
+          <div class="empty-title">No time entries yet</div>
+          <div class="empty-desc">Start the timer from the sidebar to begin tracking time on this entity.</div>
+        </div>`;
+      document.getElementById('footer-row').style.display = 'none';
+      document.getElementById('header-total').textContent = '';
+      return;
+    }
+
+    // Calculate totals
+    const totalSec = entries.reduce((s, e) => s + (e.duration_seconds || 0), 0);
+    const billableSec = entries.filter(e => e.billable).reduce((s, e) => s + (e.duration_seconds || 0), 0);
+
+    document.getElementById('header-total').textContent = `Total: ${formatDuration(totalSec)}`;
+    document.getElementById('footer-total').textContent = formatDuration(totalSec);
+    document.getElementById('footer-billable').textContent =
+      `Billable: ${formatDuration(billableSec)} / Non-billable: ${formatDuration(totalSec - billableSec)}`;
+    document.getElementById('footer-row').style.display = 'flex';
+
+    // Build table
+    let html = '<div class="table-wrap"><table><thead><tr>';
+    html += '<th>Date</th><th>Duration</th><th>Note</th><th>Billable</th><th></th>';
+    html += '</tr></thead><tbody>';
+
+    for (const entry of entries) {
+      const date = formatDate(entry.start_time);
+      const duration = formatDuration(entry.duration_seconds || 0);
+      const note = escapeHtml(entry.note || '');
+      const noteClass = note ? 'col-note' : 'col-note empty';
+      const noteDisplay = note || 'No note';
+      const billableHtml = entry.billable
+        ? '<span class="billable-badge billable-yes">Billable</span>'
+        : '<span class="billable-badge billable-no">Non-billable</span>';
+
+      html += `<tr>
+        <td class="col-date">${date}</td>
+        <td class="col-duration">${duration}</td>
+        <td class="${noteClass}" title="${note}">${noteDisplay}</td>
+        <td>${billableHtml}</td>
+        <td><button class="btn-delete" onclick="requestDelete('${entry.id}')" title="Delete entry">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3,6 5,6 21,6"/><path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6M8,6V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
+          </svg>
+        </button></td>
+      </tr>`;
+    }
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+  }
+
+  // -----------------------------------------------------------------------
+  // Delete
+  // -----------------------------------------------------------------------
+
+  function requestDelete(entryId) {
+    deleteTargetId = entryId;
+    document.getElementById('confirm-overlay').classList.add('active');
+  }
+
+  function cancelDelete() {
+    deleteTargetId = null;
+    document.getElementById('confirm-overlay').classList.remove('active');
+  }
+
+  async function confirmDelete() {
+    if (!deleteTargetId) return;
+    const id = deleteTargetId;
+    cancelDelete();
+
+    try {
+      const res = await fetch(`${API}/entries/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await loadEntries();
+    } catch (err) {
+      console.error('Delete failed:', err);
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Formatting helpers
+  // -----------------------------------------------------------------------
+
+  function formatDuration(totalSeconds) {
+    if (totalSeconds < 60) return `${totalSeconds}s`;
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    if (h === 0) return `${m}m`;
+    return `${h}h ${m}m`;
+  }
+
+  function formatDate(isoStr) {
+    const d = new Date(isoStr);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffDays === 0) {
+      return 'Today ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+      return 'Yesterday ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays < 7) {
+      return `${diffDays}d ago`;
+    } else {
+      return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // -----------------------------------------------------------------------
+  // Boot
+  // -----------------------------------------------------------------------
+  init();
+</script>
+</body>
+</html>

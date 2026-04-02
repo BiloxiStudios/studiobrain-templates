@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header-icon {
+    width: 16px; height: 16px;
+    color: var(--plugin-accent);
+  }
+  .track-count {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    font-weight: 400;
+  }
+
+  /* Context badges */
+  .context-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--surface-elevated-bg);
+    border-radius: 99px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* Audio player */
+  .player-container {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 10px;
+  }
+  .track-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .track-meta {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 10px;
+  }
+
+  .player-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .play-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--plugin-accent);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .play-btn:hover { background: var(--plugin-accent); }
+  .play-btn:active { transform: scale(0.95); }
+  .play-btn svg {
+    width: 16px; height: 16px;
+    fill: white;
+  }
+
+  .waveform-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  /* Waveform bars */
+  .waveform {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 24px;
+    flex: 1;
+  }
+  .waveform .bar {
+    flex: 1;
+    background: var(--surface-elevated-border);
+    border-radius: 1px;
+    min-width: 2px;
+    max-width: 4px;
+    transition: background 0.15s;
+  }
+  .waveform .bar.active {
+    background: var(--plugin-accent);
+  }
+  .waveform .bar.playing {
+    animation: barPulse 0.6s ease-in-out infinite alternate;
+  }
+
+  @keyframes barPulse {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    width: 100%;
+    height: 4px;
+    background: var(--surface-elevated-border);
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--plugin-accent), var(--plugin-accent));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+  .time-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* Track selector */
+  .track-selector {
+    margin-top: 6px;
+  }
+  .track-select {
+    width: 100%;
+    padding: 6px 8px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text);
+    font-size: 11px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+  }
+  .track-select:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+  }
+
+  /* Generate button */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 8px;
+  }
+  .btn-generate {
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-bg));
+    color: white;
+  }
+  .btn-generate:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+  .btn-generate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-generate svg {
+    width: 14px; height: 14px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 20px 8px;
+    color: var(--surface-base-text-secondary);
+  }
+  .empty-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+  .empty-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .empty-desc {
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  /* Status messages */
+  .status-msg {
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    margin-top: 6px;
+    display: none;
+  }
+  .status-msg.show { display: block; }
+  .status-msg.info { background: rgba(59,130,246,0.15); color: var(--surface-info-text); }
+  .status-msg.success { background: rgba(34,197,94,0.15); color: var(--surface-success-text-secondary); }
+  .status-msg.error { background: rgba(239,68,68,0.15); color: var(--surface-error-text); }
+
+  /* Spinner */
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+      </svg>
+      Theme Music
+    </div>
+    <span class="track-count" id="track-count"></span>
+  </div>
+
+  <div class="context-bar">
+    <span class="badge" id="entity-type-badge">Loading...</span>
+    <span class="badge" id="entity-id-badge">...</span>
+  </div>
+
+  <!-- Player (shown when tracks exist) -->
+  <div id="player-section" style="display:none;">
+    <div class="player-container">
+      <div class="track-name" id="current-track-name">No track loaded</div>
+      <div class="track-meta" id="current-track-meta"></div>
+
+      <div class="player-controls">
+        <button class="play-btn" id="play-btn" onclick="togglePlay()">
+          <svg id="play-icon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+          <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <div class="waveform-area">
+          <div class="waveform" id="waveform"></div>
+          <div class="progress-wrap" id="progress-wrap" onclick="seekAudio(event)">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <div class="time-display">
+            <span id="time-current">0:00</span>
+            <span id="time-total">0:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-selector" id="track-selector-wrap" style="display:none;">
+      <select class="track-select" id="track-select" onchange="selectTrack(this.value)">
+      </select>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div id="empty-section">
+    <div class="empty-state">
+      <div class="empty-icon">&#9835;</div>
+      <div class="empty-title">No theme music yet</div>
+      <div class="empty-desc">Generate a theme for this entity<br>or open Music Studio for more options</div>
+    </div>
+  </div>
+
+  <!-- Generate quick button -->
+  <button class="btn btn-generate" id="generate-btn" onclick="quickGenerate()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+    </svg>
+    <span id="generate-btn-text">Generate Theme</span>
+  </button>
+
+  <div class="status-msg" id="status-msg"></div>
+
+  <!-- Hidden audio element -->
+  <audio id="audio-el" preload="metadata"></audio>
+
+<script>
+  const API_BASE = '/api/ext/music-gen';
+  const ctx = window.PLUGIN_CONTEXT || {};
+  const entityType = ctx.entityType || 'character';
+  const entityId = ctx.entityId || '';
+
+  document.getElementById('entity-type-badge').textContent = entityType;
+  document.getElementById('entity-id-badge').textContent = entityId ? entityId.substring(0, 12) + '...' : 'new';
+
+  let tracks = [];
+  let currentTrackIdx = 0;
+  let isPlaying = false;
+
+  const audioEl = document.getElementById('audio-el');
+  const playIcon = document.getElementById('play-icon');
+  const pauseIcon = document.getElementById('pause-icon');
+  const progressFill = document.getElementById('progress-fill');
+  const timeCurrent = document.getElementById('time-current');
+  const timeTotal = document.getElementById('time-total');
+
+  // Generate waveform bars
+  function initWaveform() {
+    const waveform = document.getElementById('waveform');
+    waveform.innerHTML = '';
+    const barCount = 28;
+    for (let i = 0; i < barCount; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.style.height = (Math.random() * 18 + 6) + 'px';
+      waveform.appendChild(bar);
+    }
+  }
+  initWaveform();
+
+  // Format seconds to m:ss
+  function fmtTime(sec) {
+    if (!sec || isNaN(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  // Audio event handlers
+  audioEl.addEventListener('timeupdate', () => {
+    if (audioEl.duration) {
+      const pct = (audioEl.currentTime / audioEl.duration) * 100;
+      progressFill.style.width = pct + '%';
+      timeCurrent.textContent = fmtTime(audioEl.currentTime);
+
+      // Update waveform active state
+      const bars = document.querySelectorAll('.waveform .bar');
+      const activeCount = Math.floor((pct / 100) * bars.length);
+      bars.forEach((bar, i) => {
+        bar.classList.toggle('active', i < activeCount);
+        bar.classList.toggle('playing', isPlaying && i === activeCount - 1);
+      });
+    }
+  });
+
+  audioEl.addEventListener('loadedmetadata', () => {
+    timeTotal.textContent = fmtTime(audioEl.duration);
+  });
+
+  audioEl.addEventListener('ended', () => {
+    isPlaying = false;
+    playIcon.style.display = '';
+    pauseIcon.style.display = 'none';
+    progressFill.style.width = '0%';
+    document.querySelectorAll('.waveform .bar').forEach(b => {
+      b.classList.remove('active', 'playing');
+    });
+  });
+
+  function togglePlay() {
+    if (!audioEl.src) return;
+    if (isPlaying) {
+      audioEl.pause();
+      isPlaying = false;
+      playIcon.style.display = '';
+      pauseIcon.style.display = 'none';
+    } else {
+      audioEl.play().catch(() => {});
+      isPlaying = true;
+      playIcon.style.display = 'none';
+      pauseIcon.style.display = '';
+    }
+  }
+
+  function seekAudio(e) {
+    if (!audioEl.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    audioEl.currentTime = pct * audioEl.duration;
+  }
+
+  function selectTrack(idx) {
+    idx = parseInt(idx);
+    if (idx < 0 || idx >= tracks.length) return;
+    currentTrackIdx = idx;
+    loadTrack(tracks[idx]);
+  }
+
+  function loadTrack(track) {
+    audioEl.pause();
+    isPlaying = false;
+    playIcon.style.display = '';
+    pauseIcon.style.display = 'none';
+    progressFill.style.width = '0%';
+
+    audioEl.src = track.audio_url;
+    document.getElementById('current-track-name').textContent =
+      track.prompt ? track.prompt.substring(0, 50) : track.filename;
+    document.getElementById('current-track-meta').textContent =
+      (track.genre || 'unknown') + ' \u2022 ' + (track.duration ? track.duration + 's' : '');
+
+    initWaveform();
+  }
+
+  function showStatus(msg, type) {
+    const el = document.getElementById('status-msg');
+    el.textContent = msg;
+    el.className = 'status-msg show ' + type;
+    if (type !== 'info') {
+      setTimeout(() => { el.className = 'status-msg'; }, 4000);
+    }
+  }
+
+  // Load tracks for this entity
+  async function loadTracks() {
+    if (!entityId) return;
+    try {
+      const resp = await fetch(`${API_BASE}/tracks/${entityType}/${entityId}`);
+      const data = await resp.json();
+      tracks = data.tracks || [];
+      render();
+    } catch (err) {
+      console.error('Failed to load tracks:', err);
+    }
+  }
+
+  function render() {
+    const countEl = document.getElementById('track-count');
+    const playerSection = document.getElementById('player-section');
+    const emptySection = document.getElementById('empty-section');
+    const selectorWrap = document.getElementById('track-selector-wrap');
+
+    if (tracks.length === 0) {
+      playerSection.style.display = 'none';
+      emptySection.style.display = 'block';
+      countEl.textContent = '';
+      return;
+    }
+
+    playerSection.style.display = 'block';
+    emptySection.style.display = 'none';
+    countEl.textContent = tracks.length + ' track' + (tracks.length !== 1 ? 's' : '');
+
+    // Load first track
+    loadTrack(tracks[currentTrackIdx] || tracks[0]);
+
+    // Show selector if multiple tracks
+    if (tracks.length > 1) {
+      selectorWrap.style.display = 'block';
+      const select = document.getElementById('track-select');
+      select.innerHTML = tracks.map((t, i) =>
+        `<option value="${i}" ${i === currentTrackIdx ? 'selected' : ''}>` +
+        `${(t.prompt || t.filename).substring(0, 40)} (${t.genre || '?'})` +
+        `</option>`
+      ).join('');
+    } else {
+      selectorWrap.style.display = 'none';
+    }
+  }
+
+  // Quick generate
+  async function quickGenerate() {
+    if (!entityId) {
+      showStatus('Save the entity first', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('generate-btn');
+    const btnText = document.getElementById('generate-btn-text');
+    btn.disabled = true;
+    btnText.innerHTML = '<span class="spinner"></span> Generating...';
+    showStatus('Generating theme from entity data...', 'info');
+
+    try {
+      // First, auto-generate a prompt
+      const promptResp = await fetch(`${API_BASE}/auto-prompt/${entityType}/${entityId}`, {
+        method: 'POST'
+      });
+      const promptData = await promptResp.json();
+
+      if (!promptData.success) {
+        showStatus('Failed to generate prompt: ' + (promptData.detail || 'Unknown error'), 'error');
+        btn.disabled = false;
+        btnText.textContent = 'Generate Theme';
+        return;
+      }
+
+      // Now generate music with the auto prompt
+      const genResp = await fetch(`${API_BASE}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: promptData.prompt,
+          genre: promptData.suggested_genre,
+          mood: promptData.suggested_mood,
+          entity_type: entityType,
+          entity_id: entityId,
+        }),
+      });
+      const genData = await genResp.json();
+
+      if (genData.success) {
+        const mockNote = genData.mock ? ' (mock mode)' : '';
+        showStatus('Theme generated!' + mockNote, 'success');
+        await loadTracks();
+      } else {
+        showStatus('Generation failed: ' + (genData.message || 'Unknown error'), 'error');
+      }
+    } catch (err) {
+      showStatus('Error: ' + err.message, 'error');
+    }
+
+    btn.disabled = false;
+    btnText.textContent = 'Generate Theme';
+  }
+
+  // Initialize
+  loadTracks();
+</script>
+</body>
+</html>

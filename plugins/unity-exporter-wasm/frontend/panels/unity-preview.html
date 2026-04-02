@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--surface-base-bg), var(--surface-base-bg));
+    border: 1px solid var(--plugin-accent);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--plugin-accent); flex-shrink: 0;
+  }
+  .header-title { font-size: 18px; font-weight: 700; color: var(--surface-base-text); }
+  .header-sub { font-size: 12px; color: var(--surface-base-text-secondary); margin-top: 2px; }
+
+  /* ---- Tab bar ---- */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 16px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    padding: 3px;
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--surface-base-text-secondary); }
+  .tab-btn.active {
+    background: var(--surface-base-bg);
+    color: var(--plugin-accent);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  /* ---- Code viewer ---- */
+  .code-container {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .code-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: var(--surface-base-bg);
+    border-bottom: 1px solid var(--surface-elevated-bg);
+  }
+  .code-filename {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--plugin-accent);
+    font-weight: 500;
+  }
+  .copy-btn {
+    padding: 4px 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 4px;
+    color: var(--surface-base-text-secondary);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .copy-btn:hover { border-color: var(--plugin-accent); color: var(--plugin-accent); }
+  .copy-btn.copied { background: var(--surface-success-bg); border-color: var(--plugin-accent); color: var(--plugin-accent); }
+
+  .code-content {
+    padding: 14px;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 500px;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12px;
+    line-height: 1.65;
+    white-space: pre;
+    tab-size: 4;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* ---- Syntax highlighting (basic) ---- */
+  .hl-keyword  { color: #c792ea; font-weight: 500; }
+  .hl-type     { color: var(--surface-info-text-secondary); }
+  .hl-string   { color: #c3e88d; }
+  .hl-comment  { color: var(--surface-base-text-secondary); font-style: italic; }
+  .hl-attr     { color: #ffcb6b; }
+  .hl-number   { color: #f78c6c; }
+  .hl-bracket  { color: #89ddff; }
+  .hl-unity    { color: var(--plugin-accent); }
+  .hl-tag      { color: #f07178; }
+
+  /* ---- Export options ---- */
+  .options-section {
+    margin-top: 16px;
+  }
+  .options-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+    margin-bottom: 10px;
+  }
+  .option-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-bg);
+    margin-bottom: 6px;
+  }
+  .option-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .option-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+  }
+  .option-desc {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+  }
+  .option-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .option-badge.on {
+    background: rgba(61, 220, 132, 0.1);
+    color: var(--plugin-accent);
+  }
+  .option-badge.off {
+    background: rgba(107, 114, 128, 0.1);
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* ---- Export button ---- */
+  .export-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .action-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    text-align: center;
+    border: none;
+  }
+  .action-btn.primary {
+    background: linear-gradient(135deg, var(--surface-base-bg), var(--surface-elevated-bg));
+    color: var(--plugin-accent);
+    border: 1px solid var(--plugin-accent);
+  }
+  .action-btn.primary:hover {
+    box-shadow: 0 0 12px rgba(61, 220, 132, 0.2);
+  }
+  .action-btn.secondary {
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .action-btn.secondary:hover {
+    border-color: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ---- States ---- */
+  .state-box {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+  }
+  .state-box.error { color: var(--surface-error-border); }
+  .spinner {
+    width: 24px; height: 24px;
+    border: 3px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---- Field summary ---- */
+  .field-summary {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .field-summary-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .field-chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background: var(--surface-base-bg);
+    border-radius: 4px;
+    font-size: 10px;
+    overflow: hidden;
+  }
+  .field-name {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--surface-base-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .field-type {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--surface-info-text-secondary);
+    flex-shrink: 0;
+    margin-left: 6px;
+  }
+
+  /* ---- Toast ---- */
+  .toast {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 200;
+    animation: slideUp 0.3s ease-out;
+  }
+  .toast.success { display: block; background: var(--surface-success-bg); color: var(--plugin-accent); border: 1px solid var(--surface-success-bg); }
+  .toast.error   { display: block; background: var(--surface-error-bg); color: var(--surface-error-text); border: 1px solid var(--surface-error-bg); }
+  @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      </div>
+      <div>
+        <div class="header-title">Unity Preview</div>
+        <div class="header-sub" id="header-sub">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-csharp" onclick="switchTab('csharp')">C# Class</button>
+    <button class="tab-btn" id="tab-asset" onclick="switchTab('asset')">ScriptableObject</button>
+    <button class="tab-btn" id="tab-fields" onclick="switchTab('fields')">Fields</button>
+  </div>
+
+  <!-- C# tab content -->
+  <div id="panel-csharp">
+    <div class="code-container">
+      <div class="code-toolbar">
+        <span class="code-filename" id="cs-filename">Loading...</span>
+        <button class="copy-btn" id="cs-copy-btn" onclick="copyCode('csharp')">Copy</button>
+      </div>
+      <div class="code-content" id="cs-code">
+        <div class="state-box"><div class="spinner"></div>Generating C# class...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Asset tab content -->
+  <div id="panel-asset" style="display:none;">
+    <div class="code-container">
+      <div class="code-toolbar">
+        <span class="code-filename" id="asset-filename">Loading...</span>
+        <button class="copy-btn" id="asset-copy-btn" onclick="copyCode('asset')">Copy</button>
+      </div>
+      <div class="code-content" id="asset-code">
+        <div class="state-box"><div class="spinner"></div>Generating ScriptableObject...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fields tab content -->
+  <div id="panel-fields" style="display:none;">
+    <div class="field-summary">
+      <div class="field-summary-title">Entity Fields &rarr; C# Fields</div>
+      <div class="field-grid" id="field-grid">
+        <div class="state-box"><div class="spinner"></div>Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export options -->
+  <div class="options-section">
+    <div class="options-title">Export Settings</div>
+    <div id="options-list"></div>
+  </div>
+
+  <!-- Actions -->
+  <div class="export-actions">
+    <button class="action-btn primary" id="export-btn" onclick="exportEntity()" disabled>
+      Export .asset File
+    </button>
+    <button class="action-btn secondary" id="gen-btn" onclick="generateScripts()" disabled>
+      Generate C# Scripts
+    </button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE = '/api/ext/unity-exporter';
+  const ctx = window.PLUGIN_CONTEXT || {};
+  const entityType = ctx.entityType || '';
+  const entityId = ctx.entityId || '';
+
+  let rawCSharp = '';
+  let rawAsset = '';
+  let currentTab = 'csharp';
+
+  document.getElementById('header-sub').textContent =
+    entityType && entityId ? `${entityType} / ${entityId}` : 'No entity context';
+
+  // ---- Tab switching ----
+  function switchTab(tab) {
+    currentTab = tab;
+    ['csharp', 'asset', 'fields'].forEach(t => {
+      document.getElementById(`panel-${t}`).style.display = t === tab ? 'block' : 'none';
+      document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    });
+  }
+
+  // ---- Syntax highlighting ----
+  function highlightCSharp(code) {
+    return escHtml(code)
+      .replace(/\/\/.*/g, m => `<span class="hl-comment">${m}</span>`)
+      .replace(/\b(using|namespace|public|class|enum|void|return|new|static|override|readonly|const|get|set|if|else|for|foreach|while|try|catch|throw)\b/g,
+        '<span class="hl-keyword">$1</span>')
+      .replace(/\b(string|int|float|bool|void|List|Dictionary|ScriptableObject|Sprite|GameObject|Header|TextArea|CreateAssetMenu|Serializable|SerializeField)\b/g,
+        '<span class="hl-type">$1</span>')
+      .replace(/"[^"]*"/g, m => `<span class="hl-string">${m}</span>`)
+      .replace(/\b(\d+\.?\d*f?)\b/g, '<span class="hl-number">$1</span>')
+      .replace(/[{}[\]()]/g, m => `<span class="hl-bracket">${m}</span>`);
+  }
+
+  function highlightYaml(code) {
+    return escHtml(code)
+      .replace(/%YAML.*|%TAG.*/g, m => `<span class="hl-comment">${m}</span>`)
+      .replace(/---.*$/gm, m => `<span class="hl-unity">${m}</span>`)
+      .replace(/^(\s*)([\w_]+)(:)/gm, '$1<span class="hl-attr">$2</span><span class="hl-bracket">$3</span>')
+      .replace(/"[^"]*"/g, m => `<span class="hl-string">${m}</span>`)
+      .replace(/\{[^}]*\}/g, m => `<span class="hl-bracket">${m}</span>`)
+      .replace(/\b(\d+\.?\d*)\b/g, '<span class="hl-number">$1</span>');
+  }
+
+  // ---- Load data ----
+  async function loadAll() {
+    if (!entityType || !entityId) {
+      document.getElementById('cs-code').innerHTML = '<div class="state-box">No entity selected.</div>';
+      document.getElementById('asset-code').innerHTML = '<div class="state-box">No entity selected.</div>';
+      return;
+    }
+
+    // Load settings info
+    loadSettings();
+
+    // Load C# class
+    loadCSharp();
+
+    // Load asset preview
+    loadAsset();
+
+    // Load field mapping
+    loadFields();
+  }
+
+  async function loadCSharp() {
+    try {
+      const resp = await fetch(`${API_BASE}/csharp/${entityType}`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      rawCSharp = data.csharp_code || '';
+      document.getElementById('cs-filename').textContent = data.file_name || 'Data.cs';
+      document.getElementById('cs-code').innerHTML = highlightCSharp(rawCSharp);
+      document.getElementById('gen-btn').disabled = false;
+    } catch (e) {
+      document.getElementById('cs-code').innerHTML =
+        `<div class="state-box error">Failed to load: ${escHtml(e.message)}</div>`;
+    }
+  }
+
+  async function loadAsset() {
+    try {
+      const resp = await fetch(`${API_BASE}/preview/${entityType}/${entityId}`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      rawAsset = data.asset_content || '';
+      document.getElementById('asset-filename').textContent = data.file_name || 'entity.asset';
+      document.getElementById('asset-code').innerHTML = highlightYaml(rawAsset);
+      document.getElementById('export-btn').disabled = false;
+    } catch (e) {
+      document.getElementById('asset-code').innerHTML =
+        `<div class="state-box error">Failed to load: ${escHtml(e.message)}</div>`;
+    }
+  }
+
+  async function loadFields() {
+    try {
+      const resp = await fetch(`${API_BASE}/preview/${entityType}/${entityId}?format=json`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      const fm = data.frontmatter || {};
+      const grid = document.getElementById('field-grid');
+
+      const entries = Object.entries(fm).filter(([k]) => !k.startsWith('_'));
+      if (entries.length === 0) {
+        grid.innerHTML = '<div class="state-box">No fields found.</div>';
+        return;
+      }
+
+      grid.innerHTML = entries.map(([key, val]) => {
+        const csharpType = inferType(key, val);
+        const camelName = toCamelCase(key);
+        return `<div class="field-chip">
+          <span class="field-name">${escHtml(camelName)}</span>
+          <span class="field-type">${escHtml(csharpType)}</span>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      document.getElementById('field-grid').innerHTML =
+        `<div class="state-box error">${escHtml(e.message)}</div>`;
+    }
+  }
+
+  async function loadSettings() {
+    try {
+      const resp = await fetch(`${API_BASE}/`);
+      if (!resp.ok) return;
+      const data = await resp.json();
+
+      const optionsList = document.getElementById('options-list');
+      const options = [
+        { label: 'Unity Project', desc: data.unity_project_path || 'Not configured', on: !!data.unity_project_configured },
+        { label: 'Namespace', desc: data.namespace || 'CityOfBrains.Data', on: true },
+        { label: 'Output', desc: data.output_subdir || 'Assets/Data/CityOfBrains', on: true },
+      ];
+
+      optionsList.innerHTML = options.map(o => `
+        <div class="option-row">
+          <div class="option-info">
+            <div class="option-label">${escHtml(o.label)}</div>
+            <div class="option-desc">${escHtml(o.desc)}</div>
+          </div>
+          <span class="option-badge ${o.on ? 'on' : 'off'}">${o.on ? 'Active' : 'Missing'}</span>
+        </div>
+      `).join('');
+    } catch (e) { /* ignore */ }
+  }
+
+  // ---- Actions ----
+  async function exportEntity() {
+    const btn = document.getElementById('export-btn');
+    btn.disabled = true;
+    btn.textContent = 'Exporting...';
+
+    try {
+      const resp = await fetch(`${API_BASE}/export/${entityType}/${entityId}`, { method: 'POST' });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      showToast(`Exported ${(data.exported_files || []).length} files`, 'success');
+    } catch (e) {
+      showToast(`Export failed: ${e.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Export .asset File';
+    }
+  }
+
+  async function generateScripts() {
+    const btn = document.getElementById('gen-btn');
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+
+    try {
+      const resp = await fetch(`${API_BASE}/generate-scripts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity_types: [entityType] }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      showToast(`Generated ${data.scripts_generated} scripts, ${data.enums_generated} enums`, 'success');
+    } catch (e) {
+      showToast(`Generation failed: ${e.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Generate C# Scripts';
+    }
+  }
+
+  function copyCode(which) {
+    const code = which === 'csharp' ? rawCSharp : rawAsset;
+    const btnId = which === 'csharp' ? 'cs-copy-btn' : 'asset-copy-btn';
+    if (!code) return;
+
+    navigator.clipboard.writeText(code).then(() => {
+      const btn = document.getElementById(btnId);
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  // ---- Utilities ----
+  function inferType(key, val) {
+    const k = key.toLowerCase();
+    if (typeof val === 'boolean') return 'bool';
+    if (typeof val === 'number') return Number.isInteger(val) ? 'int' : 'float';
+    if (Array.isArray(val)) return 'List<string>';
+    if (k.includes('age') || k.includes('level') || k.includes('hp')) return 'int';
+    if (k.includes('height') || k.includes('weight') || k.includes('price')) return 'float';
+    return 'string';
+  }
+
+  function toCamelCase(s) {
+    const words = s.replace(/[^a-zA-Z0-9]/g, ' ').split(/\s+/).filter(Boolean);
+    return words.map((w, i) => i === 0 ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('');
+  }
+
+  function showToast(msg, type) {
+    const el = document.getElementById('toast');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    setTimeout(() => { el.className = 'toast'; }, 4000);
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  loadAll();
+</script>
+</body>
+</html>

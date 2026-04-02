@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header-icon svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--plugin-accent);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  /* Export status display */
+  .export-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.synced { background: var(--surface-success-border); box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+  .status-dot.pending { background: var(--surface-warning-border); box-shadow: 0 0 6px rgba(245,158,11,0.4); }
+  .status-dot.never { background: var(--surface-base-text-secondary); }
+  .status-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .status-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+  }
+
+  /* Info rows */
+  .info-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background: var(--surface-base-bg);
+    border-radius: 6px;
+    border: 1px solid var(--surface-elevated-bg);
+    font-size: 12px;
+  }
+  .info-key {
+    color: var(--surface-base-text-secondary);
+    font-weight: 500;
+  }
+  .info-val {
+    color: var(--surface-base-text);
+    font-weight: 600;
+    font-size: 11px;
+  }
+  .info-val.success { color: var(--surface-success-border); }
+  .info-val.warning { color: var(--surface-warning-border); }
+  .info-val.muted { color: var(--surface-base-text-secondary); font-style: italic; }
+
+  /* Project link */
+  .project-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 107, 53, 0.08);
+    border: 1px solid rgba(255, 107, 53, 0.25);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    text-decoration: none;
+    color: var(--plugin-accent);
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .project-link:hover {
+    background: rgba(255, 107, 53, 0.15);
+    border-color: rgba(255, 107, 53, 0.4);
+  }
+  .project-link svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--plugin-accent);
+    fill: none;
+    stroke-width: 2;
+    flex-shrink: 0;
+  }
+
+  /* Action buttons */
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-export {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-export:hover { background: var(--plugin-accent); }
+  .btn-export:disabled {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    cursor: not-allowed;
+  }
+  .btn-preview {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-preview:hover {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+  }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: none;
+    line-height: 1.4;
+  }
+  .feedback.success {
+    display: block;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: var(--surface-success-border);
+  }
+  .feedback.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--surface-error-border);
+  }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+  }
+  .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--surface-elevated-bg);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .btn-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  .no-config {
+    text-align: center;
+    padding: 12px 8px;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .no-config a {
+    color: var(--plugin-accent);
+    text-decoration: none;
+  }
+  .no-config a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 4v16l13-8z"/>
+      </svg>
+    </div>
+    Showrunner Export
+  </div>
+
+  <div id="panel-content">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      Loading export status...
+    </div>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <script>
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const API = '/api/ext/showrunner-exporter';
+    const entityType = ctx.entityType;
+    const entityId = ctx.entityId;
+
+    async function loadStatus() {
+      if (!entityType || !entityId) {
+        document.getElementById('panel-content').innerHTML =
+          '<div class="loading" style="padding:16px 0">No entity selected</div>';
+        return;
+      }
+
+      try {
+        const [statusRes, pluginRes] = await Promise.all([
+          fetch(`${API}/export-status/${entityType}/${entityId}`),
+          fetch(`${API}/`),
+        ]);
+
+        if (!statusRes.ok) throw new Error('Failed to load export status');
+
+        const status = await statusRes.json();
+        const plugin = pluginRes.ok ? await pluginRes.json() : {};
+
+        renderPanel(status, plugin);
+      } catch (err) {
+        document.getElementById('panel-content').innerHTML = `
+          <div class="loading" style="color:var(--surface-error-border)">
+            Failed to load status
+            <br><small style="color:var(--surface-base-text-secondary)">${err.message}</small>
+          </div>`;
+      }
+    }
+
+    function renderPanel(status, plugin) {
+      const hasExported = status.has_been_exported;
+      const lastExport = status.last_export;
+      const dotClass = hasExported
+        ? (lastExport && lastExport.pushed_to_showrunner ? 'synced' : 'pending')
+        : 'never';
+      const statusText = hasExported
+        ? (lastExport && lastExport.pushed_to_showrunner ? 'Synced' : 'Exported (Local)')
+        : 'Not Exported';
+
+      const lastDate = lastExport
+        ? formatRelativeDate(lastExport.exported_at)
+        : 'Never';
+
+      const projectId = status.project_id || plugin.project_id || '';
+
+      let html = `
+        <div class="export-status">
+          <div class="status-dot ${dotClass}"></div>
+          <div>
+            <div class="status-label">Export Status</div>
+            <div class="status-value">${statusText}</div>
+          </div>
+        </div>
+
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-key">Last Export</span>
+            <span class="info-val ${hasExported ? '' : 'muted'}">${lastDate}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Times Exported</span>
+            <span class="info-val">${status.total_exports}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Pushed to SR</span>
+            <span class="info-val ${status.pushed_count > 0 ? 'success' : 'muted'}">
+              ${status.pushed_count > 0 ? status.pushed_count + ' times' : 'No'}
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">API Connected</span>
+            <span class="info-val ${status.api_configured ? 'success' : 'warning'}">
+              ${status.api_configured ? 'Yes' : 'Not configured'}
+            </span>
+          </div>
+        </div>`;
+
+      if (projectId) {
+        html += `
+        <a class="project-link" href="https://showrunner.xyz/project/${projectId}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          View in Showrunner
+        </a>`;
+      }
+
+      html += `
+        <div class="actions">
+          <button class="btn btn-export" id="export-btn" onclick="exportEntity()">
+            Export to Showrunner
+          </button>
+          <button class="btn btn-preview" onclick="window.open('/plugins/showrunner-exporter', '_top')">
+            Open Dashboard
+          </button>
+        </div>`;
+
+      document.getElementById('panel-content').innerHTML = html;
+    }
+
+    function formatRelativeDate(iso) {
+      if (!iso) return 'Never';
+      const d = new Date(iso);
+      const now = new Date();
+      const diff = now - d;
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' +
+             d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function exportEntity() {
+      const btn = document.getElementById('export-btn');
+      const feedback = document.getElementById('feedback');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="btn-spinner"></span> Exporting...';
+      feedback.className = 'feedback';
+      feedback.style.display = 'none';
+
+      try {
+        // For characters, use the character export endpoint
+        let url, method, body;
+        if (entityType === 'character') {
+          url = `${API}/export/character/${entityId}`;
+          method = 'POST';
+        } else {
+          // For other types, use preview (export is character-focused for now)
+          url = `${API}/preview/${entityType}/${entityId}`;
+          method = 'GET';
+        }
+
+        const opts = { method };
+        if (method === 'POST') {
+          opts.headers = { 'Content-Type': 'application/json' };
+        }
+
+        const resp = await fetch(url, opts);
+        const data = await resp.json();
+
+        if (resp.ok && (data.success !== false)) {
+          feedback.className = 'feedback success';
+          feedback.textContent = data.message || 'Export successful!';
+          feedback.style.display = 'block';
+          // Reload panel after short delay
+          setTimeout(loadStatus, 1000);
+        } else {
+          feedback.className = 'feedback error';
+          feedback.textContent = data.detail || data.message || 'Export failed';
+          feedback.style.display = 'block';
+        }
+      } catch (err) {
+        feedback.className = 'feedback error';
+        feedback.textContent = 'Network error: ' + err.message;
+        feedback.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Export to Showrunner';
+      }
+
+      if (document.querySelector('.feedback.success')) {
+        setTimeout(() => {
+          feedback.style.display = 'none';
+        }, 4000);
+      }
+    }
+
+    loadStatus();
+  </script>
+</body>
+</html>

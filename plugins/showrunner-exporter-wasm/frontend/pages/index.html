@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Showrunner Exporter</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    min-height: 100vh;
+  }
+
+  /* ===== Header ===== */
+  .page-header {
+    padding: 28px 32px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-warning-border));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .page-title svg {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+  .page-subtitle {
+    color: var(--surface-base-text-secondary);
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .content { max-width: 1200px; margin: 0 auto; padding: 20px 32px 32px; }
+
+  /* ===== Stats Grid ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface-base-bg);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .stat-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--surface-base-text);
+  }
+  .stat-value.orange { color: var(--plugin-accent); }
+  .stat-value.green { color: var(--surface-success-border); }
+  .stat-value.amber { color: var(--surface-warning-border); }
+  .stat-value.blue { color: var(--surface-info-text-secondary); }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--surface-elevated-border);
+    margin-top: 2px;
+  }
+
+  /* ===== Section Layout ===== */
+  .sections-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 800px) { .sections-grid { grid-template-columns: 1fr; } }
+
+  .section-card {
+    background: var(--surface-base-bg);
+    border-radius: 10px;
+    border: 1px solid var(--surface-elevated-bg);
+    overflow: hidden;
+  }
+  .section-card.full-width {
+    grid-column: 1 / -1;
+  }
+  .section-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .section-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-header svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--plugin-accent);
+    fill: none;
+    stroke-width: 2;
+  }
+  .section-body { padding: 16px 18px; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-outline:hover { border-color: var(--plugin-accent); color: var(--plugin-accent); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+  .btn-danger {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-danger:hover { border-color: var(--surface-error-border); color: var(--surface-error-border); }
+
+  /* ===== Project Card ===== */
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .project-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-base-bg);
+    transition: border-color 0.15s;
+  }
+  .project-item:hover { border-color: var(--surface-elevated-bg); }
+  .project-item.active { border-color: var(--plugin-accent); }
+  .project-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .project-dot.active { background: var(--surface-success-border); box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+  .project-dot.inactive { background: var(--surface-base-text-secondary); }
+  .project-info { flex: 1; min-width: 0; }
+  .project-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .project-meta {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 2px;
+  }
+
+  /* ===== Character Roster ===== */
+  .roster-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .roster-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .roster-table td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(45, 27, 78, 0.4);
+    vertical-align: middle;
+  }
+  .roster-table tr:hover td { background: rgba(255, 107, 53, 0.03); }
+
+  .char-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .char-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .char-thumb-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--surface-elevated-border);
+  }
+  .char-name-text {
+    font-weight: 600;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+  .char-id-text {
+    font-size: 10px;
+    color: var(--surface-elevated-border);
+    font-family: 'SF Mono', 'Cascadia Code', monospace;
+  }
+
+  .export-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .export-badge.synced {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--surface-success-border);
+  }
+  .export-badge.exported {
+    background: rgba(255, 107, 53, 0.1);
+    color: var(--plugin-accent);
+  }
+  .export-badge.none {
+    background: rgba(100, 116, 139, 0.1);
+    color: var(--surface-base-text-secondary);
+  }
+  .export-badge-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .date-cell {
+    white-space: nowrap;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+  }
+
+  /* ===== Export Log ===== */
+  .log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .log-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .log-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid rgba(45, 27, 78, 0.3);
+    vertical-align: middle;
+  }
+  .log-table tr:hover td { background: rgba(255, 107, 53, 0.03); }
+
+  .action-badge {
+    display: inline-flex;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  .action-badge.export { background: rgba(255, 107, 53, 0.1); color: var(--plugin-accent); }
+  .action-badge.auto { background: rgba(96, 165, 250, 0.1); color: var(--surface-info-text-secondary); }
+  .action-badge.batch { background: rgba(168, 85, 247, 0.1); color: var(--surface-secondary-bg); }
+
+  .status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+  .status-dot.success { background: var(--surface-success-border); }
+  .status-dot.failed { background: var(--surface-error-border); }
+
+  /* ===== Plugin status ===== */
+  .plugin-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+  }
+  .status-led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--surface-success-border);
+  }
+  .status-led.disconnected { background: var(--surface-error-border); }
+  .status-led.warning { background: var(--surface-warning-border); }
+
+  .config-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-base-bg);
+    margin-bottom: 6px;
+  }
+  .config-key {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    min-width: 100px;
+  }
+  .config-val {
+    font-size: 12px;
+    color: var(--surface-base-text);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .config-val.muted { color: var(--surface-base-text-secondary); font-style: italic; }
+
+  /* ===== Episode Builder ===== */
+  .episode-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .form-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 2px;
+  }
+  .form-input, .form-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .form-textarea {
+    min-height: 80px;
+    resize: vertical;
+    font-family: 'SF Mono', 'Cascadia Code', monospace;
+    font-size: 11px;
+  }
+  .form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.15);
+  }
+  .form-input::placeholder, .form-textarea::placeholder { color: var(--surface-elevated-border); }
+  .form-hint {
+    font-size: 10px;
+    color: var(--surface-elevated-border);
+    margin-top: 2px;
+  }
+
+  /* ===== Empty state ===== */
+  .empty-state {
+    text-align: center;
+    padding: 30px 16px;
+    color: var(--surface-elevated-border);
+    font-size: 13px;
+  }
+
+  /* ===== Toast ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+    max-width: 400px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: var(--surface-success-border);
+  }
+  .toast.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: var(--surface-error-border);
+  }
+  .toast.info {
+    background: rgba(255, 107, 53, 0.15);
+    border: 1px solid rgba(255, 107, 53, 0.4);
+    color: var(--plugin-accent);
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== Scrollbar ===== */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface-elevated-bg); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--surface-elevated-bg); }
+</style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1 class="page-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="-webkit-text-fill-color: var(--plugin-accent);" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="23 7 16 12 23 17 23 7"/>
+        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+      </svg>
+      Showrunner Exporter
+    </h1>
+    <p class="page-subtitle">Export characters, narratives, and world data to Showrunner.xyz for AI show production</p>
+  </div>
+
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Exports</div>
+        <div class="stat-value orange" id="stat-exports">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pushed to SR</div>
+        <div class="stat-value green" id="stat-pushed">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Characters</div>
+        <div class="stat-value blue" id="stat-chars">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Locations</div>
+        <div class="stat-value amber" id="stat-locs">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today</div>
+        <div class="stat-value" id="stat-today">--</div>
+      </div>
+    </div>
+
+    <!-- Projects + Status -->
+    <div class="sections-grid">
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-header-left">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16l13-8z"/></svg>
+            Showrunner Projects
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="loadProjects()">Refresh</button>
+        </div>
+        <div class="section-body" id="projects-body">
+          <div class="empty-state">Loading projects...</div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-header-left">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Connection Status
+          </div>
+          <div class="plugin-status">
+            <div class="status-led" id="status-led"></div>
+            <span id="status-text">Checking...</span>
+          </div>
+        </div>
+        <div class="section-body" id="status-body">
+          <div class="empty-state">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character Roster -->
+    <div class="section-card full-width" style="margin-bottom:16px;">
+      <div class="section-header">
+        <div class="section-header-left">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Character Roster
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm" onclick="loadCharacters()">Refresh</button>
+          <button class="btn btn-primary btn-sm" id="batch-btn" onclick="batchExport()">Batch Export All</button>
+        </div>
+      </div>
+      <div class="section-body" style="padding:0;" id="roster-body">
+        <div class="empty-state">Loading characters...</div>
+      </div>
+    </div>
+
+    <!-- Episode Builder + Export Log -->
+    <div class="sections-grid">
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-header-left">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Episode Builder
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="episode-form">
+            <div>
+              <label class="form-label">Episode Title</label>
+              <input type="text" class="form-input" id="ep-title" placeholder="e.g. Pilot - Welcome to the City">
+            </div>
+            <div>
+              <label class="form-label">Characters (comma-separated)</label>
+              <input type="text" class="form-input" id="ep-characters" placeholder="e.g. Marcus, Elena, Detective Zhou">
+            </div>
+            <div>
+              <label class="form-label">Scenes (JSON array)</label>
+              <textarea class="form-textarea" id="ep-scenes" placeholder='[{"location":"Neon District","description":"Opening scene","characters":["Marcus"],"mood":"tense"}]'></textarea>
+              <div class="form-hint">JSON array of scene objects with location, description, characters, mood, dialogue, direction</div>
+            </div>
+            <button class="btn btn-primary" id="ep-export-btn" onclick="exportEpisode()">Export Episode</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-header-left">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>
+            Export History
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="loadExportLog()">Refresh</button>
+        </div>
+        <div class="section-body" style="padding:0;" id="log-body">
+          <div class="empty-state">Loading history...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+const API = '/api/ext/showrunner-exporter';
+
+// ===== Utilities =====
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.className = 'toast'; }, 3500);
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = typeof str === 'string' ? str : String(str);
+  return d.innerHTML;
+}
+
+function formatDate(iso) {
+  if (!iso) return '--';
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' +
+         d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+}
+
+// ===== Stats =====
+async function loadStats() {
+  try {
+    const resp = await fetch(`${API}/stats`);
+    const data = await resp.json();
+
+    document.getElementById('stat-exports').textContent = data.total_exports || 0;
+    document.getElementById('stat-pushed').textContent = data.pushed_to_showrunner || 0;
+    document.getElementById('stat-chars').textContent = data.total_characters || 0;
+    document.getElementById('stat-locs').textContent = data.total_locations || 0;
+    document.getElementById('stat-today').textContent = data.exports_today || 0;
+  } catch (err) {
+    console.error('Failed to load stats:', err);
+  }
+}
+
+// ===== Connection Status =====
+async function loadStatus() {
+  try {
+    const resp = await fetch(`${API}/`);
+    const data = await resp.json();
+
+    const hasKey = data.api_configured;
+    const hasProject = !!data.project_id;
+
+    document.getElementById('status-led').className =
+      'status-led' + (hasKey && hasProject ? '' : hasKey ? ' warning' : ' disconnected');
+    document.getElementById('status-text').textContent =
+      hasKey && hasProject ? 'Connected' : hasKey ? 'No Project' : 'Not configured';
+
+    document.getElementById('status-body').innerHTML = `
+      <div class="config-row">
+        <span class="config-key">Version</span>
+        <span class="config-val">${escHtml(data.version)}</span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">API Key</span>
+        <span class="config-val ${hasKey ? '' : 'muted'}">${hasKey ? 'Configured' : 'Not set'}</span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">Project ID</span>
+        <span class="config-val ${hasProject ? '' : 'muted'}">${data.project_id || 'Not set'}</span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">Auto-sync</span>
+        <span class="config-val">${data.auto_sync ? 'Enabled' : 'Disabled'}</span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">Voice Data</span>
+        <span class="config-val">${data.include_voice_data ? 'Included' : 'Excluded'}</span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">Export Mode</span>
+        <span class="config-val">${escHtml(data.export_mode)}</span>
+      </div>
+      <div class="config-row">
+        <span class="config-key">Total Exports</span>
+        <span class="config-val">${data.total_exports}</span>
+      </div>`;
+  } catch (err) {
+    document.getElementById('status-led').className = 'status-led disconnected';
+    document.getElementById('status-text').textContent = 'Disconnected';
+    document.getElementById('status-body').innerHTML =
+      '<div class="empty-state" style="color:var(--surface-error-border)">Backend not reachable</div>';
+  }
+}
+
+// ===== Projects =====
+async function loadProjects() {
+  try {
+    const resp = await fetch(`${API}/projects`);
+    const data = await resp.json();
+    const projects = data.projects || [];
+    const container = document.getElementById('projects-body');
+
+    if (projects.length === 0) {
+      container.innerHTML = '<div class="empty-state">No projects found. Configure your API key and project ID in plugin settings.</div>';
+      return;
+    }
+
+    const currentProject = await fetch(`${API}/`).then(r => r.json()).then(d => d.project_id).catch(() => '');
+
+    container.innerHTML = `
+      ${data.source === 'mock' ? '<div style="font-size:11px;color:var(--surface-base-text-secondary);margin-bottom:10px;padding:6px 10px;background:var(--surface-base-bg);border-radius:6px;border:1px solid var(--surface-base-bg);">Demo data -- configure API key for live projects</div>' : ''}
+      <div class="project-list">
+        ${projects.map(p => {
+          const isActive = p.id === currentProject;
+          const statusDot = p.status === 'in_development' ? 'active' : 'inactive';
+          return `<div class="project-item ${isActive ? 'active' : ''}">
+            <div class="project-dot ${statusDot}"></div>
+            <div class="project-info">
+              <div class="project-name">${escHtml(p.name)}</div>
+              <div class="project-meta">
+                ${escHtml(p.status || '')} | ${p.episodes || 0} episodes | ${p.characters_synced || 0} characters
+              </div>
+            </div>
+            ${isActive ? '<span style="font-size:10px;color:var(--plugin-accent);font-weight:600;">ACTIVE</span>' : ''}
+          </div>`;
+        }).join('')}
+      </div>`;
+  } catch (err) {
+    document.getElementById('projects-body').innerHTML =
+      '<div class="empty-state" style="color:var(--surface-error-border)">Failed to load projects</div>';
+  }
+}
+
+// ===== Character Roster =====
+async function loadCharacters() {
+  try {
+    const resp = await fetch(`${API}/characters`);
+    const data = await resp.json();
+    const chars = data.characters || [];
+    const container = document.getElementById('roster-body');
+
+    if (chars.length === 0) {
+      container.innerHTML = '<div class="empty-state">No characters found in the system.</div>';
+      return;
+    }
+
+    container.innerHTML = `
+      <table class="roster-table">
+        <thead>
+          <tr>
+            <th>Character</th>
+            <th>Export Status</th>
+            <th>Last Exported</th>
+            <th>Times</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${chars.map(c => {
+            const badgeClass = c.pushed_to_showrunner ? 'synced' : c.export_count > 0 ? 'exported' : 'none';
+            const badgeText = c.pushed_to_showrunner ? 'Synced' : c.export_count > 0 ? 'Exported' : 'Not exported';
+            const thumbHtml = c.image
+              ? `<img class="char-thumb" src="${c.image}" alt="" onerror="this.outerHTML='<div class=\\'char-thumb-placeholder\\'>&#x1F464;</div>'">`
+              : '<div class="char-thumb-placeholder">&#x1F464;</div>';
+
+            return `<tr>
+              <td>
+                <div class="char-name-cell">
+                  ${thumbHtml}
+                  <div>
+                    <div class="char-name-text">${escHtml(c.name)}</div>
+                    <div class="char-id-text">${escHtml(c.id)}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="export-badge ${badgeClass}">
+                  <span class="export-badge-dot"></span>
+                  ${badgeText}
+                </span>
+              </td>
+              <td class="date-cell">${formatDate(c.last_exported)}</td>
+              <td style="color:var(--surface-base-text-secondary);">${c.export_count || 0}</td>
+              <td>
+                <button class="btn btn-outline btn-sm" onclick="exportCharacter('${escHtml(c.id)}', '${escHtml(c.name)}')">Export</button>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+  } catch (err) {
+    document.getElementById('roster-body').innerHTML =
+      '<div class="empty-state" style="color:var(--surface-error-border)">Failed to load characters</div>';
+  }
+}
+
+// ===== Export Log =====
+async function loadExportLog() {
+  try {
+    const resp = await fetch(`${API}/export-log?limit=30`);
+    const data = await resp.json();
+    const items = data.items || [];
+    const container = document.getElementById('log-body');
+
+    if (items.length === 0) {
+      container.innerHTML = '<div class="empty-state">No exports yet. Export a character to get started.</div>';
+      return;
+    }
+
+    container.innerHTML = `
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Entity</th>
+            <th>Action</th>
+            <th>Status</th>
+            <th>Pushed</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map(item => {
+            const action = item.action || 'export';
+            const actionClass = action.includes('auto') ? 'auto' : action.includes('batch') ? 'batch' : 'export';
+            return `<tr>
+              <td class="date-cell">${formatDate(item.exported_at)}</td>
+              <td>
+                <span style="font-weight:500;color:var(--surface-base-text);">${escHtml(item.entity_name || 'Unknown')}</span>
+                <span style="font-size:10px;color:var(--surface-elevated-border);margin-left:4px;">${escHtml(item.entity_type)}</span>
+              </td>
+              <td><span class="action-badge ${actionClass}">${escHtml(action.replace(/_/g, ' '))}</span></td>
+              <td>
+                <span class="status-dot ${item.success ? 'success' : 'failed'}"></span>
+                ${item.success ? 'OK' : 'Fail'}
+              </td>
+              <td style="color:${item.pushed_to_showrunner ? 'var(--surface-success-border)' : 'var(--surface-base-text-secondary)'}">
+                ${item.pushed_to_showrunner ? 'Yes' : 'No'}
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+  } catch (err) {
+    document.getElementById('log-body').innerHTML =
+      '<div class="empty-state" style="color:var(--surface-error-border)">Failed to load export log</div>';
+  }
+}
+
+// ===== Export Actions =====
+async function exportCharacter(entityId, entityName) {
+  showToast(`Exporting ${entityName}...`, 'info');
+
+  try {
+    const resp = await fetch(`${API}/export/character/${entityId}`, { method: 'POST' });
+    const data = await resp.json();
+
+    if (resp.ok && data.success) {
+      showToast(data.message || `${entityName} exported successfully!`, 'success');
+      setTimeout(() => {
+        loadCharacters();
+        loadExportLog();
+        loadStats();
+      }, 500);
+    } else {
+      showToast(data.detail || data.message || 'Export failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error: ' + err.message, 'error');
+  }
+}
+
+async function batchExport() {
+  const btn = document.getElementById('batch-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> Exporting...';
+
+  try {
+    const resp = await fetch(`${API}/batch-export`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entity_types: ['character'] }),
+    });
+    const data = await resp.json();
+
+    if (resp.ok) {
+      showToast(data.message || `Batch export complete: ${data.exported} exported`, 'success');
+      setTimeout(() => {
+        loadCharacters();
+        loadExportLog();
+        loadStats();
+      }, 500);
+    } else {
+      showToast(data.detail || 'Batch export failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Batch Export All';
+  }
+}
+
+async function exportEpisode() {
+  const title = document.getElementById('ep-title').value.trim();
+  const charsRaw = document.getElementById('ep-characters').value.trim();
+  const scenesRaw = document.getElementById('ep-scenes').value.trim();
+  const btn = document.getElementById('ep-export-btn');
+
+  if (!title) {
+    showToast('Episode title is required', 'error');
+    return;
+  }
+
+  const characters = charsRaw ? charsRaw.split(',').map(c => c.trim()).filter(Boolean) : [];
+  let scenes = [];
+  if (scenesRaw) {
+    try {
+      scenes = JSON.parse(scenesRaw);
+      if (!Array.isArray(scenes)) {
+        showToast('Scenes must be a JSON array', 'error');
+        return;
+      }
+    } catch (e) {
+      showToast('Invalid JSON in scenes: ' + e.message, 'error');
+      return;
+    }
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> Exporting...';
+
+  try {
+    const resp = await fetch(`${API}/export/episode`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, characters, scenes }),
+    });
+    const data = await resp.json();
+
+    if (resp.ok && data.success) {
+      showToast(data.message || 'Episode exported!', 'success');
+      document.getElementById('ep-title').value = '';
+      document.getElementById('ep-characters').value = '';
+      document.getElementById('ep-scenes').value = '';
+      setTimeout(() => {
+        loadExportLog();
+        loadStats();
+      }, 500);
+    } else {
+      showToast(data.detail || data.message || 'Episode export failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Export Episode';
+  }
+}
+
+// ===== Initialize =====
+loadStats();
+loadStatus();
+loadProjects();
+loadCharacters();
+loadExportLog();
+</script>
+</body>
+</html>

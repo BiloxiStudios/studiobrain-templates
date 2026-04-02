@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+  .header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header svg { width: 20px; height: 20px; color: var(--plugin-accent); }
+  .subtitle {
+    font-size: 13px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 20px;
+  }
+
+  /* Context info */
+  .context-info {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .context-item { display: flex; flex-direction: column; gap: 2px; }
+  .context-label { font-size: 11px; color: var(--surface-base-text-secondary); text-transform: uppercase; }
+  .context-value { font-size: 14px; color: var(--surface-base-text); font-weight: 500; }
+
+  /* Stats row */
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    padding: 8px 16px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-border);
+    text-align: center;
+    min-width: 80px;
+  }
+  .stat-pill .num {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .stat-pill .lbl {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .stat-pill.twitter .num { color: var(--plugin-accent); }
+  .stat-pill.bluesky .num { color: var(--surface-info-text-secondary); }
+  .stat-pill.instagram .num { color: var(--plugin-accent); }
+  .stat-pill.threads .num { color: #a3a3a3; }
+
+  /* Filter row */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 5px 12px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--surface-elevated-border); color: var(--surface-base-text-secondary); }
+  .filter-btn.active { background: var(--plugin-accent); border-color: var(--plugin-accent); color: white; }
+
+  /* Table */
+  .history-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  .history-table thead th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    position: sticky;
+    top: 0;
+    background: var(--surface-base-bg);
+  }
+  .history-table tbody tr {
+    transition: background 0.1s;
+  }
+  .history-table tbody tr:hover { background: var(--surface-elevated-bg); }
+  .history-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  /* Platform badge */
+  .plat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+  }
+  .plat-badge.twitter { background: var(--plugin-accent); }
+  .plat-badge.bluesky { background: var(--surface-info-text-secondary); }
+  .plat-badge.instagram { background: var(--plugin-accent); }
+  .plat-badge.threads { background: #333; }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .status-badge.success { background: rgba(34,197,94,0.15); color: var(--surface-success-border); }
+  .status-badge.failed { background: rgba(239,68,68,0.15); color: var(--surface-error-border); }
+  .status-badge.mock { background: rgba(245,158,11,0.15); color: var(--surface-warning-border); }
+
+  .text-preview {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--surface-base-text-secondary);
+  }
+  .date-cell {
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .link-cell a {
+    color: var(--plugin-accent);
+    text-decoration: none;
+    font-size: 12px;
+  }
+  .link-cell a:hover { text-decoration: underline; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--surface-base-text-secondary);
+  }
+  .empty-state svg { width: 48px; height: 48px; color: var(--surface-elevated-border); margin-bottom: 12px; }
+  .empty-state .title { font-size: 16px; font-weight: 600; color: var(--surface-base-text-secondary); margin-bottom: 4px; }
+  .empty-state .desc { font-size: 13px; }
+
+  /* Scroll container */
+  .table-wrap {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 8px;
+  }
+  .table-wrap::-webkit-scrollbar { width: 6px; }
+  .table-wrap::-webkit-scrollbar-track { background: transparent; }
+  .table-wrap::-webkit-scrollbar-thumb { background: var(--surface-elevated-border); border-radius: 3px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Publish History
+  </div>
+  <div class="subtitle">Posts published for this entity across all platforms</div>
+
+  <div class="context-info">
+    <div class="context-item">
+      <span class="context-label">Entity Type</span>
+      <span class="context-value" id="ctx-type">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Entity ID</span>
+      <span class="context-value" id="ctx-id">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Total Posts</span>
+      <span class="context-value" id="ctx-total" style="color:var(--plugin-accent)">0</span>
+    </div>
+  </div>
+
+  <div class="stats-row" id="stats-row"></div>
+
+  <div class="filter-row">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" data-filter="twitter" onclick="setFilter('twitter', this)">X / Twitter</button>
+    <button class="filter-btn" data-filter="bluesky" onclick="setFilter('bluesky', this)">Bluesky</button>
+    <button class="filter-btn" data-filter="instagram" onclick="setFilter('instagram', this)">Instagram</button>
+    <button class="filter-btn" data-filter="threads" onclick="setFilter('threads', this)">Threads</button>
+  </div>
+
+  <div class="table-wrap">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Date</th>
+          <th>Text</th>
+          <th>Status</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody id="history-body">
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" id="empty-state" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+    <div class="title">No posts yet</div>
+    <div class="desc">Use the Quick Publish sidebar panel to share this entity on social media.</div>
+  </div>
+
+  <script>
+    const API = '/api/ext/social-publisher';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || '';
+    const entityId = ctx.entityId || '';
+
+    document.getElementById('ctx-type').textContent = entityType || 'unknown';
+    document.getElementById('ctx-id').textContent = entityId || 'new';
+
+    let allItems = [];
+    let currentFilter = 'all';
+
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTable();
+    }
+
+    function formatDate(isoStr) {
+      if (!isoStr) return '--';
+      const d = new Date(isoStr);
+      const month = d.toLocaleString('default', { month: 'short' });
+      const day = d.getDate();
+      const time = d.toLocaleTimeString('default', { hour: '2-digit', minute: '2-digit' });
+      return `${month} ${day}, ${time}`;
+    }
+
+    function renderTable() {
+      const filtered = currentFilter === 'all'
+        ? allItems
+        : allItems.filter(h => h.platform === currentFilter);
+
+      const body = document.getElementById('history-body');
+      const empty = document.getElementById('empty-state');
+
+      if (filtered.length === 0) {
+        body.innerHTML = '';
+        empty.style.display = 'block';
+        document.querySelector('.table-wrap').style.display = 'none';
+        return;
+      }
+
+      empty.style.display = 'none';
+      document.querySelector('.table-wrap').style.display = 'block';
+
+      body.innerHTML = filtered.map(h => {
+        const platClass = h.platform || 'unknown';
+        const platLabel = { twitter: 'X', bluesky: 'Bluesky', instagram: 'Instagram', threads: 'Threads' }[h.platform] || h.platform;
+        const statusClass = h.mock ? 'mock' : (h.success ? 'success' : 'failed');
+        const statusLabel = h.mock ? 'Mock' : (h.success ? 'Sent' : 'Failed');
+        const textPreview = (h.text || '').substring(0, 80) + ((h.text || '').length > 80 ? '...' : '');
+        const link = h.post_url ? `<a href="${h.post_url}" target="_blank" rel="noopener">View</a>` : '--';
+
+        return `<tr>
+          <td><span class="plat-badge ${platClass}">${platLabel}</span></td>
+          <td class="date-cell">${formatDate(h.posted_at)}</td>
+          <td class="text-preview" title="${(h.text || '').replace(/"/g, '&quot;')}">${textPreview}</td>
+          <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+          <td class="link-cell">${link}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderStats() {
+      const counts = {};
+      allItems.forEach(h => {
+        const p = h.platform || 'unknown';
+        counts[p] = (counts[p] || 0) + 1;
+      });
+
+      const row = document.getElementById('stats-row');
+      const platformOrder = ['twitter', 'bluesky', 'instagram', 'threads'];
+      row.innerHTML = platformOrder
+        .filter(p => counts[p])
+        .map(p => {
+          const label = { twitter: 'X', bluesky: 'Bluesky', instagram: 'Insta', threads: 'Threads' }[p];
+          return `<div class="stat-pill ${p}"><div class="num">${counts[p]}</div><div class="lbl">${label}</div></div>`;
+        }).join('');
+    }
+
+    async function loadHistory() {
+      try {
+        let url = `${API}/history?limit=200`;
+        if (entityType && entityId) {
+          url += `&entity_type=${entityType}&entity_id=${entityId}`;
+        }
+        const resp = await fetch(url);
+        if (resp.ok) {
+          const data = await resp.json();
+          allItems = data.items || [];
+          document.getElementById('ctx-total').textContent = data.total || 0;
+          renderStats();
+          renderTable();
+        }
+      } catch (err) {
+        console.error('Failed to load history:', err);
+        document.getElementById('empty-state').style.display = 'block';
+        document.querySelector('.table-wrap').style.display = 'none';
+      }
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>

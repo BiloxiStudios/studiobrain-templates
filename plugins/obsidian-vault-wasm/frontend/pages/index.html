@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    min-height: 100vh;
+  }
+
+  /* Layout */
+  .page-wrap { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+  /* Header */
+  .page-header { margin-bottom: 28px; }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-hover));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .page-title svg { width: 28px; height: 28px; }
+  .page-subtitle { color: var(--surface-base-text-secondary); font-size: 15px; }
+
+  /* Settings bar */
+  .settings-bar {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .setting-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 200px; }
+  .setting-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--surface-base-text-secondary); }
+  .setting-input {
+    padding: 8px 12px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .setting-input:focus { outline: none; border-color: var(--plugin-accent); box-shadow: 0 0 0 2px rgba(124,58,237,0.2); }
+  .toggle-row { display: flex; align-items: center; gap: 8px; padding-bottom: 4px; }
+  .toggle {
+    position: relative;
+    width: 36px; height: 20px;
+    background: var(--surface-elevated-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle.active { background: var(--plugin-accent); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 16px; height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .toggle.active::after { transform: translateX(16px); }
+  .toggle-label { font-size: 12px; color: var(--surface-base-text-secondary); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .btn-primary { background: var(--plugin-accent); color: white; }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled { background: var(--surface-elevated-hover); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+  .btn-secondary { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+  .btn-secondary:hover { background: #3f4f6a; }
+  .btn-danger { background: var(--surface-error-bg); color: var(--surface-error-text); }
+  .btn-danger:hover { background: var(--surface-error-hover); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--surface-elevated-border);
+    text-align: center;
+  }
+  .stat-value { font-size: 28px; font-weight: 800; }
+  .stat-value.purple { color: var(--plugin-accent); }
+  .stat-value.green { color: var(--surface-success-border); }
+  .stat-value.amber { color: var(--surface-warning-border); }
+  .stat-value.slate { color: var(--surface-base-text-secondary); }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--surface-base-text-secondary); margin-top: 4px; }
+
+  /* Donut chart */
+  .chart-section {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .donut-wrap {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--surface-elevated-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 200px;
+  }
+  .donut-wrap h3 { font-size: 14px; font-weight: 600; color: var(--surface-base-text-secondary); margin-bottom: 16px; }
+  .donut-container { position: relative; width: 140px; height: 140px; }
+  .donut-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .donut-center-value { font-size: 22px; font-weight: 800; color: var(--surface-base-text); }
+  .donut-center-label { font-size: 10px; color: var(--surface-base-text-secondary); text-transform: uppercase; }
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 14px;
+    width: 100%;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-label { color: var(--surface-base-text-secondary); flex: 1; }
+  .legend-count { color: var(--surface-base-text); font-weight: 600; }
+
+  /* Entity table */
+  .table-section {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--surface-elevated-border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .table-title { font-size: 16px; font-weight: 600; }
+  .table-controls { display: flex; gap: 8px; align-items: center; }
+  .filter-select {
+    padding: 6px 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .filter-select:focus { outline: none; border-color: var(--plugin-accent); }
+  .search-input {
+    padding: 6px 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+    width: 180px;
+  }
+  .search-input:focus { outline: none; border-color: var(--plugin-accent); }
+
+  .entity-table { width: 100%; border-collapse: collapse; }
+  .entity-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+    background: var(--surface-base-bg);
+    border-bottom: 1px solid var(--surface-elevated-border);
+    position: sticky;
+    top: 0;
+  }
+  .entity-table td {
+    padding: 10px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+  }
+  .entity-table tr:hover td { background: var(--surface-base-bg); }
+  .entity-table tbody { max-height: 400px; overflow-y: auto; }
+
+  .table-scroll { max-height: 420px; overflow-y: auto; }
+
+  .type-badge {
+    display: inline-flex;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .type-character { background: var(--surface-elevated-bg); color: var(--surface-info-text-secondary); }
+  .type-faction { background: #3b1d1d; color: var(--surface-error-border); }
+  .type-location { background: #1a3329; color: var(--surface-success-border); }
+  .type-item { background: var(--surface-elevated-bg); color: var(--surface-warning-border); }
+  .type-district { background: var(--surface-elevated-bg); color: var(--surface-secondary-text-secondary); }
+  .type-brand { background: #1b3d3d; color: var(--surface-accent-hover); }
+  .type-quest { background: var(--surface-elevated-bg); color: var(--surface-warning-text-secondary); }
+  .type-event { background: var(--surface-elevated-bg); color: var(--surface-base-text-secondary); }
+  .type-dialogue { background: var(--surface-elevated-bg); color: var(--surface-base-text-secondary); }
+  .type-campaign { background: var(--surface-elevated-bg); color: var(--surface-base-text-secondary); }
+  .type-job { background: var(--surface-elevated-bg); color: var(--surface-base-text-secondary); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .status-exported { background: var(--surface-success-bg); color: var(--surface-success-border); }
+  .status-stale { background: #431407; color: var(--surface-warning-text); }
+  .status-pending { background: #1e1b4b; color: var(--surface-secondary-hover); }
+
+  .status-mini-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .status-mini-dot.exported { background: var(--surface-success-border); }
+  .status-mini-dot.stale { background: var(--surface-warning-border); }
+  .status-mini-dot.pending { background: var(--plugin-accent); }
+
+  /* Graph */
+  .graph-section {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .graph-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  .graph-title { font-size: 16px; font-weight: 600; }
+  .graph-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 450px;
+    background: #0c1322;
+  }
+  #graph-canvas { width: 100%; height: 100%; display: block; }
+  .graph-tooltip {
+    position: absolute;
+    display: none;
+    padding: 6px 10px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 10;
+    color: var(--surface-base-text);
+  }
+
+  /* Log */
+  .log-section {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .log-header { padding: 16px 20px; border-bottom: 1px solid var(--surface-elevated-border); font-size: 16px; font-weight: 600; }
+  .log-list { max-height: 250px; overflow-y: auto; }
+  .log-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--surface-base-bg);
+    font-size: 12px;
+  }
+  .log-time { color: var(--surface-elevated-border); min-width: 110px; font-family: 'Fira Code', monospace; }
+  .log-type { min-width: 80px; }
+  .log-msg { color: var(--surface-base-text-secondary); flex: 1; }
+
+  /* Progress overlay */
+  .progress-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .progress-overlay.visible { display: flex; }
+  .progress-box {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 32px 40px;
+    border: 1px solid var(--surface-elevated-border);
+    text-align: center;
+    min-width: 320px;
+  }
+  .progress-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+  .progress-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: var(--surface-base-bg);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--plugin-accent), var(--surface-secondary-hover));
+    border-radius: 4px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+  .progress-text { font-size: 13px; color: var(--surface-base-text-secondary); }
+
+  /* Spinner */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 2000;
+    max-width: 400px;
+  }
+  .toast.visible { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--surface-success-hover); color: var(--surface-accent-active); border: 1px solid var(--surface-accent-active); }
+  .toast.error { background: var(--surface-error-bg); color: var(--surface-error-text); border: 1px solid var(--surface-error-hover); }
+</style>
+</head>
+<body>
+  <div class="page-wrap">
+    <!-- Header -->
+    <div class="page-header">
+      <h1 class="page-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="-webkit-text-fill-color: var(--plugin-accent);">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          <path d="M8 7h6"/>
+          <path d="M8 11h8"/>
+        </svg>
+        Obsidian Vault Bridge
+      </h1>
+      <p class="page-subtitle">Export worldbuilding entities to Obsidian with wikilinks, tags, and relationship graphs</p>
+    </div>
+
+    <!-- Settings -->
+    <div class="settings-bar" id="settings-bar">
+      <div class="setting-group" style="flex:2;">
+        <div class="setting-label">Vault Path</div>
+        <input class="setting-input" type="text" id="vault-path" placeholder="C:\Users\...\MyVault" />
+      </div>
+      <div class="setting-group" style="flex:0; min-width: auto;">
+        <div class="toggle-row">
+          <div class="toggle" id="toggle-auto" onclick="toggleSetting('auto_export', this)"></div>
+          <span class="toggle-label">Auto-export</span>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle active" id="toggle-images" onclick="toggleSetting('include_images', this)"></div>
+          <span class="toggle-label">Include images</span>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle active" id="toggle-folders" onclick="toggleSetting('folder_per_type', this)"></div>
+          <span class="toggle-label">Folder per type</span>
+        </div>
+      </div>
+      <div class="setting-group" style="flex:0; min-width: auto; align-self: flex-end;">
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card"><div class="stat-value purple" id="stat-total">--</div><div class="stat-label">Total Entities</div></div>
+      <div class="stat-card"><div class="stat-value green" id="stat-exported">--</div><div class="stat-label">Exported</div></div>
+      <div class="stat-card"><div class="stat-value amber" id="stat-stale">--</div><div class="stat-label">Needs Update</div></div>
+      <div class="stat-card"><div class="stat-value slate" id="stat-pending">--</div><div class="stat-label">Pending</div></div>
+    </div>
+
+    <!-- Chart + Actions row -->
+    <div class="chart-section">
+      <div class="donut-wrap">
+        <h3>Export Coverage</h3>
+        <div class="donut-container">
+          <canvas id="donut-chart" width="140" height="140"></canvas>
+          <div class="donut-center">
+            <div class="donut-center-value" id="donut-pct">0%</div>
+            <div class="donut-center-label">Complete</div>
+          </div>
+        </div>
+        <div class="donut-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--surface-success-border);"></div><span class="legend-label">Exported</span><span class="legend-count" id="legend-exported">0</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--surface-warning-border);"></div><span class="legend-label">Stale</span><span class="legend-count" id="legend-stale">0</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--plugin-accent);"></div><span class="legend-label">Pending</span><span class="legend-count" id="legend-pending">0</span></div>
+        </div>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; gap:12px; min-width:240px;">
+        <div style="background:var(--surface-elevated-bg); border-radius:12px; padding:20px; border:1px solid var(--surface-elevated-border); flex:1;">
+          <h3 style="font-size:14px; font-weight:600; color:var(--surface-base-text-secondary); margin-bottom:16px;">Quick Actions</h3>
+          <button class="btn btn-primary" style="width:100%; margin-bottom:10px;" id="export-all-btn" onclick="exportAll()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export All Entities
+          </button>
+          <button class="btn btn-secondary" style="width:100%; margin-bottom:10px;" onclick="exportStale()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            Update Stale Only
+          </button>
+          <button class="btn btn-secondary" style="width:100%;" onclick="refreshStatus()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Refresh Status
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entity Table -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Entity Export Status</div>
+        <div class="table-controls">
+          <input class="search-input" type="text" id="search-input" placeholder="Search entities..." oninput="filterTable()" />
+          <select class="filter-select" id="type-filter" onchange="filterTable()">
+            <option value="">All Types</option>
+          </select>
+          <select class="filter-select" id="status-filter" onchange="filterTable()">
+            <option value="">All Status</option>
+            <option value="exported">Exported</option>
+            <option value="stale">Stale</option>
+            <option value="pending">Pending</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="entity-table">
+          <thead>
+            <tr>
+              <th style="width:30px;"><input type="checkbox" id="select-all" onchange="toggleSelectAll()" /></th>
+              <th>Entity</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Links</th>
+              <th>Exported</th>
+              <th style="width:80px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="entity-tbody">
+            <tr><td colspan="7" style="text-align:center; padding:40px; color:var(--surface-base-text-secondary);">Loading entities...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Relationship Graph -->
+    <div class="graph-section">
+      <div class="graph-header">
+        <div class="graph-title">Entity Relationship Graph</div>
+        <button class="btn btn-secondary btn-sm" onclick="loadGraph()">Reload Graph</button>
+      </div>
+      <div class="graph-canvas-wrap">
+        <canvas id="graph-canvas"></canvas>
+        <div class="graph-tooltip" id="graph-tooltip"></div>
+      </div>
+    </div>
+
+    <!-- Recent Exports Log -->
+    <div class="log-section">
+      <div class="log-header">Recent Exports</div>
+      <div class="log-list" id="export-log">
+        <div class="log-item"><span class="log-msg" style="color:var(--surface-base-text-secondary);">No exports yet.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress overlay -->
+  <div class="progress-overlay" id="progress-overlay">
+    <div class="progress-box">
+      <div class="progress-title" id="progress-title">Exporting Entities...</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+      <div class="progress-text" id="progress-text">Preparing...</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+const API = '/api/ext/obsidian-vault';
+let allEntities = [];
+let exportLog = [];
+
+// ── Helpers ──
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} visible`;
+  setTimeout(() => t.classList.remove('visible'), 4000);
+}
+
+function timeAgo(isoStr) {
+  if (!isoStr) return '--';
+  const d = new Date(isoStr);
+  const now = new Date();
+  const sec = Math.floor((now - d) / 1000);
+  if (sec < 60) return 'Just now';
+  if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
+  if (sec < 86400) return Math.floor(sec / 3600) + 'h ago';
+  if (sec < 604800) return Math.floor(sec / 86400) + 'd ago';
+  return d.toLocaleDateString();
+}
+
+// ── Settings ──
+
+async function loadSettings() {
+  try {
+    const res = await fetch(`${API}/`);
+    const data = await res.json();
+    const s = data.settings || {};
+    document.getElementById('vault-path').value = s.vault_path || '';
+    setToggle('toggle-auto', s.auto_export);
+    setToggle('toggle-images', s.include_images !== false);
+    setToggle('toggle-folders', s.folder_per_type !== false);
+  } catch (e) { console.error('Settings load error:', e); }
+}
+
+function setToggle(id, active) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('active', !!active);
+}
+
+function toggleSetting(name, el) {
+  el.classList.toggle('active');
+}
+
+async function saveSettings() {
+  const body = {
+    vault_path: document.getElementById('vault-path').value.trim(),
+    auto_export: document.getElementById('toggle-auto').classList.contains('active'),
+    include_images: document.getElementById('toggle-images').classList.contains('active'),
+    folder_per_type: document.getElementById('toggle-folders').classList.contains('active'),
+  };
+  try {
+    const res = await fetch(`${API}/settings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) {
+      showToast('Settings saved');
+      refreshStatus();
+    } else {
+      showToast('Failed to save settings', 'error');
+    }
+  } catch (e) {
+    showToast('Network error: ' + e.message, 'error');
+  }
+}
+
+// ── Status ──
+
+async function refreshStatus() {
+  try {
+    const res = await fetch(`${API}/status`);
+    const data = await res.json();
+
+    document.getElementById('stat-total').textContent = data.total || 0;
+    document.getElementById('stat-exported').textContent = data.exported || 0;
+    document.getElementById('stat-stale').textContent = data.stale || 0;
+    document.getElementById('stat-pending').textContent = data.pending || 0;
+
+    allEntities = data.entities || [];
+    renderDonut(data.exported || 0, data.stale || 0, data.pending || 0);
+    renderTable();
+    populateTypeFilter();
+  } catch (e) {
+    showToast('Could not load status: ' + e.message, 'error');
+  }
+}
+
+// ── Donut Chart ──
+
+function renderDonut(exported, stale, pending) {
+  const canvas = document.getElementById('donut-chart');
+  const ctx2d = canvas.getContext('2d');
+  const total = exported + stale + pending;
+  const pct = total > 0 ? Math.round((exported / total) * 100) : 0;
+
+  document.getElementById('donut-pct').textContent = pct + '%';
+  document.getElementById('legend-exported').textContent = exported;
+  document.getElementById('legend-stale').textContent = stale;
+  document.getElementById('legend-pending').textContent = pending;
+
+  ctx2d.clearRect(0, 0, 140, 140);
+  const cx = 70, cy = 70, r = 55, lw = 16;
+
+  if (total === 0) {
+    ctx2d.beginPath();
+    ctx2d.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx2d.strokeStyle = 'var(--surface-elevated-border)';
+    ctx2d.lineWidth = lw;
+    ctx2d.stroke();
+    return;
+  }
+
+  const segments = [
+    { value: exported, color: 'var(--surface-success-border)' },
+    { value: stale, color: 'var(--surface-warning-border)' },
+    { value: pending, color: 'var(--plugin-accent)' },
+  ];
+  let angle = -Math.PI / 2;
+  for (const seg of segments) {
+    if (seg.value <= 0) continue;
+    const sweep = (seg.value / total) * Math.PI * 2;
+    ctx2d.beginPath();
+    ctx2d.arc(cx, cy, r, angle, angle + sweep);
+    ctx2d.strokeStyle = seg.color;
+    ctx2d.lineWidth = lw;
+    ctx2d.lineCap = 'butt';
+    ctx2d.stroke();
+    angle += sweep;
+  }
+}
+
+// ── Entity Table ──
+
+function populateTypeFilter() {
+  const types = [...new Set(allEntities.map(e => e.type))].sort();
+  const sel = document.getElementById('type-filter');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">All Types</option>' +
+    types.map(t => `<option value="${t}"${t === current ? ' selected' : ''}>${t.charAt(0).toUpperCase() + t.slice(1)}s</option>`).join('');
+}
+
+function filterTable() {
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('entity-tbody');
+  const search = (document.getElementById('search-input').value || '').toLowerCase();
+  const typeF = document.getElementById('type-filter').value;
+  const statusF = document.getElementById('status-filter').value;
+
+  let filtered = allEntities;
+  if (search) filtered = filtered.filter(e => e.name.toLowerCase().includes(search) || e.id.toLowerCase().includes(search));
+  if (typeF) filtered = filtered.filter(e => e.type === typeF);
+  if (statusF) filtered = filtered.filter(e => e.status === statusF);
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--surface-base-text-secondary);">No entities match filters.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(e => `
+    <tr data-type="${e.type}" data-id="${e.id}" data-status="${e.status}">
+      <td><input type="checkbox" class="entity-check" value="${e.type}/${e.id}" /></td>
+      <td style="font-weight:500;">${escHtml(e.name)}</td>
+      <td><span class="type-badge type-${e.type}">${e.type}</span></td>
+      <td><span class="status-badge status-${e.status}"><span class="status-mini-dot ${e.status}"></span> ${e.status}</span></td>
+      <td style="color:var(--plugin-accent); font-weight:600;">${e.link_count || 0}</td>
+      <td style="color:var(--surface-base-text-secondary); font-size:12px;">${timeAgo(e.exported_at)}</td>
+      <td>
+        <button class="btn btn-sm btn-secondary" onclick="exportSingle('${e.type}','${e.id}',this)" title="Export">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function toggleSelectAll() {
+  const checked = document.getElementById('select-all').checked;
+  document.querySelectorAll('.entity-check').forEach(cb => cb.checked = checked);
+}
+
+// ── Export Actions ──
+
+async function exportSingle(type, id, btn) {
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+  try {
+    const res = await fetch(`${API}/export/${type}/${id}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      addLog(type, id, data.display_name, data.link_count);
+      showToast(`Exported "${data.display_name}" (${data.link_count} links)`);
+    } else {
+      showToast(data.detail || 'Export failed', 'error');
+    }
+  } catch (e) {
+    showToast('Export error: ' + e.message, 'error');
+  }
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+  }
+  refreshStatus();
+}
+
+async function exportAll() {
+  const overlay = document.getElementById('progress-overlay');
+  overlay.classList.add('visible');
+  const fill = document.getElementById('progress-fill');
+  const text = document.getElementById('progress-text');
+  const title = document.getElementById('progress-title');
+  title.textContent = 'Exporting All Entities...';
+  fill.style.width = '10%';
+  text.textContent = 'Starting bulk export...';
+
+  try {
+    fill.style.width = '30%';
+    text.textContent = `Exporting ${allEntities.length} entities...`;
+
+    const res = await fetch(`${API}/export-all`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+
+    fill.style.width = '100%';
+    text.textContent = `Done! ${data.exported} exported, ${data.errors} errors.`;
+
+    if (data.results) {
+      data.results.forEach(r => addLog(r.entity_type, r.entity_id, r.name, r.link_count));
+    }
+
+    setTimeout(() => {
+      overlay.classList.remove('visible');
+      showToast(`Bulk export complete: ${data.exported} entities exported`);
+      refreshStatus();
+    }, 1200);
+  } catch (e) {
+    fill.style.width = '0%';
+    text.textContent = 'Export failed: ' + e.message;
+    setTimeout(() => overlay.classList.remove('visible'), 2000);
+    showToast('Bulk export failed: ' + e.message, 'error');
+  }
+}
+
+async function exportStale() {
+  const staleEntities = allEntities.filter(e => e.status === 'stale');
+  if (staleEntities.length === 0) {
+    showToast('No stale entities to update');
+    return;
+  }
+  const overlay = document.getElementById('progress-overlay');
+  overlay.classList.add('visible');
+  const fill = document.getElementById('progress-fill');
+  const text = document.getElementById('progress-text');
+  const title = document.getElementById('progress-title');
+  title.textContent = 'Updating Stale Entities...';
+
+  let done = 0;
+  for (const e of staleEntities) {
+    text.textContent = `Exporting ${e.name}... (${done + 1}/${staleEntities.length})`;
+    fill.style.width = `${((done + 1) / staleEntities.length) * 100}%`;
+    try {
+      const res = await fetch(`${API}/export/${e.type}/${e.id}`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) addLog(e.type, e.id, data.display_name, data.link_count);
+    } catch (err) { /* skip */ }
+    done++;
+  }
+
+  text.textContent = `Done! ${done} entities updated.`;
+  setTimeout(() => {
+    overlay.classList.remove('visible');
+    showToast(`Updated ${done} stale entities`);
+    refreshStatus();
+  }, 800);
+}
+
+// ── Export Log ──
+
+function addLog(type, id, name, links) {
+  exportLog.unshift({ type, id, name, links, time: new Date().toISOString() });
+  if (exportLog.length > 50) exportLog = exportLog.slice(0, 50);
+  renderLog();
+}
+
+function renderLog() {
+  const el = document.getElementById('export-log');
+  if (exportLog.length === 0) {
+    el.innerHTML = '<div class="log-item"><span class="log-msg" style="color:var(--surface-base-text-secondary);">No exports yet.</span></div>';
+    return;
+  }
+  el.innerHTML = exportLog.map(l => `
+    <div class="log-item">
+      <span class="log-time">${timeAgo(l.time)}</span>
+      <span class="log-type"><span class="type-badge type-${l.type}">${l.type}</span></span>
+      <span class="log-msg">${escHtml(l.name)} <span style="color:var(--plugin-accent);">(${l.links} links)</span></span>
+    </div>
+  `).join('');
+}
+
+// ── Force-directed Graph ──
+
+let graphNodes = [];
+let graphEdges = [];
+let graphAnim = null;
+
+const TYPE_COLORS = {
+  character: 'var(--surface-info-text-secondary)',
+  faction: 'var(--surface-error-border)',
+  location: 'var(--surface-success-border)',
+  item: 'var(--surface-warning-border)',
+  district: 'var(--surface-secondary-text-secondary)',
+  brand: 'var(--surface-accent-hover)',
+  quest: 'var(--surface-warning-text-secondary)',
+  event: 'var(--surface-base-text-secondary)',
+  dialogue: 'var(--surface-base-text-secondary)',
+  campaign: 'var(--surface-base-text-secondary)',
+  job: 'var(--surface-base-text-secondary)',
+};
+
+async function loadGraph() {
+  try {
+    const res = await fetch(`${API}/graph-data`);
+    const data = await res.json();
+
+    const canvas = document.getElementById('graph-canvas');
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    graphNodes = (data.nodes || []).map((n, i) => ({
+      ...n,
+      x: Math.random() * canvas.width * 0.8 + canvas.width * 0.1,
+      y: Math.random() * canvas.height * 0.8 + canvas.height * 0.1,
+      vx: 0, vy: 0,
+      radius: n.type === 'character' ? 8 : n.type === 'faction' ? 10 : 6,
+      color: TYPE_COLORS[n.type] || 'var(--surface-base-text-secondary)',
+    }));
+    graphEdges = data.edges || [];
+
+    // Index lookup
+    const nodeMap = {};
+    graphNodes.forEach((n, i) => nodeMap[n.id] = i);
+    graphEdges = graphEdges.filter(e => nodeMap[e.source] !== undefined && nodeMap[e.target] !== undefined)
+      .map(e => ({ ...e, si: nodeMap[e.source], ti: nodeMap[e.target] }));
+
+    runForceSimulation(canvas);
+  } catch (e) {
+    console.error('Graph load error:', e);
+  }
+}
+
+function runForceSimulation(canvas) {
+  if (graphAnim) cancelAnimationFrame(graphAnim);
+  const ctx2d = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const tooltip = document.getElementById('graph-tooltip');
+  let iterations = 0;
+  const maxIter = 300;
+  let hoveredNode = null;
+  let dragNode = null;
+  let mouseX = 0, mouseY = 0;
+
+  // Mouse interaction
+  canvas.onmousemove = (ev) => {
+    const r = canvas.getBoundingClientRect();
+    mouseX = ev.clientX - r.left;
+    mouseY = ev.clientY - r.top;
+
+    if (dragNode !== null) {
+      graphNodes[dragNode].x = mouseX;
+      graphNodes[dragNode].y = mouseY;
+      graphNodes[dragNode].vx = 0;
+      graphNodes[dragNode].vy = 0;
+    }
+
+    hoveredNode = null;
+    for (let i = 0; i < graphNodes.length; i++) {
+      const n = graphNodes[i];
+      const dx = mouseX - n.x, dy = mouseY - n.y;
+      if (dx * dx + dy * dy < (n.radius + 4) * (n.radius + 4)) {
+        hoveredNode = i;
+        break;
+      }
+    }
+    if (hoveredNode !== null) {
+      const n = graphNodes[hoveredNode];
+      tooltip.style.display = 'block';
+      tooltip.style.left = (mouseX + 14) + 'px';
+      tooltip.style.top = (mouseY - 10) + 'px';
+      tooltip.innerHTML = `<strong>${escHtml(n.name)}</strong><br><span style="color:${n.color}">${n.type}</span>${n.exported ? ' <span style="color:var(--surface-success-border)">exported</span>' : ''}`;
+      canvas.style.cursor = 'pointer';
+    } else {
+      tooltip.style.display = 'none';
+      canvas.style.cursor = dragNode !== null ? 'grabbing' : 'default';
+    }
+  };
+
+  canvas.onmousedown = (ev) => {
+    if (hoveredNode !== null) { dragNode = hoveredNode; canvas.style.cursor = 'grabbing'; }
+  };
+  canvas.onmouseup = () => { dragNode = null; canvas.style.cursor = 'default'; };
+  canvas.onmouseleave = () => { dragNode = null; tooltip.style.display = 'none'; };
+
+  function tick() {
+    iterations++;
+    const alpha = Math.max(0.01, 1 - iterations / maxIter);
+
+    // Repulsion
+    for (let i = 0; i < graphNodes.length; i++) {
+      for (let j = i + 1; j < graphNodes.length; j++) {
+        let dx = graphNodes[j].x - graphNodes[i].x;
+        let dy = graphNodes[j].y - graphNodes[i].y;
+        let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        let force = 600 * alpha / (dist * dist);
+        let fx = dx / dist * force;
+        let fy = dy / dist * force;
+        graphNodes[i].vx -= fx;
+        graphNodes[i].vy -= fy;
+        graphNodes[j].vx += fx;
+        graphNodes[j].vy += fy;
+      }
+    }
+
+    // Attraction along edges
+    for (const e of graphEdges) {
+      const a = graphNodes[e.si], b = graphNodes[e.ti];
+      let dx = b.x - a.x, dy = b.y - a.y;
+      let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      let force = (dist - 80) * 0.02 * alpha;
+      let fx = dx / dist * force;
+      let fy = dy / dist * force;
+      a.vx += fx; a.vy += fy;
+      b.vx -= fx; b.vy -= fy;
+    }
+
+    // Center gravity
+    for (const n of graphNodes) {
+      n.vx += (W / 2 - n.x) * 0.001 * alpha;
+      n.vy += (H / 2 - n.y) * 0.001 * alpha;
+    }
+
+    // Integrate
+    for (const n of graphNodes) {
+      if (dragNode !== null && graphNodes[dragNode] === n) continue;
+      n.vx *= 0.85;
+      n.vy *= 0.85;
+      n.x += n.vx;
+      n.y += n.vy;
+      n.x = Math.max(n.radius, Math.min(W - n.radius, n.x));
+      n.y = Math.max(n.radius, Math.min(H - n.radius, n.y));
+    }
+
+    // Draw
+    ctx2d.clearRect(0, 0, W, H);
+
+    // Edges
+    ctx2d.strokeStyle = 'rgba(100,116,139,0.15)';
+    ctx2d.lineWidth = 1;
+    for (const e of graphEdges) {
+      const a = graphNodes[e.si], b = graphNodes[e.ti];
+      ctx2d.beginPath();
+      ctx2d.moveTo(a.x, a.y);
+      ctx2d.lineTo(b.x, b.y);
+      // Highlight edges of hovered node
+      if (hoveredNode !== null && (e.si === hoveredNode || e.ti === hoveredNode)) {
+        ctx2d.strokeStyle = 'rgba(124,58,237,0.5)';
+        ctx2d.lineWidth = 2;
+        ctx2d.stroke();
+        ctx2d.strokeStyle = 'rgba(100,116,139,0.15)';
+        ctx2d.lineWidth = 1;
+      } else {
+        ctx2d.stroke();
+      }
+    }
+
+    // Nodes
+    for (let i = 0; i < graphNodes.length; i++) {
+      const n = graphNodes[i];
+      ctx2d.beginPath();
+      ctx2d.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+      ctx2d.fillStyle = i === hoveredNode ? '#ffffff' : n.color;
+      ctx2d.globalAlpha = n.exported ? 1.0 : 0.5;
+      ctx2d.fill();
+      ctx2d.globalAlpha = 1.0;
+
+      if (n.exported) {
+        ctx2d.strokeStyle = 'var(--surface-success-border)';
+        ctx2d.lineWidth = 1.5;
+        ctx2d.stroke();
+      }
+    }
+
+    // Labels for hovered node connections
+    if (hoveredNode !== null) {
+      ctx2d.font = '11px system-ui, sans-serif';
+      ctx2d.textAlign = 'center';
+      const hn = graphNodes[hoveredNode];
+      ctx2d.fillStyle = 'var(--surface-base-text)';
+      ctx2d.fillText(hn.name, hn.x, hn.y - hn.radius - 6);
+
+      for (const e of graphEdges) {
+        let other = null;
+        if (e.si === hoveredNode) other = graphNodes[e.ti];
+        else if (e.ti === hoveredNode) other = graphNodes[e.si];
+        if (other) {
+          ctx2d.fillStyle = 'var(--surface-base-text-secondary)';
+          ctx2d.fillText(other.name, other.x, other.y - other.radius - 4);
+        }
+      }
+    }
+
+    if (iterations < maxIter || dragNode !== null) {
+      graphAnim = requestAnimationFrame(tick);
+    }
+  }
+
+  tick();
+}
+
+// ── Init ──
+
+async function init() {
+  await loadSettings();
+  await refreshStatus();
+  loadGraph();
+  renderLog();
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+
+  /* ---- Layout ---- */
+  .container { max-width: 960px; margin: 0 auto; }
+
+  /* ---- Page header ---- */
+  .page-header { margin-bottom: 32px; }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-bg));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle { color: var(--surface-base-text-secondary); font-size: 15px; }
+
+  /* ---- Stat cards ---- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--surface-elevated-border); }
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--surface-base-text);
+  }
+  .stat-value.blue   { color: var(--plugin-accent); }
+  .stat-value.green  { color: var(--surface-success-border); }
+  .stat-value.purple { color: var(--surface-secondary-bg); }
+  .stat-value.amber  { color: var(--surface-warning-border); }
+
+  /* ---- Sections ---- */
+  .section {
+    margin-bottom: 28px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .section-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--plugin-accent);
+    border-radius: 99px;
+    font-weight: 600;
+  }
+
+  /* ---- Breakdown chart ---- */
+  .breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: border-color 0.15s;
+  }
+  .breakdown-item:hover { border-color: var(--surface-elevated-border); }
+  .bd-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .bd-icon.char   { background: rgba(59, 130, 246, 0.15); color: var(--plugin-accent); }
+  .bd-icon.loc    { background: rgba(34, 197, 94, 0.15);  color: var(--surface-success-border); }
+  .bd-icon.item   { background: rgba(168, 85, 247, 0.15); color: var(--surface-secondary-bg); }
+  .bd-icon.quest  { background: rgba(245, 158, 11, 0.15); color: var(--surface-warning-border); }
+  .bd-icon.brand  { background: rgba(236, 72, 153, 0.15); color: var(--surface-secondary-bg); }
+  .bd-icon.other  { background: rgba(148, 163, 184, 0.15); color: var(--surface-base-text-secondary); }
+  .bd-info { flex: 1; min-width: 0; }
+  .bd-type {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    text-transform: capitalize;
+  }
+  .bd-bar-track {
+    height: 4px;
+    background: var(--surface-base-bg);
+    border-radius: 2px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .bd-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease-out;
+  }
+  .bd-count {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--surface-base-text);
+    flex-shrink: 0;
+  }
+
+  /* ---- Recent changes ---- */
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: border-color 0.15s;
+  }
+  .activity-item:hover { border-color: var(--surface-elevated-border); }
+  .act-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--plugin-accent);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .act-body { flex: 1; min-width: 0; }
+  .act-msg {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-bottom: 4px;
+  }
+  .act-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    flex-wrap: wrap;
+  }
+  .act-sha {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--plugin-accent);
+    background: rgba(59, 130, 246, 0.1);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
+  .act-files {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .act-file {
+    font-size: 10px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--surface-base-text-secondary);
+    background: var(--surface-base-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 280px;
+  }
+
+  /* ---- Plugin info ---- */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .info-label { color: var(--surface-base-text-secondary); }
+  .info-value { font-weight: 600; }
+  .info-value.ok { color: var(--surface-success-border); }
+  .info-value.accent { color: var(--plugin-accent); }
+
+  /* ---- States ---- */
+  .state-box {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--surface-base-text-secondary);
+    font-size: 14px;
+  }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Version History</h1>
+      <p class="page-subtitle">Git-backed version tracking across all entity types in your project</p>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Commits</div>
+        <div class="stat-value blue" id="st-total">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Entity Types Tracked</div>
+        <div class="stat-value green" id="st-types">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Recent Changes</div>
+        <div class="stat-value purple" id="st-recent">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Plugin Version</div>
+        <div class="stat-value amber">1.0</div>
+      </div>
+    </div>
+
+    <!-- Breakdown by entity type -->
+    <div class="section" id="breakdown-section" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">Commits by Entity Type</div>
+      </div>
+      <div class="breakdown-grid" id="breakdown-grid"></div>
+    </div>
+
+    <!-- Recent changes -->
+    <div class="section" id="recent-section" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">Recent Changes</div>
+        <span class="section-badge" id="recent-badge">0 commits</span>
+      </div>
+      <div class="activity-list" id="activity-list"></div>
+    </div>
+
+    <!-- Plugin info -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Plugin Information</div>
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Plugin ID</span>
+          <span class="info-value accent">version-history</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Version</span>
+          <span class="info-value">1.0.0</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Status</span>
+          <span class="info-value ok">Active</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Author</span>
+          <span class="info-value">BiloxiStudios</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Backend Routes</span>
+          <span class="info-value ok">Loaded</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Event Handlers</span>
+          <span class="info-value ok">Listening</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Panels</span>
+          <span class="info-value">2 (tab + sidebar)</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Permissions</span>
+          <span class="info-value">read / write</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const API_BASE = '/api/ext/version-history';
+
+  const TYPE_ICONS = {
+    character: { emoji: 'C', cls: 'char' },
+    location:  { emoji: 'L', cls: 'loc' },
+    item:      { emoji: 'I', cls: 'item' },
+    quest:     { emoji: 'Q', cls: 'quest' },
+    brand:     { emoji: 'B', cls: 'brand' },
+  };
+  const TYPE_COLORS = {
+    character: 'var(--plugin-accent)',
+    location:  'var(--surface-success-border)',
+    item:      'var(--surface-secondary-bg)',
+    quest:     'var(--surface-warning-border)',
+    brand:     'var(--surface-secondary-bg)',
+    job:       'var(--surface-accent-bg)',
+    faction:   'var(--surface-warning-text-secondary)',
+    district:  'var(--surface-info-border)',
+    event:     'var(--surface-secondary-text-secondary)',
+    campaign:  'var(--surface-success-border)',
+    assembly:  'var(--surface-warning-text-secondary)',
+  };
+
+  async function loadDashboard() {
+    try {
+      const resp = await fetch(`${API_BASE}/stats`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      renderStats(data);
+      renderBreakdown(data.entity_types || {});
+      renderRecent(data.recent_changes || []);
+    } catch (e) {
+      document.getElementById('st-total').textContent = '?';
+      console.error('Version History dashboard error:', e);
+    }
+  }
+
+  function renderStats(data) {
+    const types = Object.keys(data.entity_types || {});
+    document.getElementById('st-total').textContent = data.total_commits || 0;
+    document.getElementById('st-types').textContent = types.length;
+    document.getElementById('st-recent').textContent = (data.recent_changes || []).length;
+  }
+
+  function renderBreakdown(types) {
+    const entries = Object.entries(types).sort((a, b) => b[1] - a[1]);
+    if (entries.length === 0) return;
+
+    const max = entries[0][1] || 1;
+    document.getElementById('breakdown-section').style.display = 'block';
+    const grid = document.getElementById('breakdown-grid');
+
+    grid.innerHTML = entries.map(([type, count]) => {
+      const icon = TYPE_ICONS[type] || { emoji: type.charAt(0).toUpperCase(), cls: 'other' };
+      const color = TYPE_COLORS[type] || 'var(--surface-base-text-secondary)';
+      const pct = Math.round((count / max) * 100);
+      return `
+        <div class="breakdown-item">
+          <div class="bd-icon ${icon.cls}">${icon.emoji}</div>
+          <div class="bd-info">
+            <div class="bd-type">${type}</div>
+            <div class="bd-bar-track">
+              <div class="bd-bar-fill" style="width:${pct}%;background:${color};"></div>
+            </div>
+          </div>
+          <div class="bd-count">${count}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderRecent(changes) {
+    if (changes.length === 0) return;
+
+    document.getElementById('recent-section').style.display = 'block';
+    document.getElementById('recent-badge').textContent = `${changes.length} commits`;
+
+    const list = document.getElementById('activity-list');
+    list.innerHTML = changes.map(c => {
+      const filesHtml = (c.files || []).map(f =>
+        `<span class="act-file">${escHtml(f)}</span>`
+      ).join('');
+
+      return `
+        <div class="activity-item">
+          <div class="act-dot"></div>
+          <div class="act-body">
+            <div class="act-msg">${escHtml(c.message)}</div>
+            <div class="act-meta">
+              <span class="act-sha">${(c.sha || '').substring(0, 7)}</span>
+              <span>${escHtml(c.author)}</span>
+              <span>${formatDate(c.date)}</span>
+            </div>
+            ${filesHtml ? `<div class="act-files">${filesHtml}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMs / 3600000);
+    const diffDay = Math.floor(diffMs / 86400000);
+
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHr < 24) return `${diffHr}h ago`;
+    if (diffDay < 30) return `${diffDay}d ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

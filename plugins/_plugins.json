@@ -74,6 +74,78 @@
     },
     "hello-world-wasm": {
       "enabled": true
+    },
+    "comparison-wasm": {
+      "enabled": false
+    },
+    "data-notes-wasm": {
+      "enabled": false
+    },
+    "kanban-board-wasm": {
+      "enabled": false
+    },
+    "pdf-exporter-wasm": {
+      "enabled": false
+    },
+    "showrunner-exporter-wasm": {
+      "enabled": false
+    },
+    "import-export-pipeline-wasm": {
+      "enabled": false
+    },
+    "time-tracker-wasm": {
+      "enabled": false
+    },
+    "webhook-automations-wasm": {
+      "enabled": false
+    },
+    "discord-poster-wasm": {
+      "enabled": false
+    },
+    "notion-sync-wasm": {
+      "enabled": false
+    },
+    "google-sheets-sync-wasm": {
+      "enabled": false
+    },
+    "jira-sync-wasm": {
+      "enabled": false
+    },
+    "obsidian-vault-wasm": {
+      "enabled": false
+    },
+    "social-publisher-wasm": {
+      "enabled": false
+    },
+    "blender-bridge-wasm": {
+      "enabled": false
+    },
+    "uefn-exporter-wasm": {
+      "enabled": false
+    },
+    "voice-forge-wasm": {
+      "enabled": false
+    },
+    "lora-trainer-wasm": {
+      "enabled": false
+    },
+    "music-gen-wasm": {
+      "enabled": false
+    },
+    "comfyui-workflows-wasm": {
+      "enabled": false
+    },
+    "youtube-manager-wasm": {
+      "enabled": false
+    },
+    "unity-exporter-wasm": {
+      "enabled": false
+    },
+    "unreal-exporter-wasm": {
+      "enabled": false
+    },
+    "version-history-wasm": {
+      "enabled": false
     }
   }
 }

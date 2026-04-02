@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  .header {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header svg {
+    width: 20px;
+    height: 20px;
+    color: var(--plugin-accent);
+  }
+
+  .context-info {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .context-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .context-label { font-size: 10px; color: var(--surface-base-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+  .context-value { font-size: 13px; color: var(--surface-base-text); font-weight: 500; }
+
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    font-size: 12px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .stat-chip .num {
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .stat-chip .num.blurple { color: var(--plugin-accent); }
+  .stat-chip .num.green { color: var(--surface-success-border); }
+  .stat-chip .num.red { color: var(--surface-error-border); }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .history-table th {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .history-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    vertical-align: middle;
+  }
+  .history-table tr:hover td {
+    background: rgba(88, 101, 242, 0.05);
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+  .status-dot.success { background: var(--surface-success-border); }
+  .status-dot.failed { background: var(--surface-error-border); }
+
+  .channel-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(88, 101, 242, 0.12);
+    border-radius: 4px;
+    color: var(--plugin-accent);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .message-preview {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--surface-base-text-secondary);
+    font-style: italic;
+  }
+
+  .btn-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-sm:hover {
+    border-color: var(--plugin-accent);
+    color: var(--plugin-accent);
+  }
+  .btn-sm:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--surface-elevated-border);
+  }
+  .empty-state svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    color: var(--surface-elevated-border);
+  }
+  .empty-state p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .date-cell {
+    white-space: nowrap;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+  }
+
+  .feedback-toast {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    display: none;
+    z-index: 999;
+    animation: slideIn 0.2s ease-out;
+  }
+  .feedback-toast.success {
+    display: block;
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: var(--surface-success-border);
+  }
+  .feedback-toast.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--surface-error-border);
+  }
+  @keyframes slideIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/>
+    </svg>
+    Discord Post History
+  </div>
+
+  <div class="context-info">
+    <div class="context-item">
+      <span class="context-label">Entity Type</span>
+      <span class="context-value" id="ctx-type">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Entity ID</span>
+      <span class="context-value" id="ctx-id">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Last Refreshed</span>
+      <span class="context-value" id="ctx-time">--</span>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-chip">
+      <span class="num blurple" id="stat-total">0</span>
+      <span>Total Posts</span>
+    </div>
+    <div class="stat-chip">
+      <span class="num green" id="stat-success">0</span>
+      <span>Successful</span>
+    </div>
+    <div class="stat-chip">
+      <span class="num red" id="stat-failed">0</span>
+      <span>Failed</span>
+    </div>
+  </div>
+
+  <div id="history-content">
+    <div class="empty-state" id="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+      </svg>
+      <p>No posts yet for this entity.<br>Use the sidebar panel to post to Discord.</p>
+    </div>
+    <table class="history-table" id="history-table" style="display:none;">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Channel</th>
+          <th>Message</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="history-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="feedback-toast" id="toast"></div>
+
+  <script>
+    const API = '/api/ext/discord-poster';
+    const ctx = window.PLUGIN_CONTEXT || {};
+
+    const entityType = ctx.entityType || '';
+    const entityId = ctx.entityId || '';
+
+    document.getElementById('ctx-type').textContent = entityType.replace(/_/g, ' ') || '--';
+    document.getElementById('ctx-id').textContent = entityId ? entityId.substring(0, 16) + '...' : '--';
+    document.getElementById('ctx-time').textContent = new Date().toLocaleTimeString();
+
+    function showToast(msg, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'feedback-toast ' + type;
+      setTimeout(() => { toast.className = 'feedback-toast'; }, 3000);
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '--';
+      const d = new Date(iso);
+      const now = new Date();
+      const diff = now - d;
+
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' +
+             d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function loadHistory() {
+      if (!entityType || !entityId) return;
+
+      try {
+        const resp = await fetch(`${API}/history?entity_type=${entityType}&entity_id=${entityId}&limit=100`);
+        const data = await resp.json();
+        const items = data.items || [];
+
+        const totalEl = document.getElementById('stat-total');
+        const successEl = document.getElementById('stat-success');
+        const failedEl = document.getElementById('stat-failed');
+
+        totalEl.textContent = items.length;
+        successEl.textContent = items.filter(i => i.success).length;
+        failedEl.textContent = items.filter(i => !i.success).length;
+
+        if (items.length === 0) {
+          document.getElementById('empty-state').style.display = 'block';
+          document.getElementById('history-table').style.display = 'none';
+          return;
+        }
+
+        document.getElementById('empty-state').style.display = 'none';
+        document.getElementById('history-table').style.display = 'table';
+
+        const tbody = document.getElementById('history-tbody');
+        tbody.innerHTML = items.map(item => `
+          <tr>
+            <td class="date-cell">${formatDate(item.posted_at)}</td>
+            <td><span class="channel-badge"># ${item.webhook_name || 'Unknown'}</span></td>
+            <td class="message-preview">${item.message || '(no message)'}</td>
+            <td>
+              <span class="status-dot ${item.success ? 'success' : 'failed'}"></span>
+              ${item.success ? 'Sent' : 'Failed'}
+            </td>
+            <td>
+              <button class="btn-sm" onclick="repost('${item.entity_type}', '${item.entity_id}', ${item.include_image !== false})" title="Re-post">
+                Re-post
+              </button>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error('Failed to load history:', err);
+      }
+    }
+
+    async function repost(eType, eId, includeImage) {
+      try {
+        const resp = await fetch(`${API}/post`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_type: eType,
+            entity_id: eId,
+            include_image: includeImage,
+          }),
+        });
+
+        if (resp.ok) {
+          showToast('Re-posted successfully!', 'success');
+          setTimeout(loadHistory, 500);
+        } else {
+          const data = await resp.json();
+          showToast(data.detail || 'Re-post failed', 'error');
+        }
+      } catch (err) {
+        showToast('Network error: ' + err.message, 'error');
+      }
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>

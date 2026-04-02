@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  /* --- Timer display --- */
+  .timer-display {
+    text-align: center;
+    padding: 16px 0 12px;
+  }
+  .timer-time {
+    font-size: 36px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+    color: var(--surface-base-text);
+    transition: color 0.3s;
+  }
+  .timer-time.running {
+    color: var(--surface-success-border);
+  }
+  .timer-entity {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* --- Pulse glow when running --- */
+  .pulse-ring {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--surface-elevated-border);
+    margin-right: 6px;
+    vertical-align: middle;
+    transition: background 0.3s;
+  }
+  .pulse-ring.running {
+    background: var(--surface-success-border);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+    70%  { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  }
+
+  /* --- Controls --- */
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .btn-timer {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-start {
+    background: var(--surface-success-border);
+    color: white;
+  }
+  .btn-start:hover { background: var(--surface-success-text); }
+  .btn-stop {
+    background: var(--surface-error-border);
+    color: white;
+  }
+  .btn-stop:hover { background: var(--surface-error-active); }
+  .btn-timer:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* --- Note input --- */
+  .note-row {
+    margin-top: 8px;
+  }
+  .note-input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+  }
+  .note-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+  .note-input::placeholder { color: var(--surface-elevated-border); }
+
+  /* --- Billable toggle --- */
+  .option-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+  }
+  .option-row input[type="checkbox"] {
+    accent-color: var(--plugin-accent);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+  }
+
+  /* --- Today summary --- */
+  .today-summary {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .today-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--surface-base-text-secondary);
+  }
+  .today-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--plugin-accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- Status bar --- */
+  .status-bar {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--surface-elevated-border);
+    min-height: 16px;
+  }
+  .status-bar.error { color: var(--surface-error-border); }
+
+  /* --- Loading state --- */
+  .loading {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--surface-base-text-secondary);
+  }
+  .loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 8px;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+
+  <div id="loading-state" class="loading">
+    <div class="loading-spinner"></div>
+    <div>Loading timer...</div>
+  </div>
+
+  <div id="timer-ui" style="display:none;">
+    <!-- Timer display -->
+    <div class="timer-display">
+      <div>
+        <span class="pulse-ring" id="pulse"></span>
+        <span class="timer-time" id="timer-time">00:00:00</span>
+      </div>
+      <div class="timer-entity" id="timer-entity"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn-timer btn-start" id="btn-start" onclick="startTimer()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        Start Timer
+      </button>
+      <button class="btn-timer btn-stop" id="btn-stop" onclick="stopTimer()" style="display:none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        Stop Timer
+      </button>
+    </div>
+
+    <!-- Note -->
+    <div class="note-row">
+      <input type="text" class="note-input" id="note-input" placeholder="What are you working on?" maxlength="200">
+    </div>
+
+    <!-- Billable -->
+    <label class="option-row">
+      <input type="checkbox" id="billable-check" checked>
+      Billable time
+    </label>
+
+    <!-- Today summary -->
+    <div class="today-summary">
+      <span class="today-label">Today</span>
+      <span class="today-value" id="today-total">0h 0m</span>
+    </div>
+    <div class="today-summary" style="margin-top:6px;">
+      <span class="today-label">This entity</span>
+      <span class="today-value" id="entity-total">0h 0m</span>
+    </div>
+
+    <!-- Status -->
+    <div class="status-bar" id="status-bar"></div>
+  </div>
+
+<script>
+  const API = '/api/ext/time-tracker';
+  const ctx = window.PLUGIN_CONTEXT || {};
+  const entityType = ctx.entityType || '';
+  const entityId = ctx.entityId || '';
+
+  let timerInterval = null;
+  let activeTimer = null;  // the active timer object from backend
+
+  // -----------------------------------------------------------------------
+  // Initialization
+  // -----------------------------------------------------------------------
+
+  async function init() {
+    try {
+      // Fetch active timer and today's entries in parallel
+      const [activeRes, entriesRes] = await Promise.all([
+        fetch(`${API}/active`).then(r => r.json()),
+        fetch(`${API}/entries?limit=500`).then(r => r.json()),
+      ]);
+
+      activeTimer = activeRes.active_timer;
+
+      // Calculate today's totals
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayISO = todayStart.toISOString();
+
+      const todayEntries = (entriesRes.entries || []).filter(e => e.start_time >= todayISO);
+      const todaySec = todayEntries.reduce((sum, e) => sum + (e.duration_seconds || 0), 0);
+      document.getElementById('today-total').textContent = formatDuration(todaySec);
+
+      // Entity-specific total
+      const entityEntries = todayEntries.filter(
+        e => e.entity_type === entityType && e.entity_id === entityId
+      );
+      const entitySec = entityEntries.reduce((sum, e) => sum + (e.duration_seconds || 0), 0);
+      document.getElementById('entity-total').textContent = formatDuration(entitySec);
+
+      // If there's an active timer, start the display
+      if (activeTimer) {
+        enterRunningState();
+      } else {
+        enterStoppedState();
+      }
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('timer-ui').style.display = 'block';
+
+    } catch (err) {
+      console.error('Timer init error:', err);
+      document.getElementById('loading-state').innerHTML =
+        '<div style="color:var(--surface-error-border);">Failed to load timer</div>';
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Start / Stop
+  // -----------------------------------------------------------------------
+
+  async function startTimer() {
+    const note = document.getElementById('note-input').value.trim();
+    const billable = document.getElementById('billable-check').checked;
+
+    setStatus('Starting...');
+    document.getElementById('btn-start').disabled = true;
+
+    try {
+      const res = await fetch(`${API}/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entity_type: entityType,
+          entity_id: entityId,
+          note: note,
+          billable: billable,
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      activeTimer = data.active_timer;
+      enterRunningState();
+      setStatus('Timer started');
+    } catch (err) {
+      setStatus('Failed to start timer', true);
+      document.getElementById('btn-start').disabled = false;
+    }
+  }
+
+  async function stopTimer() {
+    setStatus('Stopping...');
+    document.getElementById('btn-stop').disabled = true;
+
+    try {
+      const res = await fetch(`${API}/stop`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const entry = await res.json();
+      activeTimer = null;
+      enterStoppedState();
+      setStatus(`Logged ${formatDuration(entry.duration_seconds)}`);
+
+      // Refresh today totals
+      refreshTodayTotals();
+    } catch (err) {
+      setStatus('Failed to stop timer', true);
+      document.getElementById('btn-stop').disabled = false;
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // UI State
+  // -----------------------------------------------------------------------
+
+  function enterRunningState() {
+    document.getElementById('btn-start').style.display = 'none';
+    document.getElementById('btn-stop').style.display = 'flex';
+    document.getElementById('btn-stop').disabled = false;
+    document.getElementById('pulse').classList.add('running');
+    document.getElementById('timer-time').classList.add('running');
+    document.getElementById('note-input').disabled = true;
+    document.getElementById('billable-check').disabled = true;
+
+    // Show what entity the timer is on
+    if (activeTimer) {
+      const isThisEntity = activeTimer.entity_type === entityType && activeTimer.entity_id === entityId;
+      if (isThisEntity) {
+        document.getElementById('timer-entity').textContent = activeTimer.note || 'Tracking this entity';
+      } else {
+        document.getElementById('timer-entity').textContent =
+          `Timer on: ${activeTimer.entity_type}/${activeTimer.entity_id}`;
+      }
+      document.getElementById('note-input').value = activeTimer.note || '';
+      document.getElementById('billable-check').checked = activeTimer.billable !== false;
+    }
+
+    startCounting();
+  }
+
+  function enterStoppedState() {
+    document.getElementById('btn-start').style.display = 'flex';
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('btn-stop').style.display = 'none';
+    document.getElementById('pulse').classList.remove('running');
+    document.getElementById('timer-time').classList.remove('running');
+    document.getElementById('timer-time').textContent = '00:00:00';
+    document.getElementById('timer-entity').textContent = '';
+    document.getElementById('note-input').disabled = false;
+    document.getElementById('billable-check').disabled = false;
+
+    stopCounting();
+  }
+
+  // -----------------------------------------------------------------------
+  // Counting display
+  // -----------------------------------------------------------------------
+
+  function startCounting() {
+    stopCounting();
+    updateTimerDisplay();
+    timerInterval = setInterval(updateTimerDisplay, 1000);
+  }
+
+  function stopCounting() {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }
+
+  function updateTimerDisplay() {
+    if (!activeTimer) return;
+    const start = new Date(activeTimer.start_time);
+    const now = new Date();
+    const elapsed = Math.max(0, Math.floor((now - start) / 1000));
+    document.getElementById('timer-time').textContent = formatHMS(elapsed);
+  }
+
+  // -----------------------------------------------------------------------
+  // Refresh today totals
+  // -----------------------------------------------------------------------
+
+  async function refreshTodayTotals() {
+    try {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const res = await fetch(`${API}/entries?limit=500`).then(r => r.json());
+      const todayISO = todayStart.toISOString();
+      const todayEntries = (res.entries || []).filter(e => e.start_time >= todayISO);
+      const todaySec = todayEntries.reduce((sum, e) => sum + (e.duration_seconds || 0), 0);
+      document.getElementById('today-total').textContent = formatDuration(todaySec);
+
+      const entityEntries = todayEntries.filter(
+        e => e.entity_type === entityType && e.entity_id === entityId
+      );
+      const entitySec = entityEntries.reduce((sum, e) => sum + (e.duration_seconds || 0), 0);
+      document.getElementById('entity-total').textContent = formatDuration(entitySec);
+    } catch {}
+  }
+
+  // -----------------------------------------------------------------------
+  // Formatting
+  // -----------------------------------------------------------------------
+
+  function formatHMS(totalSeconds) {
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  function formatDuration(totalSeconds) {
+    if (totalSeconds < 60) return `${totalSeconds}s`;
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    if (h === 0) return `${m}m`;
+    return `${h}h ${m}m`;
+  }
+
+  function setStatus(msg, isError) {
+    const el = document.getElementById('status-bar');
+    el.textContent = msg;
+    el.className = 'status-bar' + (isError ? ' error' : '');
+    if (!isError) {
+      setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 3000);
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Boot
+  // -----------------------------------------------------------------------
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header svg {
+    width: 16px;
+    height: 16px;
+    color: var(--plugin-accent);
+  }
+
+  /* -- Status badge -- */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .status-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+  .status-todo       { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); }
+  .status-todo .dot  { background: var(--surface-base-text-secondary); }
+  .status-inprogress       { background: var(--surface-base-bg); color: var(--surface-info-text-secondary); }
+  .status-inprogress .dot  { background: var(--surface-info-text-secondary); }
+  .status-done       { background: var(--surface-success-bg); color: var(--surface-success-border); }
+  .status-done .dot  { background: var(--surface-success-border); }
+  .status-unknown       { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); }
+  .status-unknown .dot  { background: var(--surface-base-text-secondary); }
+
+  /* -- Link card -- */
+  .link-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 10px;
+  }
+  .link-card:hover { border-color: var(--plugin-accent); }
+  .issue-key {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--surface-info-text-secondary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .issue-key:hover { text-decoration: underline; color: #79b8ff; }
+  .issue-summary {
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    margin-top: 4px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .issue-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  .sync-time {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* -- Buttons -- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn svg { width: 14px; height: 14px; }
+  .btn-primary {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+  .btn-secondary {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text);
+    margin-top: 6px;
+  }
+  .btn-secondary:hover { background: var(--surface-elevated-border); }
+  .btn-danger {
+    background: transparent;
+    color: var(--surface-error-border);
+    border: 1px solid var(--surface-error-bg);
+    margin-top: 6px;
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  .btn-danger:hover { background: var(--surface-error-bg)22; }
+
+  /* -- Empty state -- */
+  .empty-state {
+    text-align: center;
+    padding: 20px 8px;
+    color: var(--surface-base-text-secondary);
+  }
+  .empty-state svg { width: 32px; height: 32px; margin-bottom: 8px; color: var(--surface-elevated-border); }
+  .empty-state p { font-size: 12px; margin-bottom: 12px; line-height: 1.5; }
+
+  /* -- Manual link input -- */
+  .link-input-group {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .link-input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .link-input:focus { outline: none; border-color: var(--plugin-accent); box-shadow: 0 0 0 2px rgba(0,82,204,0.2); }
+  .link-input::placeholder { color: var(--surface-elevated-border); }
+
+  /* -- Spinner -- */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* -- Error -- */
+  .error-msg {
+    background: var(--surface-error-bg)33;
+    border: 1px solid var(--surface-error-bg);
+    color: var(--surface-error-text);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-top: 8px;
+  }
+
+  .setup-hint {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--surface-elevated-border);
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    line-height: 1.5;
+  }
+  .setup-hint strong { color: var(--surface-base-text); }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+    </svg>
+    Jira Link
+  </div>
+
+  <div id="content">
+    <div style="text-align:center; padding:20px 0;"><div class="spinner"></div></div>
+  </div>
+
+  <script>
+    const API = '/api/ext/jira-sync';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || '';
+    const entityId = ctx.entityId || '';
+
+    function statusClass(statusName, categoryKey) {
+      if (!statusName) return 'status-unknown';
+      const cat = (categoryKey || '').toLowerCase();
+      if (cat === 'done' || cat === 'complete') return 'status-done';
+      if (cat === 'indeterminate' || cat === 'in_progress' || cat === 'inprogress') return 'status-inprogress';
+      // Fallback by name
+      const n = statusName.toLowerCase();
+      if (n.includes('done') || n.includes('complete') || n.includes('closed') || n.includes('resolved')) return 'status-done';
+      if (n.includes('progress') || n.includes('review') || n.includes('active')) return 'status-inprogress';
+      return 'status-todo';
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return '';
+      const diff = (Date.now() / 1000) - ts;
+      if (diff < 60) return 'Just now';
+      if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+      return Math.floor(diff / 86400) + 'd ago';
+    }
+
+    async function loadLink() {
+      const el = document.getElementById('content');
+
+      if (!entityType || !entityId) {
+        el.innerHTML = '<div class="empty-state"><p>No entity context available.</p></div>';
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API}/link/${entityType}/${entityId}`);
+        const data = await resp.json();
+
+        if (data.linked && data.issue_key) {
+          const jira = data.jira || {};
+          const sc = statusClass(jira.status, jira.status_category);
+          el.innerHTML = `
+            <div class="link-card">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <a class="issue-key" href="${data.issue_url || '#'}" target="_blank" rel="noopener">
+                  ${data.issue_key}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                </a>
+                <span class="status-badge ${sc}">
+                  <span class="dot"></span>
+                  ${jira.status || 'Unknown'}
+                </span>
+              </div>
+              ${jira.summary ? `<div class="issue-summary" title="${jira.summary}">${jira.summary}</div>` : ''}
+              <div class="issue-meta">
+                <span style="font-size:11px;color:var(--surface-base-text-secondary);">${jira.assignee || ''}</span>
+                <span class="sync-time">Synced ${timeAgo(data.last_synced)}</span>
+              </div>
+              ${data.sync_error ? `<div class="error-msg">${data.sync_error}</div>` : ''}
+            </div>
+            <button class="btn btn-primary" onclick="syncEntity()" id="sync-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+              Sync Now
+            </button>
+            <button class="btn btn-danger" onclick="unlinkEntity()">Unlink Issue</button>
+          `;
+        } else {
+          el.innerHTML = `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+              </svg>
+              <p>No Jira issue linked to this entity.</p>
+            </div>
+            <button class="btn btn-primary" onclick="syncEntity()" id="sync-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Create Jira Issue
+            </button>
+            <div class="link-input-group">
+              <input type="text" class="link-input" id="manual-key" placeholder="PROJ-123" />
+              <button class="btn btn-secondary" style="width:auto;margin-top:0;padding:6px 10px;" onclick="manualLink()">Link</button>
+            </div>
+          `;
+        }
+      } catch (err) {
+        el.innerHTML = `
+          <div class="setup-hint">
+            <strong>Cannot reach Jira Sync API.</strong><br/>
+            Make sure the backend is running and the plugin is enabled.<br/>
+            API: <code>${API}/</code>
+          </div>
+        `;
+      }
+    }
+
+    async function syncEntity() {
+      const btn = document.getElementById('sync-btn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Syncing...'; }
+      try {
+        const resp = await fetch(`${API}/sync/${entityType}/${entityId}`, { method: 'POST' });
+        const data = await resp.json();
+        if (data.status === 'not_configured') {
+          document.getElementById('content').innerHTML = `
+            <div class="setup-hint">
+              <strong>Jira not configured.</strong><br/>
+              Go to <strong>Settings &gt; Plugins &gt; Jira Sync</strong> to enter your Jira credentials.
+            </div>
+          `;
+          return;
+        }
+        await loadLink();
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Retry Sync'; }
+        const el = document.getElementById('content');
+        el.innerHTML += `<div class="error-msg">Sync failed: ${err.message}</div>`;
+      }
+    }
+
+    async function manualLink() {
+      const input = document.getElementById('manual-key');
+      const key = (input ? input.value : '').trim().toUpperCase();
+      if (!key) return;
+      try {
+        const resp = await fetch(`${API}/link/${entityType}/${entityId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ issue_key: key }),
+        });
+        if (!resp.ok) {
+          const err = await resp.json();
+          alert(err.detail || 'Link failed');
+          return;
+        }
+        await loadLink();
+      } catch (err) {
+        alert('Link failed: ' + err.message);
+      }
+    }
+
+    async function unlinkEntity() {
+      if (!confirm('Unlink this Jira issue? The Jira issue will NOT be deleted.')) return;
+      try {
+        await fetch(`${API}/link/${entityType}/${entityId}`, { method: 'DELETE' });
+        await loadLink();
+      } catch (err) {
+        alert('Unlink failed: ' + err.message);
+      }
+    }
+
+    loadLink();
+  </script>
+</body>
+</html>

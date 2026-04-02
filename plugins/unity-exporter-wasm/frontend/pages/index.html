@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+
+  /* ---- Layout ---- */
+  .container { max-width: 1000px; margin: 0 auto; }
+
+  /* ---- Page header ---- */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .page-header-left { display: flex; align-items: center; gap: 16px; }
+  .unity-logo {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--surface-base-bg), var(--surface-base-bg));
+    border: 2px solid var(--plugin-accent);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    color: var(--plugin-accent);
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, var(--plugin-accent), #2bb06a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle { color: var(--surface-base-text-secondary); font-size: 14px; }
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .header-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    border: none;
+  }
+  .header-btn.primary {
+    background: linear-gradient(135deg, var(--surface-base-bg), var(--surface-elevated-bg));
+    color: var(--plugin-accent);
+    border: 1px solid var(--plugin-accent);
+  }
+  .header-btn.primary:hover { box-shadow: 0 0 16px rgba(61, 220, 132, 0.25); }
+  .header-btn.secondary {
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .header-btn.secondary:hover { border-color: #555; color: var(--surface-base-text-secondary); }
+  .header-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ---- Stat cards ---- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface-base-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--surface-elevated-bg);
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--surface-elevated-border); }
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--surface-base-text);
+  }
+  .stat-value.green  { color: var(--plugin-accent); }
+  .stat-value.blue   { color: var(--surface-info-text-secondary); }
+  .stat-value.purple { color: var(--surface-secondary-hover); }
+  .stat-value.amber  { color: var(--surface-warning-border); }
+
+  /* ---- Section ---- */
+  .section { margin-bottom: 28px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .section-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: rgba(61, 220, 132, 0.1);
+    color: var(--plugin-accent);
+    border-radius: 99px;
+    font-weight: 600;
+  }
+
+  /* ---- Entity type cards ---- */
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .type-card {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 18px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .type-card:hover { border-color: var(--plugin-accent); }
+  .type-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .type-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+    text-transform: capitalize;
+  }
+  .type-count {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--plugin-accent);
+  }
+  .type-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 14px;
+  }
+  .type-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .type-btn {
+    flex: 1;
+    padding: 7px 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 6px;
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    text-align: center;
+  }
+  .type-btn:hover { border-color: var(--plugin-accent); color: var(--plugin-accent); }
+  .type-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .type-btn.exporting { color: var(--surface-warning-border); border-color: var(--surface-warning-border); }
+
+  /* ---- Config section ---- */
+  .config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-bg);
+    font-size: 13px;
+  }
+  .config-label { color: var(--surface-base-text-secondary); }
+  .config-value {
+    font-weight: 600;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .config-value.ok { color: var(--plugin-accent); }
+  .config-value.warn { color: var(--surface-warning-border); }
+  .config-value.accent { color: var(--surface-info-text-secondary); }
+
+  /* ---- Scripts viewer ---- */
+  .scripts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .script-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--surface-base-bg);
+    border-radius: 10px;
+    border: 1px solid var(--surface-elevated-bg);
+    transition: border-color 0.15s;
+    cursor: pointer;
+  }
+  .script-item:hover { border-color: var(--surface-elevated-border); }
+  .script-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .script-icon {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    background: rgba(61, 220, 132, 0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--plugin-accent);
+    font-size: 12px;
+    font-weight: 800;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .script-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+  }
+  .script-meta {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 2px;
+  }
+  .script-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    background: rgba(61, 220, 132, 0.1);
+    color: var(--plugin-accent);
+    border-radius: 4px;
+  }
+
+  /* ---- Code modal ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal-box {
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 14px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+  }
+  .modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--surface-base-text);
+  }
+  .modal-close {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { border-color: var(--surface-error-border); color: var(--surface-error-border); }
+  .modal-body {
+    flex: 1;
+    overflow: auto;
+    padding: 0;
+  }
+  .modal-code {
+    padding: 16px 20px;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12px;
+    line-height: 1.65;
+    white-space: pre;
+    tab-size: 4;
+    color: var(--surface-base-text-secondary);
+    overflow-x: auto;
+  }
+  .modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--surface-elevated-bg);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .modal-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    transition: all 0.15s;
+  }
+  .modal-btn.copy {
+    background: linear-gradient(135deg, var(--surface-base-bg), var(--surface-elevated-bg));
+    color: var(--plugin-accent);
+    border: 1px solid var(--plugin-accent);
+  }
+  .modal-btn.copy:hover { box-shadow: 0 0 12px rgba(61, 220, 132, 0.2); }
+  .modal-btn.close {
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .modal-btn.close:hover { color: var(--surface-base-text-secondary); }
+
+  /* ---- Syntax highlighting ---- */
+  .hl-keyword  { color: #c792ea; font-weight: 500; }
+  .hl-type     { color: var(--surface-info-text-secondary); }
+  .hl-string   { color: #c3e88d; }
+  .hl-comment  { color: var(--surface-base-text-secondary); font-style: italic; }
+  .hl-attr     { color: #ffcb6b; }
+  .hl-number   { color: #f78c6c; }
+  .hl-bracket  { color: #89ddff; }
+
+  /* ---- Export log ---- */
+  .log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .log-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface-base-bg);
+    border-radius: 8px;
+    border: 1px solid var(--surface-elevated-bg);
+    font-size: 12px;
+  }
+  .log-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .log-dot.export { background: var(--plugin-accent); }
+  .log-dot.generate { background: var(--surface-info-text-secondary); }
+  .log-dot.update { background: var(--surface-warning-border); }
+  .log-dot.error { background: var(--surface-error-border); }
+  .log-msg { color: var(--surface-base-text-secondary); flex: 1; }
+  .log-time { color: var(--surface-base-text-secondary); font-size: 11px; flex-shrink: 0; }
+
+  /* ---- States ---- */
+  .state-box {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--surface-base-text-secondary);
+    font-size: 14px;
+  }
+  .state-box.error { color: var(--surface-error-border); }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---- Toast ---- */
+  .toast {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 300;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.3s ease-out;
+  }
+  .toast.success { display: block; background: var(--surface-success-bg); color: var(--plugin-accent); border: 1px solid var(--surface-success-bg); }
+  .toast.error   { display: block; background: var(--surface-error-bg); color: var(--surface-error-text); border: 1px solid var(--surface-error-bg); }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 700px) {
+    .config-grid { grid-template-columns: 1fr; }
+    .type-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .page-header { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="unity-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <div>
+          <h1 class="page-title">Unity Game Exporter</h1>
+          <p class="page-subtitle">Export entities as ScriptableObjects with C# data classes and asset references</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn secondary" onclick="refreshAll()">Refresh</button>
+        <button class="header-btn primary" id="gen-all-btn" onclick="generateAllScripts()">Generate All Scripts</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Entity Types</div>
+        <div class="stat-value green" id="st-types">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Entities</div>
+        <div class="stat-value blue" id="st-total">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Scripts Generated</div>
+        <div class="stat-value purple" id="st-scripts">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Exports</div>
+        <div class="stat-value amber" id="st-exports">--</div>
+      </div>
+    </div>
+
+    <!-- Entity Types for Batch Export -->
+    <div class="section" id="types-section">
+      <div class="section-header">
+        <div class="section-title">Entity Types</div>
+        <span class="section-badge" id="types-badge">0 types</span>
+      </div>
+      <div class="type-grid" id="type-grid">
+        <div class="state-box"><div class="spinner"></div>Loading entity types...</div>
+      </div>
+    </div>
+
+    <!-- Generated Scripts -->
+    <div class="section" id="scripts-section" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">Generated C# Scripts</div>
+        <span class="section-badge" id="scripts-badge">0 scripts</span>
+      </div>
+      <div class="scripts-list" id="scripts-list"></div>
+    </div>
+
+    <!-- Unity Project Configuration -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Unity Project Configuration</div>
+      </div>
+      <div class="config-grid" id="config-grid">
+        <div class="config-item">
+          <span class="config-label">Plugin ID</span>
+          <span class="config-value accent">unity-exporter</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Version</span>
+          <span class="config-value">0.2.0</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Status</span>
+          <span class="config-value ok" id="cfg-status">Checking...</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Unity Project</span>
+          <span class="config-value" id="cfg-project">--</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Namespace</span>
+          <span class="config-value accent" id="cfg-namespace">--</span>
+        </div>
+        <div class="config-item">
+          <span class="config-label">Output Directory</span>
+          <span class="config-value" id="cfg-output">--</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Export Activity -->
+    <div class="section" id="log-section" style="display:none;">
+      <div class="section-header">
+        <div class="section-title">Recent Activity</div>
+        <span class="section-badge" id="log-badge">0 events</span>
+      </div>
+      <div class="log-list" id="log-list"></div>
+    </div>
+  </div>
+
+  <!-- Code Preview Modal -->
+  <div class="modal-overlay" id="code-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">Code Preview</div>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-code" id="modal-code"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn close" onclick="closeModal()">Close</button>
+        <button class="modal-btn copy" onclick="copyModalCode()">Copy Code</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE = '/api/ext/unity-exporter';
+
+  let entityTypes = [];
+  let currentModalCode = '';
+
+  // ---- Init ----
+  async function refreshAll() {
+    loadStatus();
+    loadExportLog();
+  }
+
+  async function loadStatus() {
+    try {
+      const resp = await fetch(`${API_BASE}/`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      // Stats
+      const types = data.available_entity_types || [];
+      entityTypes = types;
+      document.getElementById('st-types').textContent = types.length;
+      document.getElementById('st-total').textContent = data.total_entities || 0;
+      document.getElementById('types-badge').textContent = `${types.length} types`;
+
+      // Config
+      document.getElementById('cfg-status').textContent = data.status === 'ok' ? 'Active' : 'Error';
+      document.getElementById('cfg-status').className = `config-value ${data.status === 'ok' ? 'ok' : 'warn'}`;
+      document.getElementById('cfg-project').textContent = data.unity_project_path || 'Not configured';
+      document.getElementById('cfg-project').className = `config-value ${data.unity_project_configured ? 'ok' : 'warn'}`;
+      document.getElementById('cfg-namespace').textContent = data.namespace || 'CityOfBrains.Data';
+      document.getElementById('cfg-output').textContent = data.output_subdir || 'Assets/Data/CityOfBrains';
+
+      // Render type cards
+      renderTypeCards(types);
+
+    } catch (e) {
+      document.getElementById('cfg-status').textContent = 'Offline';
+      document.getElementById('cfg-status').className = 'config-value warn';
+      document.getElementById('type-grid').innerHTML =
+        `<div class="state-box error">Backend unavailable: ${escHtml(e.message)}</div>`;
+    }
+  }
+
+  function renderTypeCards(types) {
+    if (types.length === 0) {
+      document.getElementById('type-grid').innerHTML =
+        '<div class="state-box">No entity types found. Create entities in Studio first.</div>';
+      return;
+    }
+
+    const typeColors = {
+      character: 'var(--plugin-accent)', location: 'var(--surface-info-text-secondary)', brand: 'var(--surface-secondary-text-secondary)',
+      district: 'var(--surface-info-border)', faction: 'var(--surface-warning-text-secondary)', item: 'var(--surface-secondary-hover)',
+      job: 'var(--surface-accent-bg)', quest: 'var(--surface-warning-border)', event: 'var(--surface-secondary-text-secondary)',
+      campaign: 'var(--surface-success-border)', assembly: 'var(--surface-warning-text-secondary)',
+    };
+
+    document.getElementById('type-grid').innerHTML = types.map(t => {
+      const color = typeColors[t.type] || 'var(--surface-base-text-secondary)';
+      return `
+        <div class="type-card">
+          <div class="type-card-header">
+            <div class="type-name" style="color:${color}">${t.type}</div>
+            <div class="type-count">${t.count}</div>
+          </div>
+          <div class="type-meta">
+            <span>${t.count} ${t.count === 1 ? 'entity' : 'entities'} available</span>
+          </div>
+          <div class="type-actions">
+            <button class="type-btn" id="batch-${t.type}" onclick="batchExport('${t.type}')">
+              Export All
+            </button>
+            <button class="type-btn" onclick="viewCSharp('${t.type}')">
+              View C#
+            </button>
+            <button class="type-btn" onclick="generateForType('${t.type}')">
+              Generate
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function loadExportLog() {
+    try {
+      const resp = await fetch(`${API_BASE}/export-history`);
+      if (!resp.ok) return;
+      const data = await resp.json();
+
+      const exports = data.exports || [];
+      document.getElementById('st-exports').textContent = exports.length;
+
+      if (exports.length === 0) return;
+
+      document.getElementById('log-section').style.display = 'block';
+      document.getElementById('log-badge').textContent = `${exports.length} events`;
+
+      const list = document.getElementById('log-list');
+      const recent = exports.slice(-20).reverse();
+
+      list.innerHTML = recent.map(e => {
+        let dotClass = 'export';
+        if (e.action && e.action.includes('generate')) dotClass = 'generate';
+        if (e.action && e.action.includes('update')) dotClass = 'update';
+        if (e.action && e.action.includes('error')) dotClass = 'error';
+
+        return `
+          <div class="log-item">
+            <div class="log-dot ${dotClass}"></div>
+            <span class="log-msg">${escHtml(e.details || e.action || 'Event')}</span>
+            <span class="log-time">${formatDate(e.timestamp)}</span>
+          </div>
+        `;
+      }).join('');
+    } catch (e) { /* ignore */ }
+  }
+
+  // ---- Actions ----
+  async function batchExport(entityType) {
+    const btn = document.getElementById(`batch-${entityType}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Exporting...';
+      btn.classList.add('exporting');
+    }
+
+    try {
+      // Get all entity IDs
+      const listResp = await fetch(`${API_BASE}/entities/${entityType}`);
+      if (!listResp.ok) throw new Error(`HTTP ${listResp.status}`);
+      const listData = await listResp.json();
+      const ids = (listData.entities || []).map(e => e.id);
+
+      if (ids.length === 0) {
+        showToast(`No ${entityType} entities found`, 'error');
+        return;
+      }
+
+      const resp = await fetch(`${API_BASE}/batch-export`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity_type: entityType, entity_ids: ids }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      showToast(`Exported ${data.exported}/${data.total_requested} ${entityType} entities`, 'success');
+      loadExportLog();
+    } catch (e) {
+      showToast(`Batch export failed: ${e.message}`, 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Export All';
+        btn.classList.remove('exporting');
+      }
+    }
+  }
+
+  async function viewCSharp(entityType) {
+    try {
+      const resp = await fetch(`${API_BASE}/csharp/${entityType}`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+
+      currentModalCode = data.csharp_code || '';
+      document.getElementById('modal-title').textContent = data.file_name || 'C# Class';
+      document.getElementById('modal-code').innerHTML = highlightCSharp(currentModalCode);
+      document.getElementById('code-modal').classList.add('visible');
+    } catch (e) {
+      showToast(`Failed to load C#: ${e.message}`, 'error');
+    }
+  }
+
+  async function generateForType(entityType) {
+    try {
+      const resp = await fetch(`${API_BASE}/generate-scripts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entity_types: [entityType] }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      showToast(`Generated ${data.scripts_generated} scripts for ${entityType}`, 'success');
+      renderScripts(data.scripts || [], data.enums || []);
+    } catch (e) {
+      showToast(`Generation failed: ${e.message}`, 'error');
+    }
+  }
+
+  async function generateAllScripts() {
+    const btn = document.getElementById('gen-all-btn');
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+
+    try {
+      const resp = await fetch(`${API_BASE}/generate-scripts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      document.getElementById('st-scripts').textContent = data.scripts_generated + data.enums_generated;
+      showToast(`Generated ${data.scripts_generated} scripts and ${data.enums_generated} enums`, 'success');
+      renderScripts(data.scripts || [], data.enums || []);
+    } catch (e) {
+      showToast(`Generation failed: ${e.message}`, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Generate All Scripts';
+    }
+  }
+
+  function renderScripts(scripts, enums) {
+    if (scripts.length === 0 && enums.length === 0) return;
+
+    document.getElementById('scripts-section').style.display = 'block';
+    document.getElementById('scripts-badge').textContent = `${scripts.length + enums.length} files`;
+
+    const list = document.getElementById('scripts-list');
+    let html = '';
+
+    html += scripts.map(s => `
+      <div class="script-item" onclick="viewCSharp('${s.entity_type}')">
+        <div class="script-info">
+          <div class="script-icon">C#</div>
+          <div>
+            <div class="script-name">${escHtml(s.class_name)}.cs</div>
+            <div class="script-meta">${s.field_count} fields &middot; ${s.entity_type}</div>
+          </div>
+        </div>
+        <span class="script-badge">ScriptableObject</span>
+      </div>
+    `).join('');
+
+    html += enums.map(e => `
+      <div class="script-item">
+        <div class="script-info">
+          <div class="script-icon" style="background:rgba(96,165,250,0.1);color:var(--surface-info-text-secondary);">E</div>
+          <div>
+            <div class="script-name">${escHtml(e.enum_name)}.cs</div>
+            <div class="script-meta">${e.values.length} values &middot; ${e.field}</div>
+          </div>
+        </div>
+        <span class="script-badge" style="background:rgba(96,165,250,0.1);color:var(--surface-info-text-secondary);">Enum</span>
+      </div>
+    `).join('');
+
+    list.innerHTML = html;
+  }
+
+  // ---- Modal ----
+  function closeModal() {
+    document.getElementById('code-modal').classList.remove('visible');
+  }
+
+  function copyModalCode() {
+    if (!currentModalCode) return;
+    navigator.clipboard.writeText(currentModalCode).then(() => {
+      showToast('Code copied to clipboard', 'success');
+    });
+  }
+
+  // Close modal on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // ---- Syntax highlighting ----
+  function highlightCSharp(code) {
+    return escHtml(code)
+      .replace(/\/\/.*/g, m => `<span class="hl-comment">${m}</span>`)
+      .replace(/\b(using|namespace|public|class|enum|void|return|new|static|override|readonly|const|get|set|if|else|for|foreach|while|try|catch|throw)\b/g,
+        '<span class="hl-keyword">$1</span>')
+      .replace(/\b(string|int|float|bool|void|List|Dictionary|ScriptableObject|Sprite|GameObject|Header|TextArea|CreateAssetMenu|Serializable|SerializeField)\b/g,
+        '<span class="hl-type">$1</span>')
+      .replace(/"[^"]*"/g, m => `<span class="hl-string">${m}</span>`)
+      .replace(/\b(\d+\.?\d*f?)\b/g, '<span class="hl-number">$1</span>')
+      .replace(/[{}[\]()]/g, m => `<span class="hl-bracket">${m}</span>`);
+  }
+
+  // ---- Utilities ----
+  function showToast(msg, type) {
+    const el = document.getElementById('toast');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    setTimeout(() => { el.className = 'toast'; }, 4000);
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMs / 3600000);
+    const diffDay = Math.floor(diffMs / 86400000);
+
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    if (diffHr < 24) return `${diffHr}h ago`;
+    if (diffDay < 30) return `${diffDay}d ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // ---- Init ----
+  refreshAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header svg {
+    width: 16px;
+    height: 16px;
+    color: var(--plugin-accent);
+  }
+
+  .entity-info {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--surface-elevated-bg);
+    border-radius: 99px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .badge.discord { background: rgba(88, 101, 242, 0.15); color: var(--plugin-accent); }
+
+  .form-group {
+    margin-bottom: 10px;
+  }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .select-input, .text-input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    appearance: none;
+  }
+  .select-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+  .text-input {
+    resize: vertical;
+    min-height: 60px;
+  }
+  .select-input:focus, .text-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2);
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+  }
+  .checkbox-row input[type="checkbox"] {
+    accent-color: var(--plugin-accent);
+    width: 14px;
+    height: 14px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-discord {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-discord:hover { background: var(--plugin-accent); }
+  .btn-discord:disabled {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    cursor: not-allowed;
+  }
+
+  .btn-preview {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 8px;
+  }
+  .btn-preview:hover { border-color: var(--plugin-accent); color: var(--surface-base-text); }
+
+  .feedback {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: none;
+  }
+  .feedback.success {
+    display: block;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: var(--surface-success-border);
+  }
+  .feedback.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--surface-error-border);
+  }
+
+  /* Discord embed preview */
+  .preview-container {
+    display: none;
+    margin-bottom: 10px;
+  }
+  .preview-container.visible { display: block; }
+
+  .discord-embed-preview {
+    background: #2b2d31;
+    border-radius: 4px;
+    border-left: 4px solid var(--plugin-accent);
+    padding: 12px 16px;
+    font-size: 12px;
+  }
+  .embed-author {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    font-weight: 500;
+  }
+  .embed-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #00a8fc;
+    margin-bottom: 6px;
+  }
+  .embed-desc {
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .embed-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin-bottom: 8px;
+  }
+  .embed-field {
+    min-width: 60px;
+  }
+  .embed-field-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+  }
+  .embed-field-value {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .embed-image {
+    width: 100%;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    background: #1e1f22;
+  }
+  .embed-footer {
+    font-size: 10px;
+    color: #949ba4;
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .no-webhooks {
+    text-align: center;
+    padding: 16px 8px;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .no-webhooks a {
+    color: var(--plugin-accent);
+    text-decoration: none;
+  }
+  .no-webhooks a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+    </svg>
+    Discord Post
+  </div>
+
+  <div class="entity-info">
+    <span class="badge" id="entity-type-badge">Loading...</span>
+    <span class="badge" id="entity-name-badge">...</span>
+  </div>
+
+  <div id="main-content">
+    <div class="form-group">
+      <label class="form-label">Webhook Channel</label>
+      <select class="select-input" id="webhook-select">
+        <option value="">Loading webhooks...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Custom Message (optional)</label>
+      <textarea class="text-input" id="message-input" placeholder="Add a note to the Discord post..."></textarea>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="include-image" checked>
+      <label for="include-image">Include entity image</label>
+    </div>
+
+    <div class="preview-container" id="preview-container">
+      <div class="discord-embed-preview" id="embed-preview">
+        <div class="embed-title" id="preview-title">Entity Name</div>
+        <div class="embed-desc" id="preview-desc">Entity description will appear here...</div>
+        <div class="embed-fields" id="preview-fields"></div>
+        <div class="embed-footer" id="preview-footer">City of Brains</div>
+      </div>
+    </div>
+
+    <button class="btn btn-preview" onclick="togglePreview()">Preview Embed</button>
+    <button class="btn btn-discord" id="post-btn" onclick="postToDiscord()">
+      Post to Discord
+    </button>
+
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <div class="no-webhooks" id="no-webhooks" style="display:none;">
+    No webhook URLs configured.<br>
+    <a href="/plugins/discord-poster" target="_top">Open Discord Poster settings</a>
+  </div>
+
+  <script>
+    const API = '/api/ext/discord-poster';
+    const ctx = window.PLUGIN_CONTEXT || {};
+
+    const entityType = ctx.entityType || 'unknown';
+    const entityId = ctx.entityId || '';
+
+    document.getElementById('entity-type-badge').textContent = entityType.replace(/_/g, ' ');
+    document.getElementById('entity-name-badge').textContent = entityId ? entityId.substring(0, 14) + '...' : 'new';
+
+    let webhooks = [];
+    let entityData = null;
+    let previewVisible = false;
+
+    // Load webhooks
+    async function loadWebhooks() {
+      try {
+        const resp = await fetch(`${API}/webhooks`);
+        const data = await resp.json();
+        webhooks = data.webhooks || [];
+
+        const select = document.getElementById('webhook-select');
+        if (webhooks.length === 0) {
+          document.getElementById('main-content').style.display = 'none';
+          document.getElementById('no-webhooks').style.display = 'block';
+          return;
+        }
+
+        select.innerHTML = webhooks.map((wh, i) =>
+          `<option value="${wh.url}">${wh.name} (${wh.url_preview})</option>`
+        ).join('');
+      } catch (err) {
+        console.error('Failed to load webhooks:', err);
+      }
+    }
+
+    // Load entity preview
+    async function loadPreview() {
+      if (!entityType || !entityId) return;
+      try {
+        const resp = await fetch(`${API}/entity-preview?entity_type=${entityType}&entity_id=${entityId}`);
+        const data = await resp.json();
+        entityData = data;
+
+        document.getElementById('entity-name-badge').textContent = data.entity_name || 'Unknown';
+
+        const embed = data.embed;
+        document.getElementById('preview-title').textContent = embed.title || 'Untitled';
+        document.getElementById('preview-desc').textContent = embed.description || '';
+
+        const fieldsEl = document.getElementById('preview-fields');
+        fieldsEl.innerHTML = (embed.fields || []).map(f =>
+          `<div class="embed-field">
+            <div class="embed-field-name">${f.name}</div>
+            <div class="embed-field-value">${f.value}</div>
+          </div>`
+        ).join('');
+
+        const footer = embed.footer ? embed.footer.text : 'City of Brains';
+        document.getElementById('preview-footer').textContent = footer;
+
+        // Handle image preview
+        const imgContainer = document.getElementById('preview-image');
+        if (imgContainer) imgContainer.remove();
+        if (embed.image && embed.image.url) {
+          const img = document.createElement('img');
+          img.className = 'embed-image';
+          img.id = 'preview-image';
+          img.src = embed.image.url;
+          img.onerror = function() { this.style.display = 'none'; };
+          const desc = document.getElementById('preview-desc');
+          desc.parentNode.insertBefore(img, document.getElementById('preview-fields'));
+        }
+      } catch (err) {
+        console.error('Failed to load preview:', err);
+      }
+    }
+
+    function togglePreview() {
+      previewVisible = !previewVisible;
+      document.getElementById('preview-container').classList.toggle('visible', previewVisible);
+    }
+
+    async function postToDiscord() {
+      const btn = document.getElementById('post-btn');
+      const feedback = document.getElementById('feedback');
+      const webhookUrl = document.getElementById('webhook-select').value;
+      const message = document.getElementById('message-input').value.trim();
+      const includeImage = document.getElementById('include-image').checked;
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Posting...';
+      feedback.className = 'feedback';
+      feedback.style.display = 'none';
+
+      try {
+        const resp = await fetch(`${API}/post`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            entity_type: entityType,
+            entity_id: entityId,
+            webhook_url: webhookUrl || undefined,
+            message: message || undefined,
+            include_image: includeImage,
+          }),
+        });
+
+        const data = await resp.json();
+
+        if (resp.ok) {
+          feedback.className = 'feedback success';
+          feedback.textContent = data.message || 'Posted successfully!';
+          feedback.style.display = 'block';
+          document.getElementById('message-input').value = '';
+        } else {
+          feedback.className = 'feedback error';
+          feedback.textContent = data.detail || 'Failed to post to Discord';
+          feedback.style.display = 'block';
+        }
+      } catch (err) {
+        feedback.className = 'feedback error';
+        feedback.textContent = 'Network error: ' + err.message;
+        feedback.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Post to Discord';
+      }
+
+      // Auto-hide success after 4s
+      if (feedback.classList.contains('success')) {
+        setTimeout(() => { feedback.style.display = 'none'; }, 4000);
+      }
+    }
+
+    // Initialize
+    loadWebhooks();
+    loadPreview();
+  </script>
+</body>
+</html>

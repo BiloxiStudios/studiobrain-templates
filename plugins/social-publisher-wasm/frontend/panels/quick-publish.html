@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header svg { width: 16px; height: 16px; }
+  .context-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: var(--surface-elevated-bg);
+    border-radius: 99px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* Platform checkboxes */
+  .platform-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .platform-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 12px;
+    user-select: none;
+  }
+  .platform-chip:hover { border-color: var(--surface-elevated-border); }
+  .platform-chip.selected { border-color: var(--platform-color); background: color-mix(in srgb, var(--platform-color) 12%, var(--surface-elevated-bg)); }
+  .platform-chip input { display: none; }
+  .platform-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--platform-color);
+    flex-shrink: 0;
+  }
+  .platform-name { flex: 1; color: var(--surface-base-text-secondary); }
+  .platform-check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--surface-elevated-border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .platform-chip.selected .platform-check {
+    background: var(--platform-color);
+    border-color: var(--platform-color);
+  }
+  .platform-chip.selected .platform-check::after {
+    content: '';
+    width: 6px;
+    height: 3px;
+    border-left: 1.5px solid white;
+    border-bottom: 1.5px solid white;
+    transform: rotate(-45deg) translateY(-1px);
+  }
+  .platform-status {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 99px;
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .platform-status.live { background: rgba(34,197,94,0.15); color: var(--surface-success-border); }
+
+  /* Template selector */
+  .field-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .field-group { margin-bottom: 10px; }
+  select {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    cursor: pointer;
+  }
+  select:focus { outline: none; border-color: var(--plugin-accent); }
+
+  /* Text composer */
+  .composer-wrap {
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .composer {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  .composer:focus { outline: none; border-color: var(--plugin-accent); box-shadow: 0 0 0 2px rgba(29,161,242,0.15); }
+  .char-count {
+    text-align: right;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 10px;
+  }
+  .char-count.warn { color: var(--surface-warning-border); }
+  .char-count.over { color: var(--surface-error-border); }
+
+  /* Image toggle */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    margin-bottom: 8px;
+  }
+  .toggle-label { font-size: 12px; color: var(--surface-base-text-secondary); }
+  .toggle {
+    width: 36px;
+    height: 20px;
+    background: var(--surface-elevated-border);
+    border-radius: 99px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle.on { background: var(--plugin-accent); }
+  .toggle::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(16px); }
+
+  /* Schedule date picker */
+  input[type="datetime-local"] {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 12px;
+    font-family: inherit;
+  }
+  input[type="datetime-local"]:focus { outline: none; border-color: var(--plugin-accent); }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    flex: 1;
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-publish {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-publish:hover:not(:disabled) { background: #1a8cd8; }
+  .btn-schedule {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-schedule:hover:not(:disabled) { background: #3f4f63; }
+
+  /* Preview */
+  .preview-box {
+    margin-top: 12px;
+    padding: 10px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-bg);
+    border-radius: 8px;
+    display: none;
+  }
+  .preview-box.visible { display: block; }
+  .preview-header {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+  .preview-text {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--surface-base-text-secondary);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .preview-image {
+    margin-top: 8px;
+    width: 100%;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--surface-elevated-bg);
+  }
+  .preview-platforms {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .preview-plat-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 600;
+  }
+
+  /* Feedback toast */
+  .toast {
+    position: fixed;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    transform: translateY(100px);
+    transition: transform 0.3s;
+    z-index: 100;
+  }
+  .toast.visible { transform: translateY(0); }
+  .toast.success { background: var(--surface-success-text); color: var(--surface-success-active); }
+  .toast.error { background: var(--surface-error-bg); color: var(--surface-error-active); }
+  .toast.info { background: var(--surface-elevated-bg); color: #bfdbfe; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--surface-elevated-bg);
+    margin: 10px 0;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    Quick Publish
+  </div>
+
+  <div class="context-bar">
+    <span class="badge" id="entity-type-badge">Loading...</span>
+    <span class="badge" id="entity-id-badge">...</span>
+  </div>
+
+  <!-- Platform selection -->
+  <div class="field-group">
+    <div class="field-label">Platforms</div>
+    <div class="platform-grid">
+      <label class="platform-chip" style="--platform-color:var(--plugin-accent)" data-platform="twitter">
+        <input type="checkbox" value="twitter">
+        <span class="platform-dot"></span>
+        <span class="platform-name">X / Twitter</span>
+        <span class="platform-status" id="status-twitter">--</span>
+        <span class="platform-check"></span>
+      </label>
+      <label class="platform-chip" style="--platform-color:var(--surface-info-text-secondary)" data-platform="bluesky">
+        <input type="checkbox" value="bluesky">
+        <span class="platform-dot"></span>
+        <span class="platform-name">Bluesky</span>
+        <span class="platform-status" id="status-bluesky">--</span>
+        <span class="platform-check"></span>
+      </label>
+      <label class="platform-chip" style="--platform-color:var(--plugin-accent)" data-platform="instagram">
+        <input type="checkbox" value="instagram">
+        <span class="platform-dot"></span>
+        <span class="platform-name">Instagram</span>
+        <span class="platform-status" id="status-instagram">--</span>
+        <span class="platform-check"></span>
+      </label>
+      <label class="platform-chip" style="--platform-color:var(--surface-base-bg)" data-platform="threads">
+        <input type="checkbox" value="threads">
+        <span class="platform-dot"></span>
+        <span class="platform-name">Threads</span>
+        <span class="platform-status" id="status-threads">--</span>
+        <span class="platform-check"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Template selector -->
+  <div class="field-group">
+    <div class="field-label">Template</div>
+    <select id="template-select">
+      <option value="">-- Custom post --</option>
+    </select>
+  </div>
+
+  <!-- Text composer -->
+  <div class="field-group">
+    <div class="field-label">Post Text</div>
+    <div class="composer-wrap">
+      <textarea class="composer" id="composer" placeholder="Write your post..."></textarea>
+    </div>
+    <div class="char-count" id="char-count">0 / 280</div>
+  </div>
+
+  <!-- Image toggle -->
+  <div class="toggle-row">
+    <span class="toggle-label">Attach entity image</span>
+    <div class="toggle on" id="image-toggle" onclick="toggleImage()"></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Schedule -->
+  <div class="field-group">
+    <div class="field-label">Schedule (optional)</div>
+    <input type="datetime-local" id="schedule-input">
+  </div>
+
+  <!-- Action buttons -->
+  <div class="btn-row">
+    <button class="btn btn-publish" id="btn-publish" onclick="doPublish(false)">Publish Now</button>
+    <button class="btn btn-schedule" id="btn-schedule" onclick="doPublish(true)">Schedule</button>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-box" id="preview-box">
+    <div class="preview-header">Preview</div>
+    <div class="preview-text" id="preview-text"></div>
+    <img class="preview-image" id="preview-image" style="display:none">
+    <div class="preview-platforms" id="preview-platforms"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = '/api/ext/social-publisher';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || '';
+    const entityId = ctx.entityId || '';
+
+    let platformData = {};
+    let templates = [];
+    let includeImage = true;
+    let entityImageUrl = null;
+
+    // --- Init ---
+    document.getElementById('entity-type-badge').textContent = entityType || 'unknown';
+    document.getElementById('entity-id-badge').textContent = entityId ? entityId.substring(0, 12) + '...' : 'new';
+
+    // Platform checkbox logic
+    document.querySelectorAll('.platform-chip').forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        const cb = chip.querySelector('input');
+        cb.checked = !cb.checked;
+        chip.classList.toggle('selected', cb.checked);
+        updatePreview();
+        updateCharCount();
+      });
+    });
+
+    // Composer events
+    const composer = document.getElementById('composer');
+    composer.addEventListener('input', () => {
+      updateCharCount();
+      updatePreview();
+    });
+
+    // Template change
+    document.getElementById('template-select').addEventListener('change', async (e) => {
+      const tid = e.target.value;
+      if (!tid || !entityType || !entityId) return;
+      try {
+        const resp = await fetch(`${API}/templates/preview?template_id=${tid}&entity_type=${entityType}&entity_id=${entityId}`);
+        if (resp.ok) {
+          const data = await resp.json();
+          composer.value = data.rendered_text || '';
+          if (data.image_url) entityImageUrl = data.image_url;
+          updateCharCount();
+          updatePreview();
+        }
+      } catch (err) {
+        console.error('Template preview error:', err);
+      }
+    });
+
+    function toggleImage() {
+      includeImage = !includeImage;
+      document.getElementById('image-toggle').classList.toggle('on', includeImage);
+      updatePreview();
+    }
+
+    function getSelectedPlatforms() {
+      return Array.from(document.querySelectorAll('.platform-chip input:checked')).map(cb => cb.value);
+    }
+
+    function getMinCharLimit() {
+      const selected = getSelectedPlatforms();
+      if (selected.length === 0) return 280;
+      let min = 99999;
+      selected.forEach(p => {
+        const info = platformData[p];
+        if (info && info.char_limit < min) min = info.char_limit;
+      });
+      return min === 99999 ? 280 : min;
+    }
+
+    function updateCharCount() {
+      const len = composer.value.length;
+      const limit = getMinCharLimit();
+      const el = document.getElementById('char-count');
+      el.textContent = `${len} / ${limit}`;
+      el.className = 'char-count';
+      if (len > limit) el.classList.add('over');
+      else if (len > limit * 0.9) el.classList.add('warn');
+    }
+
+    function updatePreview() {
+      const text = composer.value.trim();
+      const box = document.getElementById('preview-box');
+      const selected = getSelectedPlatforms();
+      if (!text && selected.length === 0) {
+        box.classList.remove('visible');
+        return;
+      }
+      box.classList.add('visible');
+      document.getElementById('preview-text').textContent = text || '(empty)';
+
+      const img = document.getElementById('preview-image');
+      if (includeImage && entityImageUrl) {
+        img.src = entityImageUrl;
+        img.style.display = 'block';
+      } else {
+        img.style.display = 'none';
+      }
+
+      const platContainer = document.getElementById('preview-platforms');
+      const COLORS = { twitter: 'var(--plugin-accent)', bluesky: 'var(--surface-info-text-secondary)', instagram: 'var(--plugin-accent)', threads: '#555' };
+      platContainer.innerHTML = selected.map(p =>
+        `<span class="preview-plat-tag" style="background:${COLORS[p] || 'var(--surface-elevated-border)'}">${p}</span>`
+      ).join('');
+    }
+
+    function showToast(msg, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = `toast ${type} visible`;
+      setTimeout(() => toast.classList.remove('visible'), 3500);
+    }
+
+    async function doPublish(schedule) {
+      const platforms = getSelectedPlatforms();
+      if (platforms.length === 0) { showToast('Select at least one platform.', 'error'); return; }
+      const text = composer.value.trim();
+      if (!text) { showToast('Post text cannot be empty.', 'error'); return; }
+
+      const scheduleInput = document.getElementById('schedule-input').value;
+      if (schedule && !scheduleInput) { showToast('Pick a date/time to schedule.', 'error'); return; }
+
+      const body = {
+        platforms,
+        text,
+        image_url: includeImage ? entityImageUrl : null,
+        entity_type: entityType || null,
+        entity_id: entityId || null,
+        template_id: document.getElementById('template-select').value || null,
+        schedule_at: schedule ? new Date(scheduleInput).toISOString() : null,
+      };
+
+      const btn = schedule ? document.getElementById('btn-schedule') : document.getElementById('btn-publish');
+      btn.disabled = true;
+      btn.textContent = schedule ? 'Scheduling...' : 'Publishing...';
+
+      try {
+        const resp = await fetch(`${API}/publish`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await resp.json();
+        if (resp.ok && data.success) {
+          showToast(data.message || 'Done!', 'success');
+          if (!schedule) {
+            composer.value = '';
+            updateCharCount();
+            updatePreview();
+          }
+        } else {
+          showToast(data.detail || data.message || 'Publish failed.', 'error');
+        }
+      } catch (err) {
+        showToast('Network error: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = schedule ? 'Schedule' : 'Publish Now';
+      }
+    }
+
+    // --- Load initial data ---
+    async function init() {
+      try {
+        // Load plugin status for platform connection info
+        const statusResp = await fetch(`${API}/`);
+        if (statusResp.ok) {
+          const status = await statusResp.json();
+          platformData = {};
+          if (status.platforms) {
+            Object.entries(status.platforms).forEach(([id, info]) => {
+              platformData[id] = info;
+              const badge = document.getElementById(`status-${id}`);
+              if (badge) {
+                if (info.configured) {
+                  badge.textContent = 'live';
+                  badge.classList.add('live');
+                } else {
+                  badge.textContent = 'mock';
+                }
+              }
+            });
+          }
+          // Set image toggle from settings
+          if (status.auto_include_image === false) {
+            includeImage = false;
+            document.getElementById('image-toggle').classList.remove('on');
+          }
+        }
+
+        // Load templates
+        const tplResp = await fetch(`${API}/templates`);
+        if (tplResp.ok) {
+          const tplData = await tplResp.json();
+          templates = tplData.templates || [];
+          const select = document.getElementById('template-select');
+          templates.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = t.name;
+            select.appendChild(opt);
+          });
+        }
+
+        // Try to get entity image URL
+        if (entityType && entityId) {
+          try {
+            const entResp = await fetch(`/api/entity/${entityType}/${entityId}`);
+            if (entResp.ok) {
+              const entity = await entResp.json();
+              const imgFile = entity.primary_image || entity.image || entity.portrait;
+              if (imgFile) {
+                const typePlural = entityType.endsWith('s') ? entityType : entityType.replace(/s$/, '') + 's';
+                entityImageUrl = `/files/${typePlural}/${entityId}/assets/${imgFile}`;
+              }
+            }
+          } catch {}
+        }
+
+        updatePreview();
+      } catch (err) {
+        console.error('Init error:', err);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  .header {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-icon {
+    width: 20px; height: 20px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-warning-border));
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-icon svg { width: 12px; height: 12px; }
+
+  /* Connection status */
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid var(--surface-elevated-border);
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.connected { background: var(--surface-success-border); box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+  .status-dot.disconnected { background: var(--surface-error-border); box-shadow: 0 0 6px rgba(239,68,68,0.3); }
+  .status-dot.checking { background: var(--surface-warning-border); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .status-text { font-size: 12px; color: var(--surface-base-text-secondary); flex: 1; }
+
+  /* Info cards */
+  .info-card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  .info-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .info-value {
+    font-size: 13px;
+    color: var(--surface-base-text);
+    font-weight: 500;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+  }
+  .info-row + .info-row { border-top: 1px solid var(--surface-elevated-bg); }
+
+  /* Properties preview */
+  .props-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .prop-item {
+    background: var(--surface-base-bg);
+    border-radius: 4px;
+    padding: 5px 8px;
+  }
+  .prop-key { font-size: 10px; color: var(--surface-base-text-secondary); text-transform: uppercase; }
+  .prop-val { font-size: 12px; color: var(--plugin-accent); font-weight: 500; }
+
+  /* Buttons */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--plugin-accent);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    cursor: not-allowed;
+  }
+  .btn-secondary {
+    background: var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+    margin-top: 6px;
+  }
+  .btn-secondary:hover { background: var(--surface-elevated-border); color: var(--surface-base-text); }
+  .btn svg { width: 14px; height: 14px; }
+
+  .btn-row {
+    display: flex;
+    gap: 6px;
+  }
+  .btn-row .btn { flex: 1; }
+
+  /* Last export */
+  .last-export {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+  .last-export .label { color: var(--surface-base-text-secondary); text-transform: uppercase; font-size: 10px; margin-bottom: 2px; }
+  .last-export .time { color: var(--plugin-accent); font-weight: 500; }
+  .last-export .status-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .last-export .status-badge.sent { background: rgba(34,197,94,0.15); color: var(--surface-success-border); }
+  .last-export .status-badge.saved { background: rgba(234,179,8,0.15); color: var(--surface-warning-border); }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-msg {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--surface-error-text);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-top: 8px;
+    display: none;
+  }
+  .success-msg {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: var(--surface-success-text-secondary);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-top: 8px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+        <line x1="12" y1="22.08" x2="12" y2="12"/>
+      </svg>
+    </div>
+    Export to Blender
+  </div>
+
+  <!-- Connection Status -->
+  <div class="status-row" id="status-row">
+    <div class="status-dot checking" id="status-dot"></div>
+    <span class="status-text" id="status-text">Checking connection...</span>
+  </div>
+
+  <!-- Entity Properties Preview -->
+  <div class="info-card" id="props-card" style="display:none">
+    <div class="info-label">Export Properties</div>
+    <div class="props-grid" id="props-grid"></div>
+  </div>
+
+  <!-- Last Export -->
+  <div class="last-export" id="last-export" style="display:none">
+    <div class="label">Last Export</div>
+    <div id="last-export-info"></div>
+  </div>
+
+  <!-- Action Buttons -->
+  <button class="btn btn-primary" id="export-btn" onclick="doExport()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="17 8 12 3 7 8"/>
+      <line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+    Export to Blender
+  </button>
+
+  <button class="btn btn-secondary" id="preview-btn" onclick="previewExport()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+    Preview Export Data
+  </button>
+
+  <div class="success-msg" id="success-msg"></div>
+  <div class="error-msg" id="error-msg"></div>
+
+  <script>
+    const API = '/api/ext/blender-bridge';
+    const ENTITY_API = '/api/entity';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || 'character';
+    const entityId = ctx.entityId || '';
+
+    // ---- Init ----
+    async function init() {
+      if (!entityId) {
+        document.getElementById('status-text').textContent = 'No entity selected';
+        document.getElementById('status-dot').className = 'status-dot disconnected';
+        document.getElementById('export-btn').disabled = true;
+        return;
+      }
+      await Promise.all([checkConnection(), loadPreview(), loadLastExport()]);
+    }
+
+    async function checkConnection() {
+      try {
+        const resp = await fetch(`${API}/connection-status`);
+        const data = await resp.json();
+        const dot = document.getElementById('status-dot');
+        const text = document.getElementById('status-text');
+        if (data.connected) {
+          dot.className = 'status-dot connected';
+          text.textContent = `Blender ${data.blender_version || ''} connected`;
+        } else {
+          dot.className = 'status-dot disconnected';
+          text.textContent = data.error || 'Not connected';
+        }
+      } catch (e) {
+        document.getElementById('status-dot').className = 'status-dot disconnected';
+        document.getElementById('status-text').textContent = 'Backend unavailable';
+      }
+    }
+
+    async function loadPreview() {
+      try {
+        const resp = await fetch(`${API}/export-format/${entityType}/${entityId}`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const bd = data.blender_data;
+        if (!bd) return;
+
+        const grid = document.getElementById('props-grid');
+        const card = document.getElementById('props-card');
+        card.style.display = 'block';
+        grid.innerHTML = '';
+
+        const props = bd.properties || {};
+        const dimProps = bd.dimensions || {};
+
+        // Show key properties
+        const displayProps = {};
+        if (entityType === 'character') {
+          if (props.height) displayProps['Height'] = props.height;
+          if (props.build) displayProps['Build'] = props.build;
+          if (props.hair_color) displayProps['Hair'] = props.hair_color;
+          if (props.eye_color) displayProps['Eyes'] = props.eye_color;
+          if (props.skin_tone) displayProps['Skin'] = props.skin_tone;
+          if (dimProps.height_meters) displayProps['Meters'] = dimProps.height_meters + 'm';
+        } else if (entityType === 'location') {
+          if (props.location_type) displayProps['Type'] = props.location_type;
+          if (props.category) displayProps['Category'] = props.category;
+          if (props.biome) displayProps['Biome'] = props.biome;
+          if (props.district) displayProps['District'] = props.district;
+          if (bd.coordinates) {
+            displayProps['Position'] = `${bd.coordinates.x}, ${bd.coordinates.y}`;
+          }
+        } else {
+          // Generic: show first few props
+          Object.entries(props).slice(0, 6).forEach(([k, v]) => {
+            if (v) displayProps[k] = String(v);
+          });
+        }
+
+        Object.entries(displayProps).forEach(([key, val]) => {
+          grid.innerHTML += `
+            <div class="prop-item">
+              <div class="prop-key">${key}</div>
+              <div class="prop-val">${val}</div>
+            </div>
+          `;
+        });
+
+      } catch (e) {
+        console.error('Failed to load preview', e);
+      }
+    }
+
+    async function loadLastExport() {
+      try {
+        const resp = await fetch(`${API}/exports/${entityType}/${entityId}`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (data.exports && data.exports.length > 0) {
+          const latest = data.exports[0];
+          const el = document.getElementById('last-export');
+          el.style.display = 'block';
+          const date = new Date(latest.created * 1000);
+          document.getElementById('last-export-info').innerHTML = `
+            <span class="time">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</span>
+            <br>${latest.filename}
+          `;
+        }
+      } catch (e) {
+        console.error('Failed to load export history', e);
+      }
+    }
+
+    // ---- Export ----
+    async function doExport() {
+      const btn = document.getElementById('export-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Exporting...';
+      hideMessages();
+
+      try {
+        const resp = await fetch(`${API}/export/${entityType}/${entityId}`, { method: 'POST' });
+        const data = await resp.json();
+
+        if (data.success) {
+          let msg = `Exported ${data.name}`;
+          if (data.sent_to_blender) {
+            msg += ' and sent to Blender';
+          } else {
+            msg += ' (saved locally)';
+          }
+          showSuccess(msg);
+          await loadLastExport();
+        } else {
+          showError('Export failed');
+        }
+      } catch (e) {
+        showError('Network error: ' + e.message);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Export to Blender`;
+    }
+
+    async function previewExport() {
+      hideMessages();
+      try {
+        const resp = await fetch(`${API}/export-format/${entityType}/${entityId}`);
+        const data = await resp.json();
+        const json = JSON.stringify(data.blender_data, null, 2);
+        showSuccess('Export data preview (check console for full JSON)');
+        console.log('Blender export preview:', data.blender_data);
+      } catch (e) {
+        showError('Failed to preview: ' + e.message);
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+    function showSuccess(msg) {
+      const el = document.getElementById('success-msg');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+    function hideMessages() {
+      document.getElementById('error-msg').style.display = 'none';
+      document.getElementById('success-msg').style.display = 'none';
+    }
+
+    init();
+  </script>
+</body>
+</html>

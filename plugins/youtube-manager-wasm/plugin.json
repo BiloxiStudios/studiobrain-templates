@@ -1,0 +1,94 @@
+{
+  "id": "youtube-manager-wasm",
+  "name": "YouTube Manager (WASM)",
+  "version": "0.2.0",
+  "description": "Upload character reveal videos, trailer clips, and lore narrations to YouTube. Manage video metadata from entity fields.",
+  "type": "full",
+  "author": "BiloxiStudios",
+  "category": "social-media",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "youtube-dashboard",
+          "route": "/plugins/youtube-manager-wasm",
+          "label": "YouTube Manager",
+          "file": "frontend/pages/index.html",
+          "icon": "youtube",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "video-status",
+          "label": "YouTube Videos",
+          "file": "frontend/panels/video-status.html",
+          "type": "entity-sidebar",
+          "icon": "youtube",
+          "description": "Linked YouTube videos for this entity"
+        },
+        {
+          "id": "video-manager",
+          "label": "Video Manager",
+          "file": "frontend/panels/video-manager.html",
+          "type": "entity-tab",
+          "icon": "video",
+          "description": "Full upload and video management interface"
+        }
+      ]
+    }
+  },
+  "dependencies": {},
+  "permissions": [
+    "entity:read",
+    "network:external",
+    "filesystem:read",
+    "filesystem:write",
+    "settings:own"
+  ],
+  "settings_schema": {
+    "youtube_api_key": {
+      "type": "secret",
+      "label": "YouTube API Key",
+      "description": "API key for YouTube Data API v3",
+      "required": false,
+      "scope": "instance"
+    },
+    "channel_id": {
+      "type": "string",
+      "label": "Channel ID",
+      "description": "Your YouTube channel ID",
+      "required": false,
+      "scope": "instance"
+    },
+    "default_category": {
+      "type": "string",
+      "label": "Default Category",
+      "description": "Default YouTube video category (e.g. Gaming, Entertainment, Film & Animation)",
+      "required": false,
+      "default": "Gaming",
+      "scope": "instance"
+    },
+    "default_privacy": {
+      "type": "string",
+      "label": "Default Privacy",
+      "description": "Privacy status for uploads (public, unlisted, private)",
+      "required": false,
+      "default": "unlisted",
+      "scope": "instance"
+    },
+    "description_template": {
+      "type": "string",
+      "label": "Description Template",
+      "description": "Template for auto-generated descriptions. Use {name}, {type}, {description}, {tags} placeholders.",
+      "required": false,
+      "default": "{name} - {type}\n\n{description}\n\n#{tags}\n\nCreated with City of Brains Studio",
+      "scope": "instance"
+    }
+  },
+  "accent_color": "#FF0000",
+  "runtime": "wasm"
+}

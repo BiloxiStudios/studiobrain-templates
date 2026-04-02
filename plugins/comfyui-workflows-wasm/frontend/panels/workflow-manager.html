@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 20px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 14px;
+  }
+
+  /* -- Layout Tabs -- */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--surface-elevated-border);
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    padding: 10px 18px;
+    background: none;
+    border: none;
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--surface-base-text); }
+  .tab-btn.active {
+    color: var(--plugin-accent);
+    border-bottom-color: var(--plugin-accent);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* -- Header -- */
+  .section-header {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* -- Connection Status -- */
+  .conn-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .conn-status.ok { background: rgba(0, 212, 170, 0.12); color: var(--plugin-accent); }
+  .conn-status.err { background: rgba(239, 68, 68, 0.12); color: var(--surface-error-border); }
+  .conn-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .conn-dot.ok { background: var(--plugin-accent); }
+  .conn-dot.err { background: var(--surface-error-border); }
+
+  /* -- Search + Filter -- */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
+  }
+  .filter-select {
+    padding: 8px 30px 8px 12px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .filter-select:focus { outline: none; border-color: var(--plugin-accent); }
+
+  /* -- Workflow Grid -- */
+  .workflow-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .wf-card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .wf-card:hover { border-color: var(--plugin-accent); transform: translateY(-1px); }
+  .wf-card.selected { border-color: var(--plugin-accent); box-shadow: 0 0 0 1px var(--plugin-accent); }
+  .wf-card-thumb {
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(135deg, var(--surface-base-bg) 0%, var(--surface-base-bg) 50%, var(--surface-base-bg) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .wf-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .wf-card-thumb .placeholder-icon {
+    font-size: 28px;
+    color: var(--surface-elevated-border);
+  }
+  .wf-card-category {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 2px 8px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    border-radius: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--plugin-accent);
+  }
+  .wf-card-body {
+    padding: 12px;
+  }
+  .wf-card-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wf-card-info {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 8px;
+  }
+  .wf-card-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .feature-tag {
+    padding: 1px 6px;
+    background: rgba(0, 212, 170, 0.08);
+    color: var(--plugin-accent);
+    border-radius: 3px;
+    font-size: 10px;
+  }
+
+  /* -- Execution Config Panel -- */
+  .exec-panel {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .exec-panel.visible { display: block; }
+  .exec-panel-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .exec-panel-title .wf-name { color: var(--plugin-accent); }
+
+  .form-row {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .form-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  textarea.form-input {
+    resize: vertical;
+    min-height: 60px;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: var(--plugin-accent);
+    box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.15);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--plugin-accent);
+    color: var(--surface-base-bg);
+    flex: 1;
+  }
+  .btn-primary:hover { background: var(--plugin-accent); }
+  .btn-primary:disabled { background: var(--surface-elevated-border); color: var(--surface-base-text-secondary); cursor: not-allowed; }
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--surface-elevated-border);
+    color: var(--surface-base-text-secondary);
+  }
+  .btn-secondary:hover { border-color: var(--plugin-accent); color: var(--surface-base-text); }
+
+  .feedback {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: none;
+  }
+  .feedback.success { display: block; background: rgba(0, 212, 170, 0.1); border: 1px solid rgba(0, 212, 170, 0.3); color: var(--plugin-accent); }
+  .feedback.error { display: block; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--surface-error-border); }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(15,23,42,0.3);
+    border-top-color: var(--surface-base-bg);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* -- Output Gallery -- */
+  .output-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .output-card {
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .output-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+  }
+  .output-card-info {
+    padding: 8px 10px;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+  }
+
+  /* -- History Table -- */
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .history-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--surface-base-text-secondary);
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  .history-table td {
+    padding: 10px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+  }
+  .history-table tr:hover td { background: rgba(0, 212, 170, 0.03); }
+  .status-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .status-badge.queued { background: rgba(245, 158, 11, 0.15); color: var(--surface-warning-border); }
+  .status-badge.running { background: rgba(59, 130, 246, 0.15); color: var(--plugin-accent); }
+  .status-badge.completed { background: rgba(0, 212, 170, 0.15); color: var(--plugin-accent); }
+  .status-badge.error { background: rgba(239, 68, 68, 0.15); color: var(--surface-error-border); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--surface-base-text-secondary);
+    padding: 40px 20px;
+    font-size: 13px;
+  }
+
+  .context-info {
+    background: var(--surface-elevated-bg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .context-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .context-label { font-size: 11px; color: var(--surface-base-text-secondary); text-transform: uppercase; }
+  .context-value { font-size: 14px; color: var(--surface-base-text); font-weight: 500; }
+</style>
+</head>
+<body>
+  <div class="context-info">
+    <div class="context-item">
+      <span class="context-label">Entity Type</span>
+      <span class="context-value" id="ctx-type">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">Entity</span>
+      <span class="context-value" id="ctx-name">--</span>
+    </div>
+    <div class="context-item">
+      <span class="context-label">ComfyUI</span>
+      <span class="conn-status" id="ctx-conn">
+        <span class="conn-dot" id="conn-dot"></span>
+        <span id="conn-text">Checking...</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('browse')">Browse Workflows</button>
+    <button class="tab-btn" onclick="switchTab('outputs')">Outputs</button>
+    <button class="tab-btn" onclick="switchTab('history')">History</button>
+  </div>
+
+  <!-- BROWSE TAB -->
+  <div class="tab-panel active" id="tab-browse">
+    <div class="toolbar">
+      <input class="search-input" id="search-input" placeholder="Search workflows..." oninput="filterWorkflows()">
+      <select class="filter-select" id="category-filter" onchange="filterWorkflows()">
+        <option value="">All Categories</option>
+      </select>
+    </div>
+
+    <div class="workflow-grid" id="workflow-grid">
+      <div class="empty-state">Loading workflows...</div>
+    </div>
+
+    <div class="exec-panel" id="exec-panel">
+      <div class="exec-panel-title">
+        Configure: <span class="wf-name" id="exec-wf-name">--</span>
+      </div>
+      <div id="exec-inputs"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="closeExecPanel()">Cancel</button>
+        <button class="btn btn-primary" id="exec-btn" onclick="executeWorkflow()">Execute Workflow</button>
+      </div>
+      <div class="feedback" id="exec-feedback"></div>
+    </div>
+  </div>
+
+  <!-- OUTPUTS TAB -->
+  <div class="tab-panel" id="tab-outputs">
+    <div class="section-header">Generated Outputs</div>
+    <div class="output-gallery" id="output-gallery">
+      <div class="empty-state">No outputs yet. Execute a workflow to generate images.</div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="tab-panel" id="tab-history">
+    <div class="section-header">Execution History</div>
+    <table class="history-table" id="history-table">
+      <thead>
+        <tr>
+          <th>Workflow</th>
+          <th>Status</th>
+          <th>Queued</th>
+        </tr>
+      </thead>
+      <tbody id="history-body">
+        <tr><td colspan="3" class="empty-state">Loading history...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const API = '/api/ext/comfyui-workflows';
+    const ctx = window.PLUGIN_CONTEXT || {};
+    const entityType = ctx.entityType || '';
+    const entityId = ctx.entityId || '';
+
+    document.getElementById('ctx-type').textContent = entityType ? entityType.replace(/_/g, ' ') : '--';
+    document.getElementById('ctx-name').textContent = entityId || '--';
+
+    let workflows = [];
+    let selectedWorkflow = null;
+
+    // Tab switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', btn.textContent.toLowerCase().includes(tabId));
+      });
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === 'tab-' + tabId);
+      });
+
+      if (tabId === 'outputs') loadOutputs();
+      if (tabId === 'history') loadHistory();
+    }
+
+    // Check connection
+    async function checkConnection() {
+      try {
+        const resp = await fetch(`${API}/`);
+        const data = await resp.json();
+        const connEl = document.getElementById('ctx-conn');
+        const dotEl = document.getElementById('conn-dot');
+        const textEl = document.getElementById('conn-text');
+
+        if (data.comfyui && data.comfyui.connected) {
+          connEl.className = 'conn-status ok';
+          dotEl.className = 'conn-dot ok';
+          textEl.textContent = 'Connected';
+        } else {
+          connEl.className = 'conn-status err';
+          dotEl.className = 'conn-dot err';
+          textEl.textContent = 'Offline';
+        }
+      } catch {
+        document.getElementById('ctx-conn').className = 'conn-status err';
+        document.getElementById('conn-dot').className = 'conn-dot err';
+        document.getElementById('conn-text').textContent = 'Error';
+      }
+    }
+
+    // Load workflows
+    async function loadWorkflows() {
+      try {
+        const resp = await fetch(`${API}/workflows`);
+        const data = await resp.json();
+        workflows = data.workflows || [];
+
+        // Populate category filter
+        const catFilter = document.getElementById('category-filter');
+        const cats = data.categories || [];
+        catFilter.innerHTML = '<option value="">All (' + workflows.length + ')</option>' +
+          cats.map(c => `<option value="${c}">${c.charAt(0).toUpperCase() + c.slice(1)}</option>`).join('');
+
+        renderGrid(workflows);
+      } catch (err) {
+        document.getElementById('workflow-grid').innerHTML =
+          '<div class="empty-state">Failed to load workflows</div>';
+      }
+    }
+
+    function filterWorkflows() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const cat = document.getElementById('category-filter').value;
+
+      let filtered = workflows;
+      if (cat) filtered = filtered.filter(w => w.category === cat);
+      if (search) filtered = filtered.filter(w =>
+        w.id.toLowerCase().includes(search) ||
+        w.filename.toLowerCase().includes(search) ||
+        (w.features || []).some(f => f.toLowerCase().includes(search))
+      );
+
+      renderGrid(filtered);
+    }
+
+    function renderGrid(list) {
+      const grid = document.getElementById('workflow-grid');
+      if (list.length === 0) {
+        grid.innerHTML = '<div class="empty-state">No workflows match your search</div>';
+        return;
+      }
+
+      grid.innerHTML = list.map(w => {
+        const thumbHtml = w.thumbnail
+          ? `<img src="file://${w.thumbnail.replace(/\\/g, '/')}" onerror="this.parentElement.innerHTML='<span class=placeholder-icon>&#9881;</span>'">`
+          : '<span class="placeholder-icon">&#9881;</span>';
+        const features = (w.features || []).slice(0, 4).map(f =>
+          `<span class="feature-tag">${f}</span>`
+        ).join('');
+        const sel = selectedWorkflow && selectedWorkflow.id === w.id ? ' selected' : '';
+
+        return `
+          <div class="wf-card${sel}" onclick="openExecPanel('${w.id}')">
+            <div class="wf-card-thumb">
+              ${thumbHtml}
+              <span class="wf-card-category">${w.category}</span>
+            </div>
+            <div class="wf-card-body">
+              <div class="wf-card-name" title="${w.filename}">${w.id.replace(/_/g, ' ')}</div>
+              <div class="wf-card-info">
+                <span>${w.node_count} nodes</span>
+                <span>${w.inputs.length} inputs</span>
+                <span>${(w.file_size / 1024).toFixed(0)} KB</span>
+              </div>
+              <div class="wf-card-tags">${features}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openExecPanel(workflowId) {
+      selectedWorkflow = workflows.find(w => w.id === workflowId);
+      if (!selectedWorkflow) return;
+
+      // Highlight card
+      document.querySelectorAll('.wf-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      event.currentTarget.classList.add('selected');
+
+      // Populate exec panel
+      document.getElementById('exec-wf-name').textContent = selectedWorkflow.id.replace(/_/g, ' ');
+
+      const inputsDiv = document.getElementById('exec-inputs');
+      const editableInputs = (selectedWorkflow.inputs || []).filter(inp =>
+        ['string', 'text', 'integer', 'float'].includes(inp.type)
+      );
+
+      if (editableInputs.length > 0) {
+        inputsDiv.innerHTML = editableInputs.map(inp => {
+          const tag = inp.type === 'text'
+            ? `<textarea class="form-input exec-override" data-input="${inp.name}" placeholder="Enter ${inp.name.replace(/_/g, ' ')}...">${inp.default_value || ''}</textarea>`
+            : `<input class="form-input exec-override" data-input="${inp.name}" type="${inp.type === 'integer' || inp.type === 'float' ? 'number' : 'text'}" value="${inp.default_value || ''}" placeholder="${inp.name.replace(/_/g, ' ')}">`;
+          return `
+            <div class="form-row">
+              <label class="form-label">${inp.name.replace(/_/g, ' ')}</label>
+              ${tag}
+            </div>
+          `;
+        }).join('');
+      } else {
+        inputsDiv.innerHTML = '<div style="color:var(--surface-base-text-secondary);font-size:12px;margin-bottom:8px;">No configurable inputs detected.</div>';
+      }
+
+      document.getElementById('exec-panel').classList.add('visible');
+      document.getElementById('exec-feedback').className = 'feedback';
+      document.getElementById('exec-feedback').style.display = 'none';
+    }
+
+    function closeExecPanel() {
+      document.getElementById('exec-panel').classList.remove('visible');
+      selectedWorkflow = null;
+      document.querySelectorAll('.wf-card').forEach(c => c.classList.remove('selected'));
+    }
+
+    async function executeWorkflow() {
+      if (!selectedWorkflow) return;
+
+      const btn = document.getElementById('exec-btn');
+      const feedback = document.getElementById('exec-feedback');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Queueing...';
+      feedback.className = 'feedback';
+      feedback.style.display = 'none';
+
+      const overrides = {};
+      document.querySelectorAll('.exec-override').forEach(inp => {
+        const name = inp.dataset.input;
+        const val = inp.value.trim();
+        if (val) overrides[name] = val;
+      });
+
+      try {
+        const resp = await fetch(`${API}/execute`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            workflow_id: selectedWorkflow.id,
+            entity_type: entityType || undefined,
+            entity_id: entityId || undefined,
+            input_overrides: Object.keys(overrides).length > 0 ? overrides : undefined,
+          }),
+        });
+
+        const data = await resp.json();
+        if (resp.ok) {
+          feedback.className = 'feedback success';
+          feedback.textContent = data.message || 'Workflow queued successfully!';
+          feedback.style.display = 'block';
+        } else {
+          feedback.className = 'feedback error';
+          feedback.textContent = data.detail || 'Failed to queue workflow';
+          feedback.style.display = 'block';
+        }
+      } catch (err) {
+        feedback.className = 'feedback error';
+        feedback.textContent = 'Network error: ' + err.message;
+        feedback.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Execute Workflow';
+      }
+    }
+
+    // Load outputs
+    async function loadOutputs() {
+      const gallery = document.getElementById('output-gallery');
+      if (!entityType || !entityId) {
+        gallery.innerHTML = '<div class="empty-state">No entity selected -- outputs are linked to entities.</div>';
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API}/outputs/${entityType}/${entityId}`);
+        const data = await resp.json();
+        const outputs = data.outputs || [];
+
+        if (outputs.length === 0) {
+          // Also try ComfyUI history
+          gallery.innerHTML = '<div class="empty-state">No saved outputs for this entity yet.</div>';
+          return;
+        }
+
+        gallery.innerHTML = outputs.map(o => `
+          <div class="output-card">
+            <img src="file://${o.path.replace(/\\/g, '/')}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%231e293b%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23475569%22 dy=%22.3em%22%3EError%3C/text%3E%3C/svg%3E'">
+            <div class="output-card-info">
+              ${o.filename}<br>
+              ${(o.size / 1024).toFixed(0)} KB
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        gallery.innerHTML = '<div class="empty-state">Failed to load outputs</div>';
+      }
+    }
+
+    // Load history
+    async function loadHistory() {
+      const body = document.getElementById('history-body');
+      try {
+        let url = `${API}/history?limit=50`;
+        if (entityType && entityId) {
+          url += `&entity_type=${entityType}&entity_id=${entityId}`;
+        }
+        const resp = await fetch(url);
+        const data = await resp.json();
+        const items = data.items || [];
+
+        if (items.length === 0) {
+          body.innerHTML = '<tr><td colspan="3" class="empty-state">No execution history</td></tr>';
+          return;
+        }
+
+        body.innerHTML = items.map(h => {
+          const statusClass = h.status || 'queued';
+          const time = h.queued_at ? new Date(h.queued_at).toLocaleString() : '--';
+          return `
+            <tr>
+              <td style="color:var(--surface-base-text);font-weight:500;">${(h.workflow_name || h.workflow_id || '--').replace(/_/g, ' ')}</td>
+              <td><span class="status-badge ${statusClass}">${statusClass}</span></td>
+              <td>${time}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        body.innerHTML = '<tr><td colspan="3" class="empty-state">Failed to load history</td></tr>';
+      }
+    }
+
+    // Init
+    checkConnection();
+    loadWorkflows();
+  </script>
+</body>
+</html>

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 32px;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+  }
+
+  /* Page header */
+  .page-header {
+    max-width: 1100px;
+    margin: 0 auto 28px;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-bg));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .page-subtitle {
+    color: var(--surface-base-text-secondary);
+    font-size: 15px;
+  }
+
+  /* Stats cards */
+  .stats-row {
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .stat-card {
+    background: var(--surface-elevated-bg);
+    border-radius: 10px;
+    padding: 18px;
+    border: 1px solid var(--surface-elevated-border);
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--plugin-accent); }
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+  }
+  .stat-pink { color: var(--plugin-accent); }
+  .stat-purple { color: var(--surface-secondary-bg); }
+  .stat-blue { color: var(--plugin-accent); }
+  .stat-green { color: var(--surface-success-border); }
+  .stat-orange { color: var(--surface-warning-text-secondary); }
+
+  /* Section layout */
+  .content-area {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 20px;
+  }
+  @media (max-width: 800px) {
+    .content-area { grid-template-columns: 1fr; }
+  }
+
+  .section {
+    background: var(--surface-elevated-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--surface-elevated-border);
+    margin-bottom: 20px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title svg { width: 18px; height: 18px; color: var(--plugin-accent); }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    padding: 5px 12px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: var(--plugin-accent); color: var(--surface-base-text); }
+  .filter-chip.active {
+    background: rgba(236,72,153,0.15);
+    border-color: var(--plugin-accent);
+    color: var(--plugin-accent);
+  }
+
+  /* Track grid */
+  .track-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  .lib-track {
+    background: var(--surface-base-bg);
+    border-radius: 10px;
+    padding: 14px;
+    border: 1px solid var(--surface-elevated-bg);
+    transition: border-color 0.2s, transform 0.15s;
+    cursor: default;
+  }
+  .lib-track:hover {
+    border-color: var(--surface-elevated-border);
+    transform: translateY(-1px);
+  }
+
+  .lib-track-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .lib-track-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 8px;
+  }
+  .lib-track-entity {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .lib-track-entity a {
+    color: var(--surface-base-text-secondary);
+    text-decoration: none;
+  }
+  .lib-track-entity a:hover { color: var(--plugin-accent); }
+
+  .lib-track-badges {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .lib-badge {
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  .lib-badge-genre {
+    background: rgba(236,72,153,0.12);
+    color: var(--plugin-accent);
+  }
+  .lib-badge-mood {
+    background: rgba(168,85,247,0.12);
+    color: var(--surface-secondary-text-secondary);
+  }
+  .lib-badge-provider {
+    background: rgba(59,130,246,0.12);
+    color: var(--surface-info-text);
+  }
+  .lib-badge-duration {
+    background: rgba(34,197,94,0.12);
+    color: var(--surface-success-text-secondary);
+  }
+
+  /* Library mini player */
+  .lib-player {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .lib-play-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--plugin-accent);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .lib-play-btn:hover { background: var(--plugin-accent); }
+  .lib-play-btn:active { transform: scale(0.95); }
+  .lib-play-btn svg { width: 12px; height: 12px; fill: white; }
+
+  .lib-waveform {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5px;
+    height: 20px;
+    cursor: pointer;
+  }
+  .lib-waveform .bar {
+    flex: 1;
+    background: var(--surface-elevated-border);
+    border-radius: 1px;
+    min-width: 2px;
+    transition: background 0.1s;
+  }
+  .lib-waveform .bar.active { background: var(--plugin-accent); }
+
+  .lib-time {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* Sidebar - recent & entity list */
+  .sidebar-section {
+    margin-bottom: 16px;
+  }
+  .sidebar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .entity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .entity-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: var(--surface-base-bg);
+    border-radius: 6px;
+    font-size: 12px;
+    transition: background 0.15s;
+  }
+  .entity-item:hover { background: #1a2740; }
+  .entity-item-name {
+    color: var(--surface-base-text);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+  .entity-item-count {
+    color: var(--plugin-accent);
+    font-weight: 600;
+    font-size: 11px;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+  .entity-item-type {
+    color: var(--surface-base-text-secondary);
+    font-size: 10px;
+    margin-left: 6px;
+    flex-shrink: 0;
+  }
+
+  /* Genre chart (simple bars) */
+  .genre-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .genre-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .genre-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .genre-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--surface-base-bg);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .genre-bar {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--plugin-accent), var(--surface-secondary-bg));
+  }
+  .genre-count {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    width: 24px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Empty state */
+  .empty-library {
+    text-align: center;
+    padding: 48px 20px;
+    grid-column: 1 / -1;
+  }
+  .empty-library-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+  .empty-library-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 6px;
+  }
+  .empty-library-desc {
+    font-size: 14px;
+    color: var(--surface-base-text-secondary);
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* Status badge */
+  .config-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .config-badge.ok {
+    background: rgba(34,197,94,0.12);
+    color: var(--surface-success-text-secondary);
+  }
+  .config-badge.warn {
+    background: rgba(251,191,36,0.12);
+    color: var(--surface-warning-border);
+  }
+  .config-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .config-dot.ok { background: var(--surface-success-border); }
+  .config-dot.warn { background: var(--surface-warning-border); }
+
+  /* Loading */
+  .loading-text {
+    text-align: center;
+    padding: 40px;
+    color: var(--surface-base-text-secondary);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1 class="page-title">Music Library</h1>
+    <p class="page-subtitle">
+      All generated music tracks across your entities
+      <span class="config-badge" id="config-badge">
+        <span class="config-dot" id="config-dot"></span>
+        <span id="config-text">Loading...</span>
+      </span>
+    </p>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Tracks</div>
+      <div class="stat-value stat-pink" id="stat-total">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Duration</div>
+      <div class="stat-value stat-purple" id="stat-duration">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Genres Used</div>
+      <div class="stat-value stat-blue" id="stat-genres">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Entities</div>
+      <div class="stat-value stat-green" id="stat-entities">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Provider</div>
+      <div class="stat-value stat-orange" id="stat-provider">--</div>
+    </div>
+  </div>
+
+  <!-- Main content area -->
+  <div class="content-area">
+    <!-- Left: track library -->
+    <div class="main-col">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+            </svg>
+            All Tracks
+          </div>
+          <div class="filter-bar" id="filter-bar">
+            <span class="filter-chip active" onclick="filterGenre(null, this)">All</span>
+          </div>
+        </div>
+        <div class="track-grid" id="track-grid">
+          <div class="loading-text">Loading library...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right sidebar -->
+    <div class="sidebar-col">
+      <!-- Entity assignments -->
+      <div class="section">
+        <div class="sidebar-title">Entity Tracks</div>
+        <div class="entity-list" id="entity-list">
+          <div class="loading-text" style="padding:16px;">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Genre breakdown -->
+      <div class="section">
+        <div class="sidebar-title">Genre Breakdown</div>
+        <div class="genre-chart" id="genre-chart">
+          <div class="loading-text" style="padding:16px;">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden audio element -->
+  <audio id="lib-audio" preload="metadata"></audio>
+
+<script>
+  const API_BASE = '/api/ext/music-gen';
+
+  let allTracks = [];
+  let filteredTracks = [];
+  let activeGenre = null;
+  let activeTrackIdx = -1;
+  let isPlaying = false;
+  const audioEl = document.getElementById('lib-audio');
+
+  // ------ Helpers ------
+
+  function fmtTime(sec) {
+    if (!sec || isNaN(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function fmtDuration(totalSec) {
+    if (!totalSec) return '0s';
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if (h > 0) return h + 'h ' + m + 'm';
+    if (m > 0) return m + 'm ' + s + 's';
+    return s + 's';
+  }
+
+  // ------ Load data ------
+
+  async function loadLibrary() {
+    try {
+      const resp = await fetch(`${API_BASE}/library`);
+      const data = await resp.json();
+      allTracks = data.tracks || [];
+      const stats = data.stats || {};
+
+      // Update stats
+      document.getElementById('stat-total').textContent = stats.total_tracks || 0;
+      document.getElementById('stat-duration').textContent = fmtDuration(stats.total_duration_sec || 0);
+      document.getElementById('stat-genres').textContent = Object.keys(stats.genres || {}).length;
+      document.getElementById('stat-entities').textContent = Object.keys(stats.entity_types || {}).length;
+
+      // Build genre filters
+      buildGenreFilters(stats.genres || {});
+      buildGenreChart(stats.genres || {});
+      buildEntityList();
+
+      filteredTracks = allTracks;
+      renderTracks();
+    } catch (err) {
+      console.error('Failed to load library:', err);
+      document.getElementById('track-grid').innerHTML =
+        '<div class="loading-text">Failed to load library. Is the backend running?</div>';
+    }
+  }
+
+  async function loadStatus() {
+    try {
+      const resp = await fetch(`${API_BASE}/`);
+      const data = await resp.json();
+
+      const badge = document.getElementById('config-badge');
+      const dot = document.getElementById('config-dot');
+      const text = document.getElementById('config-text');
+
+      document.getElementById('stat-provider').textContent = data.provider || '--';
+
+      if (data.api_configured) {
+        dot.className = 'config-dot ok';
+        text.textContent = data.provider + ' connected';
+        badge.className = 'config-badge ok';
+      } else {
+        dot.className = 'config-dot warn';
+        text.textContent = 'Mock mode (no API key)';
+        badge.className = 'config-badge warn';
+      }
+    } catch (err) {
+      document.getElementById('config-text').textContent = 'Backend offline';
+      document.getElementById('config-dot').className = 'config-dot warn';
+      document.getElementById('config-badge').className = 'config-badge warn';
+    }
+  }
+
+  // ------ Build UI components ------
+
+  function buildGenreFilters(genres) {
+    const bar = document.getElementById('filter-bar');
+    const chips = Object.entries(genres)
+      .sort((a, b) => b[1] - a[1])
+      .map(([genre]) =>
+        `<span class="filter-chip" onclick="filterGenre('${genre}', this)">${genre}</span>`
+      ).join('');
+    bar.innerHTML = `<span class="filter-chip active" onclick="filterGenre(null, this)">All</span>` + chips;
+  }
+
+  function buildGenreChart(genres) {
+    const chart = document.getElementById('genre-chart');
+    const entries = Object.entries(genres).sort((a, b) => b[1] - a[1]);
+    if (entries.length === 0) {
+      chart.innerHTML = '<div style="font-size:12px;color:var(--surface-base-text-secondary);padding:8px 0;">No data yet</div>';
+      return;
+    }
+    const max = entries[0][1];
+    chart.innerHTML = entries.map(([genre, count]) => {
+      const pct = (count / max) * 100;
+      return `
+        <div class="genre-row">
+          <span class="genre-label">${genre}</span>
+          <div class="genre-bar-wrap">
+            <div class="genre-bar" style="width: ${pct}%"></div>
+          </div>
+          <span class="genre-count">${count}</span>
+        </div>`;
+    }).join('');
+  }
+
+  function buildEntityList() {
+    const entityMap = {};
+    for (const t of allTracks) {
+      const key = `${t.entity_type}/${t.entity_id}`;
+      if (!entityMap[key]) {
+        entityMap[key] = { type: t.entity_type, id: t.entity_id, count: 0 };
+      }
+      entityMap[key].count++;
+    }
+
+    const list = document.getElementById('entity-list');
+    const entries = Object.values(entityMap).sort((a, b) => b.count - a.count);
+    if (entries.length === 0) {
+      list.innerHTML = '<div style="font-size:12px;color:var(--surface-base-text-secondary);padding:8px 0;">No entities with tracks</div>';
+      return;
+    }
+
+    list.innerHTML = entries.map(e => `
+      <div class="entity-item">
+        <span class="entity-item-name">${e.id.substring(0, 16)}...</span>
+        <span class="entity-item-type">${e.type}</span>
+        <span class="entity-item-count">${e.count} track${e.count !== 1 ? 's' : ''}</span>
+      </div>
+    `).join('');
+  }
+
+  // ------ Filtering ------
+
+  function filterGenre(genre, chipEl) {
+    // Update active chip
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    if (chipEl) chipEl.classList.add('active');
+
+    activeGenre = genre;
+    if (genre) {
+      filteredTracks = allTracks.filter(t => (t.genre || '').toLowerCase() === genre.toLowerCase());
+    } else {
+      filteredTracks = allTracks;
+    }
+    renderTracks();
+  }
+
+  // ------ Render tracks ------
+
+  function renderTracks() {
+    const grid = document.getElementById('track-grid');
+
+    if (filteredTracks.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-library">
+          <div class="empty-library-icon">&#9835;</div>
+          <div class="empty-library-title">No tracks found</div>
+          <div class="empty-library-desc">
+            ${activeGenre
+              ? 'No tracks with genre "' + activeGenre + '". Try a different filter.'
+              : 'Generate music from any entity\'s Music Studio tab to start building your library.'
+            }
+          </div>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = filteredTracks.map((t, i) => {
+      const title = t.prompt ? t.prompt.substring(0, 55) : t.filename;
+      const date = t.created_at ? new Date(t.created_at * 1000).toLocaleDateString() : '';
+      const bars = generateWaveformBars(20);
+
+      return `
+        <div class="lib-track">
+          <div class="lib-track-top">
+            <div class="lib-track-title" title="${(t.prompt || t.filename).replace(/"/g, '&quot;')}">${title}</div>
+          </div>
+          <div class="lib-track-entity">
+            ${t.entity_type}/${t.entity_id ? t.entity_id.substring(0, 12) + '...' : '?'} &middot; ${date}
+          </div>
+          <div class="lib-track-badges">
+            ${t.genre ? `<span class="lib-badge lib-badge-genre">${t.genre}</span>` : ''}
+            ${t.mood ? `<span class="lib-badge lib-badge-mood">${t.mood}</span>` : ''}
+            ${t.provider ? `<span class="lib-badge lib-badge-provider">${t.provider}</span>` : ''}
+            ${t.duration ? `<span class="lib-badge lib-badge-duration">${t.duration}s</span>` : ''}
+          </div>
+          <div class="lib-player">
+            <button class="lib-play-btn" onclick="toggleLibTrack(${i})" id="lib-btn-${i}">
+              <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            <div class="lib-waveform" id="lib-wave-${i}" onclick="seekLibTrack(event, ${i})">
+              ${bars}
+            </div>
+            <span class="lib-time" id="lib-time-${i}">0:00</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function generateWaveformBars(count) {
+    let html = '';
+    for (let i = 0; i < count; i++) {
+      const h = Math.random() * 14 + 4;
+      html += `<div class="bar" style="height:${h}px"></div>`;
+    }
+    return html;
+  }
+
+  // ------ Playback ------
+
+  audioEl.addEventListener('timeupdate', () => {
+    if (activeTrackIdx < 0 || !audioEl.duration) return;
+    const pct = (audioEl.currentTime / audioEl.duration) * 100;
+    const timeEl = document.getElementById(`lib-time-${activeTrackIdx}`);
+    if (timeEl) timeEl.textContent = fmtTime(audioEl.currentTime);
+
+    // Update waveform bars
+    const wave = document.getElementById(`lib-wave-${activeTrackIdx}`);
+    if (wave) {
+      const bars = wave.querySelectorAll('.bar');
+      const activeCount = Math.floor((pct / 100) * bars.length);
+      bars.forEach((bar, i) => bar.classList.toggle('active', i < activeCount));
+    }
+  });
+
+  audioEl.addEventListener('ended', () => {
+    isPlaying = false;
+    if (activeTrackIdx >= 0) {
+      updateLibButton(activeTrackIdx, false);
+    }
+  });
+
+  function updateLibButton(idx, playing) {
+    const btn = document.getElementById(`lib-btn-${idx}`);
+    if (!btn) return;
+    if (playing) {
+      btn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/></svg>`;
+    } else {
+      btn.innerHTML = `<svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>`;
+    }
+  }
+
+  function toggleLibTrack(idx) {
+    if (activeTrackIdx === idx && isPlaying) {
+      audioEl.pause();
+      isPlaying = false;
+      updateLibButton(idx, false);
+      return;
+    }
+
+    // Stop previous
+    if (activeTrackIdx >= 0 && activeTrackIdx !== idx) {
+      updateLibButton(activeTrackIdx, false);
+      // Reset waveform
+      const prevWave = document.getElementById(`lib-wave-${activeTrackIdx}`);
+      if (prevWave) prevWave.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
+    }
+
+    if (activeTrackIdx !== idx) {
+      audioEl.src = filteredTracks[idx].audio_url;
+      activeTrackIdx = idx;
+    }
+
+    audioEl.play().catch(() => {});
+    isPlaying = true;
+    updateLibButton(idx, true);
+  }
+
+  function seekLibTrack(e, idx) {
+    if (activeTrackIdx !== idx || !audioEl.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    audioEl.currentTime = pct * audioEl.duration;
+  }
+
+  // ------ Initialize ------
+  loadStatus();
+  loadLibrary();
+</script>
+</body>
+</html>
