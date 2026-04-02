@@ -60,7 +60,8 @@
       "description": "URL of the running ComfyUI server",
       "required": true,
       "default": "http://localhost:8188",
-      "scope": "instance"
+      "scope": "instance",
+      "test_endpoint": "connect"
     },
     "workflows_dir": {
       "type": "string",
