@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "studiobrain-templates"
+version = "0.1.0"
+description = "StudioBrain entity templates, generation rules, and plugin definitions"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+authors = [{name = "Biloxi Studios Inc."}]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Repository = "https://github.com/BiloxiStudios/studiobrain-templates"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["studiobrain_templates*"]
+
+[tool.setuptools.package-data]
+studiobrain_templates = [
+    "templates/**/*.md",
+    "templates/**/*.json",
+    "templates/**/*.yaml",
+    "templates/**/*.yml",
+    "rules/**/*.md",
+    "rules/**/*.yaml",
+    "rules/**/*.yml",
+    "plugins/**/*.json",
+    "plugins/**/*.css",
+    "plugins/**/*.html",
+    "plugins/**/*.py",
+    "plugins/**/*.js",
+    "schemas/**/*.json",
+]
