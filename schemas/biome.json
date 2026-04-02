@@ -1,0 +1,376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/biome.json",
+  "title": "StudioBrain Biome Entity Schema",
+  "description": "JSON Schema for the BIOME entity YAML frontmatter.",
+  "allOf": [
+    {
+      "$ref": "./_base.json"
+    }
+  ],
+  "properties": {
+    "entity_type": {
+      "const": "biome"
+    },
+    "biome_name": {
+      "type": "string",
+      "description": "Display name of the biome."
+    },
+    "biome_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "forest",
+        "desert",
+        "tundra",
+        "ocean",
+        "mountain",
+        "swamp",
+        "plains",
+        "volcanic",
+        "urban",
+        "custom",
+        null
+      ],
+      "description": "Primary biome classification."
+    },
+    "climate": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Climate zone (e.g. Tropical, Temperate, Arid, Polar)."
+    },
+    "temperature_range": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "low": {
+          "type": "string"
+        },
+        "high": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string",
+          "enum": [
+            "C",
+            "F"
+          ]
+        }
+      },
+      "description": "Typical temperature range with unit."
+    },
+    "humidity": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "General humidity level."
+    },
+    "precipitation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Rainfall/snowfall description."
+    },
+    "weather_patterns": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Recurring weather phenomena."
+    },
+    "terrain_description": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Physical geography and landforms."
+    },
+    "elevation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Elevation range description."
+    },
+    "water_features": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Rivers, lakes, springs, and other water bodies."
+    },
+    "soil_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Dominant soil composition."
+    },
+    "flora": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Dominant plant species or vegetation types."
+    },
+    "fauna": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Dominant animal species."
+    },
+    "natural_resources": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Extractable or harvestable resources."
+    },
+    "ecosystem_health": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "thriving",
+        "stable",
+        "declining",
+        "endangered",
+        "collapsed",
+        null
+      ],
+      "description": "Overall health of the biome's ecosystem."
+    },
+    "hazards": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Environmental hazards present in the biome."
+    },
+    "threat_level": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "safe",
+        "low",
+        "moderate",
+        "high",
+        "extreme",
+        null
+      ],
+      "description": "Overall danger rating."
+    },
+    "seasonal_changes": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "spring": {
+          "type": "string"
+        },
+        "summer": {
+          "type": "string"
+        },
+        "autumn": {
+          "type": "string"
+        },
+        "winter": {
+          "type": "string"
+        }
+      },
+      "description": "How the biome transforms across seasons."
+    },
+    "atmosphere": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Overall mood and feel."
+    },
+    "dominant_colors": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "primary": {
+          "type": "string"
+        },
+        "secondary": {
+          "type": "string"
+        },
+        "accent": {
+          "type": "string"
+        },
+        "sky": {
+          "type": "string"
+        }
+      },
+      "description": "Color palette representing the biome's visual identity."
+    },
+    "ambient_sounds": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Characteristic sounds of the biome."
+    },
+    "ambient_smells": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Characteristic smells of the biome."
+    },
+    "visibility": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "How far one can see in the biome."
+    },
+    "light_quality": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Characteristic quality of light."
+    },
+    "parent_location": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "ID of the parent location this biome belongs to."
+    },
+    "connected_biomes": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of adjacent or connected biomes."
+    },
+    "sub_regions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Named sub-areas within this biome."
+    },
+    "area_size": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Approximate area or qualitative size."
+    },
+    "narrative_importance": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "minor",
+        "moderate",
+        "major",
+        "critical",
+        null
+      ]
+    },
+    "story_function": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "cultural_significance": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "How inhabitants or travelers view this biome."
+    },
+    "historical_events": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "ai_atmosphere_description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ai_visual_style": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ai_ambient_summary": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "entity_type",
+    "template_version",
+    "template_category",
+    "created_date",
+    "last_updated"
+  ],
+  "additionalProperties": true
+}

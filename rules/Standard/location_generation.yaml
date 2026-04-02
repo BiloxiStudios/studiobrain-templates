@@ -1,0 +1,95 @@
+---
+rule_id: location_generation
+name: Location Generation Rules
+description: AI generation constraints for creating consistent, atmospheric locations
+version: "1.0"
+scope: standard
+priority: medium
+entity_type: location
+applies_to:
+  - location
+associated_skill: location_writer
+
+rules:
+  - id: locgen_001
+    category: structure
+    description: Every location must belong to a parent area (district, region, continent,
+      or equivalent). Locations without spatial context cannot be placed on maps, referenced
+      in travel, or connected to other locations. Use the parent_location field.
+    severity: error
+    applies_to: [location]
+
+  - id: locgen_002
+    category: atmosphere
+    description: Atmosphere must be conveyed through concrete sensory detail, not abstract
+      adjectives. "Creepy" is not a description. "Water drips from a cracked pipe onto
+      a mold-blackened tile floor" is. Every atmosphere section must include at least
+      one sound, one visual, and one non-visual sensory detail.
+    severity: warning
+    applies_to: [location]
+
+  - id: locgen_003
+    category: consistency
+    description: A location's condition must match its history and current use. An
+      abandoned building should show decay. A heavily trafficked market should show
+      wear. A newly built structure should look clean. Condition, lighting, and hazards
+      must align.
+    severity: warning
+    applies_to: [location]
+
+  - id: locgen_004
+    category: navigation
+    description: Layout descriptions must be spatially coherent. Rooms connect through
+      doors, hallways, and stairs -- not teleportation. If a location has multiple floors,
+      describe how to move between them. Entrance points must be explicitly stated.
+    severity: warning
+    applies_to: [location]
+
+  - id: locgen_005
+    category: hazards
+    description: Every location should have at least one environmental hazard or point
+      of tension. Even safe locations have risks -- a library might have unstable
+      shelving, a market might have pickpockets, a home might have a gas leak. Hazards
+      create narrative opportunity.
+    severity: suggestion
+    applies_to: [location]
+
+  - id: locgen_006
+    category: population
+    description: NPC density and crowd behavior must be appropriate to the location
+      type, time of day, and narrative context. A bar is empty at 8am and packed at
+      10pm. A hospital is always staffed. A hideout is deliberately sparse.
+    severity: warning
+    applies_to: [location]
+
+  - id: locgen_007
+    category: economy
+    description: If a location offers services or commerce, prices and inventory must
+      be consistent with the setting's economy and the location's condition. A luxury
+      boutique does not sell at bargain prices. A scavenger camp does not stock rare
+      imports.
+    severity: suggestion
+    applies_to: [location]
+
+  - id: locgen_008
+    category: scale
+    description: Location size must be realistic for its type. A convenience store is
+      not the size of a warehouse. A castle has dozens of rooms, not three. Size affects
+      exploration time, NPC capacity, and resource availability.
+    severity: warning
+    applies_to: [location]
+
+defaults:
+  require_atmosphere_section: true
+  require_layout_section: true
+  require_hazards: true
+  min_description_length: 100
+  min_entrance_points: 1
+
+validation:
+  - "Does the location belong to a parent area?"
+  - "Is the atmosphere described through concrete sensory detail?"
+  - "Does the condition match the location's history?"
+  - "Is the layout spatially coherent?"
+  - "Does it have at least one hazard or tension point?"
+  - "Is the scale realistic for the location type?"

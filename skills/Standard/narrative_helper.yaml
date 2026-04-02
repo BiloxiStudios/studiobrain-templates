@@ -1,0 +1,121 @@
+---
+skill_id: narrative_helper
+name: Narrative Connection Suggester
+description: Analyzes existing entities in a project and suggests plot connections,
+  narrative threads, and story opportunities between them. Finds characters who
+  should meet, locations that connect thematically, items that could drive quests,
+  and biomes that set the stage for conflict. Turns a collection of entities into
+  a web of story potential.
+version: "1.0"
+category: generation
+applies_to: all
+tags: [narrative, plot, connections, story, suggestions]
+capabilities: [entity_read, entity_list, ai_generate]
+min_tier: free
+
+# Input requirements
+inputs:
+  required: []
+  optional:
+    - focus_entity      # Entity ID to find connections for
+    - connection_type   # Type of narrative connection to suggest
+    - depth             # How many degrees of separation to explore
+    - genre_tone        # Tone guidance for suggestions
+
+# AI prompt configuration
+prompts:
+  system: |
+    You are a narrative designer reviewing a creative project's entity database.
+    Your job is to find untapped story connections between entities and suggest
+    compelling narrative threads.
+
+    Connection types to look for:
+
+    1. **Conflict**: Characters with opposing motivations, factions competing for
+       the same resource, locations contested by multiple groups. Conflict drives story.
+
+    2. **Secret links**: A character's backstory mentions a place that connects to
+       another character's history. An item's origin ties to a location's founding.
+       Hidden connections create discovery moments.
+
+    3. **Resource tension**: A biome's rare resource is needed by a faction. A
+       character has the only key to a location. An item is the missing piece of
+       a larger artifact. Scarcity creates motivation.
+
+    4. **Thematic echoes**: Two characters facing the same dilemma differently.
+       Two locations that mirror each other (one thriving, one ruined). An item
+       that represents what a character lost. Parallels create depth.
+
+    5. **Causal chains**: Event A caused Event B which displaced Character C who
+       now seeks Item D located in Biome E. Chains create quests and arcs.
+
+    6. **Missing pieces**: The project has a villain but no lair. A quest reward
+       but no quest giver. A faction with territory but no leader. Gaps suggest
+       new entities to create.
+
+    For each suggestion:
+    - **Entities involved**: Which existing entities connect
+    - **Connection type**: Which category from above
+    - **Story hook**: A 2-3 sentence narrative pitch
+    - **Implementation**: What to add or modify (new entity, updated backstory,
+      new relationship field)
+    - **Strength**: strong (obvious fit), medium (requires minor additions),
+      speculative (creative stretch)
+
+  user: |
+    Analyze the following entities and suggest narrative connections:
+
+    Focus: {focus_context}
+    Connection types: {connection_type}
+    Depth: {depth} degrees of separation
+    Tone: {genre_tone}
+
+    Entity data:
+    {entity_data}
+
+# Parameter definitions
+parameters:
+  focus_entity:
+    type: string
+    required: false
+    description: "Entity ID to center the analysis on. If omitted, analyzes the entire
+      project for the best connection opportunities."
+  connection_type:
+    type: array
+    default: [conflict, secret_links, resource_tension, thematic_echoes, causal_chains, missing_pieces]
+    items:
+      type: string
+      enum: [conflict, secret_links, resource_tension, thematic_echoes, causal_chains, missing_pieces]
+    description: "Which types of narrative connections to suggest"
+  depth:
+    type: integer
+    default: 2
+    minimum: 1
+    maximum: 4
+    description: "How many degrees of separation to explore. 1 = direct connections only.
+      4 = distant chains (slower, more creative)."
+  genre_tone:
+    type: string
+    required: false
+    default: "match_project"
+    description: "Tone for suggestions: match_project (infer from entities), dark,
+      comedic, epic, intimate, mystery, horror. Affects the style of story hooks."
+
+# Output configuration
+output:
+  format: markdown
+  sections:
+    - top_connections    # 3-5 strongest suggestions
+    - by_type            # All suggestions grouped by connection type
+    - missing_pieces     # Suggested new entities to fill gaps
+    - entity_web         # Summary of how entities interconnect
+  max_tokens: 3000
+  max_suggestions: 15
+
+# Quality checks
+validation:
+  - "Do all referenced entities actually exist in the project?"
+  - "Are story hooks specific to the entities involved (not generic)?"
+  - "Do suggestions respect the project's established tone and lore?"
+  - "Are implementation suggestions actionable and concrete?"
+  - "Is each suggestion distinct (no duplicates from different angles)?"

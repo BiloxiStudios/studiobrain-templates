@@ -36,7 +36,8 @@
         "dialogue",
         "timeline",
         "universe",
-        "style_bible"
+        "style_bible",
+        "biome"
       ]
     },
     "template_version": {

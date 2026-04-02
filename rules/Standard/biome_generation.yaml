@@ -1,0 +1,118 @@
+---
+rule_id: biome_generation
+name: Biome Generation Rules
+description: AI generation constraints for creating ecologically consistent biomes
+version: "1.0"
+scope: standard
+priority: medium
+entity_type: biome
+applies_to:
+  - biome
+associated_skill: biome_writer
+
+rules:
+  - id: biomegen_001
+    category: ecology
+    description: Flora must survive in the stated climate. Cross-reference temperature
+      range, humidity, and precipitation before assigning plant species. Tropical plants
+      die in tundra. Cacti die in swamps. If unusual flora exists, provide an in-world
+      explanation.
+    severity: error
+    applies_to: [biome]
+
+  - id: biomegen_002
+    category: ecology
+    description: Fauna must have a viable food chain within the biome. Predator counts
+      must be lower than prey counts. Herbivores require sufficient vegetation. Aquatic
+      species require water features. Each animal must have a plausible ecological niche.
+    severity: error
+    applies_to: [biome]
+
+  - id: biomegen_003
+    category: weather
+    description: Weather patterns must follow from geography and climate type. Mountain
+      biomes have altitude-based temperature gradients. Coastal biomes have maritime
+      weather moderation. Interior biomes have continental extremes. Anomalous weather
+      requires in-world justification.
+    severity: error
+    applies_to: [biome]
+
+  - id: biomegen_004
+    category: transitions
+    description: Connected biomes must have ecologically plausible transitions. Forest
+      does not abruptly become desert. Tundra does not border tropical jungle. Mountains
+      provide elevation-based transitions between most types. Include transition zones
+      in descriptions when connecting dissimilar biomes.
+    severity: warning
+    applies_to: [biome]
+
+  - id: biomegen_005
+    category: seasons
+    description: Seasonal changes must form a consistent cycle. Spring conditions must
+      follow from winter conditions. Summer prepares autumn. Each season's flora and
+      fauna behavior must track the climate shift. Equatorial biomes use wet/dry cycles
+      instead of four seasons.
+    severity: warning
+    applies_to: [biome]
+
+  - id: biomegen_006
+    category: resources
+    description: Natural resources must be appropriate to terrain and vegetation. Timber
+      requires trees. Minerals require rocky terrain. Fertile soil requires organic
+      cycles. Freshwater requires precipitation or underground sources. Resources should
+      drive narrative and economic value.
+    severity: warning
+    applies_to: [biome]
+
+  - id: biomegen_007
+    category: hazards
+    description: Every biome must have at least one environmental hazard consistent
+      with its type. Avalanches need mountains. Wildfires need dry vegetation. Flooding
+      needs water and rain. Hazard severity must correlate with the threat_level field.
+    severity: warning
+    applies_to: [biome]
+
+  - id: biomegen_008
+    category: sensory
+    description: Sensory details must match the physical environment. Dense canopy
+      produces dappled light. Deserts have harsh direct light. Swamps have limited
+      visibility. Ambient sounds must match the fauna present. Colors must reflect
+      dominant vegetation and terrain.
+    severity: suggestion
+    applies_to: [biome]
+
+  - id: biomegen_009
+    category: completeness
+    description: A biome should have at least 3 flora entries, 3 fauna entries, 1
+      natural resource, and 1 hazard. Biomes missing these minimums should remain
+      in draft status.
+    severity: suggestion
+    applies_to: [biome]
+
+  - id: biomegen_010
+    category: universality
+    description: Biomes are domain-agnostic. Do not assume fantasy, sci-fi, or any
+      specific genre unless the project context specifies it. A biome template works
+      for games, nature documentaries, cooking (regional ingredients), gardening (growing
+      zones), and any project involving environmental regions.
+    severity: info
+    applies_to: [biome]
+
+defaults:
+  min_flora: 3
+  min_fauna: 3
+  min_resources: 1
+  min_hazards: 1
+  require_seasonal_changes: true
+  require_sensory_details: true
+  require_connected_biomes: false
+
+validation:
+  - "Does the flora survive in the stated climate?"
+  - "Does the fauna have a viable food chain?"
+  - "Are weather patterns consistent with geography?"
+  - "Do connected biomes transition plausibly?"
+  - "Do seasonal changes form a closed cycle?"
+  - "Are resources appropriate to the terrain?"
+  - "Is there at least one environmental hazard?"
+  - "Do sensory details match the physical environment?"
