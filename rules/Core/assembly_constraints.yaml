@@ -1,16 +1,18 @@
 ---
 rule_id: assembly_constraints
 name: Asset Assembly Constraints
-description: Rules for asset layering, composition order, and visual assembly constraints
-version: "1.0"
+description: Rules for asset layering, composition order, visual assembly constraints, slot system, inheritance hierarchy, z-index ordering, and slot locking
+version: "2.0"
 scope: core
 priority: medium
 applies_to:
+  - assembly
   - character
   - location
   - item
 
 rules:
+  # ── Legacy layering rules (kept for backward compatibility) ──────────────
   - id: asm_001
     category: layering
     priority: high
@@ -46,12 +48,159 @@ rules:
     validation_type: suggestion
     applies_to: [character]
 
+  # ── Slot system ─────────────────────────────────────────────────────────
+  - id: asm_slot_001
+    category: slots
+    priority: critical
+    rule: "Every slot must belong to a named slot_group. Slots defined outside a group are rejected."
+    validation_type: error
+    applies_to: [assembly]
+
+  - id: asm_slot_002
+    category: slots
+    priority: critical
+    rule: "Required slots (required: true) must all be filled before an assembly can be exported or marked complete."
+    validation_type: error
+    applies_to: [assembly]
+
+  - id: asm_slot_003
+    category: slots
+    priority: high
+    rule: "overlay_modes must be a non-empty list. Allowed values: replace, overlay, blend, multiply, screen, add"
+    validation_type: error
+    applies_to: [assembly]
+
+  - id: asm_slot_004
+    category: slots
+    priority: high
+    rule: "accepted_types must be a non-empty list. Allowed values: png, webp, glb, fbx, jpg, svg"
+    validation_type: error
+    applies_to: [assembly]
+
+  - id: asm_slot_005
+    category: slots
+    priority: medium
+    rule: "If a slot declares mirror_of, it must also declare mirror_strategy (flip_x | flip_y | rotate_180)."
+    validation_type: error
+    applies_to: [assembly]
+
+  # ── Inheritance hierarchy ────────────────────────────────────────────────
+  - id: asm_inh_001
+    category: inheritance
+    priority: critical
+    rule: "Hierarchy order is Template → Profile → Variant → Zombie. Each tier must have a parent of the correct preceding tier."
+    validation_type: error
+    applies_to: [assembly]
+    hierarchy_chain:
+      - template
+      - profile
+      - variant
+      - zombie_variant
+
+  - id: asm_inh_002
+    category: inheritance
+    priority: high
+    rule: "Max inheritance depth is 4. Assemblies exceeding depth 4 are rejected."
+    validation_type: error
+    applies_to: [assembly]
+    max_depth: 4
+
+  - id: asm_inh_003
+    category: inheritance
+    priority: high
+    rule: "Non-template assemblies (profile, variant, zombie_variant) must supply a non-empty parent_assembly_id."
+    validation_type: error
+    applies_to: [assembly]
+
+  - id: asm_inh_004
+    category: inheritance
+    priority: high
+    rule: "inheritance_mode must be one of: full | selective | none."
+    validation_type: error
+    applies_to: [assembly]
+
+  # ── Z-index ordering ─────────────────────────────────────────────────────
+  - id: asm_zidx_001
+    category: z_index
+    priority: high
+    rule: "z_index values must be integers in range 1–999."
+    validation_type: warning
+    applies_to: [assembly]
+    z_index_min: 1
+    z_index_max: 999
+
+  - id: asm_zidx_002
+    category: z_index
+    priority: medium
+    rule: "No two slots in the same assembly may share an identical z_index value."
+    validation_type: warning
+    applies_to: [assembly]
+
+  - id: asm_zidx_003
+    category: z_index
+    priority: medium
+    rule: "Overlay slots (overlay_modes containing overlay, multiply, or blend) must use z_index ≥ 80."
+    validation_type: warning
+    applies_to: [assembly]
+    overlay_z_index_min: 80
+
+  # ── Slot locking ─────────────────────────────────────────────────────────
+  - id: asm_lock_001
+    category: locking
+    priority: high
+    rule: "locked_slots entries must reference valid slot_group.slot_name paths in the assembly's own slot_definitions."
+    validation_type: error
+    applies_to: [assembly]
+
+  - id: asm_lock_002
+    category: locking
+    priority: high
+    rule: "A child assembly must not assign an asset to any slot path listed in any ancestor's locked_slots."
+    validation_type: error
+    applies_to: [assembly]
+
+  - id: asm_lock_003
+    category: locking
+    priority: medium
+    rule: "Slot locks are additive down the inheritance chain: a child inherits all ancestor locks."
+    validation_type: error
+    applies_to: [assembly]
+
+  # ── Export profiles ───────────────────────────────────────────────────────
+  - id: asm_exp_001
+    category: export
+    priority: high
+    rule: "export_profile_files entries must reference YAML files that exist under templates/Standard/ExportProfiles/."
+    validation_type: error
+    applies_to: [assembly]
+
+  - id: asm_exp_002
+    category: export
+    priority: medium
+    rule: "Export is blocked until all required slots are filled. Partial exports flag missing required slots in the manifest."
+    validation_type: error
+    applies_to: [assembly]
+
 defaults:
   render_order: ["background", "body", "clothing", "accessories", "effects"]
   default_resolution: "2048x2048"
+  hierarchy_level: "template"
+  inheritance_mode: "full"
+  z_index_min: 1
+  z_index_max: 999
+  overlay_z_index_min: 80
+  slot_detection_confidence_threshold: 0.75
+  parent_similarity_threshold: 0.70
 
 validation:
   - "Are all asset layers present for a complete character assembly?"
   - "Do asset variants have correct compatibility tags?"
   - "Are all assets in the set at consistent resolution?"
   - "Do filenames follow the naming convention?"
+  - "Does hierarchy_level conform to the Template→Profile→Variant→Zombie chain?"
+  - "Does every non-template assembly have a valid parent_assembly_id?"
+  - "Are all locked_slots references valid slot_group.slot_name paths?"
+  - "Are all required slots filled before marking status: complete?"
+  - "Are z_index values unique and within 1–999?"
+  - "Do overlay slots use z_index ≥ 80?"
+  - "Are export_profile_files references resolvable on disk?"

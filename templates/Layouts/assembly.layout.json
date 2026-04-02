@@ -1,0 +1,341 @@
+{
+  "entity_type": "assembly",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "assembly_identity",
+      "title": "Assembly Identity",
+      "icon": "Layers",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Assembly ID",
+          "ui_component": "read-only-text",
+          "required": true,
+          "auto_generate_from": "name",
+          "placeholder": "auto-generated from name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores"
+        },
+        {
+          "key": "name",
+          "label": "Display Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Hero Base Template"
+        },
+        {
+          "key": "assembly_type",
+          "label": "Assembly Type",
+          "ui_component": "select",
+          "required": true,
+          "options": [
+            { "value": "character", "label": "Character" },
+            { "value": "prop", "label": "Prop" },
+            { "value": "building", "label": "Building" }
+          ]
+        },
+        {
+          "key": "hierarchy_level",
+          "label": "Hierarchy Level",
+          "ui_component": "select",
+          "required": true,
+          "options": [
+            { "value": "template", "label": "Template (root)" },
+            { "value": "profile", "label": "Profile" },
+            { "value": "variant", "label": "Variant" },
+            { "value": "zombie_variant", "label": "Zombie / Transformation Variant" },
+            { "value": "transformation_variant", "label": "Transformation Variant" }
+          ],
+          "help": "Template → Profile → Variant → Zombie. Max depth: 4."
+        },
+        {
+          "key": "parent_assembly_id",
+          "label": "Parent Assembly",
+          "ui_component": "entity-selector",
+          "reference_type": "assembly",
+          "placeholder": "Search for parent assembly...",
+          "max_selections": 1,
+          "help": "Required for Profile, Variant, and Zombie tiers"
+        },
+        {
+          "key": "inheritance_mode",
+          "label": "Inheritance Mode",
+          "ui_component": "select",
+          "options": [
+            { "value": "full", "label": "Full — inherit all unfilled slots from parent" },
+            { "value": "selective", "label": "Selective — inherit only listed slots" },
+            { "value": "none", "label": "None — standalone assembly" }
+          ]
+        },
+        {
+          "key": "source_entity_type",
+          "label": "Source Entity Type",
+          "ui_component": "select",
+          "options": [
+            { "value": "character", "label": "Character" },
+            { "value": "item", "label": "Item" },
+            { "value": "location", "label": "Location" }
+          ]
+        },
+        {
+          "key": "source_entity_id",
+          "label": "Source Entity",
+          "ui_component": "entity-selector",
+          "reference_type": "dynamic",
+          "reference_type_field": "source_entity_type",
+          "placeholder": "Search for source entity...",
+          "max_selections": 1
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "ui_component": "textarea",
+          "rows": 3,
+          "column_span": 2,
+          "placeholder": "Brief description of this assembly..."
+        }
+      ]
+    },
+    {
+      "id": "assembly_primary_image",
+      "title": "Composite Preview",
+      "icon": "Image",
+      "component": "primary-image",
+      "component_config": {
+        "object_fit": "contain"
+      },
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false
+    },
+    {
+      "id": "assembly_composer_panel",
+      "title": "Assembly Composer",
+      "icon": "Layers",
+      "component": "plugin:assembly-composer:slot-editor",
+      "component_config": {},
+      "component_source": "assembly-composer",
+      "surface": "accent",
+      "collapsed_default": false
+    },
+    {
+      "id": "assembly_inheritance_panel",
+      "title": "Inheritance Tree",
+      "icon": "GitBranch",
+      "component": "plugin:assembly-composer:inheritance-tree",
+      "component_config": {},
+      "component_source": "assembly-composer",
+      "surface": "secondary",
+      "collapsed_default": false
+    },
+    {
+      "id": "production_status",
+      "title": "Production Status",
+      "icon": "CheckCircle",
+      "columns": 2,
+      "collapsed_default": false,
+      "surface": "base",
+      "fields": [
+        {
+          "key": "production_status.general",
+          "label": "General Status",
+          "ui_component": "select",
+          "options": [
+            { "value": "concept", "label": "Concept" },
+            { "value": "in_progress", "label": "In Progress" },
+            { "value": "needs_work", "label": "Needs Work" },
+            { "value": "art_done", "label": "Art Done" },
+            { "value": "complete", "label": "Complete" }
+          ]
+        },
+        {
+          "key": "production_status.game_uefn",
+          "label": "UEFN Status",
+          "ui_component": "select",
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "planned", "label": "Planned" },
+            { "value": "in_progress", "label": "In Progress" },
+            { "value": "review", "label": "Review" },
+            { "value": "published", "label": "Published" },
+            { "value": "live", "label": "Live" }
+          ]
+        },
+        {
+          "key": "production_status.tv_showrunner",
+          "label": "Showrunner Status",
+          "ui_component": "select",
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "planned", "label": "Planned" },
+            { "value": "in_progress", "label": "In Progress" },
+            { "value": "review", "label": "Review" },
+            { "value": "episode", "label": "Episode" },
+            { "value": "current", "label": "Current" },
+            { "value": "archived", "label": "Archived" }
+          ]
+        },
+        {
+          "key": "production_status.notes",
+          "label": "Status Notes",
+          "ui_component": "text",
+          "placeholder": "Optional production notes..."
+        }
+      ]
+    },
+    {
+      "id": "slot_locking",
+      "title": "Slot Locking",
+      "icon": "Lock",
+      "columns": 1,
+      "collapsed_default": true,
+      "surface": "accent",
+      "fields": [
+        {
+          "key": "locked_slots",
+          "label": "Locked Slots",
+          "ui_component": "tag-input",
+          "placeholder": "e.g. head.head_base",
+          "help": "Slot paths that child assemblies cannot override. Format: slot_group.slot_name"
+        }
+      ]
+    },
+    {
+      "id": "color_variants",
+      "title": "Color Variants",
+      "icon": "Palette",
+      "columns": 1,
+      "collapsed_default": true,
+      "surface": "secondary",
+      "fields": [
+        {
+          "key": "color_variants",
+          "label": "Color Variants",
+          "ui_component": "object-array",
+          "help": "Named colorway variants for this assembly.",
+          "sub_fields": [
+            { "key": "name", "label": "Variant Name", "ui_component": "text" },
+            { "key": "description", "label": "Description", "ui_component": "text" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "infection_system",
+      "title": "Zombie / Infection System",
+      "icon": "Biohazard",
+      "columns": 1,
+      "collapsed_default": true,
+      "surface": "accent",
+      "fields": [
+        {
+          "key": "infection_system.enabled",
+          "label": "Enable Infection System",
+          "ui_component": "checkbox"
+        },
+        {
+          "key": "zombie_progression.enabled",
+          "label": "Enable Zombie Progression",
+          "ui_component": "checkbox"
+        }
+      ]
+    },
+    {
+      "id": "export_settings",
+      "title": "Export Profiles",
+      "icon": "Upload",
+      "columns": 1,
+      "collapsed_default": true,
+      "surface": "base",
+      "fields": [
+        {
+          "key": "export_profile_files",
+          "label": "Export Profiles",
+          "ui_component": "object-array",
+          "help": "Pipeline-specific export configurations.",
+          "sub_fields": [
+            { "key": "id", "label": "Profile ID", "ui_component": "text" },
+            { "key": "file", "label": "Profile File Path", "ui_component": "text" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ai_validation_config",
+      "title": "AI Validation",
+      "icon": "Brain",
+      "columns": 2,
+      "collapsed_default": true,
+      "surface": "secondary",
+      "fields": [
+        {
+          "key": "ai_validation.auto_validate_on_slot_assign",
+          "label": "Auto-validate on Slot Assign",
+          "ui_component": "checkbox"
+        },
+        {
+          "key": "ai_validation.validation_model",
+          "label": "Validation Model",
+          "ui_component": "text",
+          "placeholder": "florence2"
+        },
+        {
+          "key": "ai_validation.slot_detection_confidence_threshold",
+          "label": "Slot Detection Confidence",
+          "ui_component": "number",
+          "placeholder": "0.75"
+        },
+        {
+          "key": "ai_validation.style_consistency_threshold",
+          "label": "Style Consistency Threshold",
+          "ui_component": "number",
+          "placeholder": "0.80"
+        }
+      ]
+    },
+    {
+      "id": "tags_section",
+      "title": "Tags",
+      "icon": "Tag",
+      "columns": 1,
+      "collapsed_default": true,
+      "surface": "base",
+      "fields": [
+        {
+          "key": "tags",
+          "label": "Tags",
+          "ui_component": "tag-input",
+          "placeholder": "Add tag..."
+        }
+      ]
+    },
+    {
+      "id": "comfyui",
+      "component": "entity-workflow-trigger"
+    },
+    {
+      "id": "asset_browser",
+      "title": "Asset Browser",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "timeline_panel",
+      "title": "Timeline",
+      "icon": "Clock",
+      "component": "entity-timeline",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    }
+  ],
+  "updated_at": "2026-04-01T14:30:00.000000",
+  "created_at": "2026-04-01T14:30:00.000000",
+  "view_config": {
+    "layout_driven": true
+  }
+}

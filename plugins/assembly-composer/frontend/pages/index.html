@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Assembly Composer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Top bar ── */
+  .top-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 24px 28px 0;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--plugin-accent), var(--surface-secondary-bg));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .page-subtitle {
+    font-size: 12px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 3px;
+  }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 28px;
+    flex-wrap: wrap;
+  }
+  .filter-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  select, input {
+    padding: 6px 10px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 6px;
+    color: var(--surface-base-text);
+    font-size: 12px;
+  }
+  .btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--surface-elevated-border);
+    background: var(--surface-elevated-bg);
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+    background: var(--surface-elevated-bg);
+  }
+  .btn-primary {
+    background: var(--plugin-accent);
+    border-color: var(--plugin-accent);
+    color: #fff;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  /* ── Stats row ── */
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    padding: 0 28px 20px;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    flex: 1;
+    min-width: 130px;
+    padding: 14px 16px;
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 10px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--surface-base-text);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  /* ── Assembly grid ── */
+  .grid-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 120px;
+    gap: 8px;
+    padding: 6px 28px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--surface-base-text-secondary);
+    border-bottom: 1px solid var(--surface-elevated-border);
+  }
+  .assembly-list {
+    padding: 0 28px 40px;
+  }
+  .assembly-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 120px;
+    gap: 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--surface-elevated-border);
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.1s;
+    border-radius: 4px;
+  }
+  .assembly-row:hover { background: var(--surface-elevated-bg); padding-left: 6px; padding-right: 6px; margin: 0 -6px; }
+
+  .cell { font-size: 12px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cell-name { font-weight: 600; color: var(--surface-base-text); }
+  .cell-id { font-family: monospace; font-size: 10px; color: var(--surface-base-text-secondary); }
+
+  .level-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .lp-template    { background: rgba(99,102,241,0.15); color: #6366f1; }
+  .lp-profile     { background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .lp-variant     { background: rgba(34,197,94,0.15);  color: #22c55e; }
+  .lp-zombie_variant { background: rgba(168,85,247,0.15); color: #a855f7; }
+  .lp-transformation_variant { background: rgba(168,85,247,0.15); color: #a855f7; }
+
+  .status-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+  .status-complete  { background: var(--surface-success-border); }
+  .status-art_done  { background: #3b82f6; }
+  .status-in_progress { background: var(--plugin-accent); }
+  .status-needs_work  { background: var(--surface-warning-border); }
+  .status-concept     { background: var(--surface-base-text-secondary); }
+
+  .actions { display: flex; gap: 6px; }
+  .act-btn {
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--surface-elevated-border);
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .act-btn:hover {
+    border-color: var(--plugin-accent);
+    color: var(--plugin-accent);
+  }
+
+  /* ── Empty / Loading ── */
+  .loading, .empty {
+    text-align: center;
+    padding: 48px 0;
+    color: var(--surface-base-text-secondary);
+    font-size: 13px;
+  }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <div class="page-title">Assembly Composer</div>
+    <div class="page-subtitle">Visual composition · Slot system · Inheritance · Export</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="btn" id="btn-refresh">↻ Refresh</button>
+    <button class="btn btn-primary" id="btn-new">+ New Assembly</button>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <span class="filter-label">Type</span>
+  <select id="filter-type">
+    <option value="">All</option>
+    <option value="character">Character</option>
+    <option value="prop">Prop</option>
+    <option value="building">Building</option>
+  </select>
+  <span class="filter-label">Level</span>
+  <select id="filter-level">
+    <option value="">All</option>
+    <option value="template">Template</option>
+    <option value="profile">Profile</option>
+    <option value="variant">Variant</option>
+    <option value="zombie_variant">Zombie Variant</option>
+  </select>
+  <input id="filter-search" placeholder="Search name / ID…" style="width:180px">
+</div>
+
+<div id="stats-row" class="stats-row"></div>
+
+<div class="grid-header">
+  <span>Name</span>
+  <span>Type</span>
+  <span>Level</span>
+  <span>Status</span>
+  <span>Actions</span>
+</div>
+
+<div class="assembly-list" id="assembly-list">
+  <div class="loading"><div class="spinner"></div>Loading assemblies…</div>
+</div>
+
+<script>
+const API = '/api/plugins/assembly-composer';
+let allAssemblies = [];
+
+async function loadAssemblies() {
+  document.getElementById('assembly-list').innerHTML =
+    '<div class="loading"><div class="spinner"></div>Loading assemblies…</div>';
+  try {
+    const res = await fetch(`${API}/assemblies`);
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
+    allAssemblies = data.assemblies || [];
+    renderStats(allAssemblies);
+    applyFilters();
+  } catch (err) {
+    document.getElementById('assembly-list').innerHTML =
+      `<div class="loading" style="color:var(--surface-error-border)">Error: ${err.message}</div>`;
+  }
+}
+
+function renderStats(list) {
+  const byLevel = {};
+  list.forEach(a => {
+    const l = a.hierarchy_level || 'template';
+    byLevel[l] = (byLevel[l] || 0) + 1;
+  });
+  const complete = list.filter(a => a.production_status?.general === 'complete').length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-value">${list.length}</div>
+      <div class="stat-label">Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${byLevel.template || 0}</div>
+      <div class="stat-label">Templates</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${byLevel.profile || 0}</div>
+      <div class="stat-label">Profiles</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${byLevel.variant || 0}</div>
+      <div class="stat-label">Variants</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${(byLevel.zombie_variant || 0) + (byLevel.transformation_variant || 0)}</div>
+      <div class="stat-label">Zombie / Transform</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${complete}</div>
+      <div class="stat-label">Complete</div>
+    </div>`;
+}
+
+function applyFilters() {
+  const typeFilter  = document.getElementById('filter-type').value;
+  const levelFilter = document.getElementById('filter-level').value;
+  const search      = document.getElementById('filter-search').value.toLowerCase();
+
+  let filtered = allAssemblies.filter(a => {
+    if (typeFilter  && a.assembly_type     !== typeFilter)  return false;
+    if (levelFilter && a.hierarchy_level   !== levelFilter) return false;
+    if (search && !((a.name || '').toLowerCase().includes(search) || (a.id || '').toLowerCase().includes(search))) return false;
+    return true;
+  });
+
+  renderList(filtered);
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+function escAttr(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderList(list) {
+  if (!list.length) {
+    document.getElementById('assembly-list').innerHTML =
+      '<div class="empty">No assemblies match the current filters.</div>';
+    return;
+  }
+
+  const rows = list.map(a => {
+    const levelKey = a.hierarchy_level || 'template';
+    const levelPill = `<span class="level-pill lp-${escAttr(levelKey)}">${escHtml(levelKey.replace('_',' '))}</span>`;
+    const status = a.production_status?.general || 'concept';
+    const statusDot = `<span class="status-dot status-${escAttr(status)}"></span>${escHtml(status.replace('_',' '))}`;
+    return `
+      <div class="assembly-row" data-assembly-id="${escAttr(a.id)}" data-action="open">
+        <div class="cell">
+          <div class="cell-name">${escHtml(a.name || a.id)}</div>
+          <div class="cell-id">${escHtml(a.id)}</div>
+        </div>
+        <div class="cell">${escHtml(a.assembly_type || '—')}</div>
+        <div class="cell">${levelPill}</div>
+        <div class="cell" style="font-size:11px">${statusDot}</div>
+        <div class="cell actions">
+          <button class="act-btn" data-action="open" data-assembly-id="${escAttr(a.id)}">Open</button>
+          <button class="act-btn" data-action="export" data-assembly-id="${escAttr(a.id)}">Export</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('assembly-list').innerHTML = rows;
+
+  // Attach event listeners after DOM insertion (no inline handlers)
+  document.querySelectorAll('[data-action="open"]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = el.closest('[data-assembly-id]')?.dataset.assemblyId || el.dataset.assemblyId;
+      if (id) openAssembly(id);
+    });
+  });
+  document.querySelectorAll('[data-action="export"]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = el.dataset.assemblyId;
+      if (id) exportAssembly(id);
+    });
+  });
+}
+
+function openAssembly(id) {
+  if (window.parent && window.parent.postMessage) {
+    window.parent.postMessage({ type: 'navigate-to-entity', entityType: 'assembly', entityId: id }, '*');
+  }
+}
+
+async function exportAssembly(id) {
+  const profile = prompt('Export profile ID (e.g. showrunner_v1):', 'showrunner_v1');
+  if (!profile) return;
+  try {
+    const res = await fetch(`${API}/export`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assembly_id: id, profile_id: profile }),
+    });
+    const data = await res.json();
+    alert(data.message || (res.ok ? 'Export queued.' : data.detail));
+  } catch (err) {
+    alert('Export error: ' + err.message);
+  }
+}
+
+function newAssembly() {
+  if (window.parent && window.parent.postMessage) {
+    window.parent.postMessage({ type: 'create-entity', entityType: 'assembly' }, '*');
+  }
+}
+
+// Wire up static controls once DOM is ready (no inline handlers)
+document.getElementById('btn-refresh')?.addEventListener('click', loadAssemblies);
+document.getElementById('btn-new')?.addEventListener('click', newAssembly);
+document.getElementById('filter-type')?.addEventListener('change', applyFilters);
+document.getElementById('filter-level')?.addEventListener('change', applyFilters);
+document.getElementById('filter-search')?.addEventListener('input', applyFilters);
+
+loadAssemblies();
+</script>
+</body>
+</html>

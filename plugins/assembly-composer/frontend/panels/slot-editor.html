@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: 12px;
+    background: transparent;
+    color: var(--surface-base-text);
+    font-size: 13px;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+  .header-title {
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .btn {
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--surface-elevated-border);
+    background: var(--surface-base-bg);
+    color: var(--surface-base-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+    background: var(--surface-elevated-bg);
+  }
+  .btn-primary {
+    background: var(--plugin-accent);
+    border-color: var(--plugin-accent);
+    color: #fff;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  /* ── Completeness bar ── */
+  .completeness {
+    margin-bottom: 14px;
+  }
+  .completeness-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 5px;
+  }
+  .completeness-pct { font-weight: 700; color: var(--surface-base-text); }
+  .track {
+    height: 5px;
+    border-radius: 99px;
+    background: var(--surface-elevated-border);
+    overflow: hidden;
+  }
+  .track-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--plugin-accent);
+    transition: width 0.4s;
+  }
+
+  /* ── Slot groups ── */
+  .group {
+    margin-bottom: 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .group-header {
+    padding: 7px 10px;
+    background: var(--surface-elevated-bg);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+  .group-header:hover { color: var(--surface-base-text); }
+  .group-toggle { font-size: 10px; transition: transform 0.2s; }
+  .group.collapsed .group-toggle { transform: rotate(-90deg); }
+  .group-body { padding: 4px 0; }
+  .group.collapsed .group-body { display: none; }
+
+  /* ── Slot rows ── */
+  .slot-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background 0.1s;
+  }
+  .slot-row:hover { background: var(--surface-elevated-bg); }
+
+  .slot-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 5px;
+    border: 1px solid var(--surface-elevated-border);
+    background: var(--surface-elevated-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+  }
+  .slot-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .slot-thumb .plus {
+    font-size: 18px;
+    color: var(--surface-base-text-secondary);
+    line-height: 1;
+  }
+  .slot-thumb.filled { border-color: var(--plugin-accent); }
+  .slot-thumb.required-empty { border-color: var(--surface-error-border); border-style: dashed; }
+  .slot-thumb.locked {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .slot-info { flex: 1; min-width: 0; }
+  .slot-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--surface-base-text);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .slot-meta {
+    font-size: 10px;
+    color: var(--surface-base-text-secondary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .badge-required { background: rgba(239,68,68,0.15); color: var(--surface-error-border); }
+  .badge-locked { background: rgba(148,163,184,0.15); color: var(--surface-base-text-secondary); }
+  .badge-filled { background: rgba(34,197,94,0.15); color: var(--surface-success-border); }
+
+  .z-badge {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--surface-base-text-secondary);
+    background: var(--surface-elevated-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    flex-shrink: 0;
+    min-width: 28px;
+    text-align: center;
+  }
+
+  .slot-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .icon-btn {
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--surface-base-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.15s;
+  }
+  .icon-btn:hover {
+    border-color: var(--plugin-accent);
+    color: var(--surface-base-text);
+  }
+  .icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ── Export panel ── */
+  .export-section {
+    margin-top: 14px;
+    padding: 10px;
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 8px;
+    background: var(--surface-elevated-bg);
+  }
+  .export-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--surface-base-text-secondary);
+    margin-bottom: 8px;
+  }
+  .export-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  select.profile-select {
+    flex: 1;
+    padding: 5px 8px;
+    background: var(--surface-base-bg);
+    border: 1px solid var(--surface-elevated-border);
+    border-radius: 5px;
+    color: var(--surface-base-text);
+    font-size: 12px;
+  }
+
+  /* ── Loading / Empty ── */
+  .loading, .empty {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--surface-base-text-secondary);
+    font-size: 12px;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--surface-elevated-border);
+    border-top-color: var(--plugin-accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed;
+    bottom: 12px; left: 12px; right: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: rgba(34,197,94,0.15); border: 1px solid var(--surface-success-border); color: var(--surface-success-border); }
+  .toast.error   { background: rgba(239,68,68,0.15); border: 1px solid var(--surface-error-border); color: var(--surface-error-border); }
+</style>
+</head>
+<body>
+<div id="panel-root">
+  <div class="loading"><div class="spinner"></div>Loading slots…</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const ctx = window.PLUGIN_CONTEXT || {};
+const API = '/api/plugins/assembly-composer';
+const assemblyId = ctx.entityId;
+
+// Escaping helpers to prevent XSS when building HTML strings from server data
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+function escAttr(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => { t.className = 'toast'; }, 2500);
+}
+
+async function loadSlots() {
+  if (!assemblyId) {
+    document.getElementById('panel-root').innerHTML =
+      '<div class="empty">No assembly selected.</div>';
+    return;
+  }
+  try {
+    const [slotsRes, profilesRes] = await Promise.all([
+      fetch(`${API}/assemblies/${assemblyId}/slots`),
+      fetch(`${API}/export-profiles`),
+    ]);
+    if (!slotsRes.ok) throw new Error('Failed to load slots');
+    const slotsData = await slotsRes.json();
+    const profilesData = profilesRes.ok ? await profilesRes.json() : { profiles: [] };
+    render(slotsData, profilesData.profiles || []);
+  } catch (err) {
+    document.getElementById('panel-root').innerHTML =
+      `<div class="loading" style="color:var(--surface-error-border)">Error: ${err.message}</div>`;
+  }
+}
+
+function render(data, profiles) {
+  const { slot_definitions, locked_slots } = data;
+  const lockedSet = new Set(locked_slots || []);
+
+  let totalRequired = 0, filledRequired = 0;
+  const groupHtml = Object.entries(slot_definitions || {}).map(([groupName, slots]) => {
+    if (typeof slots !== 'object') return '';
+    const slotRows = Object.entries(slots).map(([slotName, meta]) => {
+      if (typeof meta !== 'object') return '';
+      const slotPath = `${groupName}.${slotName}`;
+      const isLocked = lockedSet.has(slotPath) || meta.locked;
+      const isRequired = meta.required === true;
+      const isFilled = Boolean(meta._asset_id);
+      if (isRequired) { totalRequired++; if (isFilled) filledRequired++; }
+
+      let thumbClass = 'slot-thumb';
+      if (isFilled) thumbClass += ' filled';
+      else if (isRequired) thumbClass += ' required-empty';
+      if (isLocked) thumbClass += ' locked';
+
+      const badges = [
+        isRequired ? '<span class="badge badge-required">req</span>' : '',
+        isLocked   ? '<span class="badge badge-locked" aria-label="Locked">🔒</span>' : '',
+        isFilled   ? '<span class="badge badge-filled">✓</span>' : '',
+      ].filter(Boolean).join(' ');
+
+      const z = meta.z_index || '–';
+      const desc = meta.description || (meta.overlay_modes || []).join(', ');
+
+      return `
+        <div class="slot-row" data-slot="${escAttr(slotPath)}" data-locked="${isLocked ? 'true' : 'false'}" data-z="${escAttr(String(z))}">
+          <div class="${thumbClass}"
+               data-action="${isLocked ? '' : 'assign'}"
+               title="${isLocked ? 'Locked — inherited from parent' : 'Click to assign asset'}">
+            ${isFilled
+              ? `<img src="${escAttr(meta._asset_preview || '')}" alt="${escAttr(slotName)}">`
+              : `<span class="plus" aria-hidden="true">${isLocked ? '🔒' : '+'}</span>`}
+          </div>
+          <div class="slot-info">
+            <div class="slot-name">${escHtml(slotName)} ${badges}</div>
+            <div class="slot-meta">${escHtml(desc)}</div>
+          </div>
+          <span class="z-badge" title="Z-index">z${escHtml(String(z))}</span>
+          <div class="slot-actions">
+            <button class="icon-btn" title="Reorder z-index"
+              data-action="reorder" ${isLocked ? 'disabled' : ''} aria-label="Reorder z-index for ${escAttr(slotPath)}">↕</button>
+            <button class="icon-btn" data-action="toggle-lock"
+              title="${isLocked ? 'Unlock' : 'Lock'} slot"
+              aria-label="${isLocked ? 'Unlock' : 'Lock'} slot ${escAttr(slotPath)}">
+              ${isLocked ? '🔓' : '🔒'}
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="group" id="group-${escAttr(groupName)}">
+        <div class="group-header" data-action="toggle-group" data-group="${escAttr(groupName)}">
+          <span>${escHtml(groupName.replace(/_/g,' '))}</span>
+          <span class="group-toggle" aria-hidden="true">▼</span>
+        </div>
+        <div class="group-body">${slotRows}</div>
+      </div>`;
+  }).join('');
+
+  const pct = totalRequired > 0 ? Math.round((filledRequired / totalRequired) * 100) : 100;
+  const profileOptions = profiles.map(p =>
+    `<option value="${escAttr(p.id)}">${escHtml(p.id)}</option>`).join('');
+
+  document.getElementById('panel-root').innerHTML = `
+    <div class="header">
+      <div class="header-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Slot Editor
+      </div>
+      <div class="header-actions">
+        <button class="btn" id="btn-refresh">↻ Refresh</button>
+      </div>
+    </div>
+
+    <div class="completeness">
+      <div class="completeness-row">
+        <span>Required slots filled</span>
+        <span class="completeness-pct">${filledRequired}/${totalRequired} (${pct}%)</span>
+      </div>
+      <div class="track"><div class="track-fill" style="width:${pct}%"></div></div>
+    </div>
+
+    ${groupHtml}
+
+    <div class="export-section">
+      <div class="export-title">Export</div>
+      <div class="export-row">
+        <select class="profile-select" id="export-profile-select">
+          ${profileOptions || '<option value="">No profiles found</option>'}
+        </select>
+        <button class="btn btn-primary" id="btn-export">Export ↗</button>
+      </div>
+    </div>`;
+
+  // Attach event listeners after DOM insertion
+  document.getElementById('btn-refresh')?.addEventListener('click', loadSlots);
+  document.getElementById('btn-export')?.addEventListener('click', doExport);
+
+  document.querySelectorAll('[data-action="toggle-group"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const groupName = el.dataset.group;
+      document.getElementById(`group-${groupName}`)?.classList.toggle('collapsed');
+    });
+  });
+
+  document.querySelectorAll('[data-action="assign"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const row = el.closest('[data-slot]');
+      if (row) assignSlot(row.dataset.slot);
+    });
+  });
+
+  document.querySelectorAll('[data-action="reorder"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const row = el.closest('[data-slot]');
+      if (row) reorderZ(row.dataset.slot, row.dataset.z);
+    });
+  });
+
+  document.querySelectorAll('[data-action="toggle-lock"]').forEach(el => {
+    el.addEventListener('click', () => {
+      const row = el.closest('[data-slot]');
+      if (row) toggleLock(row.dataset.slot, row.dataset.locked === 'true');
+    });
+  });
+}
+
+function assignSlot(slotPath) {
+  showToast(`Assign to ${slotPath} — open asset picker…`, 'success');
+  if (window.parent && window.parent.postMessage) {
+    window.parent.postMessage({ type: 'open-asset-picker', slotPath, assemblyId }, '*');
+  }
+}
+
+async function toggleLock(slotPath, currentlyLocked) {
+  try {
+    const res = await fetch(`${API}/assemblies/${assemblyId}/slots/lock`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assembly_id: assemblyId, slot_path: slotPath, locked: !currentlyLocked }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Lock change failed');
+    showToast(data.message || (currentlyLocked ? 'Slot unlocked' : 'Slot locked'));
+    setTimeout(loadSlots, 400);
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function reorderZ(slotPath, currentZ) {
+  const newZ = prompt(`New z-index for ${slotPath} (current: ${currentZ}, range 1–999):`, currentZ);
+  if (newZ === null) return;
+  const z = parseInt(newZ, 10);
+  if (isNaN(z) || z < 1 || z > 999) { showToast('Invalid z-index', 'error'); return; }
+  const [group, slot] = slotPath.split('.');
+  try {
+    const res = await fetch(`${API}/assemblies/${assemblyId}/slots/reorder`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assembly_id: assemblyId, reorder: [{ slot_group: group, slot_name: slot, z_index: z }] }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Reorder failed');
+    showToast(data.message || `z-index updated to ${z}`);
+    setTimeout(loadSlots, 400);
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function doExport() {
+  const profile = document.getElementById('export-profile-select')?.value;
+  if (!profile) { showToast('Select an export profile', 'error'); return; }
+  try {
+    const res = await fetch(`${API}/export`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ assembly_id: assemblyId, profile_id: profile }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Export failed');
+    showToast(data.message || 'Export job queued');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+loadSlots();
+</script>
+</body>
+</html>

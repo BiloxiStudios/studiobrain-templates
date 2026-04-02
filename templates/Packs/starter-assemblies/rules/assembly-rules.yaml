@@ -1,0 +1,44 @@
+rule_id: assembly_rules_pack
+name: Starter Assembly Rules
+description: Assembly-specific rules for the starter-assemblies pack — slot validation, inheritance chain enforcement, z-index ordering, and export prerequisites
+version: "1.0"
+scope: pack
+priority: high
+applies_to:
+  - assembly
+
+rules:
+  - id: pack_asm_001
+    category: inheritance
+    priority: critical
+    rule: "The hierarchy chain for any assembly in this pack must not exceed depth 4 (Template → Profile → Variant → Zombie)."
+    validation_type: error
+
+  - id: pack_asm_002
+    category: slots
+    priority: high
+    rule: "All required slots must be filled before the assembly can be exported via any profile."
+    validation_type: error
+
+  - id: pack_asm_003
+    category: z_index
+    priority: medium
+    rule: "Infection/damage overlay slots must use z_index in range 84–99."
+    validation_type: warning
+
+  - id: pack_asm_004
+    category: zombie_system
+    priority: critical
+    rule: "Zombie overlay assets must only use green, purple, or black. No red blood."
+    validation_type: error
+
+defaults:
+  hierarchy_level: "template"
+  inheritance_mode: "full"
+  overlay_z_index_min: 84
+
+validation:
+  - "Is hierarchy_level set correctly for each assembly?"
+  - "Do all non-template assemblies have a valid parent_assembly_id?"
+  - "Are all required slots filled?"
+  - "Do zombie overlays comply with the green/purple/black palette restriction?"
