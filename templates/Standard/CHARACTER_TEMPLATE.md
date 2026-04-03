@@ -2,6 +2,8 @@
 # METADATA
 template_version: "2.0"
 template_category: "entity"
+ui_icon: "Users"
+ui_color: "#6366f1"
 editable: true
 marketplace_eligible: true
 id: "[snake_case_name]"

@@ -2,6 +2,8 @@
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "document"
+ui_icon: "BookOpen"
+ui_color: "#7c3aed"
 editable: true
 marketplace_eligible: true
 id: "[snake_case_name]"  # Must match universe_id

@@ -4,6 +4,8 @@ name: "Item Display Name"
 
 # METADATA (REQUIRED)
 template_version: "1.0"
+ui_icon: "Package"
+ui_color: "#10b981"
 entity_type: "item"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"

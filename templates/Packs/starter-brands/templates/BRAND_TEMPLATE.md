@@ -4,6 +4,8 @@ name: "Brand Display Name"  # Display name shown to users
 
 # METADATA (REQUIRED)
 template_version: "1.0"
+ui_icon: "Building"
+ui_color: "#8b5cf6"
 entity_type: "brand"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"

@@ -4,6 +4,8 @@ name: "Location Display Name"  # Display name shown to users
 
 # METADATA (REQUIRED)
 template_version: "1.0"
+ui_icon: "MapPin"
+ui_color: "#f59e0b"
 entity_type: "location"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"

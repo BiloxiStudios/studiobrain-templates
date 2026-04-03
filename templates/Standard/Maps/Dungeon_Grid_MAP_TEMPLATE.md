@@ -1,5 +1,7 @@
 ---
 template_category: map
+ui_icon: "Grid3x3"
+ui_color: "#6d28d9"
 template_name: Dungeon Grid
 template_id: dungeon-grid
 description: Grid-based dungeon map with paintable terrain tiles, entity placement, and fog of war overlay.

@@ -2,6 +2,8 @@
 # METADATA
 template_version: "1.0"
 template_category: "system"
+ui_icon: "Sparkles"
+ui_color: "#d946ef"
 editable: true
 marketplace_eligible: false
 id: "[snake_case_prompt_id]"

@@ -2,6 +2,8 @@
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "core"
+ui_icon: "Clock"
+ui_color: "#64748b"
 editable: false
 marketplace_eligible: false
 id: "[snake_case_name]"  # Must match timeline entry (e.g., campaign_start_main_story)

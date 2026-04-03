@@ -5,6 +5,8 @@ name: "Item Display Name"
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "entity"
+ui_icon: "Package"
+ui_color: "#10b981"
 editable: true
 marketplace_eligible: true
 entity_type: "item"

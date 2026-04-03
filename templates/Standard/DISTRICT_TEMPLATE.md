@@ -5,6 +5,8 @@ name: "District Display Name"  # Display name shown to users
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "entity"
+ui_icon: "Map"
+ui_color: "#f97316"
 editable: true
 marketplace_eligible: true
 entity_type: "district"

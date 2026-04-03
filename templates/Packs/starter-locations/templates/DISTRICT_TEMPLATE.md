@@ -4,6 +4,8 @@ name: "District Display Name"  # Display name shown to users
 
 # METADATA (REQUIRED)
 template_version: "1.0"
+ui_icon: "Map"
+ui_color: "#f97316"
 entity_type: "district"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"

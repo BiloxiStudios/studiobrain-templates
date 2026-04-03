@@ -4,6 +4,8 @@ name: "Faction Display Name"
 
 # METADATA (REQUIRED)
 template_version: "1.0"
+ui_icon: "Shield"
+ui_color: "#ef4444"
 entity_type: "faction"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"

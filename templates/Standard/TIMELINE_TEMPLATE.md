@@ -2,6 +2,8 @@
 # METADATA (REQUIRED)
 template_version: "1.0"
 template_category: "entity"
+ui_icon: "Clock"
+ui_color: "#64748b"
 editable: true
 marketplace_eligible: false
 id: "[snake_case_name]"
