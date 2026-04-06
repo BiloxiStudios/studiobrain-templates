@@ -236,6 +236,15 @@ historical_events:
 ai_atmosphere_description: "[Brief atmospheric description for AI scene generation]"
 ai_visual_style: "[Visual style and mood for AI image generation]"
 ai_ambient_summary: "[Key environmental elements for AI context]"
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Description
+
+  ## Flora & Fauna
+
+  ## Climate
+
+  ## Notes
 ---
 
 # [Biome Name]

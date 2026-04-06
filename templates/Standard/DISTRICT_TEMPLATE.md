@@ -195,4 +195,13 @@ current_situation: null  # Will be in markdown below
 ai_district_ambiance: "[Overall mood and atmosphere for AI environmental generation]"
 ai_architectural_style: "[Key visual and structural elements for AI image generation]"
 ai_cultural_summary: "[Brief cultural and social context for AI content creation]"
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Description
+
+  ## Landmarks
+
+  ## Inhabitants
+
+  ## Notes
 ---

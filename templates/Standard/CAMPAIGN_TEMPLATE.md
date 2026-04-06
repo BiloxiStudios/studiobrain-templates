@@ -174,4 +174,13 @@ music_tracks:
 description: null  # Will be in markdown below
 backstory: null  # Will be in markdown below
 epilogue: null  # Will be in markdown below
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Summary
+
+  ## Story Arc
+
+  ## Key Events
+
+  ## Notes
 ---

@@ -115,6 +115,13 @@ json_structure: {}
 description: null
 dialogue_script: null
 implementation_notes: null
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Context
+
+  ## Script
+
+  ## Notes
 ---
 
 # Dialogue: [Dialogue Tree Display Name]

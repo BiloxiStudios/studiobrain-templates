@@ -275,6 +275,15 @@ dialogue_samples:
   - "[Example line 3 - showing their humor or personality quirk]"
   - "[Example line 4 - showing how they give information or instructions]"
   - "[Example line 5 - showing their reaction to conflict or danger]"
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Background Story
+
+  ## Personality Description
+
+  ## Dialogue Samples
+
+  ## Developer Notes
 ---
 
 # [Character Full Name]

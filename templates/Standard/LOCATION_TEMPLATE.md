@@ -245,6 +245,15 @@ gameplay_notes: null  # Will be in markdown below
 ai_atmosphere_description: "[Brief atmospheric description for AI scene generation]"
 ai_visual_style: "[Visual style and mood for AI image generation]"
 ai_ambient_summary: "[Key environmental elements for AI context]"
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Location Description
+
+  ## History
+
+  ## Notable Features
+
+  ## Notes
 ---
 
 # [Location Name]

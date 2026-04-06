@@ -227,6 +227,23 @@ track_trades: false
 notes: ""
 designer_notes: ""
 balance_notes: ""
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Item Description
+
+  Detailed description of the item and its purpose in the world.
+
+  ## Usage
+
+  How the item is used or equipped.
+
+  ## Lore & History
+
+  Background story and significance of this item.
+
+  ## Notes
+
+  Additional notes and observations.
 ---
 
 # [Item Name] - Complete Documentation

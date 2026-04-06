@@ -227,4 +227,13 @@ image_files:
 description: null  # Will be in markdown below
 background_lore: null  # Will be in markdown below
 event_script: null  # Will be in markdown below
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Summary
+
+  ## Details
+
+  ## Aftermath
+
+  ## Notes
 ---

@@ -240,4 +240,13 @@ inspiration_sources:
 universe_overview: null  # Will be in markdown below
 historical_timeline: null  # Will be in markdown below
 world_building_notes: null  # Will be in markdown below
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Overview
+
+  ## History
+
+  ## Setting
+
+  ## Notes
 ---

@@ -243,6 +243,15 @@ conspiracy_details: null  # Will be in markdown below
 ai_brand_voice: "[Brand's distinctive communication style and tone for AI content generation]"
 ai_visual_identity: "[Key visual elements and style for AI image generation]"
 ai_marketing_summary: "[Brief brand positioning for AI marketing content]"
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Overview
+
+  ## Identity & Values
+
+  ## Products & Services
+
+  ## Notes
 ---
 
 # [Brand Name]

@@ -192,6 +192,15 @@ description: null
 detailed_walkthrough: null
 hints_and_tips: null
 developer_notes: null
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Overview
+
+  ## Objectives
+
+  ## Rewards
+
+  ## Notes
 ---
 
 # Quest: [Quest Display Name]

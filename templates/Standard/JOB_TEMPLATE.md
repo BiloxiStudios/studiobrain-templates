@@ -165,6 +165,15 @@ job_benefits_gameplay: []  # In-game benefits of having this job
 quest_opportunities: []  # Quests available to characters with this job
   # - "corporate_espionage_mission"
   # - "customer_crisis_management"
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Description
+
+  ## Responsibilities
+
+  ## Requirements
+
+  ## Notes
 ---
 
 ## Job Description

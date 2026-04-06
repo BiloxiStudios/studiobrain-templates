@@ -285,6 +285,27 @@ description: null  # Will be in markdown below
 history: null  # Will be in markdown below
 ideology_detail: null  # Will be in markdown below
 operations_detail: null  # Will be in markdown below
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## History
+
+  The origins and historical development of this faction.
+
+  ## Organization
+
+  Structure, hierarchy, and operational methods.
+
+  ## Notable Members
+
+  Key figures and their roles within the faction.
+
+  ## Current Activities
+
+  Ongoing operations, goals, and recent developments.
+
+  ## Relations
+
+  Interactions with other factions, organizations, and the broader world.
 ---
 
 # [Faction Name]

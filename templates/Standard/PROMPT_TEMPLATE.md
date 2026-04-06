@@ -99,6 +99,13 @@ version_history:
     date: "[YYYY-MM-DD]"
     author: "[Author]"
     notes: "Initial version"
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Purpose
+
+  ## Prompt Text
+
+  ## Usage Notes
 ---
 
 # [Prompt Name]

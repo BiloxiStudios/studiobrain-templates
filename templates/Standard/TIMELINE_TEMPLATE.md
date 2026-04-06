@@ -125,6 +125,13 @@ consequences_analysis: null
 
 # CONTENT
 description: null
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Overview
+
+  ## Key Events
+
+  ## Notes
 ---
 
 # Timeline Entry: [Timeline Entry Display Name]

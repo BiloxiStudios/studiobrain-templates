@@ -691,6 +691,13 @@ export:
     - 1
     - 2
     - 3
+# NEW-ENTITY MARKDOWN SKELETON (SBAI-1857)
+markdown_skeleton: |
+  ## Overview
+
+  ## Components
+
+  ## Notes
 ---
 
 # [Assembly Name]
