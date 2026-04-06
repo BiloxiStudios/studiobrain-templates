@@ -1,0 +1,300 @@
+{
+  "entity_type": "event",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "Calendar",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Event ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores"
+        },
+        {
+          "key": "name",
+          "label": "Event Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Zombie Horde Attack"
+        },
+        {
+          "key": "event_type",
+          "label": "Event Type",
+          "ui_component": "select",
+          "options": [
+            {"value": "world", "label": "World"},
+            {"value": "local", "label": "Local"},
+            {"value": "personal", "label": "Personal"},
+            {"value": "faction", "label": "Faction"},
+            {"value": "seasonal", "label": "Seasonal"}
+          ]
+        },
+        {
+          "key": "event_scope",
+          "label": "Scope",
+          "ui_component": "select",
+          "options": [
+            {"value": "global", "label": "Global"},
+            {"value": "region", "label": "Region"},
+            {"value": "district", "label": "District"},
+            {"value": "location", "label": "Location"},
+            {"value": "personal", "label": "Personal"}
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "draft", "label": "Draft"},
+            {"value": "active", "label": "Active"},
+            {"value": "disabled", "label": "Disabled"},
+            {"value": "completed", "label": "Completed"},
+            {"value": "archived", "label": "Archived"}
+          ]
+        },
+        {
+          "key": "narrative_importance",
+          "label": "Narrative Importance",
+          "ui_component": "select",
+          "options": [
+            {"value": "minor", "label": "Minor"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "major", "label": "Major"},
+            {"value": "critical", "label": "Critical"}
+          ]
+        },
+        {
+          "key": "primary_image",
+          "label": "Primary Image",
+          "ui_component": "text",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "block_primary_image",
+      "title": "Primary Image",
+      "icon": "ImageIcon",
+      "component": "primary-image",
+      "component_config": {"object_fit": "contain"},
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false
+    },
+    {
+      "id": "timing",
+      "title": "Timing & Triggers",
+      "icon": "Clock",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "trigger_type",
+          "label": "Trigger Type",
+          "ui_component": "select",
+          "options": [
+            {"value": "scheduled", "label": "Scheduled"},
+            {"value": "random", "label": "Random"},
+            {"value": "conditional", "label": "Conditional"},
+            {"value": "manual", "label": "Manual"}
+          ]
+        },
+        {
+          "key": "trigger_probability",
+          "label": "Trigger Probability",
+          "ui_component": "text",
+          "placeholder": "25%"
+        },
+        {
+          "key": "start_time",
+          "label": "Start Time",
+          "ui_component": "text",
+          "placeholder": "2024-06-01T12:00:00"
+        },
+        {
+          "key": "end_time",
+          "label": "End Time",
+          "ui_component": "text",
+          "placeholder": "2024-06-01T15:00:00"
+        },
+        {
+          "key": "duration",
+          "label": "Duration",
+          "ui_component": "text",
+          "placeholder": "3 hours"
+        },
+        {
+          "key": "recurring",
+          "label": "Recurring",
+          "ui_component": "checkbox"
+        },
+        {
+          "key": "recurrence_pattern",
+          "label": "Recurrence Pattern",
+          "ui_component": "select",
+          "options": [
+            {"value": "daily", "label": "Daily"},
+            {"value": "weekly", "label": "Weekly"},
+            {"value": "monthly", "label": "Monthly"},
+            {"value": "seasonal", "label": "Seasonal"}
+          ]
+        }
+      ],
+      "surface": "secondary"
+    },
+    {
+      "id": "involved_entities",
+      "title": "Involved Entities",
+      "icon": "Users",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "affected_locations",
+          "label": "Affected Locations",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "location",
+          "max_selections": 20,
+          "placeholder": "Search for affected locations..."
+        },
+        {
+          "key": "affected_characters",
+          "label": "Affected Characters",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "max_selections": 20,
+          "placeholder": "Search for affected characters..."
+        },
+        {
+          "key": "affected_factions",
+          "label": "Affected Factions",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "faction",
+          "max_selections": 10,
+          "placeholder": "Search for affected factions..."
+        },
+        {
+          "key": "related_campaigns",
+          "label": "Related Campaigns",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "campaign",
+          "max_selections": 5,
+          "placeholder": "Search for related campaigns..."
+        },
+        {
+          "key": "related_quests",
+          "label": "Related Quests",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "quest",
+          "max_selections": 20,
+          "placeholder": "Search for related quests..."
+        }
+      ]
+    },
+    {
+      "id": "phases_and_outcome",
+      "title": "Phases & Outcomes",
+      "icon": "ListOrdered",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "event_phases",
+          "label": "Event Phases",
+          "ui_component": "object-array",
+          "sub_fields": [
+            {"key": "phase", "label": "Phase #", "ui_component": "number"},
+            {"key": "name", "label": "Name", "ui_component": "text"},
+            {"key": "duration", "label": "Duration", "ui_component": "text"},
+            {"key": "description", "label": "Description", "ui_component": "text"}
+          ]
+        },
+        {
+          "key": "story_consequences",
+          "label": "Story Consequences",
+          "ui_component": "object-array",
+          "sub_fields": [
+            {"key": "consequence", "label": "Consequence", "ui_component": "text"},
+            {"key": "description", "label": "Description", "ui_component": "text"}
+          ]
+        },
+        {
+          "key": "player_participation",
+          "label": "Player Participation",
+          "ui_component": "select",
+          "options": [
+            {"value": "required", "label": "Required"},
+            {"value": "optional", "label": "Optional"},
+            {"value": "automatic", "label": "Automatic"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "notification",
+      "title": "Notification",
+      "icon": "Bell",
+      "columns": 1,
+      "collapsed_default": true,
+      "fields": [
+        {
+          "key": "notification_text",
+          "label": "Notification Text",
+          "ui_component": "textarea",
+          "rows": 2,
+          "placeholder": "WARNING: Massive zombie horde detected..."
+        }
+      ]
+    },
+    {
+      "id": "block_relationships",
+      "title": "Cross-Entity References",
+      "icon": "Network",
+      "component": "entity-relationships",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "block_timeline",
+      "title": "Timeline Panel",
+      "icon": "Clock",
+      "component": "entity-timeline",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "markdown_body",
+      "title": "Background Lore & Script",
+      "icon": "FileText",
+      "component": "markdown-content",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "block_assets",
+      "title": "Asset Browser",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "comfyui",
+      "component": "entity-workflow-trigger"
+    }
+  ],
+  "updated_at": "2026-04-06T00:00:00.000Z",
+  "created_at": "2026-04-06T00:00:00.000Z",
+  "view_config": {
+    "layout_driven": true
+  }
+}

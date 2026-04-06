@@ -1,0 +1,324 @@
+{
+  "entity_type": "quest",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "Compass",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Quest ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores"
+        },
+        {
+          "key": "name",
+          "label": "Quest Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "The Missing Brain"
+        },
+        {
+          "key": "quest_type",
+          "label": "Quest Type",
+          "ui_component": "select",
+          "options": [
+            {"value": "main", "label": "Main Story"},
+            {"value": "side", "label": "Side Quest"},
+            {"value": "daily", "label": "Daily"},
+            {"value": "fetch", "label": "Fetch"},
+            {"value": "escort", "label": "Escort"},
+            {"value": "investigation", "label": "Investigation"}
+          ]
+        },
+        {
+          "key": "quest_category",
+          "label": "Category",
+          "ui_component": "text",
+          "placeholder": "investigation, combat, social..."
+        },
+        {
+          "key": "priority_level",
+          "label": "Priority",
+          "ui_component": "select",
+          "options": [
+            {"value": "low", "label": "Low"},
+            {"value": "normal", "label": "Normal"},
+            {"value": "high", "label": "High"},
+            {"value": "critical", "label": "Critical"}
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "draft", "label": "Draft"},
+            {"value": "active", "label": "Active"},
+            {"value": "completed", "label": "Completed"},
+            {"value": "archived", "label": "Archived"}
+          ]
+        },
+        {
+          "key": "estimated_time",
+          "label": "Estimated Time",
+          "ui_component": "text",
+          "placeholder": "1-2 hours"
+        },
+        {
+          "key": "required_level",
+          "label": "Required Level",
+          "ui_component": "number",
+          "placeholder": "1"
+        },
+        {
+          "key": "primary_image",
+          "label": "Primary Image",
+          "ui_component": "text",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "block_primary_image",
+      "title": "Primary Image",
+      "icon": "ImageIcon",
+      "component": "primary-image",
+      "component_config": {"object_fit": "contain"},
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false
+    },
+    {
+      "id": "organization",
+      "title": "Campaign & Prerequisites",
+      "icon": "Flag",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "parent_campaign",
+          "label": "Parent Campaign",
+          "ui_component": "entity-selector",
+          "reference_type": "campaign",
+          "max_selections": 1,
+          "placeholder": "Search for parent campaign..."
+        },
+        {
+          "key": "prerequisite_quests",
+          "label": "Prerequisite Quests",
+          "ui_component": "tag-input",
+          "placeholder": "Add prerequisite quest ID..."
+        },
+        {
+          "key": "required_skills",
+          "label": "Required Skills",
+          "ui_component": "tag-input",
+          "placeholder": "Add required skill..."
+        }
+      ],
+      "surface": "secondary"
+    },
+    {
+      "id": "objectives",
+      "title": "Objectives",
+      "icon": "Target",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "primary_objectives",
+          "label": "Primary Objectives",
+          "ui_component": "object-array",
+          "help": "The core objectives required to complete the quest.",
+          "sub_fields": [
+            {"key": "objective", "label": "Objective", "ui_component": "text"},
+            {"key": "type", "label": "Type", "ui_component": "text"}
+          ]
+        },
+        {
+          "key": "secondary_objectives",
+          "label": "Secondary Objectives",
+          "ui_component": "object-array",
+          "help": "Optional bonus objectives.",
+          "sub_fields": [
+            {"key": "objective", "label": "Objective", "ui_component": "text"},
+            {"key": "type", "label": "Type", "ui_component": "text"}
+          ]
+        },
+        {
+          "key": "completion_criteria",
+          "label": "Completion Criteria",
+          "ui_component": "tag-input",
+          "placeholder": "Add completion criterion..."
+        },
+        {
+          "key": "failure_conditions",
+          "label": "Failure Conditions",
+          "ui_component": "tag-input",
+          "placeholder": "Add failure condition..."
+        }
+      ]
+    },
+    {
+      "id": "characters_involved",
+      "title": "Characters Involved",
+      "icon": "Users",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "quest_giver",
+          "label": "Quest Giver",
+          "ui_component": "entity-selector",
+          "reference_type": "character",
+          "max_selections": 1,
+          "placeholder": "Search for quest giver..."
+        },
+        {
+          "key": "key_npcs",
+          "label": "Key NPCs",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "max_selections": 20,
+          "placeholder": "Search for key NPCs..."
+        },
+        {
+          "key": "target_characters",
+          "label": "Target Characters",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "max_selections": 10,
+          "placeholder": "Search for targets..."
+        },
+        {
+          "key": "involved_factions",
+          "label": "Involved Factions",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "faction",
+          "max_selections": 10,
+          "placeholder": "Search for factions..."
+        }
+      ]
+    },
+    {
+      "id": "locations",
+      "title": "Locations",
+      "icon": "MapPin",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "starting_location",
+          "label": "Starting Location",
+          "ui_component": "entity-selector",
+          "reference_type": "location",
+          "max_selections": 1,
+          "placeholder": "Search for start location..."
+        },
+        {
+          "key": "quest_locations",
+          "label": "Quest Locations",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "location",
+          "max_selections": 20,
+          "placeholder": "Search for quest locations..."
+        },
+        {
+          "key": "destination_location",
+          "label": "Destination",
+          "ui_component": "entity-selector",
+          "reference_type": "location",
+          "max_selections": 1,
+          "placeholder": "Search for destination..."
+        }
+      ]
+    },
+    {
+      "id": "rewards",
+      "title": "Rewards & Consequences",
+      "icon": "Gift",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "experience_reward",
+          "label": "Experience Reward",
+          "ui_component": "number",
+          "placeholder": "500"
+        },
+        {
+          "key": "currency_reward",
+          "label": "Currency Reward",
+          "ui_component": "number",
+          "placeholder": "200"
+        },
+        {
+          "key": "item_rewards",
+          "label": "Item Rewards",
+          "ui_component": "object-array",
+          "column_span": 2,
+          "sub_fields": [
+            {"key": "item_id", "label": "Item ID", "ui_component": "text"},
+            {"key": "quantity", "label": "Quantity", "ui_component": "number"}
+          ]
+        },
+        {
+          "key": "story_consequences",
+          "label": "Story Consequences",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "placeholder": "Add story consequence..."
+        }
+      ]
+    },
+    {
+      "id": "block_relationships",
+      "title": "Cross-Entity References",
+      "icon": "Network",
+      "component": "entity-relationships",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "block_timeline",
+      "title": "Timeline Panel",
+      "icon": "Clock",
+      "component": "entity-timeline",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "markdown_body",
+      "title": "Walkthrough & Notes",
+      "icon": "FileText",
+      "component": "markdown-content",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "block_assets",
+      "title": "Asset Browser",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "comfyui",
+      "component": "entity-workflow-trigger"
+    }
+  ],
+  "updated_at": "2026-04-06T00:00:00.000Z",
+  "created_at": "2026-04-06T00:00:00.000Z",
+  "view_config": {
+    "layout_driven": true
+  }
+}

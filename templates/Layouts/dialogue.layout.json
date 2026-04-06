@@ -1,0 +1,246 @@
+{
+  "entity_type": "dialogue",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "MessageSquare",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Dialogue ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores"
+        },
+        {
+          "key": "name",
+          "label": "Display Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Gary's Gas Station Chat"
+        },
+        {
+          "key": "tree_type",
+          "label": "Tree Type",
+          "ui_component": "select",
+          "options": [
+            {"value": "conversation", "label": "Conversation"},
+            {"value": "monologue", "label": "Monologue"},
+            {"value": "interrogation", "label": "Interrogation"},
+            {"value": "negotiation", "label": "Negotiation"},
+            {"value": "cinematic", "label": "Cinematic"}
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "draft", "label": "Draft"},
+            {"value": "active", "label": "Active"},
+            {"value": "archived", "label": "Archived"}
+          ]
+        },
+        {
+          "key": "atmosphere",
+          "label": "Atmosphere",
+          "ui_component": "text",
+          "placeholder": "casual, tense, somber..."
+        },
+        {
+          "key": "primary_image",
+          "label": "Primary Image",
+          "ui_component": "text"
+        }
+      ]
+    },
+    {
+      "id": "block_primary_image",
+      "title": "Primary Image",
+      "icon": "ImageIcon",
+      "component": "primary-image",
+      "component_config": {"object_fit": "contain"},
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false
+    },
+    {
+      "id": "speakers",
+      "title": "Speakers & Participants",
+      "icon": "Users",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "primary_speaker",
+          "label": "Primary Speaker",
+          "ui_component": "entity-selector",
+          "reference_type": "character",
+          "max_selections": 1,
+          "placeholder": "Search for primary speaker..."
+        },
+        {
+          "key": "participants",
+          "label": "Participants",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "max_selections": 10,
+          "placeholder": "Search for participating characters..."
+        }
+      ],
+      "surface": "secondary"
+    },
+    {
+      "id": "context",
+      "title": "Story Context",
+      "icon": "Link",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "quest_id",
+          "label": "Related Quest",
+          "ui_component": "entity-selector",
+          "reference_type": "quest",
+          "max_selections": 1,
+          "placeholder": "Search for quest..."
+        },
+        {
+          "key": "campaign_id",
+          "label": "Related Campaign",
+          "ui_component": "entity-selector",
+          "reference_type": "campaign",
+          "max_selections": 1,
+          "placeholder": "Search for campaign..."
+        },
+        {
+          "key": "event_id",
+          "label": "Related Event",
+          "ui_component": "entity-selector",
+          "reference_type": "event",
+          "max_selections": 1,
+          "placeholder": "Search for event..."
+        },
+        {
+          "key": "location_id",
+          "label": "Location",
+          "ui_component": "entity-selector",
+          "reference_type": "location",
+          "max_selections": 1,
+          "placeholder": "Search for location..."
+        }
+      ]
+    },
+    {
+      "id": "tree_configuration",
+      "title": "Tree Configuration",
+      "icon": "GitBranch",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "branching_complexity",
+          "label": "Branching Complexity",
+          "ui_component": "select",
+          "options": [
+            {"value": "simple", "label": "Simple"},
+            {"value": "medium", "label": "Medium"},
+            {"value": "complex", "label": "Complex"}
+          ]
+        },
+        {
+          "key": "estimated_duration",
+          "label": "Estimated Duration",
+          "ui_component": "text",
+          "placeholder": "5-10 minutes"
+        },
+        {
+          "key": "max_depth",
+          "label": "Max Depth",
+          "ui_component": "number",
+          "placeholder": "8"
+        },
+        {
+          "key": "multiple_paths",
+          "label": "Multiple Paths",
+          "ui_component": "checkbox"
+        },
+        {
+          "key": "root_node",
+          "label": "Root Node",
+          "ui_component": "text",
+          "placeholder": "greeting"
+        },
+        {
+          "key": "ending_count",
+          "label": "Ending Count",
+          "ui_component": "number",
+          "placeholder": "1"
+        }
+      ]
+    },
+    {
+      "id": "lines_and_choices",
+      "title": "Lines & Choices",
+      "icon": "MessageCircle",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "dialogue_script",
+          "label": "Dialogue Script",
+          "ui_component": "textarea",
+          "rows": 12,
+          "placeholder": "Write dialogue lines, branches, and choices here..."
+        }
+      ]
+    },
+    {
+      "id": "block_relationships",
+      "title": "Cross-Entity References",
+      "icon": "Network",
+      "component": "entity-relationships",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "block_timeline",
+      "title": "Timeline Panel",
+      "icon": "Clock",
+      "component": "entity-timeline",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "markdown_body",
+      "title": "Narrative Notes",
+      "icon": "FileText",
+      "component": "markdown-content",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "block_assets",
+      "title": "Asset Browser",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "comfyui",
+      "component": "entity-workflow-trigger"
+    }
+  ],
+  "updated_at": "2026-04-06T00:00:00.000Z",
+  "created_at": "2026-04-06T00:00:00.000Z",
+  "view_config": {
+    "layout_driven": true
+  }
+}

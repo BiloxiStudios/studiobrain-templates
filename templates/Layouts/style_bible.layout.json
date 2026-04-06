@@ -1,0 +1,309 @@
+{
+  "entity_type": "style_bible",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "BookOpen",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Style Bible ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores"
+        },
+        {
+          "key": "name",
+          "label": "Display Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "City of Brains Visual Style Bible"
+        },
+        {
+          "key": "version",
+          "label": "Version",
+          "ui_component": "text",
+          "placeholder": "1.0"
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "development", "label": "Development"},
+            {"value": "active", "label": "Active"},
+            {"value": "archived", "label": "Archived"}
+          ]
+        },
+        {
+          "key": "primary_medium",
+          "label": "Primary Medium",
+          "ui_component": "select",
+          "options": [
+            {"value": "video_game", "label": "Video Game"},
+            {"value": "film", "label": "Film"},
+            {"value": "animation", "label": "Animation"},
+            {"value": "mixed", "label": "Mixed"}
+          ]
+        },
+        {
+          "key": "universe_id",
+          "label": "Universe",
+          "ui_component": "entity-selector",
+          "reference_type": "universe",
+          "max_selections": 1,
+          "placeholder": "Search for universe..."
+        },
+        {
+          "key": "primary_image",
+          "label": "Primary Image",
+          "ui_component": "text",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "block_primary_image",
+      "title": "Primary Image",
+      "icon": "ImageIcon",
+      "component": "primary-image",
+      "component_config": {"object_fit": "contain"},
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false
+    },
+    {
+      "id": "visual_identity",
+      "title": "Visual Identity",
+      "icon": "Eye",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "art_direction",
+          "label": "Art Direction",
+          "ui_component": "text",
+          "placeholder": "low_poly_stylized"
+        },
+        {
+          "key": "rendering_style",
+          "label": "Rendering Style",
+          "ui_component": "select",
+          "options": [
+            {"value": "2d", "label": "2D"},
+            {"value": "3d", "label": "3D"},
+            {"value": "real_time_3d", "label": "Real-time 3D"},
+            {"value": "mixed_media", "label": "Mixed Media"}
+          ]
+        },
+        {
+          "key": "target_platform",
+          "label": "Target Platform",
+          "ui_component": "select",
+          "options": [
+            {"value": "mobile", "label": "Mobile"},
+            {"value": "console", "label": "Console"},
+            {"value": "pc", "label": "PC"},
+            {"value": "cross_platform", "label": "Cross Platform"}
+          ]
+        },
+        {
+          "key": "visual_influences",
+          "label": "Visual Influences",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "placeholder": "Add influence..."
+        }
+      ],
+      "surface": "secondary"
+    },
+    {
+      "id": "color_palette",
+      "title": "Color Palette",
+      "icon": "Palette",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "primary_colors",
+          "label": "Primary Colors",
+          "ui_component": "object-array",
+          "sub_fields": [
+            {"key": "name", "label": "Name", "ui_component": "text"},
+            {"key": "hex", "label": "Hex", "ui_component": "text"},
+            {"key": "usage", "label": "Usage", "ui_component": "text"}
+          ]
+        },
+        {
+          "key": "secondary_colors",
+          "label": "Secondary Colors",
+          "ui_component": "object-array",
+          "sub_fields": [
+            {"key": "name", "label": "Name", "ui_component": "text"},
+            {"key": "hex", "label": "Hex", "ui_component": "text"},
+            {"key": "usage", "label": "Usage", "ui_component": "text"}
+          ]
+        },
+        {
+          "key": "forbidden_colors",
+          "label": "Forbidden Colors",
+          "ui_component": "tag-input",
+          "placeholder": "Add forbidden color..."
+        }
+      ]
+    },
+    {
+      "id": "lighting",
+      "title": "Lighting Design",
+      "icon": "Sun",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "lighting_philosophy",
+          "label": "Lighting Philosophy",
+          "ui_component": "text",
+          "column_span": 2,
+          "placeholder": "Cinematic with dramatic contrasts"
+        },
+        {
+          "key": "key_light_color",
+          "label": "Key Light Color",
+          "ui_component": "color-picker",
+          "placeholder": "#FBE5C8"
+        },
+        {
+          "key": "fill_light_color",
+          "label": "Fill Light Color",
+          "ui_component": "color-picker",
+          "placeholder": "#00F5D4"
+        },
+        {
+          "key": "rim_light_color",
+          "label": "Rim Light Color",
+          "ui_component": "color-picker",
+          "placeholder": "#FF66C4"
+        },
+        {
+          "key": "shadow_density",
+          "label": "Shadow Density",
+          "ui_component": "number",
+          "placeholder": "0.7"
+        },
+        {
+          "key": "global_illumination",
+          "label": "Global Illumination",
+          "ui_component": "select",
+          "options": [
+            {"value": "realtime", "label": "Realtime"},
+            {"value": "baked", "label": "Baked"},
+            {"value": "mixed", "label": "Mixed"}
+          ]
+        },
+        {
+          "key": "ambient_occlusion",
+          "label": "Ambient Occlusion",
+          "ui_component": "checkbox"
+        }
+      ]
+    },
+    {
+      "id": "typography",
+      "title": "Typography & UI",
+      "icon": "Type",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "ui_style",
+          "label": "UI Style",
+          "ui_component": "text",
+          "placeholder": "retro_tech"
+        },
+        {
+          "key": "button_style",
+          "label": "Button Style",
+          "ui_component": "text",
+          "placeholder": "neon_outline"
+        },
+        {
+          "key": "animation_style",
+          "label": "Animation Style",
+          "ui_component": "select",
+          "options": [
+            {"value": "smooth", "label": "Smooth"},
+            {"value": "snappy", "label": "Snappy"},
+            {"value": "bouncy", "label": "Bouncy"}
+          ]
+        },
+        {
+          "key": "icon_style",
+          "label": "Icon Style",
+          "ui_component": "text",
+          "placeholder": "line_art"
+        }
+      ]
+    },
+    {
+      "id": "signature_elements",
+      "title": "Signature Visual Elements",
+      "icon": "Sparkles",
+      "columns": 1,
+      "collapsed_default": true,
+      "fields": [
+        {
+          "key": "recurring_motifs",
+          "label": "Recurring Motifs",
+          "ui_component": "tag-input",
+          "placeholder": "Add recurring motif..."
+        },
+        {
+          "key": "iconic_props",
+          "label": "Iconic Props",
+          "ui_component": "tag-input",
+          "placeholder": "Add iconic prop..."
+        },
+        {
+          "key": "environmental_details",
+          "label": "Environmental Details",
+          "ui_component": "tag-input",
+          "placeholder": "Add environmental detail..."
+        }
+      ]
+    },
+    {
+      "id": "block_relationships",
+      "title": "Cross-Entity References",
+      "icon": "Network",
+      "component": "entity-relationships",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "markdown_body",
+      "title": "Style Overview & Implementation Notes",
+      "icon": "FileText",
+      "component": "markdown-content",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "block_assets",
+      "title": "Reference Assets",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin"
+    }
+  ],
+  "updated_at": "2026-04-06T00:00:00.000Z",
+  "created_at": "2026-04-06T00:00:00.000Z",
+  "view_config": {
+    "layout_driven": true
+  }
+}

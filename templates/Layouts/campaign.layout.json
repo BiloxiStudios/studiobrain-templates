@@ -1,0 +1,307 @@
+{
+  "entity_type": "campaign",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic_information",
+      "title": "Basic Information",
+      "icon": "Flag",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Campaign ID",
+          "ui_component": "read-only-text",
+          "auto_generate_from": "name",
+          "help": "Auto-generated: lowercase, spaces replaced with underscores"
+        },
+        {
+          "key": "name",
+          "label": "Campaign Name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "City of Brains: Main Story"
+        },
+        {
+          "key": "campaign_type",
+          "label": "Campaign Type",
+          "ui_component": "select",
+          "options": [
+            {"value": "main_story", "label": "Main Story"},
+            {"value": "side_story", "label": "Side Story"},
+            {"value": "dlc", "label": "DLC"},
+            {"value": "seasonal", "label": "Seasonal"}
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "draft", "label": "Draft"},
+            {"value": "upcoming", "label": "Upcoming"},
+            {"value": "active", "label": "Active"},
+            {"value": "completed", "label": "Completed"},
+            {"value": "archived", "label": "Archived"}
+          ]
+        },
+        {
+          "key": "chapter_count",
+          "label": "Chapter Count",
+          "ui_component": "number",
+          "placeholder": "10"
+        },
+        {
+          "key": "estimated_duration",
+          "label": "Estimated Duration",
+          "ui_component": "text",
+          "placeholder": "20-30 hours"
+        },
+        {
+          "key": "difficulty_level",
+          "label": "Difficulty",
+          "ui_component": "select",
+          "options": [
+            {"value": "easy", "label": "Easy"},
+            {"value": "normal", "label": "Normal"},
+            {"value": "hard", "label": "Hard"},
+            {"value": "nightmare", "label": "Nightmare"}
+          ]
+        },
+        {
+          "key": "tone",
+          "label": "Tone",
+          "ui_component": "text",
+          "placeholder": "dark with moments of hope"
+        },
+        {
+          "key": "primary_image",
+          "label": "Primary Image",
+          "ui_component": "text",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "block_primary_image",
+      "title": "Primary Image",
+      "icon": "ImageIcon",
+      "component": "primary-image",
+      "component_config": {"object_fit": "contain"},
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false
+    },
+    {
+      "id": "story",
+      "title": "Story & Themes",
+      "icon": "BookOpen",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "narrative_summary",
+          "label": "Narrative Summary",
+          "ui_component": "textarea",
+          "rows": 4,
+          "placeholder": "Brief summary of the campaign story..."
+        },
+        {
+          "key": "main_objectives",
+          "label": "Main Objectives",
+          "ui_component": "tag-input",
+          "placeholder": "Add main objective..."
+        },
+        {
+          "key": "themes",
+          "label": "Themes",
+          "ui_component": "tag-input",
+          "placeholder": "Add theme..."
+        },
+        {
+          "key": "prerequisites",
+          "label": "Prerequisites",
+          "ui_component": "tag-input",
+          "placeholder": "Add prerequisite..."
+        }
+      ],
+      "surface": "secondary"
+    },
+    {
+      "id": "characters",
+      "title": "Characters & Factions",
+      "icon": "Users",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "protagonist_characters",
+          "label": "Protagonists",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "max_selections": 10,
+          "placeholder": "Search for protagonists..."
+        },
+        {
+          "key": "supporting_characters",
+          "label": "Supporting Characters",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "max_selections": 20,
+          "placeholder": "Search for supporting characters..."
+        },
+        {
+          "key": "antagonist_characters",
+          "label": "Antagonists",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "character",
+          "max_selections": 10,
+          "placeholder": "Search for antagonists..."
+        },
+        {
+          "key": "involved_factions",
+          "label": "Involved Factions",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "faction",
+          "max_selections": 10,
+          "placeholder": "Search for factions..."
+        }
+      ]
+    },
+    {
+      "id": "locations",
+      "title": "Locations",
+      "icon": "MapPin",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "starting_location",
+          "label": "Starting Location",
+          "ui_component": "entity-selector",
+          "reference_type": "location",
+          "max_selections": 1,
+          "placeholder": "Search for starting location..."
+        },
+        {
+          "key": "primary_locations",
+          "label": "Primary Locations",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "location",
+          "max_selections": 20,
+          "placeholder": "Search for primary locations..."
+        },
+        {
+          "key": "secondary_locations",
+          "label": "Secondary Locations",
+          "ui_component": "entity-multi-selector",
+          "reference_type": "location",
+          "max_selections": 20,
+          "placeholder": "Search for secondary locations..."
+        }
+      ]
+    },
+    {
+      "id": "quests",
+      "title": "Quest Sequence",
+      "icon": "Compass",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "quest_sequence",
+          "label": "Main Quest Sequence",
+          "ui_component": "tag-input",
+          "placeholder": "Add quest ID in order..."
+        },
+        {
+          "key": "optional_quests",
+          "label": "Optional Quests",
+          "ui_component": "tag-input",
+          "placeholder": "Add optional quest ID..."
+        },
+        {
+          "key": "related_events",
+          "label": "Related Events",
+          "ui_component": "tag-input",
+          "placeholder": "Add related event..."
+        }
+      ]
+    },
+    {
+      "id": "rewards",
+      "title": "Rewards & Progression",
+      "icon": "Gift",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "experience_reward",
+          "label": "Experience Reward",
+          "ui_component": "number",
+          "placeholder": "50000"
+        },
+        {
+          "key": "currency_reward",
+          "label": "Currency Reward",
+          "ui_component": "number",
+          "placeholder": "10000"
+        },
+        {
+          "key": "branching_paths",
+          "label": "Branching Paths",
+          "ui_component": "checkbox"
+        },
+        {
+          "key": "multiple_endings",
+          "label": "Multiple Endings",
+          "ui_component": "checkbox"
+        }
+      ]
+    },
+    {
+      "id": "block_relationships",
+      "title": "Cross-Entity References",
+      "icon": "Network",
+      "component": "entity-relationships",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "block_timeline",
+      "title": "Timeline Panel",
+      "icon": "Clock",
+      "component": "entity-timeline",
+      "component_config": {},
+      "component_source": "builtin",
+      "surface": "accent"
+    },
+    {
+      "id": "markdown_body",
+      "title": "Backstory & Epilogue",
+      "icon": "FileText",
+      "component": "markdown-content",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "block_assets",
+      "title": "Asset Browser",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin"
+    },
+    {
+      "id": "comfyui",
+      "component": "entity-workflow-trigger"
+    }
+  ],
+  "updated_at": "2026-04-06T00:00:00.000Z",
+  "created_at": "2026-04-06T00:00:00.000Z",
+  "view_config": {
+    "layout_driven": true
+  }
+}
