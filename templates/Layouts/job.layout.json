@@ -211,7 +211,8 @@
           "help": "Peer positions this job works closely with.",
           "placeholder": "Add collaborative positions..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     }
-  ]
-}
+  ],

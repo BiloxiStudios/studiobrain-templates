@@ -789,7 +789,9 @@
           "rows": 2,
           "placeholder": "Brief cultural and social context for AI content creation"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     }
   ]
 }

@@ -434,7 +434,9 @@
           "rows": 2,
           "placeholder": "How faction members typically behave and interact for AI generation"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     }
   ]
 }

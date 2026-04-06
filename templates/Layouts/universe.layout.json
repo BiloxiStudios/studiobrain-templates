@@ -91,7 +91,9 @@
       "component_config": {"object_fit": "contain"},
       "component_source": "builtin",
       "surface": "base",
-      "collapsed_default": false
+      "collapsed_default": false,
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "setting",
@@ -279,7 +281,9 @@
       "component": "entity-relationships",
       "component_config": {},
       "component_source": "builtin",
-      "surface": "accent"
+      "surface": "accent",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "markdown_body",

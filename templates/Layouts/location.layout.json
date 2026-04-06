@@ -748,7 +748,9 @@
     },
     {
       "id": "comfyui",
-      "component": "entity-workflow-trigger"
+      "component": "entity-workflow-trigger",
+      "editor_component": null,
+      "viewer_component": null
     }
   ]
 }
