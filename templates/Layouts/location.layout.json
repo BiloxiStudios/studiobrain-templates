@@ -78,7 +78,9 @@
             {"value": "minor", "label": "Minor"}
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "temporal_information",
@@ -111,7 +113,9 @@
             {"key": "event", "label": "Event", "ui_component": "text", "placeholder": "Event description"}
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "geographic_information",
@@ -154,7 +158,9 @@
           "rows": 2,
           "placeholder": "Describe the mood and feeling of this location..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "population_control",
@@ -261,7 +267,9 @@
           "placeholder": "Search for controlling faction...",
           "max_selections": 1
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "business_commerce",
@@ -306,7 +314,9 @@
           "placeholder": "Search for job positions...",
           "max_selections": 10
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "economy_services",
@@ -367,7 +377,9 @@
           "help": "Services, functions, or activities available at this location.",
           "placeholder": "e.g., buy items, repair equipment, medical aid"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "available_items",
@@ -419,7 +431,9 @@
           "help": "Key distinguishing characteristics that make this location memorable.",
           "placeholder": "Notable feature"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "hidden_secrets",
@@ -513,7 +527,9 @@
           "ui_component": "checkbox",
           "group": "accessibility"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "environment_atmosphere",
@@ -570,7 +586,9 @@
           "label": "Accent Color",
           "ui_component": "color"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "security_safety",
@@ -602,7 +620,9 @@
             {"value": "critical", "label": "Critical"}
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "story_integration",
@@ -633,7 +653,9 @@
             {"value": "neutral", "label": "Neutral"}
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "safety_hazards",
@@ -709,7 +731,9 @@
             }
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "ai_context",

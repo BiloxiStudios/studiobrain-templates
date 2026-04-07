@@ -67,7 +67,9 @@
           "ui_component": "text",
           "column_span": 2
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_primary_image",
@@ -119,7 +121,9 @@
           "placeholder": "0"
         }
       ],
-      "surface": "secondary"
+      "surface": "secondary",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "context_references",
@@ -160,7 +164,9 @@
           "max_selections": 1,
           "placeholder": "Search for dialogue..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "entities_involved",
@@ -201,7 +207,9 @@
           "max_selections": 10,
           "placeholder": "Search for brands..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "consequences",
@@ -232,7 +240,9 @@
           "ui_component": "tag-input",
           "placeholder": "Add enabled entry..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "sources",

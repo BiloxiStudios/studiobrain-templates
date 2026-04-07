@@ -56,7 +56,9 @@
           "label": "Primary Image",
           "ui_component": "text"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_primary_image",
@@ -94,7 +96,9 @@
           "placeholder": "Search for participating characters..."
         }
       ],
-      "surface": "secondary"
+      "surface": "secondary",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "context",
@@ -135,7 +139,9 @@
           "max_selections": 1,
           "placeholder": "Search for location..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "tree_configuration",
@@ -183,7 +189,9 @@
           "ui_component": "number",
           "placeholder": "1"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "lines_and_choices",

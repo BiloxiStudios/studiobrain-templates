@@ -64,7 +64,9 @@
           "ui_component": "text",
           "column_span": 2
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_primary_image",
@@ -121,7 +123,9 @@
           "placeholder": "Add influence..."
         }
       ],
-      "surface": "secondary"
+      "surface": "secondary",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "color_palette",
@@ -156,7 +160,9 @@
           "ui_component": "tag-input",
           "placeholder": "Add forbidden color..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "lighting",
@@ -211,7 +217,9 @@
           "label": "Ambient Occlusion",
           "ui_component": "checkbox"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "typography",
@@ -275,7 +283,9 @@
           "ui_component": "tag-input",
           "placeholder": "Add environmental detail..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_relationships",

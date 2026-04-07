@@ -81,7 +81,9 @@
           "ui_component": "text",
           "column_span": 2
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_primary_image",
@@ -128,7 +130,9 @@
           "placeholder": "Add prerequisite..."
         }
       ],
-      "surface": "secondary"
+      "surface": "secondary",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "characters",
@@ -169,7 +173,9 @@
           "max_selections": 10,
           "placeholder": "Search for factions..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "locations",
@@ -202,7 +208,9 @@
           "max_selections": 20,
           "placeholder": "Search for secondary locations..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "quests",
@@ -229,7 +237,9 @@
           "ui_component": "tag-input",
           "placeholder": "Add related event..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "rewards",
@@ -260,7 +270,9 @@
           "label": "Multiple Endings",
           "ui_component": "checkbox"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_relationships",

@@ -82,7 +82,9 @@
           "ui_component": "text",
           "column_span": 2
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_primary_image",
@@ -124,7 +126,9 @@
           "placeholder": "Add required skill..."
         }
       ],
-      "surface": "secondary"
+      "surface": "secondary",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "objectives",
@@ -165,7 +169,9 @@
           "ui_component": "tag-input",
           "placeholder": "Add failure condition..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "characters_involved",
@@ -206,7 +212,9 @@
           "max_selections": 10,
           "placeholder": "Search for factions..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "locations",
@@ -239,7 +247,9 @@
           "max_selections": 1,
           "placeholder": "Search for destination..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "rewards",
