@@ -94,7 +94,9 @@
           "column_span": 2,
           "placeholder": "Faction motto or rallying cry"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "leadership",
@@ -140,7 +142,9 @@
           "placeholder": "Search for key faction members...",
           "max_selections": 20
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "territory_operations",
@@ -185,7 +189,9 @@
           "placeholder": "Search for controlled territories...",
           "max_selections": 25
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "faction_relationships",
@@ -231,7 +237,9 @@
           "placeholder": "Search for enemy factions...",
           "max_selections": 15
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "resources_assets",
@@ -285,7 +293,9 @@
             { "value": "cutting_edge", "label": "Cutting Edge" }
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "ideology_beliefs",
@@ -333,7 +343,9 @@
           "rows": 3,
           "placeholder": "Enter forbidden practices (one per line)"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "military_capabilities",
@@ -434,7 +446,9 @@
           "rows": 2,
           "placeholder": "How faction members typically behave and interact for AI generation"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     }
   ]
 }

@@ -91,7 +91,9 @@
           "rows": 3,
           "placeholder": "Brief description of the district's character and purpose"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "geographic_information",
@@ -145,7 +147,9 @@
             }
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "governance_control",
@@ -242,7 +246,9 @@
             { "value": "rampant", "label": "Rampant" }
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "economic_profile",
@@ -305,7 +311,9 @@
           "placeholder": "Search for businesses and brands...",
           "max_selections": 20
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "infrastructure_services",
@@ -482,7 +490,9 @@
           "column_span": 2,
           "placeholder": "e.g., Historic clock tower, Underground tunnels"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "demographics_current_status",
@@ -609,7 +619,9 @@
           "column_span": 1,
           "placeholder": "12000"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "environment_atmosphere",
@@ -671,7 +683,9 @@
           "description": "Notable landmarks and recognizable features of the district.",
           "placeholder": "e.g., city hall, central park, clock tower"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "security_safety",
@@ -728,7 +742,9 @@
           "description": "Areas to avoid or approach with extreme caution.",
           "placeholder": "e.g., abandoned subway, old hospital"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "story_integration",
@@ -789,7 +805,9 @@
           "rows": 2,
           "placeholder": "Brief cultural and social context for AI content creation"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     }
   ]
 }

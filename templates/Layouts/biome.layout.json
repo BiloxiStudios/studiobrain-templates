@@ -103,7 +103,9 @@
       },
       "component_source": "builtin",
       "surface": "base",
-      "collapsed_default": false
+      "collapsed_default": false,
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "environment",
@@ -452,7 +454,9 @@
     },
     {
       "id": "comfyui",
-      "component": "entity-workflow-trigger"
+      "component": "entity-workflow-trigger",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_assets",
@@ -460,7 +464,9 @@
       "icon": "Image",
       "component": "entity-assets",
       "component_config": {},
-      "component_source": "builtin"
+      "component_source": "builtin",
+      "editor_component": null,
+      "viewer_component": null
     }
   ],
   "view_config": {

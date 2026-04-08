@@ -76,7 +76,9 @@
           "ui_component": "text",
           "column_span": 2
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_primary_image",
@@ -86,7 +88,9 @@
       "component_config": {"object_fit": "contain"},
       "component_source": "builtin",
       "surface": "base",
-      "collapsed_default": false
+      "collapsed_default": false,
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "timing",
@@ -147,7 +151,9 @@
           ]
         }
       ],
-      "surface": "secondary"
+      "surface": "secondary",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "involved_entities",
@@ -196,7 +202,9 @@
           "max_selections": 20,
           "placeholder": "Search for related quests..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "phases_and_outcome",
@@ -251,7 +259,9 @@
           "rows": 2,
           "placeholder": "WARNING: Massive zombie horde detected..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_relationships",
@@ -260,7 +270,9 @@
       "component": "entity-relationships",
       "component_config": {},
       "component_source": "builtin",
-      "surface": "accent"
+      "surface": "accent",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_timeline",
@@ -269,7 +281,9 @@
       "component": "entity-timeline",
       "component_config": {},
       "component_source": "builtin",
-      "surface": "accent"
+      "surface": "accent",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "markdown_body",
@@ -277,7 +291,9 @@
       "icon": "FileText",
       "component": "markdown-content",
       "component_config": {},
-      "component_source": "builtin"
+      "component_source": "builtin",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_assets",
@@ -285,11 +301,15 @@
       "icon": "Image",
       "component": "entity-assets",
       "component_config": {},
-      "component_source": "builtin"
+      "component_source": "builtin",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "comfyui",
-      "component": "entity-workflow-trigger"
+      "component": "entity-workflow-trigger",
+      "editor_component": null,
+      "viewer_component": null
     }
   ],
   "updated_at": "2026-04-06T00:00:00.000Z",

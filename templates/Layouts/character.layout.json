@@ -146,7 +146,9 @@
       },
       "component_source": "builtin",
       "surface": "base",
-      "collapsed_default": false
+      "collapsed_default": false,
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_1771728956572",
@@ -156,7 +158,9 @@
       "component_config": {},
       "component_source": "hello-world",
       "surface": "accent",
-      "description": "Notes"
+      "description": "Notes",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_1771788397362",
@@ -165,7 +169,9 @@
       "component": "entity-timeline",
       "component_config": {},
       "component_source": "builtin",
-      "surface": "accent"
+      "surface": "accent",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "temporal_information",
@@ -657,7 +663,9 @@
           "ui_component": "tag-input",
           "placeholder": "Add special ability..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "story_integration",
@@ -684,7 +692,9 @@
           "ui_component": "tag-input",
           "placeholder": "Add service..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "ai_context",
@@ -720,7 +730,9 @@
     },
     {
       "id": "comfyui",
-      "component": "entity-workflow-trigger"
+      "component": "entity-workflow-trigger",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_1771728678701",
@@ -728,7 +740,9 @@
       "icon": "bar-chart",
       "component": "plugin:hello-world:entity-stats",
       "component_config": {},
-      "component_source": "hello-world"
+      "component_source": "hello-world",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_1771782682484",
@@ -736,7 +750,9 @@
       "icon": "Image",
       "component": "entity-assets",
       "component_config": {},
-      "component_source": "builtin"
+      "component_source": "builtin",
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "block_1771792480053",
@@ -744,7 +760,9 @@
       "icon": "clock",
       "component": "plugin:time-tracker:time-log",
       "component_config": {},
-      "component_source": "time-tracker"
+      "component_source": "time-tracker",
+      "editor_component": null,
+      "viewer_component": null
     }
   ],
   "updated_at": "2026-02-22T20:35:21.460444",

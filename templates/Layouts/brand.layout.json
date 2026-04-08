@@ -84,7 +84,9 @@
           ],
           "column_span": 1
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "temporal_information",
@@ -118,7 +120,9 @@
             {"key": "event", "label": "Milestone description"}
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "visual_identity",
@@ -147,7 +151,9 @@
             {"key": "body", "label": "Body Font"}
           ]
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "audio_identity",
@@ -176,7 +182,9 @@
           "placeholder": "e.g., cash register ding",
           "column_span": 2
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "brand_messaging",
@@ -212,7 +220,9 @@
           "placeholder": "casual and approachable",
           "column_span": 1
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "corporate_structure",
@@ -256,7 +266,9 @@
           "placeholder": "150",
           "column_span": 1
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "employment_personnel",
@@ -282,7 +294,9 @@
           "placeholder": "Select key personnel...",
           "column_span": 1
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "market_presence",
@@ -333,7 +347,9 @@
           "placeholder": "e.g., retail stores, online delivery",
           "column_span": 2
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "public_perception",
@@ -431,7 +447,9 @@
           "placeholder": "Brief brand positioning for AI marketing content",
           "column_span": 1
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     }
   ]
 }

@@ -87,7 +87,9 @@
           "rows": 4,
           "placeholder": "Detailed description of the job role and responsibilities..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "visual_design",
@@ -107,7 +109,9 @@
           "placeholder": "images/jobs/job_logo.png",
           "help": "Path to the primary image/logo for this job position"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "brand_organization",
@@ -131,7 +135,9 @@
           "help": "Other brands that may offer similar positions.",
           "placeholder": "Add associated brands..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "work_locations",
@@ -147,7 +153,9 @@
           "reference_type": "location",
           "placeholder": "Add work locations..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "career_progression",
@@ -211,7 +219,8 @@
           "help": "Peer positions this job works closely with.",
           "placeholder": "Add collaborative positions..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     }
-  ]
-}
+  ],

@@ -96,7 +96,9 @@
           "column_span": 2,
           "placeholder": "Short catchy description"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "brand_association",
@@ -120,7 +122,9 @@
           ],
           "placeholder": "Search for associated brand..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "availability",
@@ -160,7 +164,9 @@
           "help": "Characters who sell this item.",
           "placeholder": "Search for vendor characters..."
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "game_mechanics",
@@ -192,7 +198,9 @@
           "ui_component": "number",
           "placeholder": "0"
         }
-      ]
+      ],
+      "editor_component": null,
+      "viewer_component": null
     },
     {
       "id": "flags",
@@ -222,7 +230,9 @@
     },
     {
       "id": "comfyui",
-      "component": "entity-workflow-trigger"
+      "component": "entity-workflow-trigger",
+      "editor_component": null,
+      "viewer_component": null
     }
   ]
 }
