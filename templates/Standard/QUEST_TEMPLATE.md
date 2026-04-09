@@ -4,6 +4,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Compass"
 ui_color: "#eab308"
+generation_instructions: |
+  Generate a quest with clear objectives, stakes, and reward structure. Define quest type, parent campaign, difficulty, and estimated time. Link quest givers, key NPCs, involved factions, and relevant locations. A good quest has a compelling hook, meaningful choices, and consequences that affect the broader world.
 editable: true
 marketplace_eligible: false
 id: "[snake_case_name]"

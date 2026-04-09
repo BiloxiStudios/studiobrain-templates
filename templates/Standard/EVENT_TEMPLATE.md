@@ -4,6 +4,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Calendar"
 ui_color: "#ec4899"
+generation_instructions: |
+  Generate an event that represents a significant occurrence in the world. Define event type, trigger conditions, duration, and affected entities (locations, characters, factions). Describe consequences, escalation stages, and resolution conditions. A good event creates narrative momentum and has meaningful ripple effects across the world.
 editable: true
 marketplace_eligible: true
 id: "[snake_case_name]"  # Must match folder name (e.g., zombie_horde_attack)

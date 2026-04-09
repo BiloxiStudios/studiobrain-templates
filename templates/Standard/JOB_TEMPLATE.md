@@ -5,6 +5,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Briefcase"
 ui_color: "#06b6d4"
+generation_instructions: |
+  Generate a job or occupation that characters can hold within the world. Define category, department, employment type, experience level, and salary range. Link to brands and factions that offer this role. A good job grounds characters in the world economy and social structure, providing motivation and daily routine details.
 editable: true
 marketplace_eligible: true
 id: "unique_lowercase_id"  # Must match folder name (e.g., nerdent_technician)

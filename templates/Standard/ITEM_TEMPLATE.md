@@ -7,6 +7,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Package"
 ui_color: "#10b981"
+generation_instructions: |
+  Generate an item with clear purpose, rarity, and world context. Define item type, category, weight, value, and any special properties or effects. Link to brands, spawn locations, and vendors. A good item feels grounded in the world — its description, rarity, and availability should make sense for the setting.
 editable: true
 marketplace_eligible: true
 entity_type: "item"

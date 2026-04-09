@@ -7,6 +7,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Shield"
 ui_color: "#ef4444"
+generation_instructions: |
+  Generate a faction with clear ideology, hierarchy, and goals. Define leadership, headquarters, allies, enemies, and chain of command. Describe their founding, motto, and how they exert influence. A good faction has internal tensions, recognizable aesthetics, and relationships that create conflict or cooperation with other factions.
 editable: true
 marketplace_eligible: true
 entity_type: "faction"
