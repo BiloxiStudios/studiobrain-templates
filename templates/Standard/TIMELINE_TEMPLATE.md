@@ -4,6 +4,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Clock"
 ui_color: "#64748b"
+generation_instructions: |
+  Generate a timeline entry that marks a specific moment or period in the world's chronology. Define entry type, timestamp, duration, and game year/date. Link to campaigns, quests, events, dialogues, characters, locations, brands, and factions involved. A good timeline entry provides temporal context and connects events into a coherent historical narrative.
 editable: true
 marketplace_eligible: false
 id: "[snake_case_name]"

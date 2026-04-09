@@ -4,6 +4,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Flag"
 ui_color: "#14b8a6"
+generation_instructions: |
+  Generate a campaign that serves as a narrative container for quests, events, and character arcs. Define campaign type, chapter count, difficulty, and estimated duration. Link protagonist, supporting, and antagonist characters plus key locations. A good campaign has clear objectives, escalating stakes, and a satisfying arc.
 editable: true
 marketplace_eligible: true
 id: "[snake_case_name]"  # Must match folder name (e.g., main_story)

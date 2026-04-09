@@ -1,9 +1,28 @@
 ---
 template_category: map
+entity_type: location_scout
 ui_icon: "Navigation"
 ui_color: "#059669"
 template_name: Location Scout
 template_id: location-scout
+generation_instructions: |
+  Generate a location scouting map for real-world production planning. Pin filming locations, reference spots, and logistics points on a geographic map. Include permit status, shoot dates, and scout notes. Describe routes between locations and any geo-fence zones for permit boundaries.
+markdown_skeleton: |
+  ## Scout Overview
+
+  ## Location Details
+
+  ## Logistics Notes
+field_config:
+  project_name:
+    widget: text
+  shoot_date:
+    widget: date
+  permit_status:
+    widget: select
+    options: [pending, approved, denied, not-required]
+  notes:
+    widget: textarea
 description: Real-world geographic map for location scouting with address search, route planning, and geo-fencing.
 icon: globe
 renderer: geo-leaflet

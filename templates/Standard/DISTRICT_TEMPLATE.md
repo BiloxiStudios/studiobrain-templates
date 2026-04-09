@@ -7,6 +7,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Map"
 ui_color: "#f97316"
+generation_instructions: |
+  Generate a district as a distinct zone within a larger location. Define district type, boundaries, population density, and governing faction. Describe the atmosphere, architecture, key landmarks, and social dynamics. A good district has a clear identity that distinguishes it from neighboring areas and provides a rich backdrop for characters and events.
 editable: true
 marketplace_eligible: true
 entity_type: "district"

@@ -4,6 +4,8 @@ template_version: "1.0"
 template_category: "document"
 ui_icon: "Globe"
 ui_color: "#0ea5e9"
+generation_instructions: |
+  Generate a universe that defines the top-level setting for a creative project. Establish genre, target audience, time period, technology level, and core themes. Define the primary color palette and tone. A good universe document provides the foundational rules and aesthetic that all other entities within it must respect.
 editable: true
 marketplace_eligible: true
 id: "[snake_case_name]"  # e.g., city_of_brains

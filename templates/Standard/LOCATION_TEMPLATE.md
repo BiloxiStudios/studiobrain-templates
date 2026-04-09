@@ -7,6 +7,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "MapPin"
 ui_color: "#f59e0b"
+generation_instructions: |
+  Generate a location with vivid atmosphere and spatial detail. Define location type, category, parent location, and faction control. Include a color palette, founding year, and key NPCs. Describe architecture, sensory details, and what makes this place memorable. A good location serves as both a backdrop and an active participant in the narrative.
 editable: true
 marketplace_eligible: true
 entity_type: "location"

@@ -7,6 +7,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Trees"
 ui_color: "#22c55e"
+generation_instructions: |
+  Generate a biome with distinct environmental characteristics. Define climate, temperature, precipitation, and weather patterns. List flora, fauna, natural resources, and hazards specific to this biome. A good biome feels ecologically coherent and provides rich context for locations and characters within it.
 editable: true
 marketplace_eligible: true
 entity_type: "biome"

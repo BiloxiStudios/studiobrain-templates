@@ -4,6 +4,8 @@ template_version: "1.0"
 template_category: "system"
 ui_icon: "Sparkles"
 ui_color: "#d946ef"
+generation_instructions: |
+  Generate a prompt template for AI-assisted content generation. Define the prompt type, domain, template body with variables, and expected output format. Include resolution context that tells the AI what project data to reference. A good prompt template is reusable, clearly structured, and produces consistent high-quality output.
 editable: true
 marketplace_eligible: false
 id: "[snake_case_prompt_id]"

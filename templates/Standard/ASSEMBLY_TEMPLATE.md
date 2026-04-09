@@ -4,6 +4,8 @@ template_version: "2.0"
 template_category: "entity"
 ui_icon: "Layers"
 ui_color: "#a855f7"
+generation_instructions: |
+  Generate an assembly that groups related entities into a structured composition. Define a clear hierarchy level, source entity, and slot definitions. Assemblies represent how parts combine into wholes — focus on component relationships, ordering, and layout constraints.
 editable: true
 marketplace_eligible: false
 id: "[assembly_id]"

@@ -7,6 +7,8 @@ template_version: "1.0"
 template_category: "entity"
 ui_icon: "Building"
 ui_color: "#8b5cf6"
+generation_instructions: |
+  Generate a brand with a clear identity, market position, and visual language. Include a tagline, founding year, industry, and color palette. Define relationships to parent companies, subsidiaries, and key personnel. A good brand feels like a real business with consistent values and recognizable style.
 editable: true
 marketplace_eligible: true
 entity_type: "brand"

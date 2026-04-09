@@ -1,9 +1,26 @@
 ---
 template_category: map
+entity_type: dungeon_grid
 ui_icon: "Grid3x3"
 ui_color: "#6d28d9"
 template_name: Dungeon Grid
 template_id: dungeon-grid
+generation_instructions: |
+  Generate a grid-based dungeon layout with paintable terrain tiles. Define room shapes, corridors, and hazard placements. Specify difficulty, entity positions (characters, NPCs, items, traps), and fog-of-war regions. Include DM notes describing encounter flow and tactical considerations.
+markdown_skeleton: |
+  ## Dungeon Overview
+
+  ## Room Descriptions
+
+  ## Encounter Notes
+field_config:
+  dungeon_name:
+    widget: text
+  difficulty:
+    widget: select
+    options: [easy, medium, hard, deadly]
+  notes:
+    widget: textarea
 description: Grid-based dungeon map with paintable terrain tiles, entity placement, and fog of war overlay.
 icon: grid-2x2
 renderer: tile-2d

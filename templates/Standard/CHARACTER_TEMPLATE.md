@@ -4,6 +4,8 @@ template_version: "2.0"
 template_category: "entity"
 ui_icon: "Users"
 ui_color: "#6366f1"
+generation_instructions: |
+  Generate a character with a distinct personality, backstory, and visual identity. Fill in physical traits (height, build, hair/eye/skin colors), personality traits, fears, motivations, and secrets. Define relationships to other characters, factions, and locations. Include dialogue samples that capture their unique voice. A good character feels real — internally consistent with clear motivations driving their behavior.
 editable: true
 marketplace_eligible: true
 id: "[snake_case_name]"

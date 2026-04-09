@@ -1,9 +1,26 @@
 ---
 template_category: map
+entity_type: 3d_level
 ui_icon: "Box"
 ui_color: "#0891b2"
 template_name: 3D Level Preview
 template_id: 3d-level
+generation_instructions: |
+  Generate a 3D level layout for interactive scene previews. Focus on spatial arrangement of entities, environment type, and scale. Place character, item, and location pins at meaningful coordinates. Describe lighting, terrain features, and connection paths between points of interest.
+markdown_skeleton: |
+  ## Level Overview
+
+  ## Entity Placement
+
+  ## Design Notes
+field_config:
+  level_name:
+    widget: text
+  scale:
+    widget: number
+  environment:
+    widget: select
+    options: [indoor, outdoor, underground, space, underwater]
 description: Interactive 3D scene for level previews with entity markers, model imports, and multiple camera modes.
 icon: box
 renderer: three-3d
