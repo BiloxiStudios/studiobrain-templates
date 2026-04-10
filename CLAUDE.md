@@ -1,8 +1,39 @@
 # CLAUDE.md -- studiobrain-templates
 
+## Repo Boundaries
+
+This repo is **studiobrain-templates** — pure data. Entity templates, document templates, map templates, and plugin samples. Apache 2.0, public, will be consumed by core and cloud editions.
+
+For the full 7-repo boundary model, see the authoritative reference:
+
+**`studiobrain-docs/plans/SBAI-2015-repo-boundaries-canonical.md`**
+
+Quick reference:
+
+| Field | Value |
+|---|---|
+| **License** | Apache 2.0 |
+| **Visibility** | Public |
+| **Role** | Entity/document/map templates + plugin SDK samples. Pure data (Markdown + YAML frontmatter + JSON layouts). |
+| **Consumers** | studiobrain-core (CatalogSync), studiobrain-cloud (marketplace), studiobrain-app (pre-bundled Standard pack) |
+| **Contents** | No backend code, no frontend code, no Rust, no binaries |
+
+### Forbidden in this repo
+- ❌ Backend code (Python / Rust / Node)
+- ❌ Frontend components
+- ❌ Build systems (no package.json, no Cargo.toml, no pyproject.toml)
+- ❌ Compiled artifacts or binary blobs
+- ❌ Commercial AI logic of any kind
+
+### Required in this repo
+- ✅ `TEMPLATE.md` files with YAML frontmatter (entities, documents, maps)
+- ✅ Layout JSONs for form rendering via widget registry
+- ✅ `pack.yaml` manifests for template packs
+- ✅ Plugin manifest samples (WASM + Python)
+
 ## Project Overview
 
-Entity templates, AI generation rules, and plugin SDK for StudioBrain. Pure data repository -- Markdown files with YAML frontmatter define the 17+ entity types, generation constraints, and plugin manifests. No backend code, no frontend code. Licensed under Apache 2.0 (will be public).
+Entity templates, AI generation rules, and plugin SDK for StudioBrain. Pure data repository -- Markdown files with YAML frontmatter define the 17+ entity types, generation constraints, and plugin manifests. No backend code, no frontend code. Licensed under Apache 2.0 (public).
 
 **Owner:** Biloxi Studios Inc.
 **JIRA:** SBAI (biloxistudios.atlassian.net)
