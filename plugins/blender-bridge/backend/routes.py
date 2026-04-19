@@ -13,7 +13,7 @@ import re
 import time
 import uuid
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import aiohttp
 from fastapi import APIRouter, HTTPException

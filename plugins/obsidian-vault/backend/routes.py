@@ -11,14 +11,11 @@ import logging
 import os
 import re
 import shutil
-import time
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
 from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 logger = logging.getLogger("plugin.obsidian-vault")

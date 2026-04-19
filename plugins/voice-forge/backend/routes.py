@@ -7,7 +7,6 @@ and audio history tracking for character entities.
 
 import json
 import logging
-import os
 import time
 import uuid
 from pathlib import Path

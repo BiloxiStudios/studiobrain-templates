@@ -54,7 +54,6 @@ async def _auto_post(entity_type: str, entity_id: str, settings: dict):
             _render_template,
             _load_templates,
             _append_history,
-            _platform_configured,
             PUBLISHER_MAP,
             PLATFORMS,
         )

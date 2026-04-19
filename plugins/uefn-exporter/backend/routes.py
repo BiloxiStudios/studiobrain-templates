@@ -7,7 +7,6 @@ and Creative island metadata from City of Brains Studio entities.
 All routes are mounted at /api/ext/uefn-exporter/ by the plugin loader.
 """
 
-import json
 import logging
 import os
 import re

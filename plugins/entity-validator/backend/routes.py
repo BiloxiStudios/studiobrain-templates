@@ -136,7 +136,7 @@ def _validate_frontmatter(
         ``value``   — the offending value (omitted for missing required fields)
     """
     try:
-        import jsonschema
+        import jsonschema  # noqa: F401 — availability probe
         from jsonschema import Draft202012Validator, RefResolver
     except ImportError:
         logger.warning(

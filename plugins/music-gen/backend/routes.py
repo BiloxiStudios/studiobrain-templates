@@ -15,7 +15,7 @@ from typing import Optional
 
 import httpx
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 logger = logging.getLogger("plugin.music-gen")
 
