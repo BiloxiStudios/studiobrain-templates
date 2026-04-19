@@ -16,7 +16,6 @@ from datetime import datetime, timezone
 import httpx
 import hmac
 import hashlib
-import asyncio
 
 from services.plugin_data_service import PluginDataService
 

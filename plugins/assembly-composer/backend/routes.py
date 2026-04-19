@@ -10,7 +10,7 @@ import os
 import re
 import logging
 import yaml
-from typing import Any, Optional
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 

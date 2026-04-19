@@ -3,16 +3,13 @@ YouTube Manager Plugin - Backend Routes
 Handles video uploads, metadata management, and YouTube API integration.
 """
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from pathlib import Path
 from datetime import datetime
 import json
 import uuid
-import os
-import shutil
 
 router = APIRouter()
 

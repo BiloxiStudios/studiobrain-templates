@@ -12,14 +12,13 @@ Features:
 - AI-assisted merge conflict resolution
 """
 
-import asyncio
 import logging
 import os
 import re
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 from enum import Enum
 
@@ -800,7 +799,6 @@ async def export_csv(
     Flattens entity data for spreadsheet compatibility.
     """
     import csv
-    import io
 
     task_id = f"export-csv-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
 
@@ -939,7 +937,6 @@ async def export_pdf(
 
     Uses Playwright for high-quality PDF generation.
     """
-    import asyncio
 
     task_id = f"export-pdf-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
 
@@ -1046,7 +1043,7 @@ async def export_docx(
     Generates professional Word documents with styles.
     """
     from docx import Document
-    from docx.shared import Pt, Inches
+    from docx.shared import Pt
     from docx.enum.text import WD_ALIGN_PARAGRAPH
 
     task_id = f"export-docx-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"

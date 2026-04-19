@@ -8,7 +8,6 @@ linked to character entities.
 
 import json
 import logging
-import os
 import re
 import time
 import uuid

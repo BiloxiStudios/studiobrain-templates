@@ -14,7 +14,7 @@ import logging
 import os
 import subprocess
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 from difflib import unified_diff
 
 from fastapi import APIRouter, HTTPException

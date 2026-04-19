@@ -13,14 +13,11 @@ Routes (mounted at /api/ext/pdf-exporter/...):
   POST /batch                             — batch export multiple entities
 """
 
-import json
 import logging
-import os
 import re
-import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import yaml
 from fastapi import APIRouter, HTTPException, Query

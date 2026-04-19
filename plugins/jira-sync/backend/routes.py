@@ -13,13 +13,12 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import httpx
-from fastapi import APIRouter, HTTPException, Body, Query
+from fastapi import APIRouter, HTTPException, Body
 
 router = APIRouter()
 logger = logging.getLogger("plugin.jira-sync")
