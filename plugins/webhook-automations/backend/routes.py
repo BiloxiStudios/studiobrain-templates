@@ -16,7 +16,6 @@ from datetime import datetime, timezone
 import httpx
 import hmac
 import hashlib
-import asyncio
 
 from services.plugin_data_service import PluginDataService
 
@@ -28,14 +27,12 @@ data_svc = PluginDataService("webhook-automations")
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 RULES_FILE = os.path.join(DATA_DIR, "rules.json")
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 def _ensure_data_dir():
     os.makedirs(DATA_DIR, exist_ok=True)
-
 
 def _load_json(path: str, default=None):
     _ensure_data_dir()
@@ -49,20 +46,16 @@ def _load_json(path: str, default=None):
     except (json.JSONDecodeError, IOError):
         return default
 
-
 def _save_json(path: str, data):
     _ensure_data_dir()
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, default=str)
 
-
 def _load_rules() -> list[dict]:
     return _load_json(RULES_FILE, [])
 
-
 def _save_rules(rules: list[dict]):
     _save_json(RULES_FILE, rules)
-
 
 def _find_rule(rule_id: str) -> tuple[list[dict], dict | None, int]:
     """Return (rules_list, matched_rule, index). Index is -1 if not found."""
@@ -72,14 +65,12 @@ def _find_rule(rule_id: str) -> tuple[list[dict], dict | None, int]:
             return rules, r, i
     return rules, None, -1
 
-
 def _substitute_payload(template: str, variables: dict) -> str:
     """Replace {{key}} placeholders with values from *variables*."""
     result = template
     for key, value in variables.items():
         result = result.replace("{{" + key + "}}", str(value))
     return result
-
 
 def _build_payload(rule: dict, event_data: dict) -> str:
     """Build the webhook payload body, either from a custom template or default."""
@@ -106,11 +97,9 @@ def _build_payload(rule: dict, event_data: dict) -> str:
     }
     return json.dumps(payload, default=str)
 
-
 def _sign_payload(payload: str, secret: str) -> str:
     """Create HMAC-SHA256 signature for the payload."""
     return hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
-
 
 # ---------------------------------------------------------------------------
 # Pydantic models
@@ -135,7 +124,6 @@ class RuleCreate(BaseModel):
     )
     active: bool = True
 
-
 class RuleUpdate(BaseModel):
     name: Optional[str] = None
     event_pattern: Optional[str] = None
@@ -145,7 +133,6 @@ class RuleUpdate(BaseModel):
     headers: Optional[dict[str, str]] = None
     payload_template: Optional[str] = None
     active: Optional[bool] = None
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -171,13 +158,11 @@ async def plugin_status():
         "success_rate": round(success_count / total_deliveries * 100, 1) if total_deliveries else 0,
     }
 
-
 @router.get("/rules")
 async def list_rules():
     """List all webhook rules."""
     rules = _load_rules()
     return {"rules": rules, "count": len(rules)}
-
 
 @router.post("/rules")
 async def create_rule(body: RuleCreate):
@@ -201,7 +186,6 @@ async def create_rule(body: RuleCreate):
     logger.info("[webhook-automations] Rule created: %s (%s)", rule["name"], rule["id"])
     return {"rule": rule, "message": "Rule created"}
 
-
 @router.put("/rules/{rule_id}")
 async def update_rule(rule_id: str, body: RuleUpdate):
     """Update an existing webhook rule."""
@@ -220,7 +204,6 @@ async def update_rule(rule_id: str, body: RuleUpdate):
     logger.info("[webhook-automations] Rule updated: %s", rule_id)
     return {"rule": rule, "message": "Rule updated"}
 
-
 @router.delete("/rules/{rule_id}")
 async def delete_rule(rule_id: str):
     """Delete a webhook rule."""
@@ -232,7 +215,6 @@ async def delete_rule(rule_id: str):
     _save_rules(rules)
     logger.info("[webhook-automations] Rule deleted: %s", rule_id)
     return {"message": "Rule deleted", "id": rule_id}
-
 
 @router.post("/rules/{rule_id}/test")
 async def test_rule(rule_id: str):
@@ -304,7 +286,6 @@ async def test_rule(rule_id: str):
     data_svc.create(record_type="delivery_log", data=log_entry, record_id=log_entry["id"])
     return {"result": log_entry, "payload_sent": payload_body}
 
-
 @router.get("/logs")
 async def get_logs(
     rule_id: Optional[str] = Query(None),
@@ -331,7 +312,6 @@ async def get_logs(
     page = logs[offset: offset + limit]
     return {"logs": page, "total": total, "limit": limit, "offset": offset}
 
-
 @router.get("/logs/{rule_id}")
 async def get_rule_logs(
     rule_id: str,
@@ -348,7 +328,6 @@ async def get_rule_logs(
     total = len(logs)
     page = logs[offset: offset + limit]
     return {"logs": page, "total": total, "rule_name": rule["name"], "limit": limit, "offset": offset}
-
 
 @router.post("/migrate-logs")
 async def migrate_legacy_logs():

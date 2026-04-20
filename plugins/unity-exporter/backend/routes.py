@@ -13,7 +13,7 @@ import json
 import logging
 import re
 import shutil
-import uuid
+
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -122,7 +122,6 @@ CSHARP_TYPE_MAP = {
     "connections": "List<string>",
 }
 
-
 # ---------------------------------------------------------------------------
 # Pydantic models
 # ---------------------------------------------------------------------------
@@ -136,7 +135,6 @@ class GenerateScriptsRequest(BaseModel):
     entity_types: Optional[List[str]] = None
     output_path: Optional[str] = None
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -146,7 +144,6 @@ def _get_settings() -> dict:
     from services.plugin_settings_service import get_all_settings
     return {**DEFAULT_SETTINGS, **get_all_settings("unity-exporter")}
 
-
 def _entity_dir(entity_type: str, entity_id: str) -> Path:
     """Return the directory containing an entity's files."""
     mapping = ENTITY_MAP.get(entity_type)
@@ -155,7 +152,6 @@ def _entity_dir(entity_type: str, entity_id: str) -> Path:
     folder, _prefix = mapping
     return BRAINS_ROOT / folder / entity_id
 
-
 def _entity_file(entity_type: str, entity_id: str) -> Path:
     """Resolve the canonical markdown file for an entity."""
     mapping = ENTITY_MAP.get(entity_type)
@@ -163,7 +159,6 @@ def _entity_file(entity_type: str, entity_id: str) -> Path:
         raise HTTPException(status_code=400, detail=f"Unknown entity type: {entity_type}")
     folder, prefix = mapping
     return BRAINS_ROOT / folder / entity_id / f"{prefix}{entity_id}.md"
-
 
 def _parse_entity_markdown(filepath: Path) -> Dict[str, Any]:
     """Parse a Studio entity markdown file.
@@ -194,7 +189,6 @@ def _parse_entity_markdown(filepath: Path) -> Dict[str, Any]:
         "raw": text,
     }
 
-
 def _find_portrait(entity_type: str, entity_id: str) -> Optional[Path]:
     """Find the portrait image for an entity if it exists."""
     entity_dir = _entity_dir(entity_type, entity_id)
@@ -212,13 +206,11 @@ def _find_portrait(entity_type: str, entity_id: str) -> Optional[Path]:
             return images[0]
     return None
 
-
 def _to_pascal_case(s: str) -> str:
     """Convert a string to PascalCase for C# class names."""
     s = re.sub(r'[^a-zA-Z0-9_\s-]', '', s)
     words = re.split(r'[\s_-]+', s)
     return ''.join(w.capitalize() for w in words if w)
-
 
 def _to_camel_case(s: str) -> str:
     """Convert a string to camelCase for C# field names."""
@@ -226,7 +218,6 @@ def _to_camel_case(s: str) -> str:
     if not pascal:
         return "unnamed"
     return pascal[0].lower() + pascal[1:]
-
 
 def _infer_csharp_type(key: str, value: Any) -> str:
     """Infer the C# type for a field based on its key name and value."""
@@ -254,17 +245,14 @@ def _infer_csharp_type(key: str, value: Any) -> str:
 
     return "string"
 
-
 def _stable_guid(seed_string: str) -> str:
     """Generate a stable Unity-compatible GUID from a seed string."""
     return hashlib.md5(seed_string.encode("utf-8")).hexdigest()
-
 
 def _stable_file_id(seed_string: str) -> int:
     """Generate a stable Unity fileID from a seed string."""
     h = hashlib.sha256(seed_string.encode("utf-8")).digest()
     return int.from_bytes(h[:4], "big") % 2147483647
-
 
 def _format_csharp_value(value: Any, csharp_type: str) -> str:
     """Format a Python value as a C# literal for ScriptableObject YAML."""
@@ -299,7 +287,6 @@ def _format_csharp_value(value: Any, csharp_type: str) -> str:
         return "{fileID: 0}"
     else:
         return str(value) if value else ""
-
 
 # ---------------------------------------------------------------------------
 # C# Code Generation
@@ -386,7 +373,6 @@ def _generate_csharp_class(entity_type: str, fields: Dict[str, Any], settings: d
 
     return "\n".join(lines)
 
-
 def _categorize_field(field_name: str) -> str:
     """Categorize a field name into a Unity Inspector header group."""
     fn = field_name.lower()
@@ -412,7 +398,6 @@ def _categorize_field(field_name: str) -> str:
     if any(w in fn for w in ("skill", "ability", "spell", "power", "talent")):
         return "Abilities"
     return "Properties"
-
 
 def _generate_scriptable_object_yaml(
     entity_type: str,
@@ -482,7 +467,6 @@ def _generate_scriptable_object_yaml(
     lines.append(f"")
     return "\n".join(lines)
 
-
 def _generate_enum_code(entity_type: str, field_name: str, values: List[str], namespace: str) -> str:
     """Generate a C# enum from a list of string values."""
     enum_name = _to_pascal_case(field_name)
@@ -508,7 +492,6 @@ def _generate_enum_code(entity_type: str, field_name: str, values: List[str], na
     lines.append(f"")
 
     return "\n".join(lines)
-
 
 def _collect_all_fields_for_type(entity_type: str) -> Dict[str, Any]:
     """Scan all entities of a type and collect a union of all fields with sample values."""
@@ -540,7 +523,6 @@ def _collect_all_fields_for_type(entity_type: str) -> Dict[str, Any]:
             continue
 
     return all_fields
-
 
 def _list_entities_for_type(entity_type: str) -> List[Dict[str, Any]]:
     """List all entities of a given type with basic info."""
@@ -582,7 +564,6 @@ def _list_entities_for_type(entity_type: str) -> List[Dict[str, Any]]:
 
     return entities
 
-
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -614,7 +595,6 @@ async def index():
         "total_entities": total_entities,
     }
 
-
 @router.get("/entities/{entity_type}")
 async def list_entities(entity_type: str):
     """List all entities of a given type available for export."""
@@ -627,7 +607,6 @@ async def list_entities(entity_type: str):
         "count": len(entities),
         "entities": entities,
     }
-
 
 @router.get("/preview/{entity_type}/{entity_id}")
 async def preview_scriptable_object(entity_type: str, entity_id: str, format: str = "yaml"):
@@ -660,7 +639,6 @@ async def preview_scriptable_object(entity_type: str, entity_id: str, format: st
         "file_name": f"{entity_id}.asset",
     }
 
-
 @router.get("/csharp/{entity_type}")
 async def generate_csharp_class(entity_type: str):
     """Generate the C# ScriptableObject data class for an entity type.
@@ -688,7 +666,6 @@ async def generate_csharp_class(entity_type: str):
         "csharp_code": csharp_code,
         "namespace": settings.get("namespace", "CityOfBrains.Data"),
     }
-
 
 @router.post("/export/{entity_type}/{entity_id}")
 async def export_entity(entity_type: str, entity_id: str, output_path: Optional[str] = None):
@@ -783,7 +760,6 @@ async def export_entity(entity_type: str, entity_id: str, output_path: Optional[
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
-
 @router.post("/batch-export")
 async def batch_export(req: BatchExportRequest):
     """Export multiple entities of a given type as .asset files."""
@@ -817,7 +793,6 @@ async def batch_export(req: BatchExportRequest):
         "errors": errors,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
-
 
 @router.post("/generate-scripts")
 async def generate_scripts(req: GenerateScriptsRequest):
@@ -935,7 +910,6 @@ async def generate_scripts(req: GenerateScriptsRequest):
         "namespace": settings.get("namespace", "CityOfBrains.Data"),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
-
 
 @router.get("/export-history")
 async def get_export_history():

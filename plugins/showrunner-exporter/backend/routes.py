@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Optional
 
 import httpx
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 logger = logging.getLogger("plugin.showrunner-exporter")
@@ -45,7 +45,6 @@ TYPE_PREFIX_MAP = {
 
 DEFAULT_ENTITY_TYPES = ["character", "location", "item", "faction", "brand", "district", "job"]
 
-
 # ---------------------------------------------------------------------------
 # Settings helpers
 # ---------------------------------------------------------------------------
@@ -53,18 +52,14 @@ def _get_setting(key: str, default=None):
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("showrunner-exporter").get(key, default)
 
-
 def _get_api_key() -> Optional[str]:
     return _get_setting("showrunner_api_key") or None
-
 
 def _get_project_id() -> Optional[str]:
     return _get_setting("project_id") or None
 
-
 def _get_api_url() -> str:
     return _get_setting("showrunner_api_url", "https://api.showrunner.xyz")
-
 
 # ---------------------------------------------------------------------------
 # Export log persistence
@@ -77,26 +72,22 @@ def _load_export_log() -> list:
         pass
     return []
 
-
 def _save_export_log(log: list):
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     EXPORT_LOG_FILE.write_text(
         json.dumps(log[-500:], indent=2, default=str), encoding="utf-8"
     )
 
-
 def _append_export_log(entry: dict):
     log = _load_export_log()
     log.append(entry)
     _save_export_log(log)
-
 
 # ---------------------------------------------------------------------------
 # Entity data helpers
 # ---------------------------------------------------------------------------
 def _get_type_dir(entity_type: str) -> str:
     return entity_type.capitalize() + "s"
-
 
 def _parse_frontmatter(filepath: str) -> dict:
     """Read a markdown file and extract YAML frontmatter as a dict."""
@@ -122,7 +113,6 @@ def _parse_frontmatter(filepath: str) -> dict:
                 data[key.strip()] = val
         return data
 
-
 def _extract_markdown_body(filepath: str) -> str:
     """Extract the markdown body after frontmatter."""
     try:
@@ -135,7 +125,6 @@ def _extract_markdown_body(filepath: str) -> str:
     if match:
         return match.group(1).strip()
     return content.strip()
-
 
 def _extract_dialogue_samples(markdown_body: str, limit: int = 5) -> list[str]:
     """Extract dialogue lines from markdown body (lines in quotes or after character names)."""
@@ -157,7 +146,6 @@ def _extract_dialogue_samples(markdown_body: str, limit: int = 5) -> list[str]:
             break
     return samples
 
-
 async def _fetch_entity(entity_type: str, entity_id: str) -> dict:
     """Fetch entity data from the backend API."""
     async with httpx.AsyncClient(timeout=10) as client:
@@ -168,7 +156,6 @@ async def _fetch_entity(entity_type: str, entity_id: str) -> dict:
                 detail=f"Failed to fetch entity {entity_type}/{entity_id}",
             )
         return resp.json()
-
 
 def _scan_entities(entity_type: str) -> list[dict]:
     """Scan all entities of a given type from the filesystem."""
@@ -226,7 +213,6 @@ def _scan_entities(entity_type: str) -> list[dict]:
 
     return results
 
-
 # ---------------------------------------------------------------------------
 # Showrunner format converters
 # ---------------------------------------------------------------------------
@@ -279,7 +265,6 @@ def character_to_showrunner(entity_data: dict, include_voice: bool = True) -> di
 
     return result
 
-
 def location_to_showrunner(entity_data: dict) -> dict:
     """Convert location entity to Showrunner scene/set format."""
     return {
@@ -300,7 +285,6 @@ def location_to_showrunner(entity_data: dict) -> dict:
         },
     }
 
-
 def faction_to_showrunner(entity_data: dict) -> dict:
     """Convert faction entity to Showrunner organization format."""
     return {
@@ -318,7 +302,6 @@ def faction_to_showrunner(entity_data: dict) -> dict:
             "exported_at": datetime.now(timezone.utc).isoformat(),
         },
     }
-
 
 def entity_to_showrunner(entity_data: dict, entity_type: str) -> dict:
     """Route entity to appropriate Showrunner converter."""
@@ -344,7 +327,6 @@ def entity_to_showrunner(entity_data: dict, entity_type: str) -> dict:
                 "exported_at": datetime.now(timezone.utc).isoformat(),
             },
         }
-
 
 def _build_episode_outline(title: str, characters: list, scenes: list) -> dict:
     """Build a Showrunner episode outline from structured data."""
@@ -372,7 +354,6 @@ def _build_episode_outline(title: str, characters: list, scenes: list) -> dict:
         },
     }
 
-
 # ---------------------------------------------------------------------------
 # Pydantic models
 # ---------------------------------------------------------------------------
@@ -381,10 +362,8 @@ class ExportEpisodeRequest(BaseModel):
     characters: list = []
     scenes: list = []
 
-
 class BatchExportRequest(BaseModel):
     entity_types: list[str] = ["character"]
-
 
 # ---------------------------------------------------------------------------
 # Mock Showrunner projects (used when no API key is configured)
@@ -409,7 +388,6 @@ MOCK_PROJECTS = [
         "created_at": "2025-12-01T14:00:00Z",
     },
 ]
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -440,7 +418,6 @@ async def status():
         "successful_exports": successful,
         "last_export": last_export,
     }
-
 
 @router.post("/export/character/{entity_id}")
 async def export_character(entity_id: str):
@@ -509,7 +486,6 @@ async def export_character(entity_id: str):
         ),
     }
 
-
 @router.post("/export/episode")
 async def export_episode(req: ExportEpisodeRequest):
     """Export an episode outline to Showrunner format."""
@@ -560,7 +536,6 @@ async def export_episode(req: ExportEpisodeRequest):
         "message": f"Episode '{req.title}' exported with {len(req.scenes)} scenes",
     }
 
-
 @router.get("/preview/{entity_type}/{entity_id}")
 async def preview_export(entity_type: str, entity_id: str):
     """Preview the Showrunner-formatted JSON for an entity without exporting."""
@@ -584,7 +559,6 @@ async def preview_export(entity_type: str, entity_id: str):
         "fields_populated": sum(1 for v in showrunner_data.values() if v),
         "fields_total": len(showrunner_data),
     }
-
 
 @router.post("/batch-export")
 async def batch_export(req: BatchExportRequest):
@@ -637,7 +611,6 @@ async def batch_export(req: BatchExportRequest):
         "message": f"Exported {len(results)} entities with {len(errors)} errors",
     }
 
-
 @router.get("/projects")
 async def list_projects():
     """List Showrunner projects. Returns mock data if no API key is configured."""
@@ -675,7 +648,6 @@ async def list_projects():
             "projects": MOCK_PROJECTS,
         }
 
-
 @router.get("/export-log")
 async def get_export_log(limit: int = 50):
     """Get export history."""
@@ -685,7 +657,6 @@ async def get_export_log(limit: int = 50):
         "total": len(log),
         "items": log[:limit],
     }
-
 
 @router.get("/export-status/{entity_type}/{entity_id}")
 async def get_export_status(entity_type: str, entity_id: str):
@@ -711,7 +682,6 @@ async def get_export_status(entity_type: str, entity_id: str):
         "project_id": _get_project_id() or "",
         "api_configured": bool(_get_api_key()),
     }
-
 
 @router.get("/characters")
 async def list_characters():
@@ -743,7 +713,6 @@ async def list_characters():
         "total": len(characters),
         "exported_count": sum(1 for c in characters if c.get("export_count", 0) > 0),
     }
-
 
 @router.get("/stats")
 async def get_stats():

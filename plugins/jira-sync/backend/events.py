@@ -8,13 +8,11 @@ The ``register_handlers`` function is called by the plugin loader when the
 plugin is enabled.
 """
 
-from __future__ import annotations
-
 import json
 import logging
-import time
+
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import httpx
 
@@ -25,7 +23,6 @@ DATA_DIR = PLUGIN_DIR / "data"
 LINKS_FILE = DATA_DIR / "entity_links.json"
 STUDIO_API = "http://localhost:8201/api"
 PLUGIN_API = "http://localhost:8201/api/ext/jira-sync"
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -39,25 +36,20 @@ def _load_json(path: Path, default: Any = None) -> Any:
     except Exception:
         return default if default is not None else {}
 
-
 def _read_settings() -> Dict[str, Any]:
     settings_file = PLUGIN_DIR.parent / "_plugin_settings.json"
     all_settings = _load_json(settings_file, {})
     return all_settings.get("jira-sync", {})
 
-
 def _jira_configured() -> bool:
     s = _read_settings()
     return bool(s.get("jira_instance_url") and s.get("jira_api_token"))
 
-
 def _link_key(entity_type: str, entity_id: str) -> str:
     return f"{entity_type}:{entity_id}"
 
-
 def _load_links() -> Dict[str, Any]:
     return _load_json(LINKS_FILE, {})
-
 
 # ---------------------------------------------------------------------------
 # Event registration

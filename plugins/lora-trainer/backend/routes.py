@@ -8,7 +8,7 @@ linked to character entities.
 
 import json
 import logging
-import os
+
 import re
 import time
 import uuid
@@ -41,7 +41,6 @@ BACKEND_URL = "http://localhost:8201"
 # Supported training image extensions
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff"}
 
-
 # ---------------------------------------------------------------------------
 # Settings helpers
 # ---------------------------------------------------------------------------
@@ -49,13 +48,11 @@ def _get_setting(key: str, default=None):
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("lora-trainer").get(key, default)
 
-
 def _output_dir() -> Path:
     """Return the configured LoRA output directory, creating it if needed."""
     p = Path(_get_setting("output_dir", "A:/Brains/_Generated/loras"))
     p.mkdir(parents=True, exist_ok=True)
     return p
-
 
 # ---------------------------------------------------------------------------
 # Entity helpers
@@ -67,11 +64,9 @@ def _entity_dir(entity_type: str, entity_id: str) -> Path:
     type_folder = type_folder[0].upper() + type_folder[1:]
     return BRAINS_ROOT / type_folder / entity_id
 
-
 def _entity_assets_dir(entity_type: str, entity_id: str) -> Path:
     """Return the assets directory for an entity."""
     return _entity_dir(entity_type, entity_id) / "assets"
-
 
 def _parse_frontmatter(filepath: Path) -> dict:
     """Read a markdown file and extract YAML frontmatter as a dict."""
@@ -92,7 +87,6 @@ def _parse_frontmatter(filepath: Path) -> dict:
                 key, _, val = line.partition(":")
                 data[key.strip()] = val.strip().strip("'\"")
         return data
-
 
 def _get_entity_metadata(entity_type: str, entity_id: str) -> dict:
     """Try to load entity metadata from its markdown file."""
@@ -121,7 +115,6 @@ def _get_entity_metadata(entity_type: str, entity_id: str) -> dict:
             return fm
     return {}
 
-
 # ---------------------------------------------------------------------------
 # Job persistence
 # ---------------------------------------------------------------------------
@@ -134,11 +127,9 @@ def _load_jobs() -> list[dict]:
         pass
     return []
 
-
 def _save_jobs(jobs: list[dict]):
     PLUGIN_DATA.mkdir(parents=True, exist_ok=True)
     JOBS_FILE.write_text(json.dumps(jobs, indent=2, default=str), encoding="utf-8")
-
 
 def _find_job(job_id: str) -> Optional[dict]:
     jobs = _load_jobs()
@@ -147,7 +138,6 @@ def _find_job(job_id: str) -> Optional[dict]:
             return j
     return None
 
-
 def _update_job(job_id: str, updates: dict):
     jobs = _load_jobs()
     for j in jobs:
@@ -155,7 +145,6 @@ def _update_job(job_id: str, updates: dict):
             j.update(updates)
             break
     _save_jobs(jobs)
-
 
 # ---------------------------------------------------------------------------
 # LoRA index persistence
@@ -169,10 +158,8 @@ def _load_lora_index() -> list[dict]:
         pass
     return []
 
-
 def _save_lora_index(index: list[dict]):
     LORA_INDEX_FILE.write_text(json.dumps(index, indent=2, default=str), encoding="utf-8")
-
 
 def _scan_lora_files() -> list[dict]:
     """Scan the output directory for .safetensors files and merge with index."""
@@ -202,7 +189,6 @@ def _scan_lora_files() -> list[dict]:
     found.sort(key=lambda x: x.get("created", ""), reverse=True)
     return found
 
-
 # ---------------------------------------------------------------------------
 # Caption helpers
 # ---------------------------------------------------------------------------
@@ -214,7 +200,6 @@ def _caption_file_for(entity_type: str, entity_id: str, image_name: str) -> Path
     stem = Path(image_name).stem
     return safe_dir / f"{stem}.txt"
 
-
 def _get_caption(entity_type: str, entity_id: str, image_name: str) -> str:
     """Load caption for an image, or return empty string."""
     cf = _caption_file_for(entity_type, entity_id, image_name)
@@ -222,12 +207,10 @@ def _get_caption(entity_type: str, entity_id: str, image_name: str) -> str:
         return cf.read_text(encoding="utf-8").strip()
     return ""
 
-
 def _set_caption(entity_type: str, entity_id: str, image_name: str, caption: str):
     """Save caption for an image."""
     cf = _caption_file_for(entity_type, entity_id, image_name)
     cf.write_text(caption.strip(), encoding="utf-8")
-
 
 def _generate_caption_from_metadata(metadata: dict, entity_type: str, entity_id: str) -> str:
     """Build a training caption string from entity metadata."""
@@ -268,7 +251,6 @@ def _generate_caption_from_metadata(metadata: dict, entity_type: str, entity_id:
 
     return ", ".join(parts)
 
-
 # ---------------------------------------------------------------------------
 # Pydantic models
 # ---------------------------------------------------------------------------
@@ -278,15 +260,12 @@ class TrainRequest(BaseModel):
     entity_id: str
     config: dict = Field(default_factory=lambda: {})
 
-
 class CaptionUpdate(BaseModel):
     image_name: str
     caption: str
 
-
 class CaptionBulkUpdate(BaseModel):
     captions: list[CaptionUpdate]
-
 
 # ---------------------------------------------------------------------------
 # Mock training progress simulation
@@ -344,7 +323,6 @@ def _simulate_progress(job: dict) -> dict:
 
     return job
 
-
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -378,7 +356,6 @@ async def plugin_status():
         "loras_available": len(loras),
         "gpu_id": settings.get("gpu_id", 0),
     }
-
 
 @router.get("/datasets/{entity_type}/{entity_id}")
 async def list_dataset_images(entity_type: str, entity_id: str):
@@ -422,7 +399,6 @@ async def list_dataset_images(entity_type: str, entity_id: str):
         "total": len(images),
         "captioned": sum(1 for img in images if img["has_caption"]),
     }
-
 
 @router.post("/datasets/{entity_type}/{entity_id}/prepare")
 async def prepare_dataset(entity_type: str, entity_id: str):
@@ -477,7 +453,6 @@ async def prepare_dataset(entity_type: str, entity_id: str):
         "trigger_word": entity_id.replace("_", " ").replace("-", " "),
     }
 
-
 @router.post("/datasets/{entity_type}/{entity_id}/captions")
 async def update_captions(entity_type: str, entity_id: str, body: CaptionBulkUpdate):
     """Update captions for multiple images at once."""
@@ -487,7 +462,6 @@ async def update_captions(entity_type: str, entity_id: str, body: CaptionBulkUpd
         updated += 1
 
     return {"success": True, "updated": updated}
-
 
 @router.post("/train")
 async def queue_training(req: TrainRequest):
@@ -569,7 +543,6 @@ async def queue_training(req: TrainRequest):
         "image_count": image_count,
     }
 
-
 @router.get("/jobs")
 async def list_jobs(
     status: Optional[str] = Query(None),
@@ -596,7 +569,6 @@ async def list_jobs(
         "total": len(jobs),
     }
 
-
 @router.get("/jobs/{job_id}")
 async def get_job(job_id: str):
     """Get details and progress for a specific training job."""
@@ -610,7 +582,6 @@ async def get_job(job_id: str):
         _update_job(job_id, job)
 
     return job
-
 
 @router.post("/jobs/{job_id}/cancel")
 async def cancel_job(job_id: str):
@@ -631,7 +602,6 @@ async def cancel_job(job_id: str):
     logger.info("Cancelled training job %s", job_id)
     return {"success": True, "message": "Training job cancelled"}
 
-
 @router.delete("/jobs/{job_id}")
 async def delete_job(job_id: str):
     """Remove a job from the queue history."""
@@ -646,7 +616,6 @@ async def delete_job(job_id: str):
     logger.info("Deleted training job %s", job_id)
     return {"success": True, "message": "Training job removed from history"}
 
-
 @router.get("/loras")
 async def list_loras():
     """List all completed LoRA files in the output directory."""
@@ -656,7 +625,6 @@ async def list_loras():
         "total": len(loras),
         "output_dir": str(_output_dir()),
     }
-
 
 @router.get("/loras/{entity_type}/{entity_id}")
 async def get_entity_loras(entity_type: str, entity_id: str):
@@ -687,7 +655,6 @@ async def get_entity_loras(entity_type: str, entity_id: str):
         "active_jobs": active_jobs,
         "has_lora": len(entity_loras) > 0 or len(completed_jobs) > 0,
     }
-
 
 @router.get("/gpu-status")
 async def gpu_status():

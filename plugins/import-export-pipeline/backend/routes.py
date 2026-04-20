@@ -12,14 +12,13 @@ Features:
 - AI-assisted merge conflict resolution
 """
 
-import asyncio
 import logging
 import os
 import re
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 from datetime import datetime
 from enum import Enum
 
@@ -56,7 +55,6 @@ ENTITY_MAP = {
     "layout": ("Layouts", "LAY_"),
 }
 
-
 # ============================================================================
 # Enums and Models
 # ============================================================================
@@ -70,7 +68,6 @@ class ImportFormat(str, Enum):
     VERSE = "verse"
     ZIP = "zip"
 
-
 class ExportFormat(str, Enum):
     MARKDOWN = "markdown"
     JSON = "json"
@@ -79,13 +76,11 @@ class ExportFormat(str, Enum):
     PDF = "pdf"
     DOCX = "docx"
 
-
 class ImportMode(str, Enum):
     CREATE = "create"
     REPLACE = "replace"
     UPDATE = "update"
     MERGE = "merge"
-
 
 class ProgressStage(str, Enum):
     PARSING = "parsing"
@@ -93,7 +88,6 @@ class ProgressStage(str, Enum):
     PROCESSING = "processing"
     WRITING = "writing"
     COMPLETED = "completed"
-
 
 class ImportOptions(BaseModel):
     """Options for import operations."""
@@ -108,7 +102,6 @@ class ImportOptions(BaseModel):
     ignore_errors: bool = Field(default=False, description="Continue on errors")
     profile_name: Optional[str] = Field(default=None, description="Profile to use for import")
 
-
 class ExportOptions(BaseModel):
     """Options for export operations."""
     format: ExportFormat = Field(default=ExportFormat.MARKDOWN, description="Export format")
@@ -119,13 +112,11 @@ class ExportOptions(BaseModel):
     flatten_hierarchy: bool = Field(default=False, description="Flatten nested structures")
     profile_name: Optional[str] = Field(default=None, description="Profile to use for export")
 
-
 class BatchOptions(BaseModel):
     """Options for batch operations."""
     batch_size: int = Field(default=50, ge=1, le=1000, description="Batch size for processing")
     parallel_workers: int = Field(default=4, ge=1, le=16, description="Number of parallel workers")
     progress_callback: Optional[str] = Field(default=None, description="Progress callback URL")
-
 
 class ProfileConfig(BaseModel):
     """Configuration for an import/export profile."""
@@ -135,7 +126,6 @@ class ProfileConfig(BaseModel):
     export_formats: List[ExportFormat] = Field(default_factory=list, description="Supported export formats")
     default_layout: str = Field(default="gdd_standard", description="Default layout")
     settings: Dict[str, Any] = Field(default_factory=dict, description="Profile-specific settings")
-
 
 class PipelineTask(BaseModel):
     """A task in the import/export pipeline."""
@@ -151,7 +141,6 @@ class PipelineTask(BaseModel):
     error: Optional[str] = Field(default=None, description="Error message if failed")
     warnings: List[str] = Field(default_factory=list, description="Warnings during processing")
 
-
 class ImportResponse(BaseModel):
     """Response from import operation."""
     status: str = Field(..., description="Operation status")
@@ -161,7 +150,6 @@ class ImportResponse(BaseModel):
     warnings: List[str] = Field(default_factory=list, description="Warnings")
     errors: List[str] = Field(default_factory=list, description="Errors")
 
-
 class ExportResponse(BaseModel):
     """Response from export operation."""
     status: str = Field(..., description="Operation status")
@@ -170,7 +158,6 @@ class ExportResponse(BaseModel):
     output_files: List[str] = Field(default_factory=list, description="Output file paths")
     warnings: List[str] = Field(default_factory=list, description="Warnings")
     errors: List[str] = Field(default_factory=list, description="Errors")
-
 
 # ============================================================================
 # Helper Functions
@@ -212,7 +199,6 @@ def _detect_format(content: str, filename: str) -> ImportFormat:
     # Default to markdown
     return ImportFormat.MARKDOWN
 
-
 def _parse_markdown_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
     """Parse YAML frontmatter and markdown body from content."""
     if not content.strip():
@@ -245,7 +231,6 @@ def _parse_markdown_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
 
     return frontmatter, body
 
-
 def _parse_json_content(content: str) -> tuple[Dict[str, Any], str]:
     """Parse JSON content."""
     import json
@@ -257,7 +242,6 @@ def _parse_json_content(content: str) -> tuple[Dict[str, Any], str]:
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON: {e}")
 
-
 def _parse_csv_content(content: str) -> tuple[List[Dict[str, Any]], str]:
     """Parse CSV content."""
     import csv
@@ -267,7 +251,6 @@ def _parse_csv_content(content: str) -> tuple[List[Dict[str, Any]], str]:
         return list(reader), ""
     except Exception as e:
         raise ValueError(f"Invalid CSV: {e}")
-
 
 def _parse_opml_content(content: str) -> tuple[Dict[str, Any], str]:
     """Parse OPML content (XML-based outline format)."""
@@ -289,7 +272,6 @@ def _parse_opml_content(content: str) -> tuple[Dict[str, Any], str]:
     except ET.ParseError as e:
         raise ValueError(f"Invalid OPML: {e}")
 
-
 def _parse_verse_content(content: str) -> tuple[Dict[str, Any], str]:
     """Parse Verse (UEFN) content."""
     # Verse files have specific patterns
@@ -306,7 +288,6 @@ def _parse_verse_content(content: str) -> tuple[Dict[str, Any], str]:
     except ValueError:
         return {"type": "verse_code", "content": content}, ""
 
-
 def _get_entity_folder(entity_type: str) -> Optional[Path]:
     """Get the data folder path for an entity type."""
     mapping = ENTITY_MAP.get(entity_type.lower())
@@ -315,7 +296,6 @@ def _get_entity_folder(entity_type: str) -> Optional[Path]:
     folder_name, _ = mapping
     return BRAINS_ROOT / folder_name
 
-
 def _entity_file_path(entity_type: str, entity_id: str) -> Path:
     """Get the file path for an entity."""
     mapping = ENTITY_MAP.get(entity_type.lower())
@@ -323,7 +303,6 @@ def _entity_file_path(entity_type: str, entity_id: str) -> Path:
         raise ValueError(f"Unknown entity type: {entity_type}")
     folder_name, prefix = mapping
     return BRAINS_ROOT / folder_name / entity_id / f"{prefix}{entity_id}.md"
-
 
 def _detect_entity_type_from_file(content: str, filename: str) -> Optional[str]:
     """Try to detect entity type from file content."""
@@ -349,7 +328,6 @@ def _detect_entity_type_from_file(content: str, filename: str) -> Optional[str]:
                 return entity_type
 
     return None
-
 
 # ============================================================================
 # Import Routes
@@ -380,7 +358,6 @@ async def pipeline_status():
             "auto_detection",
         ],
     }
-
 
 @router.post("/import/preview")
 async def preview_import(
@@ -466,7 +443,6 @@ async def preview_import(
 
     raise HTTPException(status_code=400, detail="Unknown file format")
 
-
 @router.post("/import/single", response_model=ImportResponse)
 async def import_single(
     file: UploadFile,
@@ -543,7 +519,6 @@ async def import_single(
     else:
         raise HTTPException(status_code=400, detail=f"Mode '{options.mode}' not yet implemented")
 
-
 @router.post("/import/batch", response_model=ImportResponse)
 async def import_batch(
     files: List[UploadFile],
@@ -600,7 +575,6 @@ async def import_batch(
         warnings=warnings,
         errors=errors,
     )
-
 
 @router.post("/import/zip", response_model=ImportResponse)
 async def import_zip(
@@ -674,7 +648,6 @@ async def import_zip(
         except zipfile.BadZipFile:
             raise HTTPException(status_code=400, detail="Invalid ZIP file")
 
-
 # ============================================================================
 # Export Routes
 # ============================================================================
@@ -721,7 +694,6 @@ async def export_markdown(
         output_files=output_files,
         errors=errors,
     )
-
 
 @router.post("/export/json", response_model=ExportResponse)
 async def export_json(
@@ -787,7 +759,6 @@ async def export_json(
         errors=errors,
     )
 
-
 @router.post("/export/csv", response_model=ExportResponse)
 async def export_csv(
     entity_type: str,
@@ -852,7 +823,6 @@ async def export_csv(
         output_files=output_files,
         errors=errors,
     )
-
 
 @router.post("/export/html", response_model=ExportResponse)
 async def export_html(
@@ -927,7 +897,6 @@ async def export_html(
         errors=errors,
     )
 
-
 @router.post("/export/pdf")
 async def export_pdf(
     entity_type: str,
@@ -939,7 +908,6 @@ async def export_pdf(
 
     Uses Playwright for high-quality PDF generation.
     """
-    import asyncio
 
     task_id = f"export-pdf-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
 
@@ -1033,7 +1001,6 @@ async def export_pdf(
         "errors": errors,
     }
 
-
 @router.post("/export/docx")
 async def export_docx(
     entity_type: str,
@@ -1111,7 +1078,6 @@ async def export_docx(
         "errors": errors,
     }
 
-
 # ============================================================================
 # Profile Management Routes
 # ============================================================================
@@ -1161,7 +1127,6 @@ async def list_profiles(
 
     return profiles
 
-
 @router.get("/profiles/{{profile_name}}", response_model=ProfileConfig)
 async def get_profile(profile_name: str):
     """
@@ -1174,7 +1139,6 @@ async def get_profile(profile_name: str):
             return profile
 
     raise HTTPException(status_code=404, detail=f"Profile not found: {profile_name}")
-
 
 # ============================================================================
 # System Routes
@@ -1203,7 +1167,6 @@ async def list_available_formats():
             {"format": "docx", "extensions": [".docx"], "description": "Microsoft Word document"},
         ],
     }
-
 
 @router.get("/auto-detect")
 async def detect_format(content: str, filename: str):

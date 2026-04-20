@@ -11,14 +11,13 @@ import logging
 import os
 import re
 import shutil
-import time
+
 from datetime import datetime, timezone
-from pathlib import Path
+
 from typing import Any, Dict, List, Optional
 
 import yaml
 from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 logger = logging.getLogger("plugin.obsidian-vault")
@@ -62,7 +61,6 @@ SINGLE_REF_FIELDS = [
     "primary_brand", "faction_control",
 ]
 
-
 # ---------------------------------------------------------------------------
 # Helpers -- settings
 # ---------------------------------------------------------------------------
@@ -81,7 +79,6 @@ def _load_settings() -> Dict[str, Any]:
     defaults.update({k: v for k, v in stored.items() if k in defaults})
     return defaults
 
-
 def _save_settings(settings: Dict[str, Any]):
     """Persist plugin settings."""
     try:
@@ -95,7 +92,6 @@ def _save_settings(settings: Dict[str, Any]):
     with open(SETTINGS_FILE, "w", encoding="utf-8") as fh:
         json.dump(data, fh, indent=2)
 
-
 def _get_vault_path() -> str:
     """Return validated vault path or raise."""
     settings = _load_settings()
@@ -103,7 +99,6 @@ def _get_vault_path() -> str:
     if not vault_path:
         raise HTTPException(status_code=400, detail="Vault path not configured. Set it in plugin settings.")
     return vault_path
-
 
 # ---------------------------------------------------------------------------
 # Helpers -- export log
@@ -116,11 +111,9 @@ def _load_export_log() -> Dict[str, Any]:
     except Exception:
         return {}
 
-
 def _save_export_log(log: Dict[str, Any]):
     with open(EXPORT_LOG_FILE, "w", encoding="utf-8") as fh:
         json.dump(log, fh, indent=2)
-
 
 def _record_export(entity_type: str, entity_id: str, link_count: int, vault_file: str):
     log = _load_export_log()
@@ -131,7 +124,6 @@ def _record_export(entity_type: str, entity_id: str, link_count: int, vault_file
         "vault_file": vault_file,
     }
     _save_export_log(log)
-
 
 # ---------------------------------------------------------------------------
 # Helpers -- entity loading
@@ -156,7 +148,6 @@ def _find_entity_file(entity_type: str, entity_id: str) -> Optional[str]:
             return os.path.join(entity_dir, fname)
     return None
 
-
 def _parse_entity_file(filepath: str) -> Dict[str, Any]:
     """Parse a City of Brains entity markdown file, returning frontmatter + body."""
     with open(filepath, "r", encoding="utf-8") as fh:
@@ -176,7 +167,6 @@ def _parse_entity_file(filepath: str) -> Dict[str, Any]:
 
     return {"frontmatter": frontmatter, "body": body, "raw": content}
 
-
 def _get_entity_images_dir(entity_type: str, entity_id: str) -> Optional[str]:
     """Return path to entity images directory if it exists."""
     mapping = ENTITY_TYPE_MAP.get(entity_type)
@@ -188,14 +178,12 @@ def _get_entity_images_dir(entity_type: str, entity_id: str) -> Optional[str]:
         return images_dir
     return None
 
-
 # ---------------------------------------------------------------------------
 # Helpers -- name resolution
 # ---------------------------------------------------------------------------
 
 _entity_name_cache: Dict[str, str] = {}
 _cache_built = False
-
 
 def _build_name_cache():
     """Build a lookup of entity_id -> display name across all entity types."""
@@ -230,28 +218,23 @@ def _build_name_cache():
                 _entity_name_cache[eid] = _id_to_display_name(eid)
     _cache_built = True
 
-
 def _invalidate_name_cache():
     global _entity_name_cache, _cache_built
     _entity_name_cache = {}
     _cache_built = False
 
-
 def _clean_name(name: str) -> str:
     """Remove characters that Obsidian disallows in page titles."""
     return re.sub(r'[\\/:*?"<>|#\^\[\]]', '', name).strip()
-
 
 def _id_to_display_name(entity_id: str) -> str:
     """Convert snake_case id to Title Case display name."""
     return entity_id.replace("_", " ").title()
 
-
 def _resolve_name(entity_id: str) -> str:
     """Resolve an entity_id to a display name for wikilinks."""
     _build_name_cache()
     return _entity_name_cache.get(entity_id, _id_to_display_name(entity_id))
-
 
 # ---------------------------------------------------------------------------
 # Helpers -- Obsidian conversion
@@ -265,7 +248,6 @@ def _make_link(name: str, link_style: str = "wikilink") -> str:
     else:
         safe = clean.replace(" ", "%20")
         return f"[{clean}]({safe}.md)"
-
 
 def _extract_names_from_relationship(items: Any) -> List[str]:
     """Pull entity names out of a relationship list (various formats)."""
@@ -281,7 +263,6 @@ def _extract_names_from_relationship(items: Any) -> List[str]:
     elif isinstance(items, str) and items:
         names.append(items)
     return names
-
 
 def _build_obsidian_frontmatter(fm: Dict[str, Any], entity_type: str) -> Dict[str, Any]:
     """Build Obsidian-optimized YAML frontmatter from entity frontmatter."""
@@ -369,7 +350,6 @@ def _build_obsidian_frontmatter(fm: Dict[str, Any], entity_type: str) -> Dict[st
         obs["cob_template_version"] = str(fm["template_version"])
 
     return obs
-
 
 def _convert_body_with_wikilinks(
     body: str,
@@ -466,7 +446,6 @@ def _convert_body_with_wikilinks(
 
     return converted_body, len(links_added)
 
-
 def _build_obsidian_markdown(
     entity_type: str,
     entity_id: str,
@@ -505,7 +484,6 @@ def _build_obsidian_markdown(
     md = f"---\n{fm_str}\n---\n\n{image_embed}{converted_body}\n"
 
     return md, link_count
-
 
 # ---------------------------------------------------------------------------
 # Helpers -- writing to vault
@@ -569,7 +547,6 @@ def _write_to_vault(
         "images_copied": images_copied,
     }
 
-
 # ---------------------------------------------------------------------------
 # Helpers -- enumerate all entities
 # ---------------------------------------------------------------------------
@@ -599,7 +576,6 @@ def _enumerate_all_entities() -> List[Dict[str, str]]:
                 })
     return entities
 
-
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -617,7 +593,6 @@ async def index():
         "vault_exists": vault_exists,
         "settings": settings,
     }
-
 
 @router.get("/status")
 async def vault_status():
@@ -681,7 +656,6 @@ async def vault_status():
         "entities": results,
     }
 
-
 @router.get("/status/{entity_type}/{entity_id}")
 async def entity_export_status(entity_type: str, entity_id: str):
     """Check export status for a single entity."""
@@ -723,7 +697,6 @@ async def entity_export_status(entity_type: str, entity_id: str):
             "vault_file": "",
         }
 
-
 @router.get("/preview/{entity_type}/{entity_id}")
 async def preview_export(entity_type: str, entity_id: str):
     """Preview the Obsidian-formatted markdown without writing to vault."""
@@ -736,7 +709,6 @@ async def preview_export(entity_type: str, entity_id: str):
         "link_count": link_count,
         "markdown": markdown,
     }
-
 
 @router.post("/export/{entity_type}/{entity_id}")
 async def export_entity(entity_type: str, entity_id: str):
@@ -758,10 +730,8 @@ async def export_entity(entity_type: str, entity_id: str):
         **result,
     }
 
-
 class BulkExportRequest(BaseModel):
     entity_types: Optional[List[str]] = None  # None means all types
-
 
 @router.post("/export-all")
 async def export_all(req: BulkExportRequest = None):
@@ -815,14 +785,12 @@ async def export_all(req: BulkExportRequest = None):
         "error_details": errors,
     }
 
-
 class SettingsUpdate(BaseModel):
     vault_path: Optional[str] = None
     auto_export: Optional[bool] = None
     include_images: Optional[bool] = None
     link_style: Optional[str] = None
     folder_per_type: Optional[bool] = None
-
 
 @router.post("/settings")
 async def update_settings(update: SettingsUpdate):
@@ -833,7 +801,6 @@ async def update_settings(update: SettingsUpdate):
     _save_settings(settings)
     return {"success": True, "settings": settings}
 
-
 @router.get("/entities")
 async def list_entities(entity_type: Optional[str] = Query(None)):
     """List all available entities, optionally filtered by type."""
@@ -841,7 +808,6 @@ async def list_entities(entity_type: Optional[str] = Query(None)):
     if entity_type:
         entities = [e for e in entities if e["type"] == entity_type]
     return {"entities": entities, "total": len(entities)}
-
 
 @router.get("/graph-data")
 async def graph_data():

@@ -12,14 +12,14 @@ render previews.
 
 import json
 import logging
-import os
+
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
 import httpx
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 logger = logging.getLogger("plugin.social-publisher")
@@ -116,7 +116,6 @@ DEFAULT_TEMPLATES = [
     },
 ]
 
-
 # ---------------------------------------------------------------------------
 # Data helpers
 # ---------------------------------------------------------------------------
@@ -132,7 +131,6 @@ def _ensure_data_dir():
             json.dumps(DEFAULT_TEMPLATES, indent=2), encoding="utf-8"
         )
 
-
 def _load_json(path: Path) -> list[dict]:
     _ensure_data_dir()
     try:
@@ -140,33 +138,26 @@ def _load_json(path: Path) -> list[dict]:
     except Exception:
         return []
 
-
 def _save_json(path: Path, data: list[dict]):
     _ensure_data_dir()
     path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
 
-
 def _load_history() -> list[dict]:
     return _load_json(HISTORY_FILE)
 
-
 def _save_history(history: list[dict]):
     _save_json(HISTORY_FILE, history)
-
 
 def _append_history(entry: dict):
     history = _load_history()
     history.insert(0, entry)
     _save_history(history[:1000])
 
-
 def _load_scheduled() -> list[dict]:
     return _load_json(SCHEDULED_FILE)
 
-
 def _save_scheduled(items: list[dict]):
     _save_json(SCHEDULED_FILE, items)
-
 
 def _load_templates() -> list[dict]:
     templates = _load_json(TEMPLATES_FILE)
@@ -175,14 +166,12 @@ def _load_templates() -> list[dict]:
         return DEFAULT_TEMPLATES
     return templates
 
-
 # ---------------------------------------------------------------------------
 # Settings helpers
 # ---------------------------------------------------------------------------
 def _get_setting(key: str, default=None):
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("social-publisher").get(key, default)
-
 
 def _platform_configured(platform: str) -> bool:
     """Check whether the required API keys exist for a platform."""
@@ -211,7 +200,6 @@ def _platform_configured(platform: str) -> bool:
         )
     return False
 
-
 # ---------------------------------------------------------------------------
 # Entity helpers
 # ---------------------------------------------------------------------------
@@ -228,7 +216,6 @@ async def _fetch_entity(entity_type: str, entity_id: str) -> dict:
             )
         return resp.json()
 
-
 def _get_entity_image_url(entity: dict, entity_type: str, entity_id: str) -> str | None:
     """Resolve the primary image URL for an entity."""
     image_file = (
@@ -244,7 +231,6 @@ def _get_entity_image_url(entity: dict, entity_type: str, entity_id: str) -> str
         else entity_type
     )
     return f"{BACKEND_URL}/files/{type_plural}/{entity_id}/assets/{image_file}"
-
 
 def _render_template(
     template_str: str, entity: dict, hashtags: str = ""
@@ -275,7 +261,6 @@ def _render_template(
     while "\n\n\n" in text:
         text = text.replace("\n\n\n", "\n\n")
     return text.strip()
-
 
 # ---------------------------------------------------------------------------
 # Platform publishers (mock when not configured)
@@ -340,7 +325,6 @@ async def _publish_twitter(text: str, image_url: str | None = None) -> dict:
             "error": str(exc),
         }
 
-
 async def _publish_bluesky(text: str, image_url: str | None = None) -> dict:
     """Publish to Bluesky.  Returns mock when credentials missing."""
     if not _platform_configured("bluesky"):
@@ -387,7 +371,6 @@ async def _publish_bluesky(text: str, image_url: str | None = None) -> dict:
             "platform": "bluesky",
             "error": str(exc),
         }
-
 
 async def _publish_instagram(text: str, image_url: str | None = None) -> dict:
     """Publish to Instagram via Graph API.  Returns mock when not configured."""
@@ -445,7 +428,6 @@ async def _publish_instagram(text: str, image_url: str | None = None) -> dict:
             "error": str(exc),
         }
 
-
 async def _publish_threads(text: str, image_url: str | None = None) -> dict:
     """Publish to Threads via API.  Returns mock when not configured."""
     if not _platform_configured("threads"):
@@ -501,14 +483,12 @@ async def _publish_threads(text: str, image_url: str | None = None) -> dict:
             "error": str(exc),
         }
 
-
 PUBLISHER_MAP = {
     "twitter": _publish_twitter,
     "bluesky": _publish_bluesky,
     "instagram": _publish_instagram,
     "threads": _publish_threads,
 }
-
 
 # ---------------------------------------------------------------------------
 # Pydantic models
@@ -521,7 +501,6 @@ class PublishRequest(BaseModel):
     entity_id: Optional[str] = None
     template_id: Optional[str] = None
     schedule_at: Optional[str] = None  # ISO-8601 datetime string
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -556,7 +535,6 @@ async def status():
         ),
         "auto_include_image": settings.get("auto_include_image", True),
     }
-
 
 @router.post("/publish")
 async def publish(req: PublishRequest):
@@ -648,13 +626,11 @@ async def publish(req: PublishRequest):
         + (" (some mocked)" if any(r.get("mock") for r in results) else ""),
     }
 
-
 @router.get("/templates")
 async def list_templates():
     """Return all available post templates."""
     templates = _load_templates()
     return {"templates": templates}
-
 
 @router.get("/templates/preview")
 async def preview_template(
@@ -689,7 +665,6 @@ async def preview_template(
         },
     }
 
-
 @router.get("/history")
 async def get_history(
     entity_type: str | None = None,
@@ -715,7 +690,6 @@ async def get_history(
 
     return {"total": len(history), "items": history[:limit]}
 
-
 @router.get("/scheduled")
 async def get_scheduled():
     """Return all upcoming scheduled posts."""
@@ -725,7 +699,6 @@ async def get_scheduled():
     # Sort by schedule_at ascending
     pending.sort(key=lambda s: s.get("schedule_at", ""))
     return {"total": len(pending), "items": pending}
-
 
 @router.delete("/scheduled/{post_id}")
 async def cancel_scheduled(post_id: str):
@@ -753,7 +726,6 @@ async def cancel_scheduled(post_id: str):
         raise HTTPException(status_code=404, detail=f"Scheduled post '{post_id}' not found.")
 
     return {"success": True, "message": "Scheduled post cancelled."}
-
 
 @router.get("/stats")
 async def get_stats():

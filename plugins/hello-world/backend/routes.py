@@ -10,7 +10,6 @@ import json
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
@@ -24,28 +23,23 @@ router = APIRouter()
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DATA_FILE = DATA_DIR / "notes.json"
 
-
 def _ensure_data_file() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     if not DATA_FILE.exists():
         DATA_FILE.write_text(json.dumps({}, indent=2))
-
 
 def _read_data() -> dict:
     _ensure_data_file()
     with open(DATA_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
 def _write_data(data: dict) -> None:
     _ensure_data_file()
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, default=str)
 
-
 def _entity_key(entity_type: str, entity_id: str) -> str:
     return f"{entity_type}:{entity_id}"
-
 
 # ---------------------------------------------------------------------------
 # Request models
@@ -55,7 +49,6 @@ class AddNoteRequest(BaseModel):
     entity_type: str
     entity_id: str
     text: str
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -70,12 +63,10 @@ async def hello():
         "version": "1.0.0",
     }
 
-
 @router.get("/status")
 async def status():
     """Plugin health check."""
     return {"status": "ok", "plugin": "hello-world"}
-
 
 @router.get("/notes")
 async def get_notes(
@@ -86,7 +77,6 @@ async def get_notes(
     data = _read_data()
     key = _entity_key(entity_type, entity_id)
     return {"notes": data.get(key, [])}
-
 
 @router.post("/notes")
 async def add_note(req: AddNoteRequest):
@@ -105,7 +95,6 @@ async def add_note(req: AddNoteRequest):
     data[key].insert(0, note)
     _write_data(data)
     return note
-
 
 @router.delete("/notes/{note_id}")
 async def delete_note(

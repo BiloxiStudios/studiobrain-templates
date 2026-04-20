@@ -13,14 +13,13 @@ Routes (mounted at /api/ext/pdf-exporter/...):
   POST /batch                             — batch export multiple entities
 """
 
-import json
 import logging
-import os
+
 import re
-import time
+
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import yaml
 from fastapi import APIRouter, HTTPException, Query
@@ -78,7 +77,6 @@ NAME_FIELD_MAP = {
     "campaign": "campaign_name",
     "assembly": "assembly_name",
 }
-
 
 # ─── Template definitions ─────────────────────────────────────────────
 
@@ -146,7 +144,6 @@ TEMPLATES = {
     },
 }
 
-
 # ─── Request models ───────────────────────────────────────────────────
 
 class BatchExportRequest(BaseModel):
@@ -154,7 +151,6 @@ class BatchExportRequest(BaseModel):
     entity_ids: List[str]
     template: str = "entity-summary"
     include_toc: bool = True
-
 
 # ─── Helper functions ─────────────────────────────────────────────────
 
@@ -173,7 +169,6 @@ def get_plugin_settings() -> Dict[str, Any]:
     }
     defaults.update(get_all_settings("pdf-exporter"))
     return defaults
-
 
 def load_entity(entity_type: str, entity_id: str) -> Optional[Dict[str, Any]]:
     """Load an entity's YAML frontmatter and markdown body from disk."""
@@ -211,7 +206,6 @@ def load_entity(entity_type: str, entity_id: str) -> Optional[Dict[str, Any]]:
         "markdown": markdown_body,
     }
 
-
 def get_entity_name(entity_type: str, frontmatter: Dict[str, Any], entity_id: str) -> str:
     """Extract display name from frontmatter, falling back to a formatted ID."""
     name_field = NAME_FIELD_MAP.get(entity_type, "name")
@@ -222,7 +216,6 @@ def get_entity_name(entity_type: str, frontmatter: Dict[str, Any], entity_id: st
         # Convert entity_id to title case
         name = entity_id.replace("_", " ").replace("-", " ").title()
     return str(name)
-
 
 def get_entity_image_path(entity_type: str, entity_id: str, frontmatter: Dict[str, Any]) -> Optional[str]:
     """Get the primary image URL for an entity."""
@@ -237,7 +230,6 @@ def get_entity_image_path(entity_type: str, entity_id: str, frontmatter: Dict[st
         return f"http://localhost:8201/api/files/{folder}/{entity_id}/images/{images[0]}"
 
     return None
-
 
 def list_entities_of_type(entity_type: str) -> List[Dict[str, str]]:
     """List all entity IDs and names for a given type."""
@@ -263,7 +255,6 @@ def list_entities_of_type(entity_type: str) -> List[Dict[str, str]]:
             entities.append({"id": child.name, "name": name})
 
     return entities
-
 
 def format_value(value: Any, indent: int = 0) -> str:
     """Format a YAML value for display in HTML."""
@@ -296,7 +287,6 @@ def format_value(value: Any, indent: int = 0) -> str:
                 parts.append(f"<strong>{k}:</strong> {format_value(v)}")
         return "<br>".join(parts) if parts else '<span class="null-value">--</span>'
     return str(value)
-
 
 # ─── CSS Generation ───────────────────────────────────────────────────
 
@@ -722,7 +712,6 @@ def generate_print_css(settings: Dict[str, Any]) -> str:
     {custom_css}
     """
 
-
 # ─── HTML Renderers ───────────────────────────────────────────────────
 
 def render_character_sheet(data: Dict[str, Any], settings: Dict[str, Any]) -> str:
@@ -900,7 +889,6 @@ def render_character_sheet(data: Dict[str, Any], settings: Dict[str, Any]) -> st
     {body_html}
     """
 
-
 def render_location_sheet(data: Dict[str, Any], settings: Dict[str, Any]) -> str:
     """Render a location guide HTML."""
     fm = data["frontmatter"]
@@ -982,7 +970,6 @@ def render_location_sheet(data: Dict[str, Any], settings: Dict[str, Any]) -> str
     {body_html}
     """
 
-
 def render_faction_sheet(data: Dict[str, Any], settings: Dict[str, Any]) -> str:
     """Render a faction dossier HTML."""
     fm = data["frontmatter"]
@@ -1062,7 +1049,6 @@ def render_faction_sheet(data: Dict[str, Any], settings: Dict[str, Any]) -> str:
     {body_html}
     """
 
-
 def render_generic_sheet(data: Dict[str, Any], settings: Dict[str, Any]) -> str:
     """Render a generic entity summary HTML."""
     fm = data["frontmatter"]
@@ -1111,7 +1097,6 @@ def render_generic_sheet(data: Dict[str, Any], settings: Dict[str, Any]) -> str:
     {body_html}
     """
 
-
 def render_markdown_simple(text: str) -> str:
     """Simple markdown-to-HTML conversion for body text."""
     try:
@@ -1130,7 +1115,6 @@ def render_markdown_simple(text: str) -> str:
         html = f"<p>{html}</p>"
         return html
 
-
 TEMPLATE_RENDERERS = {
     "character-sheet": render_character_sheet,
     "location-guide": render_location_sheet,
@@ -1138,7 +1122,6 @@ TEMPLATE_RENDERERS = {
     "item-catalog": render_generic_sheet,
     "entity-summary": render_generic_sheet,
 }
-
 
 def select_template(entity_type: str, requested: Optional[str] = None) -> str:
     """Select the best template for an entity type."""
@@ -1152,7 +1135,6 @@ def select_template(entity_type: str, requested: Optional[str] = None) -> str:
         "item": "item-catalog",
     }
     return type_defaults.get(entity_type, "entity-summary")
-
 
 def wrap_full_html(title: str, body: str, settings: Dict[str, Any],
                    show_toolbar: bool = True) -> str:
@@ -1193,7 +1175,6 @@ def wrap_full_html(title: str, body: str, settings: Dict[str, Any],
 </body>
 </html>"""
 
-
 def render_entity_header(entity_type: str, entity_id: str, name: str,
                          settings: Dict[str, Any]) -> str:
     """Render the standard export header for a single entity."""
@@ -1216,7 +1197,6 @@ def render_entity_header(entity_type: str, entity_id: str, name: str,
         </div>
     </div>"""
 
-
 # ─── API Endpoints ────────────────────────────────────────────────────
 
 @router.get("/")
@@ -1231,12 +1211,10 @@ async def plugin_status():
         "entity_types": list(FOLDER_NAME_MAP.keys()),
     }
 
-
 @router.get("/templates")
 async def list_templates():
     """List all available export templates."""
     return {"templates": list(TEMPLATES.values())}
-
 
 @router.get("/entities/{entity_type}")
 async def list_entities(entity_type: str):
@@ -1245,7 +1223,6 @@ async def list_entities(entity_type: str):
         raise HTTPException(status_code=400, detail=f"Unknown entity type: {entity_type}")
     entities = list_entities_of_type(entity_type)
     return {"entity_type": entity_type, "count": len(entities), "entities": entities}
-
 
 @router.get("/preview/{entity_type}/{entity_id}")
 async def preview_entity(
@@ -1271,7 +1248,6 @@ async def preview_entity(
 
     return {"html": header + body, "name": name, "template": template_id}
 
-
 @router.get("/export/{entity_type}/{entity_id}")
 async def export_entity(
     entity_type: str,
@@ -1296,7 +1272,6 @@ async def export_entity(
 
     full_html = wrap_full_html(name, header + content, settings)
     return HTMLResponse(content=full_html)
-
 
 @router.post("/batch")
 async def batch_export(req: BatchExportRequest):
@@ -1365,7 +1340,6 @@ async def batch_export(req: BatchExportRequest):
     title = f"{req.entity_type.title()}s Collection"
     full_html = wrap_full_html(title, "\n".join(body_parts), settings)
     return HTMLResponse(content=full_html)
-
 
 @router.post("/world-bible")
 async def export_world_bible():
