@@ -7,8 +7,7 @@ tracking execution history, and serving generated outputs.
 
 import json
 import logging
-import os
-import re
+
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,11 +36,9 @@ BACKEND_URL = "http://localhost:8201"
 DEFAULT_COMFYUI_URL = "http://localhost:8188"
 DEFAULT_WORKFLOWS_DIR = r"A:\Brains\Workflows"
 
-
 def _ensure_dirs():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
-
 
 # ---------------------------------------------------------------------------
 # Settings helpers
@@ -50,15 +47,12 @@ def _get_setting(key: str, default=None):
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("comfyui-workflows").get(key, default)
 
-
 def _comfyui_url() -> str:
     return _get_setting("comfyui_url", DEFAULT_COMFYUI_URL).rstrip("/")
-
 
 def _workflows_dir() -> Path:
     d = _get_setting("workflows_dir", DEFAULT_WORKFLOWS_DIR)
     return Path(d) if d else Path(DEFAULT_WORKFLOWS_DIR)
-
 
 # ---------------------------------------------------------------------------
 # ComfyUI workflow parser
@@ -187,7 +181,6 @@ def _parse_workflow(filepath: Path) -> dict:
         "created": datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc).isoformat(),
     }
 
-
 # ---------------------------------------------------------------------------
 # ComfyUI communication helpers
 # ---------------------------------------------------------------------------
@@ -205,7 +198,6 @@ async def _comfyui_get(path: str) -> dict:
     except Exception as e:
         return {"error": str(e)}
 
-
 async def _comfyui_post(path: str, data: dict) -> dict:
     """POST request to ComfyUI server."""
     url = f"{_comfyui_url()}{path}"
@@ -220,7 +212,6 @@ async def _comfyui_post(path: str, data: dict) -> dict:
         return {"error": f"Cannot connect to ComfyUI: {str(e)}"}
     except Exception as e:
         return {"error": str(e)}
-
 
 async def _check_comfyui_connection(url: Optional[str] = None) -> dict:
     """Check if ComfyUI is reachable.
@@ -261,7 +252,6 @@ async def _check_comfyui_connection(url: Optional[str] = None) -> dict:
         logger.exception("Unexpected error checking ComfyUI connection at %s", base_url)
         return {"connected": False, "url": base_url, "error": f"Unexpected error: {type(exc).__name__}"}
 
-
 # ---------------------------------------------------------------------------
 # Pydantic models
 # ---------------------------------------------------------------------------
@@ -271,11 +261,9 @@ class ExecuteRequest(BaseModel):
     entity_id: Optional[str] = None
     input_overrides: Optional[dict] = None
 
-
 class ImportURLRequest(BaseModel):
     url: str
     filename: Optional[str] = None
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -303,7 +291,6 @@ async def status():
         "total_executions": hist_result["total"],
     }
 
-
 @router.get("/connect")
 async def connect(url: Optional[str] = None):
     """Test connectivity to the ComfyUI server.
@@ -322,7 +309,6 @@ async def connect(url: Optional[str] = None):
         version   (str?)   – ComfyUI version string when connected=true
     """
     return await _check_comfyui_connection(url=url)
-
 
 @router.get("/workflows")
 async def list_workflows(category: Optional[str] = None, search: Optional[str] = None):
@@ -364,7 +350,6 @@ async def list_workflows(category: Optional[str] = None, search: Optional[str] =
         "workflows_dir": str(workflows_dir),
     }
 
-
 @router.get("/workflows/{workflow_id}")
 async def get_workflow(workflow_id: str):
     """Get detailed information about a specific workflow."""
@@ -384,7 +369,6 @@ async def get_workflow(workflow_id: str):
         pass
 
     return wf
-
 
 @router.post("/import")
 async def import_workflow(
@@ -458,7 +442,6 @@ async def import_workflow(
 
     else:
         raise HTTPException(status_code=400, detail="Provide either a file upload or a URL")
-
 
 @router.post("/execute")
 async def execute_workflow(req: ExecuteRequest):
@@ -583,7 +566,6 @@ async def execute_workflow(req: ExecuteRequest):
         "message": f"Workflow '{req.workflow_id}' queued on ComfyUI",
     }
 
-
 @router.get("/queue")
 async def get_queue():
     """Get current ComfyUI execution queue."""
@@ -600,7 +582,6 @@ async def get_queue():
         "running_details": running,
         "pending_details": pending,
     }
-
 
 @router.get("/history")
 async def get_history(
@@ -622,7 +603,6 @@ async def get_history(
         items = [h for h in items if h.get("workflow_id") == workflow_id]
 
     return {"total": len(items), "items": items[:limit]}
-
 
 @router.get("/outputs/{entity_type}/{entity_id}")
 async def get_outputs(entity_type: str, entity_id: str):
@@ -658,7 +638,6 @@ async def get_outputs(entity_type: str, entity_id: str):
         "execution_count": len(entity_history),
     }
 
-
 @router.get("/comfyui/history")
 async def get_comfyui_history(limit: int = 20):
     """Get recent execution history from ComfyUI itself."""
@@ -692,7 +671,6 @@ async def get_comfyui_history(limit: int = 20):
 
     return {"items": items}
 
-
 @router.post("/migrate")
 async def migrate_legacy_data():
     """One-time migration of execution_history.json to database."""
@@ -701,7 +679,6 @@ async def migrate_legacy_data():
         return {"migrated": 0, "message": "No legacy data found"}
     count = data_svc.import_from_json(str(legacy_file))
     return {"migrated": count, "message": f"Migrated {count} records"}
-
 
 @router.get("/comfyui/view")
 async def view_comfyui_image(filename: str, subfolder: str = "", type: str = "output"):

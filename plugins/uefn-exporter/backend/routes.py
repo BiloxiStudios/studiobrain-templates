@@ -7,7 +7,6 @@ and Creative island metadata from City of Brains Studio entities.
 All routes are mounted at /api/ext/uefn-exporter/ by the plugin loader.
 """
 
-import json
 import logging
 import os
 import re
@@ -84,7 +83,6 @@ VERSE_DEFAULTS = {
     "[]string": "array{}",
 }
 
-
 # ─── Helpers ──────────────────────────────────────────────────────────
 
 def _get_setting(key: str, default: Any = None) -> Any:
@@ -92,14 +90,11 @@ def _get_setting(key: str, default: Any = None) -> Any:
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("uefn-exporter").get(key, default)
 
-
 def _verse_module() -> str:
     return _get_setting("verse_module", "CityOfBrains")
 
-
 def _creative_version() -> str:
     return _get_setting("creative_version", "31.00")
-
 
 def _sanitize_verse_id(name: str) -> str:
     """Convert a name to a valid Verse identifier (snake_case, alphanumeric)."""
@@ -108,7 +103,6 @@ def _sanitize_verse_id(name: str) -> str:
     if sanitized and sanitized[0].isdigit():
         sanitized = "_" + sanitized
     return sanitized or "unnamed"
-
 
 def _parse_frontmatter(content: str) -> Dict[str, Any]:
     """Parse YAML frontmatter from markdown content."""
@@ -178,7 +172,6 @@ def _parse_frontmatter(content: str) -> Dict[str, Any]:
 
     return fields
 
-
 def _read_entity(entity_type: str, entity_id: str) -> Optional[Dict[str, Any]]:
     """Read an entity's markdown file and parse its frontmatter fields."""
     dir_name = ENTITY_TYPE_DIRS.get(entity_type)
@@ -206,7 +199,6 @@ def _read_entity(entity_type: str, entity_id: str) -> Optional[Dict[str, Any]]:
     fields["_entity_id"] = entity_id
     fields["_source_file"] = str(md_file)
     return fields
-
 
 def _read_template_fields(entity_type: str) -> Dict[str, str]:
     """Read a template and extract field names with their inferred types."""
@@ -241,7 +233,6 @@ def _read_template_fields(entity_type: str) -> Dict[str, str]:
 
     return type_map
 
-
 def _infer_verse_type(value: Any) -> str:
     """Infer a Verse type from a Python value."""
     if isinstance(value, bool):
@@ -253,7 +244,6 @@ def _infer_verse_type(value: Any) -> str:
     elif isinstance(value, list):
         return "[]string"
     return "string"
-
 
 def _verse_value(value: Any, vtype: str) -> str:
     """Convert a Python value to its Verse literal representation."""
@@ -280,11 +270,9 @@ def _verse_value(value: Any, vtype: str) -> str:
     else:
         return f'"{_escape_verse_string(str(value))}"'
 
-
 def _escape_verse_string(s: str) -> str:
     """Escape special characters for Verse string literals."""
     return s.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
-
 
 def _list_entities(entity_type: str) -> List[str]:
     """List all entity IDs of a given type."""
@@ -296,7 +284,6 @@ def _list_entities(entity_type: str) -> List[str]:
         return []
     return [d.name for d in sorted(entity_root.iterdir())
             if d.is_dir() and not d.name.startswith(".")]
-
 
 # ─── Verse Code Generators ───────────────────────────────────────────
 
@@ -347,7 +334,6 @@ def _generate_verse_class(entity_type: str) -> str:
 
     return "\n".join(lines)
 
-
 def _generate_verse_instance(entity_type: str, entity_id: str) -> str:
     """Generate a Verse data instance for a specific entity."""
     entity = _read_entity(entity_type, entity_id)
@@ -381,7 +367,6 @@ def _generate_verse_instance(entity_type: str, entity_id: str) -> str:
         lines.append(f"    {safe_key} = {vval}")
 
     return "\n".join(lines)
-
 
 def _generate_device_config(entity_type: str, entity_id: str) -> str:
     """Generate a UEFN device configuration block for an entity."""
@@ -471,7 +456,6 @@ def _generate_device_config(entity_type: str, entity_id: str) -> str:
 
     return "\n".join(lines)
 
-
 def _generate_dialogue_verse(entity_id: str) -> str:
     """Generate Verse dialogue structures for a character's dialogue data."""
     # Try to find dialogues referencing this character
@@ -554,7 +538,6 @@ def _generate_dialogue_verse(entity_id: str) -> str:
 
     return "\n".join(lines)
 
-
 def _generate_island_metadata(entities: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Generate Creative island metadata from a collection of entities."""
     characters = [e for e in entities if e.get("_entity_type") == "character"]
@@ -620,7 +603,6 @@ def _generate_island_metadata(entities: List[Dict[str, Any]]) -> Dict[str, Any]:
         },
     }
 
-
 # ─── Request Models ──────────────────────────────────────────────────
 
 class BatchExportRequest(BaseModel):
@@ -632,7 +614,6 @@ class BatchExportRequest(BaseModel):
     include_devices: bool = True
     include_dialogue: bool = False
 
-
 class ExportResult(BaseModel):
     """Single export result."""
     entity_type: str
@@ -640,7 +621,6 @@ class ExportResult(BaseModel):
     verse_code: str
     device_code: Optional[str] = None
     dialogue_code: Optional[str] = None
-
 
 # ─── API Routes ───────────────────────────────────────────────────────
 
@@ -666,7 +646,6 @@ async def plugin_status():
         "entity_counts": entity_counts,
     }
 
-
 @router.get("/entity-types")
 async def list_entity_types():
     """List all available entity types and their entity counts."""
@@ -681,7 +660,6 @@ async def list_entity_types():
         })
     return {"entity_types": result}
 
-
 @router.get("/entities/{entity_type}")
 async def list_entities_of_type(entity_type: str):
     """List all entities of a specific type."""
@@ -695,7 +673,6 @@ async def list_entities_of_type(entity_type: str):
         "entity_ids": entities,
     }
 
-
 @router.get("/verse/{entity_type}", response_class=PlainTextResponse)
 async def generate_verse_class(entity_type: str):
     """Generate a Verse class definition for an entity type."""
@@ -704,7 +681,6 @@ async def generate_verse_class(entity_type: str):
                             detail=f"Unknown entity type: {entity_type}")
     code = _generate_verse_class(entity_type)
     return PlainTextResponse(content=code, media_type="text/plain")
-
 
 @router.get("/preview/{entity_type}/{entity_id}", response_class=PlainTextResponse)
 async def preview_verse_instance(entity_type: str, entity_id: str):
@@ -715,7 +691,6 @@ async def preview_verse_instance(entity_type: str, entity_id: str):
     code = _generate_verse_instance(entity_type, entity_id)
     return PlainTextResponse(content=code, media_type="text/plain")
 
-
 @router.get("/preview-device/{entity_type}/{entity_id}", response_class=PlainTextResponse)
 async def preview_device_config(entity_type: str, entity_id: str):
     """Preview a UEFN device configuration for an entity."""
@@ -724,7 +699,6 @@ async def preview_device_config(entity_type: str, entity_id: str):
                             detail=f"Unknown entity type: {entity_type}")
     code = _generate_device_config(entity_type, entity_id)
     return PlainTextResponse(content=code, media_type="text/plain")
-
 
 @router.post("/export/{entity_type}/{entity_id}")
 async def export_entity(entity_type: str, entity_id: str,
@@ -789,7 +763,6 @@ async def export_entity(entity_type: str, entity_id: str,
         "files_written": files_written,
         "exported_at": datetime.utcnow().isoformat() + "Z",
     }
-
 
 @router.post("/batch-export")
 async def batch_export(req: BatchExportRequest):
@@ -895,13 +868,11 @@ async def batch_export(req: BatchExportRequest):
         "exported_at": datetime.utcnow().isoformat() + "Z",
     }
 
-
 @router.get("/dialogue/{entity_id}", response_class=PlainTextResponse)
 async def export_dialogue(entity_id: str):
     """Export dialogue data for a character in UEFN-compatible Verse format."""
     code = _generate_dialogue_verse(entity_id)
     return PlainTextResponse(content=code, media_type="text/plain")
-
 
 @router.get("/island-metadata")
 async def get_island_metadata(
@@ -921,7 +892,6 @@ async def get_island_metadata(
                 all_entities.append(e)
 
     return _generate_island_metadata(all_entities)
-
 
 @router.get("/island-metadata/verse", response_class=PlainTextResponse)
 async def get_island_metadata_verse(

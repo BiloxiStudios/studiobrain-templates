@@ -13,7 +13,7 @@ import re
 import time
 import uuid
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import aiohttp
 from fastapi import APIRouter, HTTPException
@@ -49,7 +49,6 @@ TYPE_PREFIX_MAP = {
     "job": "JOB",
 }
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -58,26 +57,22 @@ def _get_setting(key: str, default=None):
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("blender-bridge").get(key, default)
 
-
 def _blender_url() -> str:
     """Build the Blender command server URL from settings."""
     host = _get_setting("blender_host", "localhost")
     port = _get_setting("blender_port", 8400)
     return f"http://{host}:{port}"
 
-
 def _get_type_dir(entity_type: str) -> str:
     """Return the directory name for a given entity type (e.g. character -> Characters)."""
     singular = entity_type.rstrip("s")
     return singular.capitalize() + "s"
-
 
 def _get_entity_file(entity_type: str, entity_id: str) -> str:
     """Return absolute path to an entity's markdown file."""
     type_dir = _get_type_dir(entity_type)
     prefix = TYPE_PREFIX_MAP.get(entity_type, entity_type.upper())
     return str(BRAINS_ROOT / type_dir / entity_id / f"{prefix}_{entity_id}.md")
-
 
 def _parse_frontmatter(filepath: str) -> dict:
     """Read a markdown file and extract YAML frontmatter as a dict."""
@@ -103,7 +98,6 @@ def _parse_frontmatter(filepath: str) -> dict:
                 data[key.strip()] = val
         return data
 
-
 def _load_json(path: Path, default=None):
     """Load JSON from a file, returning default on any error."""
     if default is None:
@@ -115,29 +109,23 @@ def _load_json(path: Path, default=None):
         pass
     return default
 
-
 def _save_json(path: Path, data, max_entries: int = 0):
     """Save data as JSON. If max_entries > 0 and data is a list, truncate."""
     if max_entries > 0 and isinstance(data, list):
         data = data[-max_entries:]
     path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
 
-
 def _load_export_log() -> list:
     return _load_json(EXPORT_LOG_FILE, [])
-
 
 def _save_export_log(log: list):
     _save_json(EXPORT_LOG_FILE, log, max_entries=500)
 
-
 def _load_render_queue() -> list:
     return _load_json(RENDER_QUEUE_FILE, [])
 
-
 def _save_render_queue(queue: list):
     _save_json(RENDER_QUEUE_FILE, queue, max_entries=200)
-
 
 # ---------------------------------------------------------------------------
 # Entity -> Blender data conversion
@@ -152,7 +140,6 @@ def _ensure_list(val) -> list:
     if isinstance(val, str):
         return [val] if val.strip() else []
     return [val]
-
 
 def entity_to_blender_data(entity_type: str, entity_id: str, entity_data: dict) -> dict:
     """
@@ -267,7 +254,6 @@ def entity_to_blender_data(entity_type: str, entity_id: str, entity_data: dict) 
 
     return base
 
-
 def _parse_character_dimensions(data: dict) -> dict:
     """
     Parse height string (e.g. '6\\'2"', '5 foot 10', '180cm') into
@@ -312,14 +298,12 @@ def _parse_character_dimensions(data: dict) -> dict:
         "armature_scale": [width_factor, width_factor, meters / 1.75],
     }
 
-
 def _to_float(val, default: float = 0.0) -> float:
     """Safely convert to float."""
     try:
         return float(val)
     except (TypeError, ValueError):
         return default
-
 
 def _build_scene_setup(data: dict) -> dict:
     """Build Blender scene setup hints from location data."""
@@ -349,12 +333,10 @@ def _build_scene_setup(data: dict) -> dict:
         "has_exterior": data.get("exterior_access", False),
     }
 
-
 def _entity_images_dir(entity_type: str, entity_id: str) -> Path:
     """Return the images directory for an entity."""
     type_folder = _get_type_dir(entity_type)
     return BRAINS_ROOT / type_folder / entity_id / "images"
-
 
 # ---------------------------------------------------------------------------
 # Request models
@@ -363,7 +345,6 @@ def _entity_images_dir(entity_type: str, entity_id: str) -> Path:
 class BatchExportRequest(BaseModel):
     entity_type: str
     entity_ids: List[str]
-
 
 class RenderRequest(BaseModel):
     scene_file: str
@@ -375,7 +356,6 @@ class RenderRequest(BaseModel):
         "resolution_y": 1080,
         "output_format": "PNG",
     })
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -414,7 +394,6 @@ async def plugin_status():
         "completed_renders": len([r for r in render_queue if r.get("status") == "completed"]),
     }
 
-
 @router.get("/connection-status")
 async def connection_status():
     """Detailed Blender connection check."""
@@ -447,7 +426,6 @@ async def connection_status():
 
     return result
 
-
 @router.get("/export-format/{entity_type}/{entity_id}")
 async def preview_export(entity_type: str, entity_id: str):
     """Preview the Blender export data for an entity without actually exporting."""
@@ -464,7 +442,6 @@ async def preview_export(entity_type: str, entity_id: str):
         "preview": True,
         "blender_data": blender_data,
     }
-
 
 @router.post("/export/{entity_type}/{entity_id}")
 async def export_entity(entity_type: str, entity_id: str):
@@ -530,7 +507,6 @@ async def export_entity(entity_type: str, entity_id: str):
         "blender_error": blender_error,
         "blender_data": blender_data,
     }
-
 
 @router.post("/batch-export")
 async def batch_export(req: BatchExportRequest):
@@ -607,7 +583,6 @@ async def batch_export(req: BatchExportRequest):
         "blender_error": blender_error,
     }
 
-
 @router.post("/render-request")
 async def create_render_request(req: RenderRequest):
     """Queue a render request for Blender."""
@@ -662,7 +637,6 @@ async def create_render_request(req: RenderRequest):
         "error": render_entry["error"],
     }
 
-
 @router.get("/renders")
 async def list_renders():
     """List all render requests and their statuses."""
@@ -692,14 +666,12 @@ async def list_renders():
         "completed": len([r for r in queue if r.get("status") == "completed"]),
     }
 
-
 @router.get("/export-log")
 async def get_export_log():
     """Return recent export history."""
     log = _load_export_log()
     log.reverse()
     return {"entries": log[:100]}
-
 
 @router.get("/exports/{entity_type}/{entity_id}")
 async def get_entity_exports(entity_type: str, entity_id: str):
@@ -722,7 +694,6 @@ async def get_entity_exports(entity_type: str, entity_id: str):
         "entity_id": entity_id,
         "exports": exports,
     }
-
 
 @router.get("/available-entities/{entity_type}")
 async def list_available_entities(entity_type: str):

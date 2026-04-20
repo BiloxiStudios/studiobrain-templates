@@ -10,7 +10,7 @@ import os
 import re
 import logging
 import yaml
-from typing import Any, Optional
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
@@ -27,7 +27,6 @@ EXPORT_PROFILES_DIR = os.path.join(
     DATA_ROOT, "templates", "Standard", "ExportProfiles"
 )
 
-
 # ---------------------------------------------------------------------------
 # Models
 # ---------------------------------------------------------------------------
@@ -40,17 +39,14 @@ class SlotAssignRequest(BaseModel):
     variant_key: Optional[str] = None
     z_index_override: Optional[int] = None
 
-
 class SlotLockRequest(BaseModel):
     assembly_id: str
     slot_path: str          # "slot_group.slot_name"
     locked: bool
 
-
 class ZIndexReorderRequest(BaseModel):
     assembly_id: str
     reorder: list[dict]     # [{"slot_group": str, "slot_name": str, "z_index": int}]
-
 
 class ExportRequest(BaseModel):
     assembly_id: str
@@ -58,14 +54,12 @@ class ExportRequest(BaseModel):
     color_variant: Optional[str] = "default"
     zombie_stage: Optional[int] = 0
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 # Allow only safe identifier characters to prevent path traversal
 _SAFE_ID_RE = re.compile(r'^[A-Za-z0-9_\-]+$')
-
 
 def _validate_id(value: str, label: str) -> None:
     """Reject any ID that contains path-traversal characters."""
@@ -75,7 +69,6 @@ def _validate_id(value: str, label: str) -> None:
             detail=f"{label} contains invalid characters. "
                    "Only letters, digits, underscores, and hyphens are allowed.",
         )
-
 
 def _load_assembly_frontmatter(assembly_id: str) -> dict:
     """Load and parse the YAML frontmatter of an assembly markdown file."""
@@ -103,7 +96,6 @@ def _load_assembly_frontmatter(assembly_id: str) -> dict:
     except yaml.YAMLError as exc:
         raise HTTPException(status_code=422, detail=f"YAML parse error: {exc}")
 
-
 def _resolve_inheritance_chain(assembly_id: str, depth: int = 0) -> list[dict]:
     """Walk up the parent chain and return ordered list of frontmatter dicts (root first)."""
     if depth > 4:
@@ -116,7 +108,6 @@ def _resolve_inheritance_chain(assembly_id: str, depth: int = 0) -> list[dict]:
     chain.append(data)
     return chain
 
-
 def _collect_locked_slots(chain: list[dict]) -> set[str]:
     """Aggregate all locked_slots across the inheritance chain."""
     locked: set[str] = set()
@@ -125,14 +116,12 @@ def _collect_locked_slots(chain: list[dict]) -> set[str]:
             locked.add(path)
     return locked
 
-
 def _validate_z_index(z_index: int) -> None:
     if not (1 <= z_index <= 999):
         raise HTTPException(
             status_code=422,
             detail=f"z_index {z_index} out of range 1–999"
         )
-
 
 # ---------------------------------------------------------------------------
 # Routes — Assembly metadata
@@ -171,12 +160,10 @@ def list_assemblies(
         })
     return {"assemblies": results}
 
-
 @router.get("/api/plugins/assembly-composer/assemblies/{assembly_id}")
 def get_assembly(assembly_id: str):
     """Return the full frontmatter for a single assembly."""
     return _load_assembly_frontmatter(assembly_id)
-
 
 @router.get("/api/plugins/assembly-composer/assemblies/{assembly_id}/inheritance")
 def get_inheritance_chain(assembly_id: str):
@@ -197,7 +184,6 @@ def get_inheritance_chain(assembly_id: str):
         ],
         "all_locked_slots": sorted(locked),
     }
-
 
 # ---------------------------------------------------------------------------
 # Routes — Slot management
@@ -233,7 +219,6 @@ def get_slot_map(assembly_id: str):
         "slot_definitions": slot_map,
         "locked_slots": sorted(locked),
     }
-
 
 @router.post("/api/plugins/assembly-composer/assemblies/{assembly_id}/slots/assign")
 def assign_slot(assembly_id: str, req: SlotAssignRequest):
@@ -276,7 +261,6 @@ def assign_slot(assembly_id: str, req: SlotAssignRequest):
         "message": "Slot assignment validated. Apply via entity write API.",
     }
 
-
 @router.post("/api/plugins/assembly-composer/assemblies/{assembly_id}/slots/lock")
 def set_slot_lock(assembly_id: str, req: SlotLockRequest):
     """
@@ -307,7 +291,6 @@ def set_slot_lock(assembly_id: str, req: SlotLockRequest):
         "message": "Lock change validated. Apply via entity write API.",
     }
 
-
 @router.post("/api/plugins/assembly-composer/assemblies/{assembly_id}/slots/reorder")
 def reorder_z_indices(assembly_id: str, req: ZIndexReorderRequest):
     """
@@ -335,7 +318,6 @@ def reorder_z_indices(assembly_id: str, req: ZIndexReorderRequest):
         "message": "Z-index reorder validated. Apply via entity write API.",
     }
 
-
 # ---------------------------------------------------------------------------
 # Routes — Export
 # ---------------------------------------------------------------------------
@@ -351,7 +333,6 @@ def list_export_profiles():
             profile_id = fname[:-5]
             profiles.append({"id": profile_id, "file": fname})
     return {"profiles": profiles}
-
 
 @router.post("/api/plugins/assembly-composer/export")
 def request_export(req: ExportRequest):
@@ -403,7 +384,6 @@ def request_export(req: ExportRequest):
             "Export job queued. Required slot fill status must be confirmed by the export service."
         ),
     }
-
 
 @router.get("/api/plugins/assembly-composer/assemblies/{assembly_id}/preview")
 def get_preview_info(assembly_id: str):

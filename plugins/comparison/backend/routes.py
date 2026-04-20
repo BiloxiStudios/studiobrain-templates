@@ -14,7 +14,7 @@ import logging
 import os
 import subprocess
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 from difflib import unified_diff
 
 from fastapi import APIRouter, HTTPException
@@ -44,7 +44,6 @@ ENTITY_MAP = {
     "assembly":   ("Assemblies",  "ASSM_"),
 }
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -57,7 +56,6 @@ def _entity_file(entity_type: str, entity_id: str) -> Path:
     folder, prefix = mapping
     return BRAINS_ROOT / folder / entity_id / f"{prefix}{entity_id}.md"
 
-
 def _relative_path(full_path: Path) -> str:
     """Return the path relative to BRAINS_ROOT."""
     try:
@@ -65,7 +63,6 @@ def _relative_path(full_path: Path) -> str:
     except ValueError:
         # Path is not under BRAINS_ROOT, return absolute path
         return str(full_path)
-
 
 async def _run_git(*args: str, check: bool = True, cwd: Optional[Path] = None) -> subprocess.CompletedProcess:
     """Run a git command asynchronously."""
@@ -89,7 +86,6 @@ async def _run_git(*args: str, check: bool = True, cwd: Optional[Path] = None) -
         logger.error("git error: %s", result.stderr.strip())
         raise HTTPException(status_code=500, detail=f"Git error: {result.stderr.strip()}")
     return result
-
 
 def _parse_markdown_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
     """Parse YAML frontmatter and markdown body from a markdown file."""
@@ -123,7 +119,6 @@ def _parse_markdown_frontmatter(content: str) -> tuple[Dict[str, Any], str]:
 
     return frontmatter, body
 
-
 async def _get_entity_content(entity_type: str, entity_id: str, commit_sha: Optional[str] = None) -> Dict[str, Any]:
     """Get entity content from file or git history."""
     entity_path = _entity_file(entity_type, entity_id)
@@ -143,7 +138,6 @@ async def _get_entity_content(entity_type: str, entity_id: str, commit_sha: Opti
     content = entity_path.read_text(encoding="utf-8")
     return _parse_markdown_frontmatter(content)
 
-
 async def _get_git_diff(commit1: str, commit2: str, file_path: str, cwd: Path, context: int = 3) -> str:
     """Get unified diff between two commits for a file."""
     try:
@@ -161,7 +155,6 @@ async def _get_git_diff(commit1: str, commit2: str, file_path: str, cwd: Path, c
     except Exception:
         return ""
 
-
 # ---------------------------------------------------------------------------
 # Route Models
 # ---------------------------------------------------------------------------
@@ -171,18 +164,15 @@ class EntityComparisonRequest(BaseModel):
     entity_id1: str
     entity_id2: str
 
-
 class VersionComparisonRequest(BaseModel):
     entity_type: str
     entity_id: str
     commit1: str
     commit2: str
 
-
 class TemplateComparisonRequest(BaseModel):
     entity_type: str
     entity_id: str
-
 
 # ---------------------------------------------------------------------------
 # Comparison Routes
@@ -197,7 +187,6 @@ async def index():
         "status": "ok",
         "brains_root": str(BRAINS_ROOT),
     }
-
 
 @router.post("/compare/entities")
 async def compare_entities(request: EntityComparisonRequest):
@@ -281,7 +270,6 @@ async def compare_entities(request: EntityComparisonRequest):
             "fields_removed": len([k for k, v in field_diffs.items() if v["status"] == "removed"]),
         },
     }
-
 
 @router.post("/compare/versions")
 async def compare_versions(request: VersionComparisonRequest):
@@ -367,7 +355,6 @@ async def compare_versions(request: VersionComparisonRequest):
             "fields_removed": len([k for k, v in field_diffs.items() if v["status"] == "removed"]),
         },
     }
-
 
 @router.post("/compare/template")
 async def compare_template(request: TemplateComparisonRequest):
@@ -464,7 +451,6 @@ async def compare_template(request: TemplateComparisonRequest):
             "template_defaults_used": template_defaults_used,
         },
     }
-
 
 @router.post("/compare/batch")
 async def compare_batch(request: EntityComparisonRequest):

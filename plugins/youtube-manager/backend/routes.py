@@ -3,16 +3,13 @@ YouTube Manager Plugin - Backend Routes
 Handles video uploads, metadata management, and YouTube API integration.
 """
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from pathlib import Path
 from datetime import datetime
 import json
 import uuid
-import os
-import shutil
 
 router = APIRouter()
 
@@ -41,13 +38,11 @@ YOUTUBE_CATEGORIES = {
     "Science & Technology": "28",
 }
 
-
 def _ensure_data():
     """Make sure data directory and videos.json exist."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     if not VIDEOS_FILE.exists():
         VIDEOS_FILE.write_text("[]", encoding="utf-8")
-
 
 def _load_videos() -> list:
     _ensure_data()
@@ -56,30 +51,25 @@ def _load_videos() -> list:
     except (json.JSONDecodeError, FileNotFoundError):
         return []
 
-
 def _save_videos(videos: list):
     _ensure_data()
     VIDEOS_FILE.write_text(json.dumps(videos, indent=2, default=str), encoding="utf-8")
-
 
 def _get_settings() -> dict:
     """Load plugin settings from the DB-backed settings service."""
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("youtube-manager")
 
-
 def _has_api_key() -> bool:
     settings = _get_settings()
     key = settings.get("youtube_api_key", "")
     return bool(key and key.strip())
-
 
 def _mock_youtube_id() -> str:
     """Generate a fake YouTube video ID for mock mode."""
     chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
     import random
     return "".join(random.choices(chars, k=11))
-
 
 # ---------------------------------------------------------------------------
 # Request / Response models
@@ -95,7 +85,6 @@ class UploadRequest(BaseModel):
     category: Optional[str] = "Gaming"
     thumbnail_path: Optional[str] = None
 
-
 class VideoUpdateRequest(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -103,12 +92,10 @@ class VideoUpdateRequest(BaseModel):
     privacy: Optional[str] = None
     category: Optional[str] = None
 
-
 class MetadataResponse(BaseModel):
     title: str
     description: str
     tags: List[str]
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -131,7 +118,6 @@ async def status():
         "pending": len([v for v in videos if v.get("status") == "pending"]),
         "failed": len([v for v in videos if v.get("status") == "failed"]),
     }
-
 
 @router.post("/upload")
 async def upload_video(req: UploadRequest):
@@ -189,7 +175,6 @@ async def upload_video(req: UploadRequest):
         "mode": "live" if _has_api_key() else "mock",
     }
 
-
 @router.get("/videos")
 async def list_videos():
     """List all tracked videos."""
@@ -200,7 +185,6 @@ async def list_videos():
         "videos": videos,
         "total": len(videos),
     }
-
 
 @router.get("/videos/{entity_type}/{entity_id}")
 async def videos_for_entity(entity_type: str, entity_id: str):
@@ -217,7 +201,6 @@ async def videos_for_entity(entity_type: str, entity_id: str):
         "videos": linked,
         "total": len(linked),
     }
-
 
 @router.put("/videos/{video_id}")
 async def update_video(video_id: str, req: VideoUpdateRequest):
@@ -247,7 +230,6 @@ async def update_video(video_id: str, req: VideoUpdateRequest):
     _save_videos(videos)
     return {"success": True, "video": target}
 
-
 @router.delete("/videos/{video_id}")
 async def delete_video(video_id: str):
     """Remove a video from tracking (does not delete from YouTube)."""
@@ -257,7 +239,6 @@ async def delete_video(video_id: str):
         raise HTTPException(status_code=404, detail=f"Video not found: {video_id}")
     _save_videos(filtered)
     return {"success": True, "deleted": video_id}
-
 
 @router.post("/generate-metadata/{entity_type}/{entity_id}")
 async def generate_metadata(entity_type: str, entity_id: str):
@@ -323,7 +304,6 @@ async def generate_metadata(entity_type: str, entity_id: str):
         }
     }
 
-
 @router.get("/asset-videos/{entity_type}/{entity_id}")
 async def list_entity_asset_videos(entity_type: str, entity_id: str):
     """List video files from an entity's assets directory."""
@@ -355,7 +335,6 @@ async def list_entity_asset_videos(entity_type: str, entity_id: str):
         "videos": videos,
         "total": len(videos),
     }
-
 
 @router.get("/categories")
 async def list_categories():

@@ -27,7 +27,7 @@ import re
 import time
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger("plugin.prompt-engine")
@@ -60,7 +60,6 @@ _RESOLVER_CACHE: dict[str, tuple[Any, float]] = {}  # key -> (value, expires_at;
 # Request / response models
 # ---------------------------------------------------------------------------
 
-
 class VariableToken(BaseModel):
     token: str
     form: str          # "local" | "implicit" | "explicit"
@@ -68,11 +67,9 @@ class VariableToken(BaseModel):
     entity_id: Optional[str] = None
     field_path: str
 
-
 class ParseResponse(BaseModel):
     tokens: list[VariableToken]
     errors: list[str]
-
 
 class ResolveRequest(BaseModel):
     template_text: str = Field(..., description="Raw prompt text containing $variable tokens")
@@ -90,12 +87,10 @@ class ResolveRequest(BaseModel):
     cache_ttl: int = Field(300, description="Cache TTL in seconds (0 = disabled)")
     max_value_length: int = Field(1000, description="Max chars per resolved value")
 
-
 class ResolvedVariable(BaseModel):
     token: str
     resolved_value: Optional[str]
     error: Optional[str] = None
-
 
 class ResolveResponse(BaseModel):
     resolved_text: str
@@ -103,11 +98,9 @@ class ResolveResponse(BaseModel):
     resolution_time_ms: float
     errors: list[str]
 
-
 # ---------------------------------------------------------------------------
 # Parsing helpers
 # ---------------------------------------------------------------------------
-
 
 def _parse_tokens(template_text: str) -> tuple[list[VariableToken], list[str]]:
     """Extract and validate all $variable tokens from template_text."""
@@ -157,11 +150,9 @@ def _parse_tokens(template_text: str) -> tuple[list[VariableToken], list[str]]:
 
     return tokens, errors
 
-
 # ---------------------------------------------------------------------------
 # Resolution helpers
 # ---------------------------------------------------------------------------
-
 
 def _cache_get(key: str) -> Optional[Any]:
     entry = _RESOLVER_CACHE.get(key)
@@ -175,12 +166,10 @@ def _cache_get(key: str) -> Optional[Any]:
         return None
     return value
 
-
 def _cache_set(key: str, value: Any, ttl: int) -> None:
     if ttl <= 0:
         return
     _RESOLVER_CACHE[key] = (value, time.monotonic() + ttl)
-
 
 def _resolve_dot_path(data: dict, path: str) -> tuple[Any, Optional[str]]:
     """Walk *data* along dot-separated *path*. Return (value, error)."""
@@ -194,7 +183,6 @@ def _resolve_dot_path(data: dict, path: str) -> tuple[Any, Optional[str]]:
         current = current[part]
     return current, None
 
-
 def _serialise_value(value: Any) -> str:
     """Serialise any Python value to a string for substitution."""
     if value is None:
@@ -203,14 +191,12 @@ def _serialise_value(value: Any) -> str:
         return ", ".join(str(v) for v in value)
     return str(value)
 
-
 def _sanitise(value: str, max_len: int) -> str:
     """HTML-escape and truncate resolved value (pe_030)."""
     escaped = html.escape(value, quote=False)
     if len(escaped) > max_len:
         escaped = escaped[:max_len]
     return escaped
-
 
 async def _fetch_entity(
     request: Request,
@@ -249,22 +235,18 @@ async def _fetch_entity(
         logger.exception("Entity fetch error for %s:%s", entity_type, entity_id)
         return None, f"Entity fetch error: {exc}"
 
-
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
-
 
 @router.get("/")
 async def root():
     """Plugin health check."""
     return {"plugin": "prompt-engine", "version": "1.0.0", "status": "ok"}
 
-
 @router.get("/status")
 async def status():
     return {"status": "ok", "plugin": "prompt-engine", "cache_entries": len(_RESOLVER_CACHE)}
-
 
 @router.post("/parse", response_model=ParseResponse)
 async def parse_template(body: dict):
@@ -278,7 +260,6 @@ async def parse_template(body: dict):
 
     tokens, errors = _parse_tokens(template_text)
     return ParseResponse(tokens=tokens, errors=errors)
-
 
 @router.post("/resolve", response_model=ResolveResponse)
 async def resolve_template(req: ResolveRequest, request: Request):
@@ -433,7 +414,6 @@ async def resolve_template(req: ResolveRequest, request: Request):
         resolution_time_ms=resolution_time_ms,
         errors=all_errors,
     )
-
 
 @router.post("/cache/invalidate")
 async def invalidate_cache(body: dict):

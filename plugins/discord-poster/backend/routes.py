@@ -7,7 +7,7 @@ managing webhook configurations, and tracking post history.
 
 import json
 import logging
-import os
+
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -31,7 +31,6 @@ BACKEND_URL = "http://localhost:8201"
 from services.plugin_data_service import PluginDataService
 
 data_svc = PluginDataService("discord-poster")
-
 
 # ---------------------------------------------------------------------------
 # Settings helpers
@@ -63,11 +62,9 @@ def _get_webhooks() -> list[dict]:
 
     return webhooks
 
-
 def _get_setting(key: str, default=None):
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("discord-poster").get(key, default)
-
 
 # ---------------------------------------------------------------------------
 # Pydantic models
@@ -79,10 +76,8 @@ class PostRequest(BaseModel):
     message: Optional[str] = None
     include_image: bool = True
 
-
 class TestWebhookRequest(BaseModel):
     webhook_url: str
-
 
 # ---------------------------------------------------------------------------
 # Discord embed builder
@@ -95,7 +90,6 @@ def _hex_to_int(hex_color: str) -> int:
     except ValueError:
         return 0x5865F2  # Discord blurple fallback
 
-
 async def _fetch_entity(entity_type: str, entity_id: str) -> dict:
     """Fetch entity data from the backend API."""
     async with httpx.AsyncClient(timeout=10) as client:
@@ -106,7 +100,6 @@ async def _fetch_entity(entity_type: str, entity_id: str) -> dict:
                 detail=f"Failed to fetch entity {entity_type}/{entity_id}",
             )
         return resp.json()
-
 
 def _build_embed(entity: dict, entity_type: str, entity_id: str,
                  message: str | None = None, include_image: bool = True) -> dict:
@@ -182,7 +175,6 @@ def _build_embed(entity: dict, entity_type: str, entity_id: str,
 
     return embed
 
-
 async def _post_to_discord(webhook_url: str, embed: dict, bot_username: str | None = None,
                            bot_avatar: str | None = None) -> dict:
     """Post an embed to a Discord webhook. Returns status info."""
@@ -212,7 +204,6 @@ async def _post_to_discord(webhook_url: str, embed: dict, bot_username: str | No
                 "detail": str(exc),
             }
 
-
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -233,7 +224,6 @@ async def status():
         "auto_post_on_create": settings.get("auto_post_on_create", False),
         "auto_post_on_update": settings.get("auto_post_on_update", False),
     }
-
 
 @router.post("/post")
 async def post_to_discord(req: PostRequest):
@@ -297,7 +287,6 @@ async def post_to_discord(req: PostRequest):
         "history_id": history_entry["id"],
     }
 
-
 @router.get("/history")
 async def get_history(entity_type: str | None = None, entity_id: str | None = None,
                       limit: int = 50):
@@ -309,7 +298,6 @@ async def get_history(entity_type: str | None = None, entity_id: str | None = No
     )
     items = [r["data"] for r in result["records"]]
     return {"total": result["total"], "items": items}
-
 
 @router.get("/webhooks")
 async def list_webhooks():
@@ -329,7 +317,6 @@ async def list_webhooks():
             "url": url,
         })
     return {"webhooks": masked}
-
 
 @router.post("/test-webhook")
 async def test_webhook(req: TestWebhookRequest):
@@ -356,7 +343,6 @@ async def test_webhook(req: TestWebhookRequest):
 
     return {"success": True, "message": "Test message sent successfully!"}
 
-
 @router.get("/entity-preview")
 async def entity_preview(entity_type: str, entity_id: str):
     """Get a preview of what the Discord embed would look like for an entity."""
@@ -366,7 +352,6 @@ async def entity_preview(entity_type: str, entity_id: str):
         "entity_name": entity.get("name") or entity.get("title") or "Unknown",
         "embed": embed,
     }
-
 
 @router.get("/stats")
 async def get_stats():
@@ -402,7 +387,6 @@ async def get_stats():
         "failed": failed,
         "most_posted": most_posted,
     }
-
 
 @router.post("/migrate")
 async def migrate_legacy_data():

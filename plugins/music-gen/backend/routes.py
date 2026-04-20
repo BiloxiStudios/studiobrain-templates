@@ -15,7 +15,7 @@ from typing import Optional
 
 import httpx
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 logger = logging.getLogger("plugin.music-gen")
 
@@ -41,7 +41,6 @@ def _get_setting(key: str, default=None):
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("music-gen").get(key, default)
 
-
 def _get_api_key(provider: str = None) -> Optional[str]:
     """Get the API key for the specified or default provider."""
     from services.plugin_settings_service import get_all_settings
@@ -52,7 +51,6 @@ def _get_api_key(provider: str = None) -> Optional[str]:
     elif prov == "udio":
         return settings.get("udio_api_key") or None
     return None
-
 
 # ---------------------------------------------------------------------------
 # Track data persistence
@@ -67,7 +65,6 @@ def _load_tracks() -> list[dict]:
         pass
     return []
 
-
 def _save_tracks(tracks: list[dict]):
     """Save track metadata, keeping last 1000 entries."""
     TRACKS_FILE.write_text(
@@ -75,13 +72,11 @@ def _save_tracks(tracks: list[dict]):
         encoding="utf-8",
     )
 
-
 def _add_track(track: dict):
     """Append a track entry to the data file."""
     tracks = _load_tracks()
     tracks.append(track)
     _save_tracks(tracks)
-
 
 def _remove_track(track_id: str) -> bool:
     """Remove a track by ID. Returns True if found and removed."""
@@ -92,7 +87,6 @@ def _remove_track(track_id: str) -> bool:
         _save_tracks(tracks)
         return True
     return False
-
 
 # ---------------------------------------------------------------------------
 # Entity helpers
@@ -106,12 +100,10 @@ def _entity_assets_dir(entity_type: str, entity_id: str) -> Path:
     assets.mkdir(parents=True, exist_ok=True)
     return assets
 
-
 def _type_folder(entity_type: str) -> str:
     """Convert entity type to folder name (character -> Characters)."""
     folder = entity_type.rstrip("s") + "s"
     return folder[0].upper() + folder[1:]
-
 
 async def _fetch_entity(entity_type: str, entity_id: str) -> dict:
     """Fetch entity data from the backend API."""
@@ -123,7 +115,6 @@ async def _fetch_entity(entity_type: str, entity_id: str) -> dict:
                 detail=f"Failed to fetch entity {entity_type}/{entity_id}",
             )
         return resp.json()
-
 
 # ---------------------------------------------------------------------------
 # Prompt generation helpers
@@ -240,7 +231,6 @@ def _build_auto_prompt(entity: dict, entity_type: str) -> dict:
         "entity_name": name,
     }
 
-
 # ---------------------------------------------------------------------------
 # Mock generation (when no API key is configured)
 # ---------------------------------------------------------------------------
@@ -279,7 +269,6 @@ def _generate_mock_track(prompt: str, duration: int, genre: str,
 
     _add_track(track)
     return track
-
 
 def _write_silent_placeholder(filepath: Path, fmt: str, duration: int):
     """
@@ -322,7 +311,6 @@ def _write_silent_placeholder(filepath: Path, fmt: str, duration: int):
         total_frames = frames_per_sec * max(duration, 1)
         filepath.write_bytes(frame * total_frames)
 
-
 # ---------------------------------------------------------------------------
 # Pydantic models
 # ---------------------------------------------------------------------------
@@ -334,7 +322,6 @@ class GenerateRequest(BaseModel):
     mood: Optional[str] = None
     entity_type: str = "character"
     entity_id: str = ""
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -360,7 +347,6 @@ async def plugin_status():
         "default_genre": _get_setting("default_genre", "ambient"),
         "total_tracks": len(tracks),
     }
-
 
 @router.post("/generate")
 async def generate_music(req: GenerateRequest):
@@ -459,7 +445,6 @@ async def generate_music(req: GenerateRequest):
         "mock": False,
     }
 
-
 async def _generate_via_suno(api_key: str, prompt: str, duration: int,
                               genre: str, mood: Optional[str]) -> bytes:
     """Call Suno API to generate music. Returns raw audio bytes."""
@@ -499,7 +484,6 @@ async def _generate_via_suno(api_key: str, prompt: str, duration: int,
             raise HTTPException(status_code=502, detail="Failed to download audio from Suno")
         return audio_resp.content
 
-
 async def _generate_via_udio(api_key: str, prompt: str, duration: int,
                               genre: str, mood: Optional[str]) -> bytes:
     """Call Udio API to generate music. Returns raw audio bytes."""
@@ -538,7 +522,6 @@ async def _generate_via_udio(api_key: str, prompt: str, duration: int,
             raise HTTPException(status_code=502, detail="Failed to download audio from Udio")
         return audio_resp.content
 
-
 @router.post("/auto-prompt/{entity_type}/{entity_id}")
 async def auto_generate_prompt(entity_type: str, entity_id: str):
     """
@@ -554,7 +537,6 @@ async def auto_generate_prompt(entity_type: str, entity_id: str):
         "entity_id": entity_id,
         **result,
     }
-
 
 @router.get("/tracks/{entity_type}/{entity_id}")
 async def get_entity_tracks(entity_type: str, entity_id: str):
@@ -595,14 +577,12 @@ async def get_entity_tracks(entity_type: str, entity_id: str):
         "count": len(entity_tracks),
     }
 
-
 def _parse_genre_from_filename(filename: str) -> str:
     """Extract genre from filename like music_ambient_1234_abcd.mp3"""
     parts = filename.replace("music_", "").split("_")
     if parts:
         return parts[0].replace("-", " ")
     return "unknown"
-
 
 @router.get("/library")
 async def get_library(limit: int = 100, genre: Optional[str] = None):
@@ -640,7 +620,6 @@ async def get_library(limit: int = 100, genre: Optional[str] = None):
             "entity_types": entity_types,
         },
     }
-
 
 @router.delete("/tracks/{track_id}")
 async def delete_track(track_id: str):

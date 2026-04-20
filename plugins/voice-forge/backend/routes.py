@@ -7,7 +7,7 @@ and audio history tracking for character entities.
 
 import json
 import logging
-import os
+
 import time
 import uuid
 from pathlib import Path
@@ -40,10 +40,8 @@ def _get_setting(key: str, default=None):
     from services.plugin_settings_service import get_all_settings
     return get_all_settings("voice-forge").get(key, default)
 
-
 def _get_api_key() -> Optional[str]:
     return _get_setting("elevenlabs_api_key") or None
-
 
 def _entity_assets_dir(entity_type: str, entity_id: str) -> Path:
     """Return the assets directory for an entity, creating it if needed."""
@@ -53,7 +51,6 @@ def _entity_assets_dir(entity_type: str, entity_id: str) -> Path:
     assets.mkdir(parents=True, exist_ok=True)
     return assets
 
-
 def _load_profiles() -> dict:
     try:
         if PROFILES_FILE.exists():
@@ -62,10 +59,8 @@ def _load_profiles() -> dict:
         pass
     return {}
 
-
 def _save_profiles(profiles: dict):
     PROFILES_FILE.write_text(json.dumps(profiles, indent=2), encoding="utf-8")
-
 
 def _load_generation_log() -> list:
     try:
@@ -75,11 +70,9 @@ def _load_generation_log() -> list:
         pass
     return []
 
-
 def _save_generation_log(log: list):
     # Keep last 500 entries
     GENERATION_LOG.write_text(json.dumps(log[-500:], indent=2), encoding="utf-8")
-
 
 # ---------------------------------------------------------------------------
 # Models
@@ -93,7 +86,6 @@ class GenerateRequest(BaseModel):
     style: Optional[str] = "normal"
     model_id: Optional[str] = None
 
-
 class VoiceProfile(BaseModel):
     entity_id: str
     voice_id: str
@@ -105,7 +97,6 @@ class VoiceProfile(BaseModel):
         "excited": {"stability": 0.25, "similarity_boost": 0.8},
         "sad": {"stability": 0.7, "similarity_boost": 0.7},
     })
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -125,7 +116,6 @@ async def plugin_status():
         "default_voice_id": _get_setting("default_voice_id", "21m00Tcm4TlvDq8ikWAM"),
         "profiles_count": len(_load_profiles()),
     }
-
 
 @router.get("/voices")
 async def list_voices():
@@ -175,7 +165,6 @@ async def list_voices():
     except Exception as exc:
         logger.error("Failed to fetch voices: %s", exc)
         return {"source": "error", "message": str(exc), "voices": []}
-
 
 @router.post("/generate")
 async def generate_speech(req: GenerateRequest):
@@ -293,7 +282,6 @@ async def generate_speech(req: GenerateRequest):
         "voice_id": voice_id,
     }
 
-
 @router.get("/history/{entity_type}/{entity_id}")
 async def get_history(entity_type: str, entity_id: str):
     """List all generated audio files for an entity."""
@@ -317,14 +305,12 @@ async def get_history(entity_type: str, entity_id: str):
     audio_files.sort(key=lambda x: x["created"], reverse=True)
     return {"entity_type": entity_type, "entity_id": entity_id, "files": audio_files}
 
-
 def _parse_style_from_filename(filename: str) -> str:
     """Extract style from filename like voice_angry_1234_abcd.mp3"""
     parts = filename.replace("voice_", "").split("_")
     if parts:
         return parts[0]
     return "normal"
-
 
 @router.delete("/audio/{entity_type}/{entity_id}/{filename}")
 async def delete_audio(entity_type: str, entity_id: str, filename: str):
@@ -343,13 +329,11 @@ async def delete_audio(entity_type: str, entity_id: str, filename: str):
     logger.info("Deleted audio file: %s", filepath)
     return {"success": True, "message": f"Deleted {filename}"}
 
-
 @router.get("/voice-profiles")
 async def list_voice_profiles():
     """List all voice profiles."""
     profiles = _load_profiles()
     return {"profiles": profiles}
-
 
 @router.post("/voice-profiles")
 async def upsert_voice_profile(profile: VoiceProfile):
@@ -364,7 +348,6 @@ async def upsert_voice_profile(profile: VoiceProfile):
     _save_profiles(profiles)
     logger.info("Updated voice profile for entity %s", profile.entity_id)
     return {"success": True, "profile": profiles[profile.entity_id]}
-
 
 @router.get("/generation-log")
 async def get_generation_log():

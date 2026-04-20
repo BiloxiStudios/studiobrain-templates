@@ -67,7 +67,6 @@ def _locate_schemas_dir() -> Path:
         "Set the STUDIOBRAIN_SCHEMAS_DIR environment variable to the absolute path."
     )
 
-
 _SCHEMAS_DIR = _locate_schemas_dir()
 
 # Map entity_type → schema file path
@@ -89,7 +88,6 @@ ENTITY_SCHEMAS: Dict[str, Path] = {
     "style_bible": _SCHEMAS_DIR / "style_bible.json",
 }
 
-
 def _load_schema(entity_type: str) -> Dict[str, Any]:
     """Load and return the JSON Schema dict for *entity_type*.
 
@@ -110,14 +108,12 @@ def _load_schema(entity_type: str) -> Dict[str, Any]:
     with schema_path.open(encoding="utf-8") as fh:
         return json.load(fh)
 
-
 def _load_base_schema() -> Dict[str, Any]:
     base_path = _SCHEMAS_DIR / "_base.json"
     if not base_path.exists():
         return {}
     with base_path.open(encoding="utf-8") as fh:
         return json.load(fh)
-
 
 # ---------------------------------------------------------------------------
 # Validation helper
@@ -136,7 +132,7 @@ def _validate_frontmatter(
         ``value``   — the offending value (omitted for missing required fields)
     """
     try:
-        import jsonschema
+
         from jsonschema import Draft202012Validator, RefResolver
     except ImportError:
         logger.warning(
@@ -203,7 +199,6 @@ def _validate_frontmatter(
 
     return errors
 
-
 # ---------------------------------------------------------------------------
 # Request / Response models
 # ---------------------------------------------------------------------------
@@ -213,25 +208,21 @@ class ValidateFrontmatterRequest(BaseModel):
     frontmatter: Dict[str, Any] = Field(..., description="Parsed YAML frontmatter as a dict.")
     strict: bool = Field(default=False, description="Reject unknown fields when True.")
 
-
 class ValidateMarkdownRequest(BaseModel):
     entity_type: str = Field(..., description="Entity type (e.g. 'character', 'item').")
     content: str = Field(..., description="Raw markdown string including YAML frontmatter.")
     strict: bool = Field(default=False, description="Reject unknown fields when True.")
-
 
 class ValidationError(BaseModel):
     field: str
     message: str
     value: Optional[Any] = None
 
-
 class ValidationResult(BaseModel):
     valid: bool
     entity_type: str
     errors: List[ValidationError] = Field(default_factory=list)
     warnings: List[str] = Field(default_factory=list)
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -264,7 +255,6 @@ def _parse_markdown_frontmatter(content: str) -> Dict[str, Any]:
         )
     return frontmatter
 
-
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -287,7 +277,6 @@ async def validate_frontmatter(req: ValidateFrontmatterRequest):
             },
         )
     return ValidationResult(valid=True, entity_type=req.entity_type)
-
 
 @router.post("/validate/markdown", response_model=ValidationResult, status_code=200)
 async def validate_markdown(req: ValidateMarkdownRequest):
@@ -314,7 +303,6 @@ async def validate_markdown(req: ValidateMarkdownRequest):
         )
     return ValidationResult(valid=True, entity_type=entity_type)
 
-
 @router.get("/schemas", status_code=200)
 async def list_schemas():
     """Return the list of registered entity-type schema IDs."""
@@ -323,13 +311,11 @@ async def list_schemas():
         "count": len(ENTITY_SCHEMAS),
     }
 
-
 @router.get("/schemas/{entity_type}", status_code=200)
 async def get_schema(entity_type: str):
     """Return the full JSON Schema for *entity_type*."""
     schema = _load_schema(entity_type)
     return schema
-
 
 @router.get("/health", status_code=200)
 async def health():

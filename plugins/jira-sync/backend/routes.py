@@ -9,17 +9,15 @@ When Jira credentials are not configured the endpoints return helpful mock
 responses with setup instructions so the frontend can still render.
 """
 
-from __future__ import annotations
-
 import json
 import logging
-import os
+
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import httpx
-from fastapi import APIRouter, HTTPException, Body, Query
+from fastapi import APIRouter, HTTPException, Body
 
 router = APIRouter()
 logger = logging.getLogger("plugin.jira-sync")
@@ -41,7 +39,6 @@ STUDIO_API = "http://localhost:8201/api"
 def _ensure_data_dir() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-
 def _load_json(path: Path, default: Any = None) -> Any:
     _ensure_data_dir()
     if not path.exists():
@@ -51,31 +48,24 @@ def _load_json(path: Path, default: Any = None) -> Any:
     except Exception:
         return default if default is not None else {}
 
-
 def _save_json(path: Path, data: Any) -> None:
     _ensure_data_dir()
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
-
 def _load_links() -> Dict[str, Any]:
     return _load_json(LINKS_FILE, {})
-
 
 def _save_links(links: Dict[str, Any]) -> None:
     _save_json(LINKS_FILE, links)
 
-
 def _load_mappings() -> Dict[str, Any]:
     return _load_json(MAPPINGS_FILE, {"default": {"name": "summary", "description": "description", "production_status": "status"}})
-
 
 def _save_mappings(mappings: Dict[str, Any]) -> None:
     _save_json(MAPPINGS_FILE, mappings)
 
-
 def _link_key(entity_type: str, entity_id: str) -> str:
     return f"{entity_type}:{entity_id}"
-
 
 # ---------------------------------------------------------------------------
 # Helpers -- settings access
@@ -87,11 +77,9 @@ def _read_settings() -> Dict[str, Any]:
     all_settings = _load_json(settings_file, {})
     return all_settings.get("jira-sync", {})
 
-
 def _jira_configured() -> bool:
     s = _read_settings()
     return bool(s.get("jira_instance_url") and s.get("jira_api_token"))
-
 
 def _jira_headers() -> Dict[str, str]:
     s = _read_settings()
@@ -99,7 +87,6 @@ def _jira_headers() -> Dict[str, str]:
         "Accept": "application/json",
         "Content-Type": "application/json",
     }
-
 
 def _jira_auth() -> Optional[tuple]:
     s = _read_settings()
@@ -109,12 +96,10 @@ def _jira_auth() -> Optional[tuple]:
         return (email, token)
     return None
 
-
 def _jira_base_url() -> str:
     s = _read_settings()
     url = s.get("jira_instance_url", "").rstrip("/")
     return url
-
 
 def _entity_type_to_issue_type(entity_type: str) -> str:
     s = _read_settings()
@@ -125,7 +110,6 @@ def _entity_type_to_issue_type(entity_type: str) -> str:
         mapping = {}
     return mapping.get(entity_type, "Task")
 
-
 def _status_mapping() -> Dict[str, str]:
     s = _read_settings()
     mapping_raw = s.get("status_field_mapping", '{"draft":"To Do","in_progress":"In Progress","review":"In Review","complete":"Done"}')
@@ -134,17 +118,14 @@ def _status_mapping() -> Dict[str, str]:
     except Exception:
         return {}
 
-
 def _default_labels() -> list:
     s = _read_settings()
     raw = s.get("labels", "city-of-brains,auto-created")
     return [l.strip() for l in raw.split(",") if l.strip()]
 
-
 def _project_key() -> str:
     s = _read_settings()
     return s.get("default_project_key", "PROJ")
-
 
 # ---------------------------------------------------------------------------
 # Helpers -- Jira REST calls
@@ -160,7 +141,6 @@ async def _jira_request(method: str, path: str, **kwargs) -> httpx.Response:
         )
     return resp
 
-
 async def _fetch_entity(entity_type: str, entity_id: str) -> Dict[str, Any]:
     """Fetch an entity from the Studio backend."""
     url = f"{STUDIO_API}/entity/{entity_type}/{entity_id}"
@@ -169,7 +149,6 @@ async def _fetch_entity(entity_type: str, entity_id: str) -> Dict[str, Any]:
     if resp.status_code != 200:
         raise HTTPException(status_code=404, detail=f"Entity {entity_type}/{entity_id} not found")
     return resp.json()
-
 
 async def _create_jira_issue(entity: Dict[str, Any], entity_type: str) -> Dict[str, Any]:
     """Create a Jira issue from a Studio entity."""
@@ -203,14 +182,12 @@ async def _create_jira_issue(entity: Dict[str, Any], entity_type: str) -> Dict[s
 
     return resp.json()
 
-
 async def _get_jira_issue(issue_key: str) -> Dict[str, Any]:
     """Fetch a Jira issue by key."""
     resp = await _jira_request("GET", f"/issue/{issue_key}")
     if resp.status_code != 200:
         raise HTTPException(status_code=502, detail=f"Jira issue {issue_key} not found")
     return resp.json()
-
 
 async def _transition_jira_issue(issue_key: str, target_status: str) -> bool:
     """Attempt to transition a Jira issue to the given status name."""
@@ -237,7 +214,6 @@ async def _transition_jira_issue(issue_key: str, target_status: str) -> bool:
         json={"transition": {"id": match["id"]}},
     )
     return resp.status_code == 204
-
 
 # ---------------------------------------------------------------------------
 # Routes
@@ -283,7 +259,6 @@ async def root():
 
     return info
 
-
 @router.get("/status")
 async def sync_status():
     """Sync overview: counts of linked entities, sync errors, etc."""
@@ -313,7 +288,6 @@ async def sync_status():
         "auto_transition": settings.get("auto_transition_on_status", True),
         "jira_configured": _jira_configured(),
     }
-
 
 # ---------------------------------------------------------------------------
 # Sync entity <-> Jira
@@ -409,7 +383,6 @@ async def sync_entity(entity_type: str, entity_id: str):
         except Exception as exc:
             raise HTTPException(status_code=502, detail=str(exc))
 
-
 # ---------------------------------------------------------------------------
 # Link management
 # ---------------------------------------------------------------------------
@@ -457,7 +430,6 @@ async def get_link(entity_type: str, entity_id: str):
 
     return result
 
-
 @router.post("/link/{entity_type}/{entity_id}")
 async def create_link(entity_type: str, entity_id: str, body: dict = Body(...)):
     """Manually link an entity to an existing Jira issue."""
@@ -494,7 +466,6 @@ async def create_link(entity_type: str, entity_id: str, body: dict = Body(...)):
         "issue_url": f"{_jira_base_url()}/browse/{issue_key}" if _jira_configured() else None,
     }
 
-
 @router.delete("/link/{entity_type}/{entity_id}")
 async def delete_link(entity_type: str, entity_id: str):
     """Unlink an entity from its Jira issue."""
@@ -513,7 +484,6 @@ async def delete_link(entity_type: str, entity_id: str):
         "entity_id": entity_id,
         "removed_issue_key": removed.get("issue_key"),
     }
-
 
 # ---------------------------------------------------------------------------
 # Bulk sync
@@ -585,7 +555,6 @@ async def sync_all(entity_type: str):
     _save_links(links)
     return results
 
-
 # ---------------------------------------------------------------------------
 # Field mappings
 # ---------------------------------------------------------------------------
@@ -595,13 +564,11 @@ async def get_mappings():
     """Get entity-to-Jira field mappings."""
     return _load_mappings()
 
-
 @router.put("/mappings")
 async def update_mappings(body: dict = Body(...)):
     """Update entity-to-Jira field mappings."""
     _save_mappings(body)
     return {"status": "saved", "mappings": body}
-
 
 # ---------------------------------------------------------------------------
 # Webhook receiver (for bidirectional sync)
