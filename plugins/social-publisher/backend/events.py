@@ -10,6 +10,9 @@ import logging
 
 logger = logging.getLogger("plugin.social-publisher")
 
+# SBAI-4358: social draft generation with guaranteed hashtags
+from gen_social_drafts import _suggested_tags, format_hashtags
+
 
 def register_handlers(event_bus):
     """
@@ -78,13 +81,10 @@ async def _auto_post(entity_type: str, entity_id: str, settings: dict):
             logger.warning("[social-publisher] No templates available for auto-post")
             return
 
-        # Build text
-        hashtags = settings.get(
-            "default_hashtags", "#CityOfBrains,#GameDev,#IndieGame"
-        )
-        hashtag_str = " ".join(
-            h.strip() for h in hashtags.split(",") if h.strip()
-        )
+        # Build text — SBAI-4358: use _suggested_tags for richer per-topic hashtags
+        # Mirrors youtube-manager tag pattern: base tags + entity-specific + device tags
+        suggested = _suggested_tags(entity_type, entity)
+        hashtag_str = format_hashtags(suggested)
         text = _render_template(template["template"], entity, hashtag_str)
 
         # Image
