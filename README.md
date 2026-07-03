@@ -58,4 +58,6 @@ Templates are consumed by StudioBrain's type generation system:
 
 ## License
 
-Private. Copyright (c) 2024-2026 Biloxi Studios Inc.
+Apache-2.0. Copyright 2024-2026 Biloxi Studios Inc.
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full text.

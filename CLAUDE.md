@@ -19,10 +19,10 @@ Quick reference:
 | **Contents** | No backend code, no frontend code, no Rust, no binaries |
 
 ### Forbidden in this repo
-- ❌ Backend code (Python / Rust / Node)
-- ❌ Frontend components
-- ❌ Build systems (no package.json, no Cargo.toml, no pyproject.toml)
-- ❌ Compiled artifacts or binary blobs
+- ❌ Backend application code (Python / Rust / Node runnable services)
+- ❌ Frontend application components (React, Vue, etc.)
+- ❌ Workspace-level build system files (no root `Cargo.toml`, no root `pyproject.toml` except for tooling)
+- ❌ Compiled artifacts or binary blobs (`.wasm`, `.so`, `.pyc`, etc.)
 - ❌ Commercial AI logic of any kind
 
 ### Required in this repo
@@ -30,6 +30,17 @@ Quick reference:
 - ✅ Layout JSONs for form rendering via widget registry
 - ✅ `pack.yaml` manifests for template packs
 - ✅ Plugin manifest samples (WASM + Python)
+
+### Architectural decision: WASM plugin stubs (SBAI-4636)
+
+Each `plugins/<name>-wasm/` directory contains a **standalone Rust/WASM SDK sample**: a `plugin.json` manifest, a `Cargo.toml` (single-crate, `publish = false`), and a `src/lib.rs` reference implementation using the Extism PDK. These are **documentation artifacts** — they show plugin authors the expected code structure and are not compiled as part of this repository.
+
+**Decision (2026-07-03):** The WASM plugin stubs remain in `studiobrain-templates` as SDK samples. They are permitted exceptions to the "no build system files" rule because:
+1. They are self-contained single-crate stubs with `publish = false` — no workspace build is triggered.
+2. They are the authoritative reference for the WASM plugin interface (WIT exports, hook signatures, route handling).
+3. Removing them would leave the plugin SDK undocumented.
+
+**What is still forbidden:** a root `Cargo.toml` workspace file, any compiled `.wasm` outputs checked in, and any Rust source code beyond the per-plugin `src/lib.rs` stub. Full plugin implementations (compiled, tested, deployed) belong in the separate **studiobrain-plugins** repository.
 
 ## Project Overview
 

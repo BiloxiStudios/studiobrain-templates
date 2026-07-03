@@ -1,0 +1,34 @@
+# CODEOWNERS — studiobrain-templates
+#
+# Each line is a pattern followed by one or more owners.
+# The last matching pattern takes precedence.
+# Owners are notified and required to review PRs that touch their paths.
+#
+# Format: <pattern> <owner> [<owner> ...]
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything not matched below
+*                               @BiloxiStudios/templates-maintainers
+
+# Entity templates
+templates/Standard/             @BiloxiStudios/templates-maintainers
+templates/Core/                 @BiloxiStudios/templates-maintainers
+templates/Layouts/              @BiloxiStudios/templates-maintainers
+templates/Packs/                @BiloxiStudios/templates-maintainers
+
+# AI generation rules
+rules/                          @BiloxiStudios/templates-maintainers
+
+# JSON Schemas
+schemas/                        @BiloxiStudios/templates-maintainers
+
+# Plugin SDK samples
+plugins/                        @BiloxiStudios/plugin-sdk-maintainers
+
+# Governance, CI, and repo metadata
+.github/                        @BiloxiStudios/templates-maintainers
+CLAUDE.md                       @BiloxiStudios/templates-maintainers
+CONTRIBUTING.md                 @BiloxiStudios/templates-maintainers
+CODEOWNERS                      @BiloxiStudios/templates-maintainers
+LICENSE                         @BiloxiStudios/templates-maintainers
+package.json                    @BiloxiStudios/templates-maintainers
