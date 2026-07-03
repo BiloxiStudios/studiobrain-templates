@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/skill.yaml.json",
+  "title": "StudioBrain Skill Schema",
+  "description": "JSON Schema for the YAML frontmatter and top-level keys of a StudioBrain skill file (skills/Standard/*.yaml and skills/User/*.yaml). Validates the parsed YAML mapping (NOT the raw text). A skill describes an AI capability the user can invoke from the UI: input shape, prompt templates, target entity scope, and entitlement gating.",
+  "type": "object",
+  "required": ["skill_id", "name", "description", "version", "category", "applies_to", "min_tier"],
+  "properties": {
+    "skill_id": {
+      "type": "string",
+      "description": "Unique skill identifier; snake_case.",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable skill name."
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description shown in the skill picker UI."
+    },
+    "version": {
+      "type": ["string", "number"],
+      "description": "Skill version. String preferred (semver MAJOR.MINOR.PATCH or 'MAJOR.MINOR'); numeric '1.0' is tolerated for legacy reasons."
+    },
+    "category": {
+      "type": "string",
+      "description": "Functional category for grouping in the picker.",
+      "enum": ["generation", "validation", "analysis", "transformation", "utility", "import", "export"]
+    },
+    "applies_to": {
+      "description": "Entity scope the skill applies to. Either a single entity_type string or 'all'.",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "all",
+            "character",
+            "location",
+            "item",
+            "faction",
+            "brand",
+            "district",
+            "job",
+            "quest",
+            "event",
+            "campaign",
+            "assembly",
+            "dialogue",
+            "timeline",
+            "universe",
+            "style_bible",
+            "biome"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "Runtime capabilities the skill requires (e.g. 'entity_read', 'entity_list', 'ai_generate', 'filesystem:read').",
+      "items": {"type": "string"}
+    },
+    "min_tier": {
+      "type": ["string", "integer"],
+      "description": "Minimum entitlement tier required to invoke the skill. Either the tier_id ('free', 'indie', 'team', 'enterprise') or the integer ordinal (0..3).",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": ["free", "indie", "team", "enterprise"]
+        },
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        }
+      ]
+    },
+    "compat": {
+      "$ref": "./_compat.json",
+      "description": "Compatibility metadata. min_core_version is required so the runtime can refuse to load skills targeting a newer core than is running."
+    },
+    "inputs": {
+      "type": ["object", "null"],
+      "description": "Input contract for the skill invocation.",
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "optional": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "outputs": {
+      "type": ["object", "null"],
+      "description": "Optional description of the skill's output shape.",
+      "additionalProperties": true
+    },
+    "prompts": {
+      "type": ["object", "null"],
+      "description": "Prompt templates the skill uses. Conventionally has 'system' and 'user' keys with templated strings.",
+      "additionalProperties": true
+    },
+    "examples": {
+      "type": ["array", "null"],
+      "items": {"type": "string"}
+    },
+    "homepage": {
+      "type": ["string", "null"],
+      "format": "uri"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/pack.json",
+  "title": "StudioBrain Template Pack Schema",
+  "description": "JSON Schema for pack.json files under templates/Packs/<pack-id>/. A pack groups templates, rules, layouts, and example entities into an installable unit. Meta-packs reference other packs via 'includes' rather than embedding content.",
+  "type": "object",
+  "required": ["id", "name", "version"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique pack identifier; must match the pack directory name. snake_case or kebab-case.",
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable pack name shown in the marketplace and installer UI."
+    },
+    "version": {
+      "type": "string",
+      "description": "Pack version (semver MAJOR.MINOR.PATCH).",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "description": {
+      "type": ["string", "null"],
+      "description": "Free-form description shown in the marketplace listing."
+    },
+    "author": {
+      "type": ["string", "null"],
+      "description": "Author name or organization."
+    },
+    "license": {
+      "type": ["string", "null"],
+      "description": "SPDX license identifier (e.g. 'Apache-2.0')."
+    },
+    "compat": {
+      "$ref": "./_compat.json",
+      "description": "Compatibility metadata. min_core_version is required so the installer can refuse packs targeting a newer core than is running."
+    },
+    "entity_types": {
+      "type": "array",
+      "description": "Entity types this pack provides content for. Informational; not strictly enforced against contents.",
+      "items": {"type": "string"}
+    },
+    "categories": {
+      "type": "array",
+      "description": "Marketplace categories (e.g. 'narrative', 'game-dev', 'film-tv', 'world-building').",
+      "items": {"type": "string"}
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "icon": {
+      "type": ["string", "null"],
+      "description": "Path to an icon asset relative to the pack root, or null."
+    },
+    "is_default": {
+      "type": ["boolean", "null"],
+      "description": "When true, the pack is installed automatically on new projects."
+    },
+    "auto_install": {
+      "type": ["boolean", "null"],
+      "description": "When true, the pack is queued for install on first run."
+    },
+    "is_meta_pack": {
+      "type": ["boolean", "null"],
+      "description": "When true, the pack only references other packs via 'includes' and carries no direct content."
+    },
+    "includes": {
+      "type": "array",
+      "description": "List of pack ids that this meta-pack aggregates. Empty for non-meta packs.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_-]*$"
+      }
+    },
+    "templates": {
+      "type": "array",
+      "description": "Template markdown files (paths relative to the pack root). Empty for meta-packs.",
+      "items": {"type": "string"}
+    },
+    "rules": {
+      "type": "array",
+      "description": "Rule files (paths relative to the pack root). Empty for meta-packs.",
+      "items": {"type": "string"}
+    },
+    "layouts": {
+      "type": "array",
+      "description": "Layout JSON files (paths relative to the pack root). Empty for meta-packs.",
+      "items": {"type": "string"}
+    },
+    "examples": {
+      "type": "array",
+      "description": "Example entity markdown files (paths relative to the pack root).",
+      "items": {"type": "string"}
+    },
+    "skills": {
+      "type": "array",
+      "description": "Skill YAML files (paths relative to the pack root).",
+      "items": {"type": "string"}
+    },
+    "plugins": {
+      "type": "array",
+      "description": "Plugin directories (names relative to plugins/) bundled by the pack.",
+      "items": {"type": "string"}
+    },
+    "homepage": {
+      "type": ["string", "null"],
+      "format": "uri"
+    },
+    "repository": {
+      "type": ["string", "null"],
+      "format": "uri"
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "required": ["is_meta_pack"],
+        "properties": {"is_meta_pack": {"const": true}}
+      },
+      "then": {
+        "description": "Meta-packs must declare at least one include; should not carry direct templates.",
+        "required": ["includes"]
+      }
+    }
+  ]
+}

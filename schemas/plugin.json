@@ -1,0 +1,302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/plugin.json",
+  "title": "StudioBrain Plugin Manifest Schema",
+  "description": "JSON Schema for plugin.json files under plugins/<plugin-id>/. StudioBrain supports two plugin variants distinguished by the 'type' field: 'full' (Python backend + HTML frontend, runs in-process) and 'protocol-adapter' (WASM module implementing adapt_request / adapt_response / health_check for an external service).",
+  "type": "object",
+  "required": ["id", "name", "version", "description", "type"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique plugin identifier; must match the plugin directory name. snake_case or kebab-case.",
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable plugin name."
+    },
+    "version": {
+      "type": "string",
+      "description": "Plugin version (semver MAJOR.MINOR.PATCH).",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "description": {"type": "string"},
+    "type": {
+      "type": "string",
+      "description": "Plugin variant. 'full' = in-process Python plugin (backend routes + frontend pages/panels); 'frontend-only' = no backend routes, just frontend surfaces (uses generic plugin_data_routes for storage); 'protocol-adapter' = WASM module implementing the protocol-adapter contract.",
+      "enum": ["full", "frontend-only", "protocol-adapter"]
+    },
+    "author": {"type": ["string", "null"]},
+    "license": {
+      "type": ["string", "null"],
+      "description": "SPDX identifier (e.g. 'Apache-2.0')."
+    },
+    "category": {
+      "type": ["string", "null"],
+      "description": "Optional category slug for marketplace grouping."
+    },
+    "compat": {
+      "$ref": "./_compat.json",
+      "description": "Compatibility metadata. min_core_version is required so the installer can refuse plugins targeting a newer core than is running."
+    },
+    "accent_color": {
+      "type": ["string", "null"],
+      "description": "CSS color or var(--*) for plugin accent."
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": {"type": {"const": "full"}}
+      },
+      "then": {
+        "title": "Full Plugin",
+        "description": "Shape for type=full plugins.",
+        "required": ["capabilities"],
+        "properties": {
+          "id": {},
+          "name": {},
+          "version": {},
+          "description": {},
+          "type": {},
+          "author": {},
+          "license": {},
+          "category": {},
+          "compat": {},
+          "accent_color": {},
+          "capabilities": {
+            "type": "object",
+            "description": "Capability map. Backed by Python routes/event_handlers; frontend by pages/panels.",
+            "properties": {
+              "backend": {
+                "type": ["object", "null"],
+                "properties": {
+                  "routes": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  },
+                  "event_handlers": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  }
+                },
+                "additionalProperties": true
+              },
+              "frontend": {
+                "type": ["object", "null"],
+                "properties": {
+                  "pages": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["id", "route", "label"],
+                      "properties": {
+                        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"},
+                        "route": {"type": "string", "pattern": "^/"},
+                        "label": {"type": "string"},
+                        "icon": {"type": ["string", "null"]},
+                        "nav_section": {"type": ["string", "null"]}
+                      },
+                      "additionalProperties": true
+                    }
+                  },
+                  "panels": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["id", "label"],
+                      "properties": {
+                        "id": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"},
+                        "label": {"type": "string"},
+                        "location": {
+                          "type": ["string", "null"],
+                          "description": "Where the panel mounts. Older plugins may use 'type' as an alias.",
+                          "enum": ["entity-sidebar", "entity-tab", "dashboard-sidebar", "page-toolbar", null]
+                        },
+                        "type": {
+                          "type": ["string", "null"],
+                          "description": "Alias for 'location' on legacy panels."
+                        },
+                        "file": {
+                          "type": ["string", "null"],
+                          "description": "Path to the HTML file implementing the panel."
+                        },
+                        "icon": {"type": ["string", "null"]},
+                        "description": {"type": ["string", "null"]}
+                      },
+                      "additionalProperties": true
+                    }
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          },
+          "dependencies": {
+            "type": ["object", "null"],
+            "description": "External runtime dependencies. 'python' is a list of pip specifiers; 'wasm' would be a list of WASM module URLs.",
+            "properties": {
+              "python": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "wasm": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "plugins": {
+                "type": "array",
+                "description": "Other plugin ids this plugin depends on.",
+                "items": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"}
+              }
+            },
+            "additionalProperties": true
+          },
+          "permissions": {
+            "type": "array",
+            "description": "Permission grants the plugin requests. Use '<domain>:<scope>' (e.g. 'entity:read', 'network:local', 'filesystem:write').",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_-]*$"
+            }
+          },
+          "settings_schema": {
+            "type": ["object", "null"],
+            "description": "Per-plugin settings schema. Each key is a setting id; value describes the field.",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Setting widget type. 'secret' is rendered as a masked input and stored separately from regular settings; 'object' is a nested object with its own 'properties' map mirroring the parent shape.",
+                  "enum": ["string", "boolean", "integer", "number", "select", "color", "secret", "object"]
+                },
+                "label": {"type": "string"},
+                "description": {"type": ["string", "null"]},
+                "required": {"type": ["boolean", "null"]},
+                "default": {},
+                "scope": {
+                  "type": ["string", "null"],
+                  "enum": ["user", "instance", "tenant"]
+                },
+                "options": {
+                  "type": ["array", "null"],
+                  "description": "For select widgets. Items may be either a plain string or a {value, label} object.",
+                  "items": {
+                    "oneOf": [
+                      {"type": "string"},
+                      {
+                        "type": "object",
+                        "properties": {
+                          "value": {},
+                          "label": {"type": "string"}
+                        },
+                        "additionalProperties": true
+                      }
+                    ]
+                  }
+                },
+                "properties": {
+                  "type": ["object", "null"],
+                  "description": "Nested settings for type='object'. Maps sub-key -> setting definition (same shape as the parent).",
+                  "additionalProperties": true
+                },
+                "test_endpoint": {"type": ["string", "null"]}
+              },
+              "additionalProperties": true
+            }
+          },
+          "data_schema": {
+            "type": ["object", "null"],
+            "description": "Optional description of plugin-owned data records.",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"type": {"const": "protocol-adapter"}}
+      },
+      "then": {
+        "title": "Protocol Adapter Plugin",
+        "description": "Shape for type=protocol-adapter plugins (WASM).",
+        "required": ["exports", "service_type"],
+        "properties": {
+          "id": {},
+          "name": {},
+          "version": {},
+          "description": {},
+          "type": {},
+          "author": {},
+          "license": {},
+          "category": {},
+          "compat": {},
+          "accent_color": {},
+          "service_type": {
+            "type": "string",
+            "description": "Service category this adapter bridges (e.g. 'video', 'image', 'audio', 'text', '3d')."
+          },
+          "compatible_services": {
+            "type": "array",
+            "description": "External service ids this adapter knows how to talk to (e.g. ['ltx-video', 'ltx2']).",
+            "items": {"type": "string"}
+          },
+          "exports": {
+            "type": "object",
+            "description": "WASM exports the protocol-adapter contract requires.",
+            "required": ["adapt_request", "adapt_response", "health_check"],
+            "properties": {
+              "adapt_request": {
+                "type": "object",
+                "properties": {
+                  "description": {"type": ["string", "null"]},
+                  "input": {"type": ["string", "null"]},
+                  "output": {"type": ["string", "null"]}
+                },
+                "additionalProperties": true
+              },
+              "adapt_response": {
+                "type": "object",
+                "properties": {
+                  "description": {"type": ["string", "null"]},
+                  "input": {"type": ["string", "null"]},
+                  "output": {"type": ["string", "null"]}
+                },
+                "additionalProperties": true
+              },
+              "health_check": {
+                "type": "object",
+                "properties": {
+                  "description": {"type": ["string", "null"]},
+                  "input": {"type": ["string", "null"]},
+                  "output": {"type": ["string", "null"]}
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          },
+          "settings": {
+            "type": ["array", "null"],
+            "description": "Adapter settings schema (array form, mirrors the SDK adapter-toolkit convention).",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "routes": {
+            "type": ["array", "null"],
+            "description": "Adapter HTTP routes (array form).",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    }
+  ]
+}
