@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/_compat.json",
+  "title": "StudioBrain Compatibility Metadata",
+  "description": "Shared schema fragment describing version-compatibility metadata that StudioBrain assets may declare. Consumed by the installer / validator to refuse assets that require a newer core than is running.",
+  "type": "object",
+  "properties": {
+    "min_core_version": {
+      "type": "string",
+      "description": "Minimum StudioBrain core version (semver, MAJOR.MINOR.PATCH) required to install and run this asset. Compared against the running core's version at install time using semver ordering (any pre-release suffix is stripped before comparison).",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "max_core_version": {
+      "type": ["string", "null"],
+      "description": "Optional maximum core version (inclusive) this asset is known to work against. Null or absent means unbounded.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "target_api_version": {
+      "type": ["string", "null"],
+      "description": "Optional API/protocol version this asset targets. Free-form but should match a version advertised by core (e.g. 'plugin-manifest/v2', 'layout/v1').",
+      "pattern": "^[a-z0-9._-]+/v\\d+(?:\\.\\d+)?$"
+    },
+    "tested_core_versions": {
+      "type": "array",
+      "description": "List of core versions the author has actually tested against. Informational only; not enforced.",
+      "items": {
+        "type": "string",
+        "pattern": "^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+      }
+    }
+  },
+  "required": ["min_core_version"],
+  "additionalProperties": true
+}

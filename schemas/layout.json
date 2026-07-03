@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/layout.json",
+  "title": "StudioBrain Layout Schema",
+  "description": "JSON Schema for *.layout.json files under templates/Layouts/. A layout describes how an entity editor renders its fields: sections, columns, field widgets, plugin slots, and view configuration.",
+  "type": "object",
+  "required": ["entity_type", "version", "sections"],
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "description": "Entity type this layout renders. Must match an entity_type in schemas/_base.json.",
+      "enum": [
+        "character",
+        "location",
+        "item",
+        "faction",
+        "brand",
+        "district",
+        "job",
+        "quest",
+        "event",
+        "campaign",
+        "assembly",
+        "dialogue",
+        "timeline",
+        "universe",
+        "style_bible",
+        "biome"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "description": "Layout format version. Accepts MAJOR.MINOR ('1.0') or full semver MAJOR.MINOR.PATCH ('1.0.0').",
+      "pattern": "^\\d+\\.\\d+(?:\\.\\d+)?(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "compat": {
+      "$ref": "./_compat.json",
+      "description": "Compatibility metadata. min_core_version is required so the installer can refuse layouts targeting a newer core than is running."
+    },
+    "sections": {
+      "type": "array",
+      "description": "Ordered list of layout sections. Each section is a panel/group in the editor.",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Section identifier; must be unique within the layout. Snake_case or kebab-case (auto-generated block IDs may be 'block_<timestamp>').",
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+          },
+          "title": {
+            "type": ["string", "null"],
+            "description": "Optional human-readable section title. May be null when the section is a pure component slot."
+          },
+          "icon": {
+            "type": ["string", "null"],
+            "description": "Optional icon identifier (lucide icon name or plugin-provided)."
+          },
+          "columns": {
+            "type": ["integer", "null"],
+            "description": "Number of grid columns for field layout (typically 1, 2, or 3).",
+            "minimum": 1,
+            "maximum": 6
+          },
+          "collapsed_default": {
+            "type": ["boolean", "null"],
+            "description": "Whether the section is collapsed by default in the UI."
+          },
+          "fields": {
+            "type": ["array", "null"],
+            "description": "Form fields rendered inside this section. Null when the section is a component slot.",
+            "items": {"$ref": "#/$defs/field"}
+          },
+          "component": {
+            "type": ["string", "null"],
+            "description": "Component identifier for non-field sections (e.g. 'entity-workflow-trigger', 'plugin:<plugin>:<component>', 'entity-assets'). Null for field sections."
+          },
+          "component_config": {
+            "type": ["object", "null"],
+            "description": "Free-form configuration passed to the component.",
+            "additionalProperties": true
+          },
+          "component_source": {
+            "type": ["string", "null"],
+            "description": "Source of the component ('builtin', a plugin id, etc.).",
+            "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+          },
+          "editor_component": {"type": ["string", "null"]},
+          "viewer_component": {"type": ["string", "null"]}
+        },
+        "additionalProperties": true
+      }
+    },
+    "view_config": {
+      "type": ["object", "null"],
+      "description": "Optional view-layer configuration (e.g. {layout_driven: true}).",
+      "additionalProperties": true
+    },
+    "updated_at": {
+      "type": ["string", "null"],
+      "description": "Optional ISO-8601 timestamp the layout was last edited."
+    },
+    "created_at": {
+      "type": ["string", "null"],
+      "description": "Optional ISO-8601 timestamp the layout was created."
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "field": {
+      "type": "object",
+      "required": ["key", "ui_component"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Frontmatter key this field binds to. May use dotted paths (e.g. 'color_palette.primary') for nested fields.",
+          "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_-]+)*$"
+        },
+        "label": {
+          "type": ["string", "null"],
+          "description": "Human-readable label shown above the field."
+        },
+        "ui_component": {
+          "type": "string",
+          "description": "Widget registry identifier (text, textarea, number, select, multi_select, toggle, read-only-text, image-upload, color-picker, markdown, entity-reference, ...). 'plugin:<plugin>:<widget>' is reserved for plugin-provided widgets."
+        },
+        "required": {
+          "type": ["boolean", "null"],
+          "description": "Whether the user must fill this field."
+        },
+        "placeholder": {
+          "type": ["string", "null"],
+          "description": "Placeholder text shown when the field is empty."
+        },
+        "help": {
+          "type": ["string", "null"],
+          "description": "Help text shown under the field."
+        },
+        "default": {
+          "description": "Default value when the entity is created with no value supplied. Type depends on ui_component.",
+          "additionalProperties": true
+        },
+        "options": {
+          "type": ["array", "null"],
+          "description": "For select / multi_select / radio widgets.",
+          "items": {
+            "type": "object",
+            "required": ["value", "label"],
+            "properties": {
+              "value": {
+                "type": ["string", "integer", "boolean", "number"]
+              },
+              "label": {"type": "string"}
+            },
+            "additionalProperties": true
+          }
+        },
+        "options_source": {
+          "type": ["string", "null"],
+          "description": "Reference to a dynamic options source (e.g. 'enum:faction' or 'plugin:<plugin>:<fn>')."
+        },
+        "auto_generate_from": {
+          "type": ["string", "null"],
+          "description": "When set, the field value is auto-generated from the referenced field (e.g. id from name)."
+        },
+        "rows": {
+          "type": ["integer", "null"],
+          "description": "For textarea widgets: visible row count.",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "min": {"type": ["integer", "number", "null"]},
+        "max": {"type": ["integer", "number", "null"]},
+        "step": {"type": ["integer", "number", "null"]},
+        "multiple": {"type": ["boolean", "null"]},
+        "accept": {
+          "type": ["string", "array", "null"],
+          "items": {"type": "string"}
+        },
+        "validation": {
+          "type": ["object", "null"],
+          "description": "Inline validation hints (regex, min/max length, etc.).",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

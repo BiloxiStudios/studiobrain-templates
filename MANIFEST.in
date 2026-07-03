@@ -2,3 +2,10 @@ recursive-include studiobrain_templates/templates *.md *.json *.yaml *.yml
 recursive-include studiobrain_templates/rules *.md *.yaml *.yml
 recursive-include studiobrain_templates/plugins *.json *.css *.html *.py *.js
 recursive-include studiobrain_templates/schemas *.json
+recursive-include studiobrain_templates/skills *.yaml *.yml
+include MANIFEST.in
+include README.md
+include LICENSE
+include pyproject.toml
+include package.json
+recursive-include scripts *.py

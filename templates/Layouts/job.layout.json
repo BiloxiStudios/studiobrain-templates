@@ -224,3 +224,9 @@
       "viewer_component": null
     }
   ],
+  "updated_at": null,
+  "created_at": null,
+  "view_config": {
+    "layout_driven": true
+  }
+}

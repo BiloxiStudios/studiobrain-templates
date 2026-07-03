@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "studiobrain-templates"
-version = "0.2.0"
+version = "0.3.0"
 description = "StudioBrain entity templates, generation rules, and plugin definitions"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -40,4 +40,10 @@ studiobrain_templates = [
     "schemas/**/*.json",
     "skills/**/*.yaml",
     "skills/**/*.yml",
+]
+
+[project.optional-dependencies]
+validate = [
+    "jsonschema>=4.17",
+    "pyyaml>=6.0",
 ]

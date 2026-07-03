@@ -8,6 +8,11 @@
   "type": "protocol-adapter",
   "service_type": "video",
   "compatible_services": ["ltx-video", "ltx2"],
+  "compat": {
+    "min_core_version": "0.3.0",
+    "target_api_version": "plugin-manifest/v2",
+    "tested_core_versions": ["0.3.0"]
+  },
   "exports": {
     "adapt_request": {
       "description": "Convert GenerateRequest to LTX-2 server submission payload",
