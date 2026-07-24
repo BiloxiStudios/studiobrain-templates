@@ -63,6 +63,27 @@
         "type": "string"
       }
     },
+    "location": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "primary_locations": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      }
+    },
+    "starting_location": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "key_locations": {
       "type": [
         "array",
