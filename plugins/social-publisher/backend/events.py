@@ -1,4 +1,16 @@
 """
+DEPRECATED — SBAI-6815: This plugin targets the decommissioned Python FastAPI backend.
+The current production sb-server (Rust/Axum) only loads .wasm plugin components.
+
+Migration path:
+  - See plugins/MIGRATION_PLAN.md for the full migration strategy
+  - See plugins/hello-world-wasm/ for a working WASM proof-of-concept
+  - See core/packages/plugin-sdk/templates/python/ for the WASM plugin template
+
+This file will be removed after migration to WASM (componentize-py) is complete.
+"""
+
+"""
 Social Publisher Plugin -- event handlers.
 
 Listens for entity.created events on the backend event bus.

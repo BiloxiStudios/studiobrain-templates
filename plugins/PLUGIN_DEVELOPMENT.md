@@ -1,5 +1,22 @@
 # Plugin Development Guide
 
+> **⚠️ DEPRECATED — SBAI-6815 Migration in Progress**
+>
+> This guide documents the **legacy Python FastAPI** plugin system which targeted
+> a decommissioned backend. The current production `sb-server` (Rust/Axum) only
+> loads `.wasm` plugin components via the WIT interface.
+>
+> **For new plugins, use the WASM component model:**
+> - **Migration plan:** See `MIGRATION_PLAN.md` for the full strategy
+> - **WASM proof-of-concept:** See `hello-world-wasm/` for a working example
+> - **WASM template:** See `core/packages/plugin-sdk/templates/python/` in the core repo
+> - **WIT interface:** See `core/wit/studiobrain-plugin.wit` for the contract
+>
+> The legacy Python backend files (`backend/routes.py`, `backend/events.py`) in
+> existing plugins are marked with deprecation notices and will be removed after
+> WASM migration is complete. The **frontend HTML** panels/pages remain valid —
+> they call the same REST API regardless of backend implementation.
+
 ## Theme Rules
 
 **NEVER hardcode hex colors.** The backend injects `plugin-theme.css` into every plugin iframe automatically. Use CSS variables for all colors.

@@ -2,6 +2,13 @@
 
 This directory contains all StudioBrain plugins. Each plugin is a subdirectory with a `plugin.json` manifest.
 
+> **⚠️ SBAI-6815 — Migration to WASM in Progress**
+>
+> The 28 existing plugins target a decommissioned Python FastAPI backend.
+> The current production `sb-server` (Rust/Axum) only loads `.wasm` plugin components.
+> See **`MIGRATION_PLAN.md`** for the full migration strategy and **`hello-world-wasm/`**
+> for a working WASM proof-of-concept. New plugins should target the WASM component model.
+
 ## What Plugins Are
 
 Plugins extend StudioBrain with:
@@ -10,7 +17,7 @@ Plugins extend StudioBrain with:
 - **Backend API routes** mounted at `/api/ext/{plugin-id}/...`
 - **Entity event handlers** that react to entity lifecycle events
 
-Plugins run in sandboxed iframes (frontend) and are imported as isolated Python modules (backend). They cannot access other tenants' data and cannot write outside their own directory.
+Plugins run in sandboxed iframes (frontend) and as WASM components (backend). They cannot access other tenants' data and cannot write outside their own directory.
 
 ## How to Enable a Plugin
 
@@ -29,10 +36,11 @@ After enabling, the plugin's UI panels and pages appear automatically. Backend r
 
 ## Plugin Types
 
-| Type | Description |
-|------|-------------|
-| `"full"` (default) | Has both frontend HTML and backend Python. Registers API routes and event handlers. |
-| `"frontend-only"` | HTML/CSS/JS only. Uses the app's REST API and generic data CRUD. No Python backend. |
+| Type | Runtime | Description |
+|------|---------|-------------|
+| `"full"` (legacy) | Python FastAPI | Has both frontend HTML and backend Python. **Deprecated** — targets decommissioned backend. |
+| `"frontend-only"` | None | HTML/CSS/JS only. Uses the app's REST API and generic data CRUD. No backend required. |
+| `"wasm"` | WASM Component | Frontend HTML + `.wasm` backend component. **Recommended** for all new plugins. |
 
 ## Required Files
 
