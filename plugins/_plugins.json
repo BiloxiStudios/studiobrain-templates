@@ -1,5 +1,8 @@
 {
   "plugins": {
+    "hello-world-wasm": {
+      "enabled": true
+    },
     "assembly-composer": {
       "enabled": true
     },

@@ -1,0 +1,258 @@
+/// StudioBrain Plugin Interface
+///
+/// Package: studiobrain:plugin@1.0.0
+///
+/// This file is the single source of truth for the WebAssembly Interface Types
+/// (WIT) contract between the StudioBrain host and plugins.  It defines:
+///
+///   • Host imports  — functions the host runtime provides to every plugin
+///   • Plugin exports — interfaces every plugin must (or may) implement
+///   • The world      — the complete component boundary
+///
+/// All platforms (community, desktop, cloud) share this contract.  Platform
+/// overlays may ADD capabilities via their own worlds, but they must remain a
+/// strict superset of this definition.
+///
+/// Specification: https://component-model.bytecodealliance.org/design/wit.html
+
+package studiobrain:plugin@1.0.0;
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Host imports — what the StudioBrain runtime provides to plugins
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// Structured logging routed through the host's logging subsystem.
+interface log {
+    /// Severity level for a log entry.
+    enum level {
+        /// Fine-grained diagnostic information, typically only useful during
+        /// development.
+        debug,
+        /// General informational messages about normal plugin operation.
+        info,
+        /// Something unexpected happened, but the plugin can continue.
+        warn,
+        /// A serious failure that may require plugin shutdown or user action.
+        error,
+    }
+
+    /// Write a log line at the given severity.
+    ///
+    /// The host may prefix entries with the plugin identifier, timestamp, and
+    /// other context.  Plugins must not include sensitive user data in log
+    /// messages.
+    log: func(level: level, message: string);
+}
+
+/// Core host ABI — entity access, key/value storage, and event emission.
+///
+/// Every function is synchronous from the plugin's perspective.  The host
+/// executes the implementation on the calling thread before returning.
+interface host-abi {
+    /// Opaque JSON string representing a single entity document as stored by
+    /// StudioBrain.  The exact schema is determined by the project's entity
+    /// type definitions.
+    type entity-json = string;
+
+    // ── Entity access ──────────────────────────────────────────────────────
+
+    /// Fetch a single entity by type slug and ID.
+    ///
+    /// Returns `none` if the entity does not exist or if the plugin does not
+    /// have the `entities:read` permission.
+    get-entity: func(entity-type: string, entity-id: string) -> option<entity-json>;
+
+    /// Return the IDs of all entities belonging to `entity-type`.
+    ///
+    /// Results are unordered.  Use `get-entity` to fetch individual documents.
+    list-entity-ids: func(entity-type: string) -> list<string>;
+
+    // ── Plugin-scoped key/value store ──────────────────────────────────────
+
+    /// Persist a UTF-8 string value under `key`, scoped to this plugin.
+    ///
+    /// Both key and value are opaque to the host — the plugin is responsible
+    /// for serialisation.  Keys must be non-empty and may not exceed 256
+    /// bytes; values may not exceed 65 536 bytes.
+    kv-set: func(key: string, value: string);
+
+    /// Retrieve the value stored under `key` for this plugin.
+    ///
+    /// Returns `none` if the key has not been set.
+    kv-get: func(key: string) -> option<string>;
+
+    /// Delete the value stored under `key`.
+    ///
+    /// No-ops if the key does not exist.
+    kv-delete: func(key: string);
+
+    // ── Event emission ─────────────────────────────────────────────────────
+
+    /// Broadcast a named event to other enabled plugins and to the host.
+    ///
+    /// `name` must be a non-empty string; `payload` is an arbitrary UTF-8
+    /// string (typically JSON).  The host delivers events asynchronously
+    /// after the current hook or request handler returns.
+    emit-event: func(name: string, payload: string);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Plugin exports — what every plugin MUST implement
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// Static identity information returned by the plugin at load time.
+///
+/// The host calls `get-info` once during plugin initialisation to populate
+/// the plugin registry.
+interface metadata {
+    /// Identifies the plugin to users and to the StudioBrain UI.
+    record plugin-info {
+        /// Human-readable display name (e.g. `"Hello World"`).
+        name: string,
+        /// Semantic version string (e.g. `"1.2.3"`).
+        version: string,
+        /// One- or two-sentence description shown in the plugin browser.
+        description: string,
+    }
+
+    /// Return static metadata about this plugin.
+    ///
+    /// This function must be pure — it must not perform I/O, mutate state, or
+    /// call any host-abi functions.  The host may call it from any thread.
+    get-info: func() -> plugin-info;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Plugin exports — optional lifecycle hooks
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// Entity and project lifecycle hooks.
+///
+/// The host invokes these functions synchronously before or after the
+/// corresponding storage operation.  Hooks that return a non-empty
+/// `modified-data` string replace the entity payload with the new value.
+/// Hooks that return non-empty `messages` surface those strings to the user
+/// as validation errors or informational notices.
+///
+/// Implementing this interface is optional.  Plugins that do not need to
+/// intercept any lifecycle event may omit it from their world export.
+interface hooks {
+    /// Contextual data passed to every entity hook function.
+    record hook-event {
+        /// Identifier of the hook being fired (e.g. `"entity-save"`).
+        hook: string,
+        /// Entity type slug, if the hook is entity-scoped.
+        entity-type: option<string>,
+        /// JSON-serialised entity payload at the time of the hook.
+        data: string,
+    }
+
+    /// Result returned from every hook function.
+    record hook-result {
+        /// If set, the host replaces the entity payload with this JSON string
+        /// before committing the change.  Ignored for read-only hooks such as
+        /// `on-entity-delete` and `on-project-init`.
+        modified-data: option<string>,
+        /// Human-readable messages surfaced to the end user.  Non-empty
+        /// messages from `on-entity-validate` are treated as validation errors
+        /// and prevent the save from proceeding.
+        messages: list<string>,
+    }
+
+    /// Called immediately before an entity is written to the database.
+    ///
+    /// The plugin may modify the payload by returning a non-empty
+    /// `modified-data`.
+    on-entity-save: func(event: hook-event) -> hook-result;
+
+    /// Called immediately after a new entity document is created.
+    on-entity-create: func(event: hook-event) -> hook-result;
+
+    /// Called immediately before an entity is permanently deleted.
+    ///
+    /// Returning non-empty `messages` does NOT prevent deletion; use
+    /// `on-entity-validate` for blocking checks.
+    on-entity-delete: func(event: hook-event) -> hook-result;
+
+    /// Called during the validation pass before an entity is saved.
+    ///
+    /// Non-empty `messages` block the save and are shown to the user.
+    on-entity-validate: func(event: hook-event) -> hook-result;
+
+    /// Called once when the project is fully initialised and ready.
+    ///
+    /// Suitable for one-time setup work (e.g. seeding default records).
+    on-project-init: func() -> hook-result;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Plugin exports — optional HTTP route handler
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// Custom HTTP endpoints served under the plugin's URL namespace.
+///
+/// The host routes requests whose path begins with
+/// `/api/plugins/{plugin_id}/custom/` to this interface.  The plugin receives
+/// the full request and must return a complete HTTP response.
+///
+/// Implementing this interface is optional.
+interface routes {
+    /// Incoming HTTP request forwarded by the host.
+    record http-request {
+        /// HTTP method in upper-case (e.g. `"GET"`, `"POST"`).
+        method: string,
+        /// URL path relative to the plugin's namespace root
+        /// (e.g. `"/items/42"`).
+        path: string,
+        /// Request headers as name/value pairs.  Header names are
+        /// lower-cased by the host before forwarding.
+        headers: list<tuple<string, string>>,
+        /// Request body, if present.  Binary bodies are base64-encoded by
+        /// the host before forwarding.
+        body: option<string>,
+    }
+
+    /// HTTP response returned by the plugin.
+    record http-response {
+        /// HTTP status code (e.g. `200`, `404`, `500`).
+        status: u16,
+        /// Response headers as name/value pairs.
+        headers: list<tuple<string, string>>,
+        /// Response body.  If the body is binary, the plugin must base64-
+        /// encode it and set `Content-Transfer-Encoding: base64`.
+        body: option<string>,
+    }
+
+    /// Handle a single HTTP request and return a response.
+    ///
+    /// The host calls this for every request that matches the plugin's URL
+    /// namespace.  The function must not block indefinitely; the host enforces
+    /// a configurable per-request timeout.
+    handle-request: func(request: http-request) -> http-response;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// World — the complete plugin component boundary
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// The `plugin` world describes the full interface contract for a StudioBrain
+/// WebAssembly plugin component.
+///
+/// Host tooling compiles plugins against this world.  A conforming plugin
+/// component:
+///
+///   1. May call any function listed under `import`.
+///   2. Must export the `metadata` interface.
+///   3. May optionally export `hooks` and/or `routes`.
+world plugin {
+    // ── Mandatory host imports ─────────────────────────────────────────────
+    import log;
+    import host-abi;
+
+    // ── Mandatory plugin exports ───────────────────────────────────────────
+    export metadata;
+
+    // ── Optional plugin exports ────────────────────────────────────────────
+    export hooks;
+    export routes;
+}

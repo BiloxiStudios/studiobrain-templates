@@ -1,0 +1,44 @@
+{
+  "id": "hello-world-wasm",
+  "name": "Hello World (WASM)",
+  "version": "2.0.0",
+  "description": "Reference plugin migrated to WASM component model. Demonstrates the Python → WASM migration pattern for SBAI-6815.",
+  "author": "Biloxi Studios",
+  "type": "full",
+  "runtime": "wasm",
+  "capabilities": {
+    "backend": {
+      "wasm_entry": "plugin.wasm"
+    },
+    "hooks": ["entity-save", "entity-create", "entity-delete"],
+    "frontend": {
+      "pages": [
+        {
+          "id": "dashboard",
+          "route": "/plugins/hello-world-wasm",
+          "label": "Hello World WASM",
+          "icon": "plug",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "entity-notes",
+          "label": "Notes",
+          "location": "entity-sidebar",
+          "icon": "file-text"
+        },
+        {
+          "id": "entity-stats",
+          "label": "Stats",
+          "location": "entity-sidebar",
+          "icon": "bar-chart"
+        }
+      ]
+    }
+  },
+  "permissions": ["entity:read", "entity:write"],
+  "settings_schema": {},
+  "accent_color": "#5865F2",
+  "_migration_notes": "Migrated from hello-world (FastAPI) as SBAI-6815 proof-of-concept. See MIGRATION_PLAN.md for the pattern."
+}
