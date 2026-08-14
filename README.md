@@ -56,6 +56,16 @@ Templates are consumed by StudioBrain's type generation system:
 | [studiobrain-ai](https://github.com/BiloxiStudios/studiobrain-ai) | AI service |
 | [studiobrain-desktop](https://github.com/BiloxiStudios/studiobrain-desktop) | Desktop + mobile apps |
 
+
+## Cloudflare Worker Convention
+
+This repo follows the [StudioBrain CF Worker convention](/mnt/tank/Studio/Brains/crews/sbcrew/sbcrew-charters/ADR-cloudflare-worker-convention.md) (ADR, owner-accepted 2026-08-14):
+
+- CF-specific code lives in `packages/cloudflare-worker/` (Worker entrypoint, wrangler config, DO/R2/D1 glue only)
+- Portable TypeScript logic extends `studiobrain-sdk`, not the worker package
+- Rust-to-TS moves must preserve all features (serde/zod parity required for shape enforcement)
+- Workers named to match their crate/service; wasm32 boundary guard applies
+- Preferred deploy: Cloudflare native GitHub-to-Worker git integration
 ## License
 
 Private. Copyright (c) 2024-2026 Biloxi Studios Inc.
