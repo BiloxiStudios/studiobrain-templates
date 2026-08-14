@@ -1,6 +1,39 @@
 # _Plugins Directory
 
-This directory contains all StudioBrain plugins. Each plugin is a subdirectory with a `plugin.json` manifest.
+> ## ⚠️ DEPRECATED — DO NOT BUILD NEW PLUGINS AGAINST THIS DIRECTORY
+>
+> **The 28 plugins in this directory target a plugin host that no longer exists.**
+>
+> Their backends are Python/FastAPI modules (`backend/routes.py`, `backend/events.py`),
+> written for the legacy Python backend that has been retired. The current StudioBrain
+> plugin runtime (`sb-plugin-wasmtime`) loads **WASM Components only** — it cannot load
+> a Python module, so nothing in this directory is loadable today.
+>
+> These plugins were conceptual proof-of-concept designs demonstrating that the plugin
+> *system* could work. They were never production-validated, and no ingestion path ever
+> published them to a user-facing plugin catalog.
+>
+> **Owner decision (2026-08-12, recorded in SBAI-6818):** these are *not* being migrated.
+> The host-interaction model changed completely, so every migration would be a full
+> rewrite with nothing gained by starting from the old source. New, well-designed
+> plugins are being built from scratch on the real SDK instead.
+>
+> ### Build against this instead
+>
+> | What | Where |
+> |---|---|
+> | Guest SDK + WIT world | `studiobrain-core` → `packages/plugin-sdk/wit/` (`plugin.wit`, `world.wit`) |
+> | Starter templates | `studiobrain-core` → `packages/plugin-sdk/templates/` (`rust`, `python`, `typescript`, `frontend-panel`) |
+> | Working reference (Rust) | `studiobrain-core` → `_Plugins/entity-notes`, `_Plugins/entity-snapshots` |
+>
+> Rust plugins use `wit-bindgen`; Python plugins use `componentize-py`. Both emit the
+> WASM **Component** binary format. Plugins built with the **Extism** PDK are also not
+> loadable — Extism produces core wasm modules, which is a different, incompatible ABI.
+>
+> Kept in place for historical reference and for the non-plugin content in this repo
+> (`templates/`, `rules/`, `skills/`), which is unaffected and still current.
+>
+> Tracking: SBAI-6815 · Replacement work: SBAI-6818 · Architecture: SBAI-6854
 
 ## What Plugins Are
 
@@ -10,7 +43,11 @@ Plugins extend StudioBrain with:
 - **Backend API routes** mounted at `/api/ext/{plugin-id}/...`
 - **Entity event handlers** that react to entity lifecycle events
 
-Plugins run in sandboxed iframes (frontend) and are imported as isolated Python modules (backend). They cannot access other tenants' data and cannot write outside their own directory.
+*(Historical — describes the retired Python plugin host, not the current runtime.)*
+Plugins ran in sandboxed iframes (frontend) and were imported as isolated Python modules
+(backend). They could not access other tenants' data and could not write outside their own
+directory. In the current runtime the backend half is a sandboxed WASM Component instead;
+see the deprecation notice above.
 
 ## How to Enable a Plugin
 
