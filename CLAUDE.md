@@ -94,3 +94,33 @@ There is no build step. This is a data-only package consumed by the StudioBrain 
 - **Do not modify `_plugins.json` or `_plugin_settings.json` without updating the corresponding plugin directories.**
 - **Template packs** in `templates/Packs/` must include a `pack.json` manifest with metadata.
 - When adding a new entity type, add both the template file (in `templates/Standard/`) and a corresponding rules file (in `rules/`).
+
+
+## Cloudflare Worker Convention (`packages/cloudflare-worker/`)
+
+*Owner-accepted ADR (2026-08-14, group:studiobrain).* Full ADR:
+`/mnt/tank/Studio/Brains/crews/sbcrew/sbcrew-charters/ADR-cloudflare-worker-convention.md`
+
+This repo follows the StudioBrain CF Worker convention:
+
+1. **Canonical path** — CF-specific code lives in `packages/cloudflare-worker/` in this
+   repo's canonical home. The name is deliberately verbose (chosen over `cf`) so no
+   decoder is needed.
+2. **Only CF-specific code goes there** — Worker entrypoint, wrangler config/bindings,
+   DO/R2/D1 glue, container shims. Code that only exists because the target is Workers.
+3. **Portable TS does NOT go there** — Logic moved from Rust that is not CF-specific
+   extends `studiobrain-sdk` (runs everywhere equally). Split axis: content -> templates
+   repo; shared SDK -> core; CF-specific build -> `cloudflare-worker`. Never place by
+   CI convenience.
+4. **Feature-preservation** — Rust-to-TS moves must not lose features. Named risk:
+   serde/Rust JSON-schema enforcement is stronger than zod. Do not move generation
+   shape-enforcement to zod without proven parity (SBAI-5428/5429). If in doubt, it does
+   not move.
+5. **Naming** — Workers named to match their crate/service (e.g. `sb-<domain>-worker`),
+   no opaque names.
+6. **wasm32 boundary guard** — Nothing may be added to a crate in a wasm32 boundary
+   that cannot compile to `wasm32-unknown-unknown`. Use per-target cfg-gating, never a dep
+   that breaks the wasm build (SBAI-6881).
+7. **Deploy preference** — Cloudflare native GitHub-to-Worker git integration. Custom
+   CI deploy workflows are under separate review (SBAI-6935).
+
