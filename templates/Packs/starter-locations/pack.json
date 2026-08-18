@@ -9,5 +9,6 @@
   "tags": ["location", "district", "place", "map", "world-building"],
   "icon": null,
   "is_meta_pack": false,
-  "includes": []
+  "includes": [],
+  "templates": ["templates/DISTRICT_TEMPLATE.md", "templates/LOCATION_TEMPLATE.md"]
 }

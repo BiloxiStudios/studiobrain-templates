@@ -9,5 +9,6 @@
   "tags": ["item", "prop", "weapon", "inventory", "collectible"],
   "icon": null,
   "is_meta_pack": false,
-  "includes": []
+  "includes": [],
+  "templates": ["templates/ITEM_TEMPLATE.md"]
 }

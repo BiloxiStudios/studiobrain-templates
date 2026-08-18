@@ -9,5 +9,6 @@
   "tags": ["brand", "company", "product", "commercial"],
   "icon": null,
   "is_meta_pack": false,
-  "includes": []
+  "includes": [],
+  "templates": ["templates/BRAND_TEMPLATE.md"]
 }
