@@ -9,5 +9,6 @@
   "tags": ["character", "npc", "protagonist", "antagonist"],
   "icon": null,
   "is_meta_pack": false,
-  "includes": []
+  "includes": [],
+  "templates": ["templates/CHARACTER_TEMPLATE.md"]
 }

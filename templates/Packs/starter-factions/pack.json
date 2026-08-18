@@ -9,5 +9,6 @@
   "tags": ["faction", "organisation", "group", "gang", "corporation"],
   "icon": null,
   "is_meta_pack": false,
-  "includes": []
+  "includes": [],
+  "templates": ["templates/FACTION_TEMPLATE.md"]
 }

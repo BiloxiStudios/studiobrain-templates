@@ -9,5 +9,6 @@
   "tags": ["job", "occupation", "career", "role", "profession"],
   "icon": null,
   "is_meta_pack": false,
-  "includes": []
+  "includes": [],
+  "templates": ["templates/JOB_TEMPLATE.md"]
 }
