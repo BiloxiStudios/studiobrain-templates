@@ -1,0 +1,213 @@
+{
+  "$schema": "./plugin.json",
+  "id": "example-v2-plugin",
+  "name": "Example V2 Plugin",
+  "version": "1.0.0",
+  "description": "A v2 manifest demonstrating explicit per-surface contract with typed surfaces, artifact paths, capabilities, and placement metadata.",
+  "type": "full",
+  "manifest_version": 2,
+  "author": "BiloxiStudios",
+  "license": "Apache-2.0",
+  "category": "example",
+  "compat": {
+    "min_core_version": "0.5.0",
+    "target_api_version": "plugin-manifest/v2",
+    "tested_core_versions": ["0.5.0", "0.6.0"]
+  },
+  "accent_color": "#7C3AED",
+  "surfaces": [
+    {
+      "type": "page",
+      "id": "dashboard",
+      "label": "Plugin Dashboard",
+      "description": "Main dashboard page for the plugin",
+      "artifact": {
+        "path": "frontend/pages/dashboard.html",
+        "type": "html"
+      },
+      "placement": {
+        "location": "plugins-nav",
+        "section": "plugins",
+        "order": 1,
+        "icon": "layout-dashboard",
+        "visibility": "always"
+      },
+      "capabilities": ["entity:read", "settings:own"],
+      "permissions": ["entity:read", "settings:read", "settings:write"]
+    },
+    {
+      "type": "panel",
+      "id": "entity-notes",
+      "label": "Entity Notes",
+      "description": "Sidebar panel for adding notes to any entity",
+      "artifact": {
+        "path": "frontend/panels/notes.html",
+        "type": "html"
+      },
+      "placement": {
+        "location": "entity-sidebar",
+        "section": "annotations",
+        "order": 10,
+        "icon": "sticky-note",
+        "visibility": "entity-selected"
+      },
+      "capabilities": ["entity:read", "entity:write:notes"],
+      "permissions": ["entity:read", "entity:write"],
+      "context": {
+        "entity_types": ["character", "location", "item", "quest"],
+        "requires_selection": true,
+        "min_selection_count": 1,
+        "max_selection_count": 1
+      }
+    },
+    {
+      "type": "panel",
+      "id": "entity-stats",
+      "label": "Entity Statistics",
+      "description": "Tab panel showing entity usage statistics",
+      "artifact": {
+        "path": "frontend/panels/stats.html",
+        "type": "html"
+      },
+      "placement": {
+        "location": "entity-tab",
+        "section": "analytics",
+        "order": 5,
+        "icon": "bar-chart",
+        "visibility": "entity-selected"
+      },
+      "capabilities": ["entity:read", "analytics:read"],
+      "context": {
+        "requires_selection": true,
+        "min_selection_count": 1
+      }
+    },
+    {
+      "type": "command",
+      "id": "bulk-tag",
+      "label": "Bulk Tag Entities",
+      "description": "Apply tags to multiple entities at once",
+      "artifact": {
+        "path": "frontend/commands/bulk-tag.js",
+        "type": "module",
+        "entry_point": "executeBulkTag"
+      },
+      "placement": {
+        "location": "command-palette",
+        "section": "entity-actions",
+        "icon": "tags",
+        "visibility": "has-permission"
+      },
+      "capabilities": ["entity:read", "entity:write:tags"],
+      "permissions": ["entity:read", "entity:write"],
+      "context": {
+        "requires_selection": true,
+        "min_selection_count": 1,
+        "max_selection_count": 100
+      }
+    },
+    {
+      "type": "settings",
+      "id": "plugin-config",
+      "label": "Plugin Configuration",
+      "description": "Settings panel for configuring plugin behavior",
+      "artifact": {
+        "path": "frontend/settings/config.html",
+        "type": "html"
+      },
+      "placement": {
+        "location": "settings-panel",
+        "section": "plugins",
+        "order": 1,
+        "visibility": "always"
+      },
+      "capabilities": ["settings:own"],
+      "permissions": ["settings:read", "settings:write"]
+    },
+    {
+      "type": "widget",
+      "id": "quick-stats",
+      "label": "Quick Stats",
+      "description": "Dashboard widget showing quick plugin statistics",
+      "artifact": {
+        "path": "frontend/widgets/quick-stats.html",
+        "type": "html"
+      },
+      "placement": {
+        "location": "dashboard-main",
+        "section": "overview",
+        "order": 3,
+        "icon": "zap",
+        "visibility": "always"
+      },
+      "capabilities": ["analytics:read"],
+      "permissions": ["analytics:read"]
+    }
+  ],
+  "dependencies": {
+    "python": ["httpx>=0.25.0"],
+    "plugins": []
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "settings:read",
+    "settings:write",
+    "analytics:read"
+  ],
+  "settings_schema": {
+    "api_key": {
+      "type": "secret",
+      "label": "API Key",
+      "description": "External service API key",
+      "required": true,
+      "scope": "instance"
+    },
+    "refresh_interval": {
+      "type": "integer",
+      "label": "Refresh Interval (seconds)",
+      "description": "How often to refresh data",
+      "required": false,
+      "default": 300,
+      "scope": "user",
+      "min": 60,
+      "max": 3600
+    }
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/stats",
+      "handler": "backend/routes.py:get_stats",
+      "permissions": ["analytics:read"]
+    },
+    {
+      "method": "POST",
+      "path": "/tags/bulk",
+      "handler": "backend/routes.py:bulk_tag_entities",
+      "permissions": ["entity:write"]
+    }
+  ],
+  "event_handlers": [
+    {
+      "event": "entity.created",
+      "handler": "backend/events.py:on_entity_created",
+      "entity_types": ["character", "location"]
+    },
+    {
+      "event": "entity.updated",
+      "handler": "backend/events.py:on_entity_updated"
+    }
+  ],
+  "data_schema": {
+    "note": {
+      "label": "Entity Note",
+      "fields": {
+        "text": "string",
+        "created_at": "datetime",
+        "updated_at": "datetime",
+        "created_by": "user_id"
+      }
+    }
+  }
+}

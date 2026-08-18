@@ -1,0 +1,13 @@
+{
+  "$schema": "./plugin.json",
+  "id": "invalid-v1-plugin",
+  "name": "Invalid V1 Plugin - Missing Capabilities",
+  "version": "1.0.0",
+  "description": "This manifest is INVALID - v1 requires capabilities but they are missing",
+  "type": "full",
+  "manifest_version": 1,
+  "author": "BiloxiStudios",
+  "compat": {
+    "min_core_version": "0.3.0"
+  }
+}

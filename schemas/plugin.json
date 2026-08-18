@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://studiobrain.biloxistudios.com/schemas/plugin.json",
-  "title": "StudioBrain Plugin Manifest Schema",
-  "description": "JSON Schema for plugin.json files under plugins/<plugin-id>/. StudioBrain supports two plugin variants distinguished by the 'type' field: 'full' (Python backend + HTML frontend, runs in-process) and 'protocol-adapter' (WASM module implementing adapt_request / adapt_response / health_check for an external service).",
+  "title": "StudioBrain Plugin Manifest Schema v2",
+  "description": "JSON Schema for plugin.json files under plugins/<plugin-id>/. Supports v1 (legacy capabilities-based) and v2 (explicit surfaces-based) manifest contracts. V2 introduces typed surfaces (page|panel|command|settings) with per-surface artifact paths, capabilities, permissions, and placement metadata.",
   "type": "object",
   "required": ["id", "name", "version", "description", "type"],
   "properties": {
@@ -26,6 +26,13 @@
       "description": "Plugin variant. 'full' = in-process Python plugin (backend routes + frontend pages/panels); 'frontend-only' = no backend routes, just frontend surfaces (uses generic plugin_data_routes for storage); 'protocol-adapter' = WASM module implementing the protocol-adapter contract.",
       "enum": ["full", "frontend-only", "protocol-adapter"]
     },
+    "manifest_version": {
+      "type": "integer",
+      "description": "Manifest schema version. 1 = legacy capabilities-based contract (v1). 2 = explicit surfaces-based contract (v2). Required for v2; defaults to 1 if omitted for backwards compatibility.",
+      "minimum": 1,
+      "maximum": 2,
+      "default": 1
+    },
     "author": {"type": ["string", "null"]},
     "license": {
       "type": ["string", "null"],
@@ -48,11 +55,15 @@
   "allOf": [
     {
       "if": {
-        "properties": {"type": {"const": "full"}}
+        "anyOf": [
+          {"properties": {"manifest_version": {"const": 1}}},
+          {"not": {"required": ["manifest_version"]}}
+        ],
+        "not": {"properties": {"manifest_version": {"const": 2}}}
       },
       "then": {
-        "title": "Full Plugin",
-        "description": "Shape for type=full plugins.",
+        "title": "Legacy V1 Manifest",
+        "description": "Backwards-compatible v1 manifest using capabilities-based contract. Supported for migration period; authors should upgrade to v2.",
         "required": ["capabilities"],
         "properties": {
           "id": {},
@@ -60,6 +71,7 @@
           "version": {},
           "description": {},
           "type": {},
+          "manifest_version": {},
           "author": {},
           "license": {},
           "category": {},
@@ -218,11 +230,313 @@
     },
     {
       "if": {
+        "required": ["manifest_version"],
+        "properties": {"manifest_version": {"const": 2}}
+      },
+      "then": {
+        "title": "V2 Manifest with Explicit Surfaces",
+        "description": "V2 manifest with explicit per-surface contract. Each surface declares its type (page|panel|command|settings), artifact path, capabilities, permissions, and placement metadata.",
+        "required": ["surfaces"],
+        "properties": {
+          "id": {},
+          "name": {},
+          "version": {},
+          "description": {},
+          "type": {},
+          "manifest_version": {},
+          "author": {},
+          "license": {},
+          "category": {},
+          "compat": {},
+          "accent_color": {},
+          "surfaces": {
+            "type": "array",
+            "description": "Explicit list of plugin surfaces. Each surface declares its type, artifact path, required capabilities, permissions, and placement metadata.",
+            "items": {
+              "type": "object",
+              "required": ["type", "id", "label"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Surface type. 'page' = full-page dashboard mounted in nav; 'panel' = embedded widget in entity view; 'command' = command-palette action; 'settings' = settings panel; 'widget' = dashboard widget.",
+                  "enum": ["page", "panel", "command", "settings", "widget"]
+                },
+                "id": {
+                  "type": "string",
+                  "description": "Unique surface ID within this plugin. snake_case or kebab-case.",
+                  "pattern": "^[a-z][a-z0-9_-]*$"
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Human-readable label shown in nav, tooltips, etc."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Optional description of what this surface does."
+                },
+                "artifact": {
+                  "type": "object",
+                  "description": "Artifact metadata: path to the HTML/JS file implementing this surface, and optional entry point for multi-export files.",
+                  "required": ["path"],
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "Relative path to the HTML/JS file from the plugin root. E.g. 'frontend/pages/dashboard.html' or 'frontend/panels/notes.html'."
+                    },
+                    "entry_point": {
+                      "type": "string",
+                      "description": "Optional JS export name if the artifact file has multiple exports. Defaults to 'default'."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Optional artifact type hint. 'html' (default) = HTML file with inline/bundled JS; 'module' = pure ESM module.",
+                      "enum": ["html", "module", null]
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                "placement": {
+                  "type": "object",
+                  "description": "Placement metadata: where and how this surface is mounted. Required for panels and widgets; optional for pages.",
+                  "properties": {
+                    "location": {
+                      "type": "string",
+                      "description": "Mount location. For panels: 'entity-sidebar', 'entity-tab', 'dashboard-sidebar', 'page-toolbar'. For widgets: 'dashboard-main', 'dashboard-sidebar'. For commands: 'command-palette'. For settings: 'settings-panel'. For pages: 'plugins-nav' or custom section name.",
+                      "enum": ["entity-sidebar", "entity-tab", "dashboard-sidebar", "page-toolbar", "dashboard-main", "dashboard-sidebar", "command-palette", "settings-panel", "plugins-nav"]
+                    },
+                    "section": {
+                      "type": "string",
+                      "description": "Optional section within the location (e.g. nav section name, sidebar group)."
+                    },
+                    "order": {
+                      "type": "integer",
+                      "description": "Sort order within the location/section. Lower numbers appear first."
+                    },
+                    "icon": {
+                      "type": "string",
+                      "description": "Icon identifier (feather icon name, or custom SVG reference)."
+                    },
+                    "visibility": {
+                      "type": "string",
+                      "description": "When to show this surface. 'always' (default), 'entity-selected', 'has-permission', 'has-setting'.",
+                      "enum": ["always", "entity-selected", "has-permission", "has-setting", null]
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                "capabilities": {
+                  "type": "array",
+                  "description": "Capabilities this surface requires. More granular than top-level permissions. E.g. 'entity:read:character', 'entity:write:item', 'ai:generate:text'.",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_-]*(:[a-z0-9_-]*)?$"
+                  }
+                },
+                "permissions": {
+                  "type": "array",
+                  "description": "Permission grants this surface requires. Inherits from top-level permissions if omitted. Use '<domain>:<scope>' (e.g. 'entity:read', 'network:local', 'filesystem:write').",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_-]*$"
+                  }
+                },
+                "context": {
+                  "type": "object",
+                  "description": "Context requirements: what data/context this surface needs to function.",
+                  "properties": {
+                    "entity_types": {
+                      "type": "array",
+                      "description": "Entity types this surface supports. If omitted, surface is available for all entity types. E.g. ['character', 'location', 'item'].",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_-]*$"
+                      }
+                    },
+                    "requires_selection": {
+                      "type": "boolean",
+                      "description": "True if this surface requires an entity/selection to be active."
+                    },
+                    "min_selection_count": {
+                      "type": "integer",
+                      "description": "Minimum number of selected items required. Default 0 (none).",
+                      "minimum": 0
+                    },
+                    "max_selection_count": {
+                      "type": "integer",
+                      "description": "Maximum number of selected items allowed. Default 1 for entity-tab panels.",
+                      "minimum": 1
+                    }
+                  },
+                  "additionalProperties": true
+                },
+                "dependencies": {
+                  "type": "object",
+                  "description": "Surface-level dependencies (overrides top-level).",
+                  "properties": {
+                    "python": {
+                      "type": "array",
+                      "items": {"type": "string"}
+                    },
+                    "wasm": {
+                      "type": "array",
+                      "items": {"type": "string"}
+                    },
+                    "plugins": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_-]*$"
+                      }
+                    }
+                  },
+                  "additionalProperties": true
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "dependencies": {
+            "type": ["object", "null"],
+            "description": "External runtime dependencies at plugin level. 'python' is a list of pip specifiers; 'wasm' would be a list of WASM module URLs.",
+            "properties": {
+              "python": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "wasm": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "plugins": {
+                "type": "array",
+                "description": "Other plugin ids this plugin depends on.",
+                "items": {"type": "string", "pattern": "^[a-z][a-z0-9_-]*$"}
+              }
+            },
+            "additionalProperties": true
+          },
+          "permissions": {
+            "type": "array",
+            "description": "Top-level permission grants the plugin requests. Surfaces can inherit from this list or declare their own. Use '<domain>:<scope>' (e.g. 'entity:read', 'network:local', 'filesystem:write').",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_-]*$"
+            }
+          },
+          "settings_schema": {
+            "type": ["object", "null"],
+            "description": "Per-plugin settings schema. Each key is a setting id; value describes the field.",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["string", "boolean", "integer", "number", "select", "color", "secret", "object"]
+                },
+                "label": {"type": "string"},
+                "description": {"type": ["string", "null"]},
+                "required": {"type": ["boolean", "null"]},
+                "default": {},
+                "scope": {
+                  "type": ["string", "null"],
+                  "enum": ["user", "instance", "tenant"]
+                },
+                "options": {
+                  "type": ["array", "null"],
+                  "items": {
+                    "oneOf": [
+                      {"type": "string"},
+                      {
+                        "type": "object",
+                        "properties": {
+                          "value": {},
+                          "label": {"type": "string"}
+                        },
+                        "additionalProperties": true
+                      }
+                    ]
+                  }
+                },
+                "properties": {
+                  "type": ["object", "null"],
+                  "additionalProperties": true
+                },
+                "test_endpoint": {"type": ["string", "null"]}
+              },
+              "additionalProperties": true
+            }
+          },
+          "data_schema": {
+            "type": ["object", "null"],
+            "description": "Optional description of plugin-owned data records.",
+            "additionalProperties": true
+          },
+          "routes": {
+            "type": ["array", "null"],
+            "description": "Optional: explicit list of backend routes this plugin registers. Alternative to capabilities.backend.routes in v1. Each route declares method, path, handler.",
+            "items": {
+              "type": "object",
+              "required": ["method", "path", "handler"],
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Route path relative to plugin base (e.g. '/items' mounts at '/api/ext/{plugin-id}/items')."
+                },
+                "handler": {
+                  "type": "string",
+                  "description": "Handler file path (e.g. 'backend/routes.py:handle_get_items')."
+                },
+                "permissions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_-]*$"
+                  }
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "event_handlers": {
+            "type": ["array", "null"],
+            "description": "Optional: explicit list of entity event handlers this plugin subscribes to.",
+            "items": {
+              "type": "object",
+              "required": ["event", "handler"],
+              "properties": {
+                "event": {
+                  "type": "string",
+                  "description": "Event name (e.g. 'entity.created', 'entity.updated', 'entity.deleted')."
+                },
+                "handler": {
+                  "type": "string",
+                  "description": "Handler file path (e.g. 'backend/events.py:on_entity_created')."
+                },
+                "entity_types": {
+                  "type": "array",
+                  "description": "Optional: only fire for these entity types. Omit for all types.",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
         "properties": {"type": {"const": "protocol-adapter"}}
       },
       "then": {
         "title": "Protocol Adapter Plugin",
-        "description": "Shape for type=protocol-adapter plugins (WASM).",
+        "description": "Shape for type=protocol-adapter plugins (WASM). Protocol adapters use a different contract and do not use surfaces.",
         "required": ["exports", "service_type"],
         "properties": {
           "id": {},
@@ -230,6 +544,7 @@
           "version": {},
           "description": {},
           "type": {},
+          "manifest_version": {},
           "author": {},
           "license": {},
           "category": {},

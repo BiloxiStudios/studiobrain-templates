@@ -1,0 +1,29 @@
+{
+  "$schema": "./plugin.json",
+  "id": "minimal-v2-plugin",
+  "name": "Minimal V2 Plugin",
+  "version": "1.0.0",
+  "description": "Minimal valid v2 manifest with single surface",
+  "type": "full",
+  "manifest_version": 2,
+  "author": "BiloxiStudios",
+  "compat": {
+    "min_core_version": "0.5.0",
+    "target_api_version": "plugin-manifest/v2"
+  },
+  "surfaces": [
+    {
+      "type": "page",
+      "id": "simple-page",
+      "label": "Simple Page",
+      "artifact": {
+        "path": "frontend/pages/simple.html"
+      },
+      "placement": {
+        "location": "plugins-nav",
+        "visibility": "always"
+      }
+    }
+  ],
+  "permissions": ["entity:read"]
+}

@@ -375,6 +375,59 @@ def check_compat(core_version: str | None) -> list[str]:
     return errors
 
 
+# ----- Fixture validation --------------------------------------------------------
+
+FIXTURES_DIR = SCHEMAS_DIR / "fixtures"
+
+
+def check_fixtures() -> list[str]:
+    """Validate fixture files against their schemas.
+
+    Expects fixtures in schemas/fixtures/:
+    - valid_v2_*.json — should pass validation
+    - invalid_v2_*.json — should fail validation (we confirm errors are raised)
+    - valid_v1_*.json — legacy v1 manifests that should pass
+    - invalid_v1_*.json — legacy v1 manifests that should fail
+    """
+    errors: list[str] = []
+    if not FIXTURES_DIR.exists():
+        return errors  # fixtures are optional
+
+    valid_fixtures = list(FIXTURES_DIR.glob("valid_*.json"))
+    invalid_fixtures = list(FIXTURES_DIR.glob("invalid_*.json"))
+
+    # Validate that valid fixtures pass
+    for fixture in sorted(valid_fixtures):
+        try:
+            data = json.loads(fixture.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"{fixture}: JSON parse error: {exc}")
+            continue
+
+        # Determine which schema to use based on manifest structure
+        schema_name = "plugin.json" if "v1_" in fixture.name or "v2_" in fixture.name else "plugin.json"
+        fixture_errors = _validate_instance(data, schema_name, str(fixture))
+        if fixture_errors:
+            errors.append(f"{fixture}: expected VALID but got errors:")
+            for err in fixture_errors:
+                errors.append(f"    {err}")
+
+    # Validate that invalid fixtures fail (we expect errors)
+    for fixture in sorted(invalid_fixtures):
+        try:
+            data = json.loads(fixture.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"{fixture}: JSON parse error: {exc}")
+            continue
+
+        schema_name = "plugin.json"
+        fixture_errors = _validate_instance(data, schema_name, str(fixture))
+        if not fixture_errors:
+            errors.append(f"{fixture}: expected INVALID but passed validation (missing error detection)")
+
+    return errors
+
+
 # ----- Entry point ---------------------------------------------------------------
 
 def main(argv: list[str] | None = None) -> int:
@@ -399,6 +452,11 @@ def main(argv: list[str] | None = None) -> int:
         "--no-compat",
         action="store_true",
         help="Skip compat (min_core_version) enforcement entirely.",
+    )
+    parser.add_argument(
+        "--fixtures",
+        action="store_true",
+        help="Validate fixture files in schemas/fixtures/ (valid_* should pass, invalid_* should fail).",
     )
     args = parser.parse_args(argv)
 
@@ -438,6 +496,10 @@ def main(argv: list[str] | None = None) -> int:
                 and "compat.min_core_version missing" not in e
             ]
         all_errors.extend(compat_errors)
+
+    if args.fixtures:
+        _info("== Validating fixtures ==")
+        all_errors.extend(check_fixtures())
 
     if all_errors:
         _info("")

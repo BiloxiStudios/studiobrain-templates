@@ -1,0 +1,41 @@
+{
+  "$schema": "./plugin.json",
+  "id": "invalid-v2-plugin",
+  "name": "Invalid V2 Plugin - Missing Required Fields",
+  "version": "1.0.0",
+  "description": "This manifest is INVALID - missing required surface fields",
+  "type": "full",
+  "manifest_version": 2,
+  "compat": {
+    "min_core_version": "0.5.0"
+  },
+  "surfaces": [
+    {
+      "type": "panel",
+      "id": "missing-label"
+    },
+    {
+      "type": "panel",
+      "label": "Missing ID and Artifact"
+    },
+    {
+      "type": "invalid-surface-type",
+      "id": "bad-type",
+      "label": "Invalid surface type"
+    },
+    {
+      "type": "page",
+      "id": "missing-artifact-path",
+      "label": "Has artifact but no path",
+      "artifact": {
+        "type": "html"
+      }
+    },
+    {
+      "type": "command",
+      "id": "invalid-permission-format",
+      "label": "Invalid permission format",
+      "permissions": ["invalid_permission_format", "entity:read:valid:extra_segment"]
+    }
+  ]
+}

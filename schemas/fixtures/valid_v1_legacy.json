@@ -1,0 +1,92 @@
+{
+  "$schema": "./plugin.json",
+  "id": "legacy-v1-plugin",
+  "name": "Legacy V1 Plugin",
+  "version": "1.0.0",
+  "description": "Valid v1 manifest using legacy capabilities-based contract. Should pass validation with manifest_version: 1 or when manifest_version is omitted (defaults to 1).",
+  "type": "full",
+  "manifest_version": 1,
+  "author": "BiloxiStudios",
+  "license": "Apache-2.0",
+  "category": "example",
+  "compat": {
+    "min_core_version": "0.3.0",
+    "target_api_version": "plugin-manifest/v1",
+    "tested_core_versions": ["0.3.0", "0.4.0", "0.5.0"]
+  },
+  "accent_color": "#00D4AA",
+  "capabilities": {
+    "backend": {
+      "routes": ["backend/routes.py"],
+      "event_handlers": ["backend/events.py"]
+    },
+    "frontend": {
+      "pages": [
+        {
+          "id": "legacy-dashboard",
+          "route": "/plugins/legacy-v1-plugin",
+          "label": "Legacy Dashboard",
+          "icon": "plug",
+          "nav_section": "plugins"
+        }
+      ],
+      "panels": [
+        {
+          "id": "legacy-sidebar",
+          "label": "Legacy Sidebar Panel",
+          "location": "entity-sidebar",
+          "icon": "sidebar",
+          "file": "frontend/panels/sidebar.html"
+        },
+        {
+          "id": "legacy-tab",
+          "label": "Legacy Tab Panel",
+          "type": "entity-tab",
+          "icon": "tab",
+          "file": "frontend/panels/tab.html"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "python": ["requests>=2.28.0"]
+  },
+  "permissions": [
+    "entity:read",
+    "entity:write",
+    "network:local"
+  ],
+  "settings_schema": {
+    "api_url": {
+      "type": "string",
+      "label": "API URL",
+      "description": "Base URL for external API",
+      "required": true,
+      "default": "http://localhost:8080",
+      "scope": "instance"
+    },
+    "enable_logging": {
+      "type": "boolean",
+      "label": "Enable Logging",
+      "required": false,
+      "default": true,
+      "scope": "user"
+    },
+    "secret_key": {
+      "type": "secret",
+      "label": "Secret API Key",
+      "required": false,
+      "scope": "instance"
+    }
+  },
+  "data_schema": {
+    "cache_entry": {
+      "label": "Cache Entry",
+      "fields": {
+        "key": "string",
+        "value": "string",
+        "expires_at": "datetime"
+      }
+    }
+  }
+}

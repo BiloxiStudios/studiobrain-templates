@@ -2,9 +2,9 @@
 title: "StudioBrain JSON Schemas"
 description: "JSON Schema definitions for entity frontmatter, layouts, template packs, plugins, skills, and shared compat metadata."
 category: "schemas"
-version: "1.1"
+version: "2.0"
 created_date: "2026-04-01"
-last_updated: "2026-07-03"
+last_updated: "2026-08-17"
 ---
 
 # StudioBrain JSON Schemas
@@ -48,6 +48,7 @@ local development and CI. It accepts several flags:
 | `--allow-missing-compat` | Don't error on assets that lack `compat.min_core_version`. Used during the migration period; see SBAI-4649. |
 | `--no-entity-yaml` | Skip entity markdown frontmatter validation (faster local pass). |
 | `--no-compat` | Skip compat enforcement entirely. |
+| `--fixtures` | Validate fixture files in `schemas/fixtures/` (valid_* should pass, invalid_* should fail). |
 
 Typical local invocation:
 
@@ -98,12 +99,160 @@ StudioBrain plugins come in three flavors, distinguished by the top-level
 
 | `type` | What it is | Required keys |
 |---|---|---|
-| `full` | In-process Python plugin with backend routes/event_handlers and frontend pages/panels | `capabilities` |
-| `frontend-only` | No backend routes; uses the generic `plugin_data_routes` for storage | `capabilities.frontend` |
+| `full` | In-process Python plugin with backend routes/event_handlers and frontend pages/panels | `capabilities` (v1) or `surfaces` (v2) |
+| `frontend-only` | No backend routes; uses the generic `plugin_data_routes` for storage | `capabilities.frontend` (v1) or `surfaces` (v2) |
 | `protocol-adapter` | WASM module bridging an external service (e.g. ltx-video); implements `adapt_request`, `adapt_response`, `health_check` | `exports`, `service_type` |
 
 The `plugin.json` schema uses `allOf` with `if/then` branches to enforce
-the right shape per variant.
+the right shape per variant, plus a `manifest_version` field to distinguish
+v1 (legacy capabilities-based) from v2 (explicit surfaces-based) manifests.
+
+## Plugin Manifest v2 Contract (SBAI-7182)
+
+The v2 manifest contract introduces explicit per-surface metadata. Key changes:
+
+### `manifest_version` field
+
+```json
+{
+  "manifest_version": 2,
+  "compat": {
+    "target_api_version": "plugin-manifest/v2"
+  }
+}
+```
+
+| Value | Meaning |
+|---|---|
+| `1` (or omitted) | Legacy v1 manifest using `capabilities` object |
+| `2` | V2 manifest with explicit `surfaces` array |
+
+### `surfaces` array (v2 only)
+
+Replaces the nested `capabilities.frontend.pages/panels` with a flat, typed array:
+
+```json
+"surfaces": [
+  {
+    "type": "page",
+    "id": "dashboard",
+    "label": "Plugin Dashboard",
+    "artifact": {"path": "frontend/pages/dashboard.html"},
+    "placement": {
+      "location": "plugins-nav",
+      "section": "plugins",
+      "order": 1,
+      "icon": "layout-dashboard"
+    },
+    "capabilities": ["entity:read", "settings:own"],
+    "permissions": ["entity:read", "settings:read"]
+  },
+  {
+    "type": "panel",
+    "id": "entity-notes",
+    "label": "Entity Notes",
+    "artifact": {"path": "frontend/panels/notes.html"},
+    "placement": {
+      "location": "entity-sidebar",
+      "section": "annotations",
+      "order": 10,
+      "icon": "sticky-note",
+      "visibility": "entity-selected"
+    },
+    "capabilities": ["entity:read", "entity:write:notes"],
+    "context": {
+      "entity_types": ["character", "location"],
+      "requires_selection": true,
+      "min_selection_count": 1
+    }
+  },
+  {
+    "type": "command",
+    "id": "bulk-tag",
+    "label": "Bulk Tag Entities",
+    "artifact": {"path": "frontend/commands/bulk-tag.js", "type": "module"},
+    "placement": {"location": "command-palette"},
+    "context": {"requires_selection": true, "max_selection_count": 100}
+  },
+  {
+    "type": "settings",
+    "id": "plugin-config",
+    "label": "Configuration",
+    "artifact": {"path": "frontend/settings/config.html"},
+    "placement": {"location": "settings-panel"}
+  },
+  {
+    "type": "widget",
+    "id": "quick-stats",
+    "label": "Quick Stats",
+    "artifact": {"path": "frontend/widgets/quick-stats.html"},
+    "placement": {"location": "dashboard-main"}
+  }
+]
+```
+
+### Surface types
+
+| Type | Description | Placement locations |
+|---|---|---|
+| `page` | Full-page dashboard mounted in nav | `plugins-nav`, custom sections |
+| `panel` | Embedded widget in entity view | `entity-sidebar`, `entity-tab`, `dashboard-sidebar`, `page-toolbar` |
+| `command` | Command-palette action | `command-palette` |
+| `settings` | Settings panel | `settings-panel` |
+| `widget` | Dashboard widget | `dashboard-main`, `dashboard-sidebar` |
+
+### Per-surface metadata
+
+Each surface can declare:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `type` | string | yes | Surface type (see above) |
+| `id` | string | yes | Unique ID within plugin (snake_case/kebab-case) |
+| `label` | string | yes | Human-readable label |
+| `description` | string | no | What this surface does |
+| `artifact.path` | string | yes | Relative path to HTML/JS file |
+| `artifact.type` | string | no | `"html"` (default) or `"module"` |
+| `artifact.entry_point` | string | no | JS export name (default: `"default"`) |
+| `placement.location` | string | yes | Where it mounts |
+| `placement.section` | string | no | Section within location |
+| `placement.order` | integer | no | Sort order (lower = first) |
+| `placement.icon` | string | no | Icon identifier |
+| `placement.visibility` | string | no | `"always"`, `"entity-selected"`, `"has-permission"`, `"has-setting"` |
+| `capabilities[]` | string[] | no | Granular capabilities (e.g. `entity:read:character`) |
+| `permissions[]` | string[] | no | Permission grants |
+| `context.entity_types[]` | string[] | no | Entity types supported |
+| `context.requires_selection` | boolean | no | Requires active selection |
+| `context.min_selection_count` | integer | no | Minimum selected items |
+| `context.max_selection_count` | integer | no | Maximum selected items |
+
+### V2 routes and event handlers (alternative to `capabilities.backend`)
+
+V2 supports explicit route/event handler declarations:
+
+```json
+"routes": [
+  {"method": "GET", "path": "/stats", "handler": "backend/routes.py:get_stats", "permissions": ["analytics:read"]},
+  {"method": "POST", "path": "/tags/bulk", "handler": "backend/routes.py:bulk_tag_entities"}
+],
+"event_handlers": [
+  {"event": "entity.created", "handler": "backend/events.py:on_entity_created", "entity_types": ["character", "location"]},
+  {"event": "entity.updated", "handler": "backend/events.py:on_entity_updated"}
+]
+```
+
+### Backwards compatibility (v1 → v2 migration)
+
+**V1 manifests remain valid** with `manifest_version: 1` (explicit or implicit). Migration to v2 is optional but recommended for new plugins.
+
+To migrate v1 → v2:
+1. Add `"manifest_version": 2`
+2. Convert `capabilities.frontend.pages[]` → `surfaces[]` with `type: "page"`
+3. Convert `capabilities.frontend.panels[]` → `surfaces[]` with `type: "panel"`
+4. Move `capabilities.backend.routes` → `routes[]` (or keep under `capabilities.backend`)
+5. Add `target_api_version: "plugin-manifest/v2"` to `compat`
+
+See `schemas/fixtures/` for example v1 and v2 manifests.
 
 ## Plugin settings schema (`settings_schema`)
 
@@ -170,5 +319,6 @@ ids and values describe the field. Allowed `type` values:
 | `biome.json` | Biome entity schema |
 | `layout.json` | UI layout contract (templates/Layouts/*.layout.json) |
 | `pack.json` | Template pack contract (templates/Packs/<id>/pack.json) |
-| `plugin.json` | Plugin manifest contract (full / frontend-only / protocol-adapter) |
+| `plugin.json` | Plugin manifest contract (full / frontend-only / protocol-adapter; v1 and v2) |
 | `skill.yaml.json` | AI skill frontmatter contract (skills/*.yaml) |
+| `fixtures/` | Test fixtures for plugin.json v2 schema validation (valid/invalid v1 and v2 manifests) |
