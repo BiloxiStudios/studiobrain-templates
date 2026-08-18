@@ -8,7 +8,14 @@ Test fixtures for validating the plugin.json v2 schema and backwards-compatibili
 |---------|---------|-----------------|
 | `valid_v2_full_surfaces.json` | Complete v2 manifest with all surface types (page, panel, command, settings, widget), explicit capabilities, permissions, and placement metadata | ✅ PASS |
 | `valid_v2_minimal.json` | Minimal valid v2 manifest with single surface | ✅ PASS |
-| `invalid_v2_missing_required.json` | V2 manifest missing required fields (label, artifact.path, invalid surface type) and invalid permission formats | ❌ FAIL |
+| `invalid_v2_missing_required.json` | V2 manifest missing baseline fields (label, artifact.path, invalid surface type) and containing invalid permissions | ❌ FAIL |
+| `invalid_v2_missing_surface_artifact.json` | Surface omits its explicit artifact | ❌ FAIL |
+| `invalid_v2_missing_surface_capabilities.json` | Surface omits its explicit capabilities | ❌ FAIL |
+| `invalid_v2_missing_surface_permissions.json` | Surface omits its explicit permissions | ❌ FAIL |
+| `invalid_v2_missing_surface_placement.json` | Surface omits its placement | ❌ FAIL |
+| `invalid_v2_path_traversal.json` | Artifact path escapes the plugin root | ❌ FAIL |
+| `invalid_v2_absolute_path.json` | Artifact path is absolute | ❌ FAIL |
+| `invalid_v2_unknown_keys.json` | Surface invents a field outside the v2 contract | ❌ FAIL |
 | `valid_v1_legacy.json` | Legacy v1 manifest using capabilities-based contract with `manifest_version: 1` | ✅ PASS |
 | `invalid_v1_missing_capabilities.json` | Legacy v1 manifest missing required `capabilities` field | ❌ FAIL |
 
@@ -43,8 +50,8 @@ The v2 manifest introduces:
    - `type`: `"page" | "panel" | "command" | "settings" | "widget"`
    - `artifact.path`: Relative path to the HTML/JS file
    - `placement.location`: Where the surface mounts
-   - `capabilities[]`: Granular capability requirements per surface
-   - `permissions[]`: Permission grants per surface
+   - `capabilities[]`: Explicit granular capability requirements per surface (`[]` when none)
+   - `permissions[]`: Explicit permission grants per surface (`[]` when none)
    - `context{}`: Entity type filters, selection requirements
 
 3. **Per-surface granularity** - Each surface can declare its own dependencies, capabilities, and permissions instead of inheriting from plugin-level.

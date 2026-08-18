@@ -1,0 +1,30 @@
+{
+  "$schema": "./plugin.json",
+  "id": "unknown-keys-plugin",
+  "name": "Unknown Surface Keys",
+  "version": "1.0.0",
+  "description": "INVALID - surface contains unknown keys not in the schema",
+  "type": "full",
+  "manifest_version": 2,
+  "compat": {
+    "min_core_version": "0.5.0"
+  },
+  "surfaces": [
+    {
+      "type": "page",
+      "id": "unknown-keys-surface",
+      "label": "Unknown Keys Surface",
+      "artifact": {
+        "path": "frontend/page.html"
+      },
+      "placement": {
+        "location": "plugins-nav"
+      },
+      "capabilities": ["entity:read"],
+      "permissions": ["entity:read"],
+      "unknown_key": true,
+      "random_field": "this should be rejected",
+      "foobar": 123
+    }
+  ]
+}

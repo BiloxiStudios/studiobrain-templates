@@ -254,7 +254,7 @@
             "description": "Explicit list of plugin surfaces. Each surface declares its type, artifact path, required capabilities, permissions, and placement metadata.",
             "items": {
               "type": "object",
-              "required": ["type", "id", "label"],
+              "required": ["type", "id", "label", "artifact", "capabilities", "permissions", "placement"],
               "properties": {
                 "type": {
                   "type": "string",
@@ -281,7 +281,8 @@
                   "properties": {
                     "path": {
                       "type": "string",
-                      "description": "Relative path to the HTML/JS file from the plugin root. E.g. 'frontend/pages/dashboard.html' or 'frontend/panels/notes.html'."
+                      "description": "Relative path to the HTML/JS file from the plugin root. E.g. 'frontend/pages/dashboard.html' or 'frontend/panels/notes.html'. Dot segments and absolute paths are forbidden.",
+                      "pattern": "^(?![\\\\/])(?![A-Za-z]:)(?!.*(?:^|[\\\\/])\\.{1,2}(?:[\\\\/]|$))[A-Za-z0-9_.-]+(?:[\\\\/][A-Za-z0-9_.-]+)*$"
                     },
                     "entry_point": {
                       "type": "string",
@@ -293,11 +294,12 @@
                       "enum": ["html", "module", null]
                     }
                   },
-                  "additionalProperties": true
+                  "additionalProperties": false
                 },
                 "placement": {
                   "type": "object",
-                  "description": "Placement metadata: where and how this surface is mounted. Required for panels and widgets; optional for pages.",
+                  "description": "Placement metadata: where and how this surface is mounted.",
+                  "required": ["location"],
                   "properties": {
                     "location": {
                       "type": "string",
@@ -322,7 +324,7 @@
                       "enum": ["always", "entity-selected", "has-permission", "has-setting", null]
                     }
                   },
-                  "additionalProperties": true
+                  "additionalProperties": false
                 },
                 "capabilities": {
                   "type": "array",
@@ -334,7 +336,7 @@
                 },
                 "permissions": {
                   "type": "array",
-                  "description": "Permission grants this surface requires. Inherits from top-level permissions if omitted. Use '<domain>:<scope>' (e.g. 'entity:read', 'network:local', 'filesystem:write').",
+                  "description": "Explicit permission grants this surface requires. Use '<domain>:<scope>' (e.g. 'entity:read', 'network:local', 'filesystem:write').",
                   "items": {
                     "type": "string",
                     "pattern": "^[a-z][a-z0-9_-]*:[a-z][a-z0-9_-]*$"
@@ -367,7 +369,7 @@
                       "minimum": 1
                     }
                   },
-                  "additionalProperties": true
+                  "additionalProperties": false
                 },
                 "dependencies": {
                   "type": "object",
@@ -389,10 +391,10 @@
                       }
                     }
                   },
-                  "additionalProperties": true
+                  "additionalProperties": false
                 }
               },
-              "additionalProperties": true
+              "additionalProperties": false
             }
           },
           "dependencies": {

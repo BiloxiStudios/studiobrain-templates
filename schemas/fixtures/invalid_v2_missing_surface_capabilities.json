@@ -1,0 +1,18 @@
+{
+  "$schema": "./plugin.json",
+  "id": "missing-surface-capabilities",
+  "name": "Missing Surface Capabilities",
+  "version": "1.0.0",
+  "description": "INVALID - surface omits capabilities",
+  "type": "full",
+  "manifest_version": 2,
+  "compat": {"min_core_version": "0.5.0"},
+  "surfaces": [{
+    "type": "panel",
+    "id": "missing-capabilities",
+    "label": "Missing Capabilities",
+    "artifact": {"path": "frontend/panel.html"},
+    "placement": {"location": "entity-sidebar"},
+    "permissions": ["entity:read"]
+  }]
+}
