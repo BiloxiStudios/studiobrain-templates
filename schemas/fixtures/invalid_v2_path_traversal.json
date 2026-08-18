@@ -1,0 +1,21 @@
+{
+  "$schema": "./plugin.json",
+  "id": "path-traversal-plugin",
+  "name": "Path Traversal Attack",
+  "version": "1.0.0",
+  "description": "INVALID - artifact.path attempts directory traversal",
+  "type": "full",
+  "manifest_version": 2,
+  "compat": {
+    "min_core_version": "0.5.0"
+  },
+  "surfaces": [{
+    "type": "page",
+    "id": "escape-plugin-dir",
+    "label": "Escape Plugin Directory",
+    "artifact": {"path": "../../secret"},
+    "placement": {"location": "plugins-nav"},
+    "capabilities": ["entity:read"],
+    "permissions": ["entity:read"]
+  }]
+}

@@ -22,7 +22,9 @@
       "placement": {
         "location": "plugins-nav",
         "visibility": "always"
-      }
+      },
+      "capabilities": ["entity:read"],
+      "permissions": ["entity:read"]
     }
   ],
   "permissions": ["entity:read"]

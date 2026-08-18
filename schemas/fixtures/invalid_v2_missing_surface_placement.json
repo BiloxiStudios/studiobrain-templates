@@ -1,0 +1,18 @@
+{
+  "$schema": "./plugin.json",
+  "id": "missing-surface-placement",
+  "name": "Missing Surface Placement",
+  "version": "1.0.0",
+  "description": "INVALID - surface omits placement",
+  "type": "full",
+  "manifest_version": 2,
+  "compat": {"min_core_version": "0.5.0"},
+  "surfaces": [{
+    "type": "settings",
+    "id": "missing-placement",
+    "label": "Missing Placement",
+    "artifact": {"path": "frontend/settings.html"},
+    "capabilities": ["settings:own"],
+    "permissions": ["settings:read"]
+  }]
+}

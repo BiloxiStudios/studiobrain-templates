@@ -1,0 +1,18 @@
+{
+  "$schema": "./plugin.json",
+  "id": "missing-surface-permissions",
+  "name": "Missing Surface Permissions",
+  "version": "1.0.0",
+  "description": "INVALID - surface omits permissions",
+  "type": "full",
+  "manifest_version": 2,
+  "compat": {"min_core_version": "0.5.0"},
+  "surfaces": [{
+    "type": "command",
+    "id": "missing-permissions",
+    "label": "Missing Permissions",
+    "artifact": {"path": "frontend/command.js"},
+    "placement": {"location": "command-palette"},
+    "capabilities": ["entity:read"]
+  }]
+}

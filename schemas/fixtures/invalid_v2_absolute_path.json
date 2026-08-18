@@ -1,0 +1,19 @@
+{
+  "$schema": "./plugin.json",
+  "id": "absolute-artifact-path",
+  "name": "Absolute Artifact Path",
+  "version": "1.0.0",
+  "description": "INVALID - artifact path is absolute",
+  "type": "full",
+  "manifest_version": 2,
+  "compat": {"min_core_version": "0.5.0"},
+  "surfaces": [{
+    "type": "panel",
+    "id": "absolute-path",
+    "label": "Absolute Path",
+    "artifact": {"path": "/etc/passwd"},
+    "placement": {"location": "entity-sidebar"},
+    "capabilities": ["entity:read"],
+    "permissions": ["entity:read"]
+  }]
+}

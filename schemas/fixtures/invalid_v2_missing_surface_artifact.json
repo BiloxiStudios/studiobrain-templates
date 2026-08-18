@@ -1,0 +1,18 @@
+{
+  "$schema": "./plugin.json",
+  "id": "missing-surface-artifact",
+  "name": "Missing Surface Artifact",
+  "version": "1.0.0",
+  "description": "INVALID - surface omits artifact",
+  "type": "full",
+  "manifest_version": 2,
+  "compat": {"min_core_version": "0.5.0"},
+  "surfaces": [{
+    "type": "page",
+    "id": "missing-artifact",
+    "label": "Missing Artifact",
+    "placement": {"location": "plugins-nav"},
+    "capabilities": ["entity:read"],
+    "permissions": ["entity:read"]
+  }]
+}

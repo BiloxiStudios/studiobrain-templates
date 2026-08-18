@@ -203,7 +203,7 @@ Replaces the nested `capabilities.frontend.pages/panels` with a flat, typed arra
 
 ### Per-surface metadata
 
-Each surface can declare:
+Each surface declares:
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -219,8 +219,8 @@ Each surface can declare:
 | `placement.order` | integer | no | Sort order (lower = first) |
 | `placement.icon` | string | no | Icon identifier |
 | `placement.visibility` | string | no | `"always"`, `"entity-selected"`, `"has-permission"`, `"has-setting"` |
-| `capabilities[]` | string[] | no | Granular capabilities (e.g. `entity:read:character`) |
-| `permissions[]` | string[] | no | Permission grants |
+| `capabilities[]` | string[] | yes | Explicit granular capabilities (e.g. `entity:read:character`); use `[]` when none are required |
+| `permissions[]` | string[] | yes | Explicit permission grants; use `[]` when none are required |
 | `context.entity_types[]` | string[] | no | Entity types supported |
 | `context.requires_selection` | boolean | no | Requires active selection |
 | `context.min_selection_count` | integer | no | Minimum selected items |

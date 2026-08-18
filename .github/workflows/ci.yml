@@ -102,9 +102,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install "jsonschema>=4.17" "referencing>=0.30" pyyaml
-      - name: Run scripts/validate.py (schema shape + instance validation + semver compat)
+      - name: Run scripts/validate.py (schema shape + instance validation + semver compat + fixtures)
         # --allow-missing-compat grandfathers existing assets that pre-date the
         # compat.min_core_version requirement (see SBAI-4649). New assets MUST
         # declare compat.min_core_version. Remove this flag once SBAI-4649 lands.
+        # --fixtures validates adversarial fixture files in schemas/fixtures/.
         run: |
-          python3 scripts/validate.py --allow-missing-compat
+          python3 scripts/validate.py --allow-missing-compat --fixtures
