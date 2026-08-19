@@ -301,18 +301,38 @@ commercial `sb-plugin-sign` tool from a key in Azure Key Vault — that
 private key must never be reachable from this public repo's CI, and this
 pipeline never touches it.
 
-**Prerequisites for `publish-plugins-to-r2` to actually run** (not yet
-provisioned as of SBAI-7183 — until these exist the first two jobs run
-correctly on every PR/push but the publish job fails cleanly on a missing
-env var, rather than silently no-op'ing):
-- The `sb-content` R2 bucket (owned by the studiobrain-cloud/`CONTENT_ARTIFACTS`
-  binding decision, SBAI-6854/sb-cf).
-- Repo secrets `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
-  scoped to that bucket, and `R2_BUCKET` if it should differ from the
-  `sb-content` default.
-- `PLUGIN_INDEX_SIGNING_KEY` is already provisioned (Vaultwarden "StudioBrain
-  Templates CI - PLUGIN_INDEX_SIGNING_KEY (SBAI-7183)"; public half in
+**Prerequisites for `publish-plugins-to-r2`** (provisioned 2026-08-19,
+SBAI-7183/SBAI-7505 — the `sb-content` bucket is a fresh, dedicated bucket
+distinct from the unrelated `sb-cf-pivot-assets` bucket the cloud Worker
+already uses for other content; studiobrain-cloud's `CONTENT_ARTIFACTS`
+binding, SBAI-6854, should point at this same `sb-content` bucket when it's
+wired up so both sides read/write the same plugin objects):
+- R2 bucket `sb-content`, public read enabled via the managed `r2.dev`
+  domain (plugin artifacts and the index are meant to be fetched directly by
+  desktop/mobile/cloud clients — see Q3 "Browse"/"Install").
+- Environment secrets on the `plugins-publish` GitHub Environment (branch
+  policy restricted to `main`): `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID` (a
+  bucket-scoped Cloudflare API token, read+write on `sb-content` only — no
+  other bucket, no account-wide R2), `R2_SECRET_ACCESS_KEY` (SHA-256 of that
+  token, per Cloudflare's S3-compat derivation), `R2_BUCKET=sb-content`.
+  Credentials in Vaultwarden "Cloudflare R2 — sb-content bucket (SBAI-7183/7505
+  templates plugin publish)".
+- Repo variable (not a secret — it's a public read-only URL)
+  `R2_PUBLIC_BASE_URL`, passed to `build_plugin_artifacts.py --public-base-url`
+  so every artifact in the index gets a full, directly-fetchable `url` in
+  addition to its `r2_key`. Currently the bucket's `r2.dev` domain; may move
+  to a custom domain (e.g. matching `releases.studiobrain.ai`'s pattern)
+  without changing the index shape — only the variable's value changes.
+- `PLUGIN_INDEX_SIGNING_KEY` (Vaultwarden "StudioBrain Templates CI -
+  PLUGIN_INDEX_SIGNING_KEY (SBAI-7183)"; public half in
   `schemas/keys/plugin-index-trusted-keys.json`).
+
+Verified end-to-end against the real bucket on 2026-08-19: build (empty
+index — zero real v2 plugins exist yet, work item 6/SBAI-6818) → sign →
+verify → publish → public read-back via `r2.dev` → idempotent rerun
+(overwrite-only for the mutable index; the immutability guard for versioned
+plugin artifacts is covered by `scripts/tests/test_publish_to_r2.py` and
+will exercise for real once the first real plugin lands).
 
 ## Plugin settings schema (`settings_schema`)
 

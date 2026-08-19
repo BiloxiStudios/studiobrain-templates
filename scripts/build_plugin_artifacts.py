@@ -16,9 +16,17 @@ enforces this split.
 
 Only v1 (legacy ``capabilities``) manifests are skipped: those plugins are
 unsupported by the new pipeline (SBAI-6815) and stay archived as-is.
-Protocol-adapter (WASM) plugins are also skipped here — they have no
-``surfaces`` array and their component build is tracked separately
-(PLUGIN-ARCHITECTURE-DESIGN.md work item 3, not this ticket).
+
+Protocol-adapter (WASM) plugins are REJECTED, not silently skipped: a
+``manifest_version: 2`` plugin declaring ``type: protocol-adapter`` fails
+the build with a clear error. Compiling ``component.wasm`` from source (the
+native/desktop compile target) requires a runtime that does not exist yet
+(``sb-plugin-wasmtime`` only loads core modules today —
+PLUGIN-ARCHITECTURE-DESIGN.md work item 3 / SBAI-7184) and a build
+toolchain this pure-Python, no-compiler repo does not have. Landing a
+protocol-adapter plugin here today would silently ship something nothing
+can run; failing the build is what keeps that impossible until SBAI-7184
+lands.
 
 Usage:
     python3 scripts/build_plugin_artifacts.py --out dist
@@ -43,7 +51,9 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 import validate as _validate  # noqa: E402  (scripts/validate.py — reused for schema validation)
 
-INDEX_SCHEMA_VERSION = 1
+# Bumped 1 -> 2 (SBAI-7183 manager review): entries gained capabilities,
+# min_host_version, and per-artifact r2_key/url/placement fields.
+INDEX_SCHEMA_VERSION = 2
 
 
 def _err(msg: str) -> None:
@@ -123,12 +133,30 @@ def smoke_test_artifact(path: pathlib.Path) -> list[str]:
     return errors
 
 
-def build_plugin(manifest_path: pathlib.Path, out_dir: pathlib.Path) -> tuple[dict[str, Any] | None, list[str]]:
+def build_plugin(
+    manifest_path: pathlib.Path,
+    out_dir: pathlib.Path,
+    public_base_url: str | None = None,
+) -> tuple[dict[str, Any] | None, list[str]]:
     plugin_dir = manifest_path.parent
     plugin_id = plugin_dir.name
     errors: list[str] = []
 
     data = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    # Protocol-adapter (WASM) plugins cannot be built by this pipeline yet —
+    # reject explicitly rather than silently skipping (see module docstring
+    # and PLUGIN-ARCHITECTURE-DESIGN.md work item 3 / SBAI-7184).
+    if data.get("type") == "protocol-adapter":
+        return None, [
+            f"{manifest_path}: type=protocol-adapter (WASM component) plugins "
+            f"are not buildable by this pipeline yet — the runtime that would "
+            f"load a component.wasm doesn't exist (sb-plugin-wasmtime only "
+            f"loads core modules today). Tracked separately as "
+            f"PLUGIN-ARCHITECTURE-DESIGN.md work item 3 / SBAI-7184. Do not "
+            f"merge a protocol-adapter manifest_version=2 plugin until that "
+            f"lands."
+        ]
 
     # 1. Schema validation (reuses scripts/validate.py's $ref-aware registry).
     schema_errors = _validate._validate_instance(data, "plugin.json", str(manifest_path))
@@ -144,8 +172,11 @@ def build_plugin(manifest_path: pathlib.Path, out_dir: pathlib.Path) -> tuple[di
         errors.append(f"{manifest_path}: 'surfaces' is not an array")
         return None, errors
 
+    version = data.get("version")
+
     # 2. Resolve + smoke-test every declared surface artifact.
     artifact_records = []
+    all_capabilities: set[str] = set()
     for surface in surfaces:
         artifact = surface.get("artifact", {})
         rel_path = artifact.get("path")
@@ -156,23 +187,40 @@ def build_plugin(manifest_path: pathlib.Path, out_dir: pathlib.Path) -> tuple[di
             continue
         artifact_path = plugin_dir / rel_path
         errors.extend(smoke_test_artifact(artifact_path))
+        surface_capabilities = surface.get("capabilities", []) or []
+        all_capabilities.update(surface_capabilities)
         if artifact_path.exists() and artifact_path.stat().st_size > 0:
-            artifact_records.append(
-                {
-                    "surface_id": surface.get("id"),
-                    "surface_type": surface.get("type"),
-                    "path": rel_path,
-                    "sha256": sha256_file(artifact_path),
-                    "size_bytes": artifact_path.stat().st_size,
+            r2_key = f"plugins/{plugin_id}/{version}/{rel_path}"
+            record = {
+                "surface_id": surface.get("id"),
+                "surface_type": surface.get("type"),
+                "path": rel_path,
+                "sha256": sha256_file(artifact_path),
+                "size_bytes": artifact_path.stat().st_size,
+                "capabilities": sorted(surface_capabilities),
+                "r2_key": r2_key,
+                "url": f"{public_base_url.rstrip('/')}/{r2_key}" if public_base_url else None,
+            }
+            # Panel/page/widget placement metadata (Q3: "panel metadata" in
+            # the registry index entry) — placement is required by the v2
+            # schema for every surface, so this is always present for a
+            # manifest that passed schema validation.
+            placement = surface.get("placement")
+            if placement:
+                record["placement"] = {
+                    "location": placement.get("location"),
+                    "section": placement.get("section"),
+                    "order": placement.get("order"),
+                    "icon": placement.get("icon"),
+                    "visibility": placement.get("visibility"),
                 }
-            )
+            artifact_records.append(record)
 
     if errors:
         return None, errors
 
     # 3. Stage into dist/plugins/<id>/<version>/ mirroring the R2 key layout
     #    (plugins/<id>/<version>/...) from PLUGIN-ARCHITECTURE-DESIGN.md Q3.
-    version = data["version"]
     stage_dir = out_dir / "plugins" / plugin_id / version
     if stage_dir.exists():
         shutil.rmtree(stage_dir)
@@ -210,6 +258,11 @@ def build_plugin(manifest_path: pathlib.Path, out_dir: pathlib.Path) -> tuple[di
         "category": data.get("category"),
         "manifest_version": data.get("manifest_version"),
         "trust_tier": data.get("trust_tier"),
+        # Requested-capabilities union across every surface (Q3: "capabilities
+        # requested" in the registry index entry).
+        "capabilities": sorted(all_capabilities),
+        # Q3: "min host version" in the registry index entry.
+        "min_host_version": (data.get("compat") or {}).get("min_core_version"),
         "manifest_sha256": manifest_sha256,
         "artifacts": artifact_records,
         "r2_prefix": f"plugins/{plugin_id}/{version}/",
@@ -217,7 +270,13 @@ def build_plugin(manifest_path: pathlib.Path, out_dir: pathlib.Path) -> tuple[di
     return entry, []
 
 
-def build(plugins_dir: pathlib.Path, out_dir: pathlib.Path, built_at: str, source_commit: str) -> int:
+def build(
+    plugins_dir: pathlib.Path,
+    out_dir: pathlib.Path,
+    built_at: str,
+    source_commit: str,
+    public_base_url: str | None = None,
+) -> int:
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
@@ -228,7 +287,7 @@ def build(plugins_dir: pathlib.Path, out_dir: pathlib.Path, built_at: str, sourc
     entries = []
     had_errors = False
     for manifest_path in manifests:
-        entry, errors = build_plugin(manifest_path, out_dir)
+        entry, errors = build_plugin(manifest_path, out_dir, public_base_url=public_base_url)
         if errors:
             had_errors = True
             for e in errors:
@@ -268,10 +327,26 @@ def main(argv: list[str] | None = None) -> int:
         default="unknown",
         help="Git commit SHA this build was produced from (CI passes $GITHUB_SHA).",
     )
+    parser.add_argument(
+        "--public-base-url",
+        default=None,
+        help="Public base URL artifacts are served from once published (e.g. "
+        "the R2 bucket's public domain). When set, every artifact record in "
+        "the index gets a full 'url' field (base + r2_key); when omitted, "
+        "'url' is null and consumers fall back to 'r2_key' (always present). "
+        "CI passes this from a repo variable, not a secret — it is a public "
+        "read-only domain.",
+    )
     args = parser.parse_args(argv)
 
     built_at = args.built_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    return build(pathlib.Path(args.plugins_dir), pathlib.Path(args.out), built_at, args.source_commit)
+    return build(
+        pathlib.Path(args.plugins_dir),
+        pathlib.Path(args.out),
+        built_at,
+        args.source_commit,
+        public_base_url=args.public_base_url,
+    )
 
 
 if __name__ == "__main__":

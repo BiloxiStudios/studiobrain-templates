@@ -155,11 +155,21 @@ jobs:
         with:
           node-version: '20'
       - run: pip install "jsonschema>=4.17" "referencing>=0.30" pyyaml
+      - name: Compute a deterministic build timestamp from the commit
+        # Two CI runs for the SAME commit must produce a byte-identical
+        # index (manager review, SBAI-7183) — `date -u +%s`/wall-clock at
+        # build time is NOT reproducible across runs. The commit's own
+        # author timestamp is a stable, commit-derived value instead.
+        run: |
+          BUILT_AT=$(date -u -d "@$(git show -s --format=%ct "${{ github.sha }}")" +%Y-%m-%dT%H:%M:%SZ)
+          echo "BUILT_AT=$BUILT_AT" >> "$GITHUB_ENV"
       - name: Validate manifest_version=2 plugins, build + smoke-test surface artifacts
         run: |
           python3 scripts/build_plugin_artifacts.py \
             --out dist \
-            --source-commit "${{ github.sha }}"
+            --built-at "$BUILT_AT" \
+            --source-commit "${{ github.sha }}" \
+            --public-base-url "${{ vars.R2_PUBLIC_BASE_URL }}"
       - uses: actions/upload-artifact@v4
         with:
           name: plugin-build-${{ github.sha }}
@@ -182,11 +192,20 @@ jobs:
         with:
           node-version: '20'
       - run: pip install "jsonschema>=4.17" "referencing>=0.30" pyyaml cryptography boto3
+      - name: Compute a deterministic build timestamp from the commit
+        # Same derivation as build-smoke-plugins, so a manual rerun of this
+        # job on an unchanged commit re-signs a byte-identical index instead
+        # of drifting on generated_at (manager review, SBAI-7183).
+        run: |
+          BUILT_AT=$(date -u -d "@$(git show -s --format=%ct "${{ github.sha }}")" +%Y-%m-%dT%H:%M:%SZ)
+          echo "BUILT_AT=$BUILT_AT" >> "$GITHUB_ENV"
       - name: Rebuild dist/ from this exact commit (deterministic, never trust a prior job's artifact for publish)
         run: |
           python3 scripts/build_plugin_artifacts.py \
             --out dist \
-            --source-commit "${{ github.sha }}"
+            --built-at "$BUILT_AT" \
+            --source-commit "${{ github.sha }}" \
+            --public-base-url "${{ vars.R2_PUBLIC_BASE_URL }}"
       - name: Sign the index
         env:
           PLUGIN_INDEX_SIGNING_KEY: ${{ secrets.PLUGIN_INDEX_SIGNING_KEY }}
