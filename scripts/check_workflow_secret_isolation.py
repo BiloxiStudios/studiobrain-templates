@@ -16,6 +16,21 @@ needs no secret itself), so a PR that tries to widen secret access to a
 pull_request-reachable job fails CI on that PR — the enforcement is live,
 not just documented.
 
+Coverage (SBAI-7506 — the v1 checker only matched dot-form ``secrets.NAME``
+in ``*.yml`` files and had no opinion on reusable-workflow edges):
+
+- Both ``*.yml`` and ``*.yaml`` workflow files are scanned.
+- Both expression forms are caught: dot-form (``secrets.NAME``) and
+  bracket-form with a literal key (``secrets['NAME']`` / ``secrets["NAME"]``).
+- Any OTHER bracket/dynamic form (e.g. ``secrets[matrix.name]``,
+  ``secrets[format('...')]``) cannot be resolved statically to a name, so it
+  fails closed: it is always reported, regardless of push-gating, because a
+  human must not rely on offline analysis of code that can't be analyzed.
+- A job that calls a reusable workflow (``uses: ./.github/workflows/x.yml``)
+  with ``secrets: inherit`` forwards EVERY secret the caller has — that is
+  treated exactly like an explicit ``secrets.*`` reference for reachability
+  purposes (fails closed: we don't parse the callee to prove it's safe).
+
 Usage:
     python3 scripts/check_workflow_secret_isolation.py
     python3 scripts/check_workflow_secret_isolation.py .github/workflows/other.yml
@@ -34,8 +49,15 @@ except ImportError:
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 WORKFLOWS_DIR = ROOT / ".github" / "workflows"
+WORKFLOW_GLOBS = ("*.yml", "*.yaml")
 
-SECRET_REF_RE = re.compile(r"secrets\.([A-Za-z0-9_]+)")
+# Dot-form: secrets.NAME
+SECRET_DOT_RE = re.compile(r"secrets\.([A-Za-z0-9_]+)")
+# Bracket-form with a literal string key: secrets['NAME'] / secrets["NAME"]
+SECRET_BRACKET_LITERAL_RE = re.compile(r"secrets\[\s*(['\"])([A-Za-z0-9_]+)\1\s*\]")
+# Any secrets[ ... ] access at all — used to detect bracket forms that are
+# NOT the literal-key form above (dynamic/computed keys we can't resolve).
+SECRET_BRACKET_ANY_RE = re.compile(r"secrets\[")
 SAFE_SECRET_NAMES = {"GITHUB_TOKEN"}
 
 # A job is "pull_request-reachable" if the trigger includes pull_request in
@@ -52,20 +74,44 @@ def _err(msg: str) -> None:
 
 
 def _find_secret_refs(node, path: str) -> list[str]:
-    """Recursively find every 'secrets.<NAME>' reference under `node`."""
-    refs = []
+    """Recursively find every secret reference under `node`.
+
+    Returns two kinds of findings, both as plain strings:
+      - resolved:      "<path>: secrets.NAME"     (name is known)
+      - fail-closed:    "<path>: secrets[<unresolvable expression>]"
+    Dynamic/computed bracket keys are ALWAYS reported here (the caller
+    decides whether push-gating suppresses resolved refs; unresolvable
+    refs are never suppressed — see check_workflow()).
+    """
+    refs: list[str] = []
+    unresolvable: list[str] = []
     if isinstance(node, str):
-        for m in SECRET_REF_RE.finditer(node):
+        for m in SECRET_DOT_RE.finditer(node):
             name = m.group(1)
             if name not in SAFE_SECRET_NAMES:
                 refs.append(f"{path}: secrets.{name}")
+        for m in SECRET_BRACKET_LITERAL_RE.finditer(node):
+            name = m.group(2)
+            if name not in SAFE_SECRET_NAMES:
+                refs.append(f"{path}: secrets['{name}']")
+        # Any bracket access not already matched by the literal-key regex is
+        # a dynamic/computed key we cannot resolve — fail closed.
+        literal_spans = {m.span() for m in SECRET_BRACKET_LITERAL_RE.finditer(node)}
+        for m in SECRET_BRACKET_ANY_RE.finditer(node):
+            if not any(m.start() >= lo and m.start() < hi for lo, hi in literal_spans):
+                snippet = node[m.start(): m.start() + 60].strip()
+                unresolvable.append(f"{path}: secrets[...] unresolvable dynamic key: {snippet!r}")
     elif isinstance(node, dict):
         for k, v in node.items():
-            refs.extend(_find_secret_refs(v, f"{path}.{k}"))
+            sub_refs, sub_unresolvable = _find_secret_refs(v, f"{path}.{k}")
+            refs.extend(sub_refs)
+            unresolvable.extend(sub_unresolvable)
     elif isinstance(node, list):
         for i, v in enumerate(node):
-            refs.extend(_find_secret_refs(v, f"{path}[{i}]"))
-    return refs
+            sub_refs, sub_unresolvable = _find_secret_refs(v, f"{path}[{i}]")
+            refs.extend(sub_refs)
+            unresolvable.extend(sub_unresolvable)
+    return refs, unresolvable
 
 
 def _triggers(workflow: dict) -> set[str]:
@@ -105,15 +151,34 @@ def check_workflow(path: pathlib.Path) -> list[str]:
         if not job_pr_reachable:
             continue
 
-        refs = _find_secret_refs(job, f"{path.name}:jobs.{job_name}")
-        if refs:
-            for ref in refs:
-                errors.append(
-                    f"{ref} is reachable from a pull_request-triggered job "
-                    f"('{job_name}') with no 'github.event_name == push' gate. "
-                    f"Publish/signing secrets must only be referenced in a job "
-                    f"gated to push events on main."
-                )
+        refs, unresolvable = _find_secret_refs(job, f"{path.name}:jobs.{job_name}")
+
+        # A reusable-workflow call with `secrets: inherit` forwards EVERY
+        # secret the caller has to the callee — we don't parse the callee to
+        # prove it only touches safe ones, so this is treated exactly like
+        # an explicit secrets.* reference (fail closed, SBAI-7506).
+        if job.get("secrets") == "inherit":
+            refs.append(
+                f"{path.name}:jobs.{job_name}.secrets: 'inherit' forwards ALL "
+                f"caller secrets to the reusable workflow "
+                f"'{job.get('uses', '?')}'"
+            )
+
+        for ref in refs:
+            errors.append(
+                f"{ref} is reachable from a pull_request-triggered job "
+                f"('{job_name}') with no 'github.event_name == push' gate. "
+                f"Publish/signing secrets must only be referenced in a job "
+                f"gated to push events on main."
+            )
+        for ref in unresolvable:
+            errors.append(
+                f"{ref} in job '{job_name}' is a dynamic/computed secret "
+                f"expression this checker cannot statically resolve to a "
+                f"name — failing closed. Use a literal 'secrets.NAME' or "
+                f"'secrets[\"NAME\"]' reference, gated to push events, "
+                f"instead."
+            )
     return errors
 
 
@@ -122,7 +187,10 @@ def main(argv: list[str] | None = None) -> int:
         _err("pyyaml is required (pip install pyyaml)")
         return 1
 
-    targets = [pathlib.Path(p) for p in argv] if argv else sorted(WORKFLOWS_DIR.glob("*.yml"))
+    if argv:
+        targets = [pathlib.Path(p) for p in argv]
+    else:
+        targets = sorted({p for glob in WORKFLOW_GLOBS for p in WORKFLOWS_DIR.glob(glob)})
     if not targets:
         print(f"No workflow files found under {WORKFLOWS_DIR}")
         return 0
