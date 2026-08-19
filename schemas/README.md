@@ -254,6 +254,66 @@ To migrate v1 → v2:
 
 See `schemas/fixtures/` for example v1 and v2 manifests.
 
+## Plugin v2 build + publish pipeline (SBAI-7183)
+
+`manifest_version: 2` plugins are built, smoke-tested, and published to R2 by
+CI (`.github/workflows/ci.yml`), per the publish design in
+`PLUGIN-ARCHITECTURE-DESIGN.md` Q3. v1 (legacy `capabilities`) manifests are
+excluded from this pipeline — they stay archived and unsupported (SBAI-6815).
+
+Three-job pipeline, split for one reason: security.
+
+| Job | Trigger | Secrets | What it does |
+|---|---|---|---|
+| `check-plugin-ci-security` | push + pull_request (incl. forks) | none | Statically proves no pull_request-reachable job in this workflow can read a publish/signing secret (`scripts/check_workflow_secret_isolation.py`), round-trip-tests the index signing scheme with a throwaway keypair (`scripts/verify_index_signature.py --selftest`), and runs the unit test suite (`scripts/tests/`). |
+| `build-smoke-plugins` | push + pull_request (incl. forks) | none | Validates every v2 manifest, resolves and smoke-tests every declared surface artifact, stages a publish-ready tree + checksummed index under `dist/` (`scripts/build_plugin_artifacts.py`). Uploaded as a build artifact for inspection on every PR. |
+| `publish-plugins-to-r2` | push to `main` only | R2 + signing creds | Rebuilds `dist/` fresh from the merged commit, signs the index (`scripts/sign_index.py`), uploads immutable versioned objects to R2 plus the signed index (`scripts/publish_to_r2.py`), and commits the signed index back to the repo root. |
+
+Because the first two jobs need zero secrets, running arbitrary plugin code
+(HTML/JS surface artifacts) from a pull request through validate → build →
+smoke is safe even for forked contributors. `check-plugin-ci-security` is
+itself a live enforcement gate, not just documentation — it fails any PR
+that tries to widen secret access into a pull_request-reachable job.
+
+**R2 key layout** (bucket `sb-content`, per the sb-cf 2026-08-16 ruling —
+one shared bucket, kind-prefixed keys):
+
+```
+plugins/<id>/<version>/plugin.json
+plugins/<id>/<version>/<artifact paths as declared in surfaces[].artifact.path>
+plugins/_plugins.index.json      # always the latest signed index (mutable)
+```
+
+**Immutability**: once `plugins/<id>/<version>/...` is published, its
+content can never change — `publish_to_r2.py` HEADs every object first and
+hard-fails the publish job if a re-run would overwrite an existing object
+with different bytes. Bump the plugin's `version` instead. Re-running on the
+same commit is safe (identical content is skipped, not re-uploaded).
+
+**Index signing is a separate trust domain from per-plugin trust tiers.**
+The signature on `_plugins.index.json` (Ed25519, `scripts/sign_index.py`,
+public keys in `schemas/keys/plugin-index-trusted-keys.json`) proves *this
+index was produced by trusted CI* — it says nothing about whether any
+individual plugin inside it is Biloxi-vetted. Per-plugin `first_party` /
+`trusted_vendor` / `partner` signatures (SBAI-4630, verified in core's
+`plugin_signature.rs`) are a completely different key, signed by the
+commercial `sb-plugin-sign` tool from a key in Azure Key Vault — that
+private key must never be reachable from this public repo's CI, and this
+pipeline never touches it.
+
+**Prerequisites for `publish-plugins-to-r2` to actually run** (not yet
+provisioned as of SBAI-7183 — until these exist the first two jobs run
+correctly on every PR/push but the publish job fails cleanly on a missing
+env var, rather than silently no-op'ing):
+- The `sb-content` R2 bucket (owned by the studiobrain-cloud/`CONTENT_ARTIFACTS`
+  binding decision, SBAI-6854/sb-cf).
+- Repo secrets `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
+  scoped to that bucket, and `R2_BUCKET` if it should differ from the
+  `sb-content` default.
+- `PLUGIN_INDEX_SIGNING_KEY` is already provisioned (Vaultwarden "StudioBrain
+  Templates CI - PLUGIN_INDEX_SIGNING_KEY (SBAI-7183)"; public half in
+  `schemas/keys/plugin-index-trusted-keys.json`).
+
 ## Plugin settings schema (`settings_schema`)
 
 A plugin's `settings_schema` is a free-form object whose keys are setting

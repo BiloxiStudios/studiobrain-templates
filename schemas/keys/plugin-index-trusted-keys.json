@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "description": "Public keys trusted to sign studiobrain-templates' _plugins.index.json (SBAI-7183). This is a DISTINCT trust domain from core's plugin-trusted-keys.json (SBAI-4630, per-plugin first_party/trusted_vendor/partner signatures) -- this registry only proves 'this index was produced by trusted CI', not 'this specific plugin was vetted by Biloxi'. Private keys never appear here; see scripts/sign_index.py.",
+  "keys": [
+    {
+      "key_id": "sb-templates-ci-index-2026",
+      "algorithm": "ed25519",
+      "public_key": "UHhniY8Rv/6Wo0/dkaZ++wD7eY3BNoWjOMx2vxHzXYI=",
+      "owner": "studiobrain-templates CI (SBAI-7183)",
+      "added_at": "2026-08-19",
+      "comment": "Signs dist/_plugins.index.json in the push-to-main publish job only. Private seed lives in the templates repo's PLUGIN_INDEX_SIGNING_KEY GitHub Actions secret and Vaultwarden, never in git."
+    }
+  ]
+}
