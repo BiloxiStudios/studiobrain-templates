@@ -224,13 +224,25 @@ jobs:
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
         run: python3 scripts/publish_to_r2.py --dist dist
       - name: Commit the freshly-signed index back to main (source-of-truth copy alongside the R2 copy)
+        # Rebase-proof commit-back (SBAI-7183): main may have advanced past this
+        # run's head by the time we push (a prior index commit, a concurrent
+        # merge, or a manual rerun of this very job). Committing from the
+        # CURRENT tip of origin/main instead of the run's checkout makes the
+        # push always-fast-forward, and because signing is deterministic
+        # (signed_at pins to the commit-derived generated_at), a rerun of an
+        # unchanged commit finds the identical index already on main and
+        # no-ops — the idempotent-rerun witness. The old form
+        # (`git push origin HEAD:main` from the run-head checkout) failed
+        # non-fast-forward exactly this way on 2026-08-19 (run 32245077450).
         run: |
+          git fetch origin main
+          git checkout -B index-update origin/main
           cp dist/_plugins.index.json _plugins.index.json
           git config user.name "studiobrain-templates-ci[bot]"
           git config user.email "ci@studiobrain.ai"
           git add _plugins.index.json
           if git diff --cached --quiet; then
-            echo "Index unchanged, nothing to commit."
+            echo "Index unchanged — this commit's deterministic index is already on main (idempotent rerun confirmed)."
           else
             git commit -m "SBAI-7183: regenerate signed plugin index [skip ci]"
             git push origin HEAD:main

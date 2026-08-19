@@ -290,6 +290,16 @@ hard-fails the publish job if a re-run would overwrite an existing object
 with different bytes. Bump the plugin's `version` instead. Re-running on the
 same commit is safe (identical content is skipped, not re-uploaded).
 
+**Reproducibility & idempotent reruns** (manager review, SBAI-7183): the
+entire signed index is a deterministic function of the commit —
+`generated_at` comes from the commit's author timestamp (`--built-at`) and
+`signature.signed_at` pins to that same `generated_at` (never wall-clock),
+so building and signing the same commit twice yields byte-identical
+`_plugins.index.json`. The publish job's commit-back step commits from the
+current tip of `origin/main` (not the run's checkout), so a rerun of an
+unchanged commit finds its identical index already on main and no-ops
+instead of non-fast-forward-failing the push.
+
 **Index signing is a separate trust domain from per-plugin trust tiers.**
 The signature on `_plugins.index.json` (Ed25519, `scripts/sign_index.py`,
 public keys in `schemas/keys/plugin-index-trusted-keys.json`) proves *this

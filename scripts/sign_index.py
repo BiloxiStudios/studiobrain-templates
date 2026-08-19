@@ -38,7 +38,6 @@ import hashlib
 import json
 import pathlib
 import sys
-from datetime import datetime, timezone
 
 SIGNING_DOMAIN = "studiobrain-plugin-index-signature-v1"
 
@@ -59,7 +58,7 @@ def signing_payload(canonical_index: str, signed_at: str) -> bytes:
     return f"{SIGNING_DOMAIN}\nsigned_at={signed_at}\nindex={canonical_index}".encode("utf-8")
 
 
-def sign(index_path: pathlib.Path, key_id: str, signing_key_b64: str) -> int:
+def sign(index_path: pathlib.Path, key_id: str, signing_key_b64: str, signed_at_override: str | None = None) -> int:
     try:
         from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
     except ImportError:
@@ -70,7 +69,15 @@ def sign(index_path: pathlib.Path, key_id: str, signing_key_b64: str) -> int:
     index.pop("signature", None)
     canonical = canonical_json(index)
 
-    signed_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # Reproducibility (manager review, SBAI-7183): signed_at is pinned to the
+    # index's own deterministic `generated_at` (derived from the commit's
+    # author timestamp via --built-at) rather than wall-clock signing time, so
+    # two sign invocations over the same build output are byte-identical.
+    # Override with --signed-at only for explicit local testing.
+    signed_at = signed_at_override or index.get("generated_at")
+    if not signed_at:
+        _err("index has no 'generated_at' to pin signed_at to (run build_plugin_artifacts.py first, or pass --signed-at)")
+        return 1
     payload = signing_payload(canonical, signed_at)
 
     seed = base64.b64decode(signing_key_b64)
@@ -101,8 +108,14 @@ def main(argv: list[str] | None = None) -> int:
         required=True,
         help="Base64-encoded 32-byte Ed25519 seed. Pass via env var, never a literal in CI logs.",
     )
+    parser.add_argument(
+        "--signed-at",
+        default=None,
+        help="Override the signature timestamp (RFC3339). Default: the index's own deterministic "
+        "generated_at, so re-signing the same build output is byte-identical (SBAI-7183).",
+    )
     args = parser.parse_args(argv)
-    return sign(pathlib.Path(args.index), args.key_id, args.signing_key_b64)
+    return sign(pathlib.Path(args.index), args.key_id, args.signing_key_b64, args.signed_at)
 
 
 if __name__ == "__main__":
