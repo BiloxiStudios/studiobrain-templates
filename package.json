@@ -18,8 +18,9 @@
     "validate": "python3 scripts/validate.py --allow-missing-compat",
     "validate:strict": "python3 scripts/validate.py",
     "validate:core": "python3 scripts/validate.py --core-version",
+    "build:plugins": "python3 scripts/build_plugin_artifacts.py",
     "lint": "echo 'No linting configured yet'",
-    "test": "echo 'No tests configured yet'"
+    "test": "python3 -m unittest discover -s scripts/tests"
   },
   "keywords": [
     "studiobrain",
