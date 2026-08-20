@@ -1,0 +1,52 @@
+# Gold-standard graph: paint a location (or reuse one), composite two
+# character stills, then image-to-video. Canvas / agent both write this shape.
+id: scene-with-two-leads
+kind: workflow
+name: Location still, two leads, then video
+label: Scene with two leads
+description: Generate or reuse a location exterior, place two character portraits, animate the still.
+domains: [movie, tv, game, animation]
+entity_types: [location, character]
+
+slots:
+  place:
+    modality: image
+    ref: entity.location.exterior_image
+    optional: true
+  look:
+    modality: text
+    ref: entity.location.description
+  lead_a:
+    modality: image
+    ref: entity.character[0].primary_image
+  lead_b:
+    modality: image
+    ref: entity.character[1].primary_image
+  still:
+    modality: image
+  clip:
+    modality: video
+    out: entity.location.establishing_video
+
+steps:
+  - id: paint-location
+    provider: comfyui
+    in:
+      prompt: look
+    out:
+      image: place
+    skip_if: place
+  - id: composite
+    provider: comfyui
+    in:
+      background: place
+      subjects: [lead_a, lead_b]
+    out:
+      image: still
+  - id: animate
+    provider: kling
+    in:
+      image: still
+      prompt: look
+    out:
+      video: clip

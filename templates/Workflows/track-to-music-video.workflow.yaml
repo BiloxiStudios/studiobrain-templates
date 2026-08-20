@@ -1,0 +1,40 @@
+# Gold-standard music-video loop: lyrics/text + optional vocal stem (UVR later)
+# → still → video. Swap fal/kling endpoints without changing the graph.
+id: track-to-music-video
+kind: workflow
+name: Track to music video
+label: Music video from track
+description: From a song/entity description, make a hero still and an image-to-video clip.
+domains: [music, music-video, video]
+entity_types: [item]
+
+loop:
+  over: shots
+  max: 8
+
+slots:
+  brief:
+    modality: text
+    ref: entity.item.description
+  hero:
+    modality: image
+    out: entity.item.primary_image
+  clip:
+    modality: video
+    out: entity.item.music_video
+
+steps:
+  - id: hero-still
+    provider: fal
+    in:
+      prompt: brief
+    out:
+      image: hero
+    skip_if: hero
+  - id: animate
+    provider: kling
+    in:
+      image: hero
+      prompt: brief
+    out:
+      video: clip

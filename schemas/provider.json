@@ -17,7 +17,28 @@
     "display": { "type": "string" },
     "wire": {
       "type": "string",
-      "enum": ["openai-compat", "anthropic", "google", "comfyui", "http"]
+      "enum": ["openai-compat", "anthropic", "google", "comfyui", "http", "process"],
+      "description": "process = desktop/LAN CLI (Blender, UVR). Cloud workers must 501 process and localhost base_url."
+    },
+    "slots": {
+      "type": "object",
+      "description": "What this backend accepts and emits. Workflow edges only connect matching modalities.",
+      "properties": {
+        "accepts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["text", "image", "audio", "video", "3d", "json", "tool"]
+          }
+        },
+        "emits": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["text", "image", "audio", "video", "3d", "json", "tool"]
+          }
+        }
+      }
     },
     "base_url": {
       "type": "string",

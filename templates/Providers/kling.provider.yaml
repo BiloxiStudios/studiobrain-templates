@@ -1,0 +1,20 @@
+# Example video provider. Point endpoint/auth at the account you actually use
+# (Kling official, fal-ai/kling-video, or a LAN ComfyUI wrapper).
+id: kling
+kind: provider
+display: Kling
+wire: http
+base_url: https://fal.run
+endpoint: /fal-ai/kling-video/v1.6/pro/image-to-video
+auth:
+  header: Authorization
+  scheme: Key
+  env: FAL_KEY
+request:
+  method: POST
+  body:
+    prompt: "{{prompt}}"
+    image_url: "{{image}}"
+slots:
+  accepts: [text, image]
+  emits: [video]

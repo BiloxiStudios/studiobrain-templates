@@ -6,3 +6,6 @@ base_url: http://127.0.0.1:8188
 endpoint: /prompt
 response:
   image_url_path: images.0
+slots:
+  accepts: [text, image, audio]
+  emits: [image, video, 3d, audio]
