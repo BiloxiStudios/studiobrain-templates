@@ -1,0 +1,11 @@
+id: item-model
+kind: 3d
+name: Item 3D model
+label: Generate 3D model
+entity_types: [item]
+provider: tripo
+input:
+  prompt: Game-ready 3D prop of {{entity.name}}. Clean topology, readable silhouette.
+  bindings: [entity.name, entity.description, entity.appearance]
+output:
+  asset_field: primary_model

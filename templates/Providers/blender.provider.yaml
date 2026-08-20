@@ -1,0 +1,15 @@
+# Desktop-only. Cloud workers must 501 wire: process and any localhost URL.
+id: blender
+kind: provider
+display: Blender CLI
+wire: process
+base_url: ""
+endpoint: blender
+auth: {}
+request:
+  method: POST
+  body:
+    argv: ["-b", "{{blend}}", "-P", "{{script}}"]
+slots:
+  accepts: [3d, json]
+  emits: [3d, image]

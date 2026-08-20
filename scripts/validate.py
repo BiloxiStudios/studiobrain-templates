@@ -8,8 +8,9 @@ Runs every CI-facing check from one place:
   3. Validates every ``pack.json`` against ``schemas/pack.json``.
   4. Validates every ``plugin.json`` against ``schemas/plugin.json``.
   5. Validates every skill YAML frontmatter against ``schemas/skill.yaml.json``.
-  6. Validates ``*.provider.yaml`` / ``*.ability.yaml`` against ``schemas/provider.json``
-     and ``schemas/ability.json`` (SBAI-7569 drop-in generation files).
+  6. Validates ``*.provider.yaml`` / ``*.ability.yaml`` / ``*.workflow.yaml``
+     against ``schemas/provider.json``, ``schemas/ability.json``, and
+     ``schemas/workflow.json`` (SBAI-7569 drop-in generation files).
   7. Validates entity markdown YAML frontmatter against ``schemas/<entity_type>.json``
      (best-effort — skipped if pyyaml is unavailable).
   8. Enforces compat metadata: every layout / pack / plugin / skill MUST declare
@@ -279,6 +280,16 @@ def check_providers_and_abilities() -> list[str]:
                 errors.append(f"{path}: top-level YAML is not a mapping")
                 continue
             errors.extend(_validate_instance(data, "ability.json", str(path)))
+        for path in sorted(root.rglob("*.workflow.yaml")) + sorted(root.rglob("*.workflow.yml")):
+            try:
+                data = yaml.safe_load(path.read_text(encoding="utf-8"))
+            except yaml.YAMLError as exc:
+                errors.append(f"{path}: YAML parse error: {exc}")
+                continue
+            if not isinstance(data, dict):
+                errors.append(f"{path}: top-level YAML is not a mapping")
+                continue
+            errors.extend(_validate_instance(data, "workflow.json", str(path)))
     return errors
 
 
@@ -517,7 +528,7 @@ def main(argv: list[str] | None = None) -> int:
     _info("== Validating skills ==")
     all_errors.extend(check_skills())
 
-    _info("== Validating provider and ability files ==")
+    _info("== Validating provider, ability, and workflow files ==")
     all_errors.extend(check_providers_and_abilities())
 
     if not args.no_entity_yaml:
