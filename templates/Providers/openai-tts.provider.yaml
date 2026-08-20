@@ -1,0 +1,18 @@
+# OpenAI /v1/audio/speech. Response is audio bytes (mp3), not JSON.
+id: openai-tts
+kind: provider
+display: OpenAI TTS
+wire: http
+base_url: https://api.openai.com
+endpoint: /v1/audio/speech
+auth:
+  header: Authorization
+  scheme: Bearer
+  env: OPENAI_API_KEY
+request:
+  method: POST
+  body:
+    model: gpt-4o-mini-tts
+    voice: alloy
+    input: "{{prompt}}"
+    response_format: mp3

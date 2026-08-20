@@ -1,0 +1,11 @@
+id: character-voice
+kind: audio
+name: Character voice line
+label: Generate voice line
+entity_types: [character]
+provider: openai-tts
+input:
+  prompt: Speak one short in-character line as {{entity.name}}.
+  bindings: [entity.name, entity.personality, entity.biography]
+output:
+  asset_field: voice_sample
