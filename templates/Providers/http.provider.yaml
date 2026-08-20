@@ -1,0 +1,15 @@
+id: http
+kind: provider
+display: Generic HTTP
+wire: http
+endpoint: /generate
+auth:
+  header: Authorization
+  scheme: Bearer
+  env: CUSTOM_HTTP_KEY
+request:
+  method: POST
+  body:
+    prompt: "{{prompt}}"
+response:
+  text_path: text

@@ -1,0 +1,12 @@
+id: huggingface
+kind: provider
+display: Hugging Face
+wire: openai-compat
+base_url: https://router.huggingface.co
+endpoint: /v1/chat/completions
+auth:
+  header: Authorization
+  scheme: Bearer
+  env: HF_TOKEN
+response:
+  text_path: choices.0.message.content

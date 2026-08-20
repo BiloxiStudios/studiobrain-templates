@@ -8,9 +8,11 @@ Runs every CI-facing check from one place:
   3. Validates every ``pack.json`` against ``schemas/pack.json``.
   4. Validates every ``plugin.json`` against ``schemas/plugin.json``.
   5. Validates every skill YAML frontmatter against ``schemas/skill.yaml.json``.
-  6. Validates entity markdown YAML frontmatter against ``schemas/<entity_type>.json``
+  6. Validates ``*.provider.yaml`` / ``*.ability.yaml`` against ``schemas/provider.json``
+     and ``schemas/ability.json`` (SBAI-7569 drop-in generation files).
+  7. Validates entity markdown YAML frontmatter against ``schemas/<entity_type>.json``
      (best-effort — skipped if pyyaml is unavailable).
-  7. Enforces compat metadata: every layout / pack / plugin / skill MUST declare
+  8. Enforces compat metadata: every layout / pack / plugin / skill MUST declare
      ``compat.min_core_version`` as a semver string. When ``--core-version`` is
      supplied, the script also refuses assets whose ``min_core_version`` is
      newer than the running core.
@@ -244,6 +246,39 @@ def check_skills() -> list[str]:
                 errors.append(f"{skill_file}: top-level YAML is not a mapping")
                 continue
             errors.extend(_validate_instance(data, "skill.yaml.json", str(skill_file)))
+    return errors
+
+
+def check_providers_and_abilities() -> list[str]:
+    """Validate drop-in generation files (SBAI-7569)."""
+    errors: list[str] = []
+    if not HAVE_YAML:
+        _info("NOTE: pyyaml not installed — skipping provider/ability YAML validation.")
+        return errors
+    search_roots = [TEMPLATES_DIR, ROOT / "Providers", ROOT / "Abilities"]
+    for root in search_roots:
+        if not root.exists():
+            continue
+        for path in sorted(root.rglob("*.provider.yaml")) + sorted(root.rglob("*.provider.yml")):
+            try:
+                data = yaml.safe_load(path.read_text(encoding="utf-8"))
+            except yaml.YAMLError as exc:
+                errors.append(f"{path}: YAML parse error: {exc}")
+                continue
+            if not isinstance(data, dict):
+                errors.append(f"{path}: top-level YAML is not a mapping")
+                continue
+            errors.extend(_validate_instance(data, "provider.json", str(path)))
+        for path in sorted(root.rglob("*.ability.yaml")) + sorted(root.rglob("*.ability.yml")):
+            try:
+                data = yaml.safe_load(path.read_text(encoding="utf-8"))
+            except yaml.YAMLError as exc:
+                errors.append(f"{path}: YAML parse error: {exc}")
+                continue
+            if not isinstance(data, dict):
+                errors.append(f"{path}: top-level YAML is not a mapping")
+                continue
+            errors.extend(_validate_instance(data, "ability.json", str(path)))
     return errors
 
 
@@ -481,6 +516,9 @@ def main(argv: list[str] | None = None) -> int:
 
     _info("== Validating skills ==")
     all_errors.extend(check_skills())
+
+    _info("== Validating provider and ability files ==")
+    all_errors.extend(check_providers_and_abilities())
 
     if not args.no_entity_yaml:
         _info("== Validating entity markdown frontmatter ==")

@@ -1,0 +1,13 @@
+id: character-bio
+kind: text
+name: Character bio
+label: Generate bio
+entity_types: [character]
+provider: model-manager
+model: gpt-4o-mini
+input:
+  prompt: Write a concise in-world biography for {{entity.name}}.
+  bindings: [entity.name, entity.appearance, entity.personality]
+output:
+  field: biography
+  mode: replace
