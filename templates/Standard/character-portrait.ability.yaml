@@ -1,0 +1,12 @@
+id: character-portrait
+kind: image
+name: Character portrait
+label: Generate portrait
+entity_types: [character]
+provider: comfyui
+endpoint: /prompt
+input:
+  workflow: character-portrait.json
+  bindings: [entity.name, entity.appearance]
+output:
+  asset_field: primary_image

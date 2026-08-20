@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/ability.json",
+  "title": "StudioBrain Ability File",
+  "description": "A Generate button. Drop *.ability.yaml next to an entity template or in _Abilities/. Points at a provider id; if that provider is unknown, add a *.provider.yaml.",
+  "type": "object",
+  "required": ["id", "kind", "entity_types", "provider", "input", "output"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["text", "image", "audio", "video", "3d"]
+    },
+    "name": { "type": "string" },
+    "label": { "type": "string" },
+    "entity_types": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "provider": {
+      "type": "string",
+      "description": "id of a provider file (built-in or user-dropped)."
+    },
+    "endpoint": { "type": "string" },
+    "model": { "type": "string" },
+    "input": {
+      "type": "object",
+      "properties": {
+        "prompt": { "type": "string" },
+        "system": { "type": "string" },
+        "workflow": { "type": "string" },
+        "bindings": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "field": { "type": "string" },
+        "asset_field": { "type": "string" },
+        "mode": { "enum": ["replace", "append"] }
+      }
+    }
+  }
+}

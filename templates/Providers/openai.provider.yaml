@@ -1,0 +1,11 @@
+id: openai
+kind: provider
+display: OpenAI
+wire: openai-compat
+endpoint: /v1/chat/completions
+auth:
+  header: Authorization
+  scheme: Bearer
+  env: OPENAI_API_KEY
+response:
+  text_path: choices.0.message.content

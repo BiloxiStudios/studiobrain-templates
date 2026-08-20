@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/provider.json",
+  "title": "StudioBrain Provider File",
+  "description": "How to talk to a generation backend. Drop *.provider.yaml in _Providers/ (project) or templates/Providers/ (catalog). Unknown backends are a second tiny file — no new Rust crate.",
+  "type": "object",
+  "required": ["id", "kind", "wire"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "kind": {
+      "const": "provider"
+    },
+    "display": { "type": "string" },
+    "wire": {
+      "type": "string",
+      "enum": ["openai-compat", "anthropic", "google", "comfyui", "http"]
+    },
+    "base_url": {
+      "type": "string",
+      "description": "Empty/omitted means the platform default (AI Gateway / local model-manager)."
+    },
+    "endpoint": { "type": "string" },
+    "auth": {
+      "type": "object",
+      "properties": {
+        "header": { "type": "string" },
+        "scheme": { "type": "string" },
+        "env": { "type": "string" }
+      }
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "method": { "enum": ["POST", "GET"] },
+        "body": { "type": "object" }
+      }
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "text_path": { "type": "string" },
+        "image_url_path": { "type": "string" },
+        "asset_b64_path": { "type": "string" }
+      }
+    }
+  }
+}
