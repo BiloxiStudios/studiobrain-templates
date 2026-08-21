@@ -36,11 +36,15 @@ requires:
   platforms: [web, desktop, mobile]
   webgpu: optional
 weights:
-  - id: gemma-4-e2b-it-q4f16-webgpu
+  - id: on-device/gemma-4-e2b-it-q4f16-webgpu
     source: huggingface://onnx-community/gemma-4-E2B-it-ONNX
     dtype: q4f16
     device: webgpu
     capability: llm-chat
+    context_length: 131072
+    max_output_tokens: 8192
+    tools: true
+    thinking: optional
     default: true
 """
 
@@ -130,13 +134,53 @@ class InAppInvariantTests(unittest.TestCase):
 
     def test_duplicate_weights_row_ids_error(self):
         body = GOOD_IN_APP + """\
-  - id: gemma-4-e2b-it-q4f16-webgpu
+  - id: on-device/gemma-4-e2b-it-q4f16-webgpu
     source: huggingface://onnx-community/gemma-4-E4B-it-ONNX
     dtype: q4f16
     device: webgpu
 """
         errors, _ = self.check(body)
         self.assert_error_matching(errors, "duplicate weights row id")
+
+    def test_chat_row_without_capability_metadata_warns(self):
+        """A chat row that omits context_length/tools WARNs but still validates.
+
+        The fields are optional in the schema so older catalogs keep passing;
+        the warning is what stops a new row shipping with an unverifiable
+        context window or an unstated tool-calling story.
+        """
+        for dropped in ("context_length: 131072\n", "tools: true\n"):
+            with self.subTest(dropped=dropped.strip()):
+                body = GOOD_IN_APP.replace("    " + dropped, "")
+                errors, warnings = self.check(body)
+                self.assertEqual(errors, [])
+                field = dropped.split(":")[0]
+                self.assertTrue(
+                    any(f"omits {field}" in w for w in warnings),
+                    f"expected a {field} warning, got {warnings!r}",
+                )
+
+    def test_tools_false_is_not_treated_as_omitted(self):
+        """tools: false is an explicit answer, not a missing one."""
+        body = GOOD_IN_APP.replace("tools: true", "tools: false")
+        errors, warnings = self.check(body)
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
+
+    def test_embeddings_row_is_not_warned_for_missing_tools(self):
+        """Only chat rows need a tool-calling story."""
+        body = GOOD_IN_APP.split("weights:")[0] + """\
+weights:
+  - id: on-device/nomic-embed-text-v1.5-q8-any
+    source: huggingface://nomic-ai/nomic-embed-text-v1.5
+    dtype: q8
+    device: any
+    capability: embeddings
+    context_length: 8192
+"""
+        errors, warnings = self.check(body)
+        self.assertEqual(errors, [])
+        self.assertEqual(warnings, [])
 
     def test_runtime_and_weights_are_in_app_only(self):
         cloud = """
@@ -222,29 +266,68 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertNotIn("billing", data, "the on-device free tier must never declare billing")
         self.assertNotIn("pricing", data)
         rows = {r["id"]: r for r in data["weights"]}
-        # Spec SBAI-7625 §5 tiers, all five present.
+        # Spec SBAI-7625 §5 tiers, all five present. Ids are namespaced so the
+        # cloud money-leak guard can reject the lane by 'on-device/' prefix.
         self.assertEqual(
             sorted(rows),
             [
-                "gemma-4-e2b-it-q4-wasm",
-                "gemma-4-e2b-it-q4f16-webgpu",
-                "gemma-4-e4b-it-q4f16-webgpu",
-                "nomic-embed-text-v1.5-q8-any",
-                "qwen3-0.6b-q4-any",
+                "on-device/gemma-4-e2b-it-q4-wasm",
+                "on-device/gemma-4-e2b-it-q4f16-webgpu",
+                "on-device/gemma-4-e4b-it-q4f16-webgpu",
+                "on-device/nomic-embed-text-v1.5-q8-any",
+                "on-device/qwen3-0.6b-q4-any",
             ],
         )
         # Exactly one free-tier default, and it is the E2B WebGPU tier.
         defaults = [r["id"] for r in data["weights"] if r.get("default")]
-        self.assertEqual(defaults, ["gemma-4-e2b-it-q4f16-webgpu"])
+        self.assertEqual(defaults, ["on-device/gemma-4-e2b-it-q4f16-webgpu"])
         # The WASM step-down is the experimental one; Qwen is the labelled
         # reduced-capability fallback, never a Gemma tier.
-        self.assertTrue(rows["gemma-4-e2b-it-q4-wasm"]["experimental"])
-        self.assertEqual(rows["gemma-4-e2b-it-q4-wasm"]["device"], "wasm")
-        self.assertTrue(rows["qwen3-0.6b-q4-any"]["fallback"])
-        self.assertNotIn("gemma", rows["qwen3-0.6b-q4-any"]["source"].lower())
-        self.assertEqual(rows["nomic-embed-text-v1.5-q8-any"]["capability"], "embeddings")
+        self.assertTrue(rows["on-device/gemma-4-e2b-it-q4-wasm"]["experimental"])
+        self.assertEqual(rows["on-device/gemma-4-e2b-it-q4-wasm"]["device"], "wasm")
+        self.assertTrue(rows["on-device/qwen3-0.6b-q4-any"]["fallback"])
+        self.assertNotIn("gemma", rows["on-device/qwen3-0.6b-q4-any"]["source"].lower())
+        self.assertEqual(
+            rows["on-device/nomic-embed-text-v1.5-q8-any"]["capability"], "embeddings"
+        )
         for row in data["weights"]:
             self.assertTrue(row["source"].startswith("huggingface://"), row)
+            self.assertTrue(
+                row["id"].startswith("on-device/"),
+                f"weight row id must be namespaced so the money-leak guard "
+                f"can match by prefix: {row['id']!r}",
+            )
+
+    def test_on_device_capability_metadata(self):
+        """Every chat tier declares its window, output cap, and tool story."""
+        import yaml  # noqa: PLC0415
+
+        path = ROOT / "templates" / "Providers" / "on-device.provider.yaml"
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        rows = {r["id"]: r for r in data["weights"]}
+        for rid, row in rows.items():
+            if row.get("capability", "llm-chat") != "llm-chat":
+                continue
+            self.assertIn("context_length", row, rid)
+            self.assertIn("max_output_tokens", row, rid)
+            self.assertIs(row.get("tools"), True, rid)
+            self.assertIn(row.get("thinking"), ("none", "optional", "always"), rid)
+        # Gemma 4 is a 128k-context family; the Qwen fallback is not, and must
+        # not inherit Gemma's window by copy-paste.
+        for rid in (
+            "on-device/gemma-4-e4b-it-q4f16-webgpu",
+            "on-device/gemma-4-e2b-it-q4f16-webgpu",
+            "on-device/gemma-4-e2b-it-q4-wasm",
+        ):
+            self.assertEqual(rows[rid]["context_length"], 131072, rid)
+            self.assertEqual(rows[rid]["max_output_tokens"], 8192, rid)
+        self.assertEqual(rows["on-device/qwen3-0.6b-q4-any"]["context_length"], 32768)
+        self.assertEqual(rows["on-device/qwen3-0.6b-q4-any"]["max_output_tokens"], 4096)
+        # The embeddings row has a window but no chat-only capability keys.
+        nomic = rows["on-device/nomic-embed-text-v1.5-q8-any"]
+        self.assertEqual(nomic["context_length"], 8192)
+        self.assertNotIn("tools", nomic)
+        self.assertNotIn("thinking", nomic)
 
 
 if __name__ == "__main__":

@@ -387,6 +387,9 @@ def check_requires() -> tuple[list[str], list[str]]:
       index badges them to the marketplace.
     - WARN: an in-app ``weights`` row whose ``source`` is not
       ``huggingface://...``.
+    - WARN: an in-app ``weights`` row serving ``llm-chat`` (explicitly, or by
+      omitting ``capability``) that lacks ``context_length`` or omits
+      ``tools`` -- the executor would fall back to unverifiable defaults.
     - WARN (migration period): ``auth.env`` not mirrored in ``requires.env``.
     - WARN: ``billing: [brainbits]`` without ``auth.env`` (nothing to meter
       against), and unknown ``provides`` capability tags (SBAI-7610).
@@ -512,6 +515,28 @@ def check_requires() -> tuple[list[str], list[str]]:
                         f"{path}: provider '{pid}' weights row {row.get('id')!r} has "
                         f"source {source!r} -- expected 'huggingface://<repo-id>'"
                     )
+                # Capability metadata on chat rows (SBAI-7625/7626). A row
+                # with no explicit capability is a chat row by convention.
+                # Without context_length the orchestrator compacts against a
+                # hard-coded default that may exceed this tier's real window;
+                # without an explicit tools flag the executor cannot tell
+                # "emits tool calls" from "not stated" and hands tool
+                # definitions to a model that may render them as prose. Both
+                # are WARN, not ERROR: the fields are optional in the schema
+                # and older catalogs must keep validating.
+                row_capability = row.get("capability") or "llm-chat"
+                if row_capability == "llm-chat":
+                    missing = [
+                        field
+                        for field in ("context_length", "tools")
+                        if field not in row
+                    ]
+                    if missing:
+                        warnings.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} serves "
+                            f"'{row_capability}' but omits {', '.join(missing)} -- "
+                            "the executor falls back to defaults it cannot verify"
+                        )
         else:
             # runtime / weights describe on-device execution and are in-app
             # only. Left unguarded, a cloud provider could declare them and
