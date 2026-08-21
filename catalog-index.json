@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-21T15:17:15Z",
+  "generated_at": "2026-08-21T15:41:58Z",
   "entries": [
     {
       "id": "character-bio",
@@ -540,6 +540,40 @@
       }
     },
     {
+      "id": "comfyui-cloud",
+      "kind": "provider",
+      "name": "ComfyUI Cloud",
+      "path": "templates/Providers/comfyui-cloud.provider.yaml",
+      "requires": {
+        "env": [
+          "COMFYUI_CLOUD_API_KEY"
+        ]
+      },
+      "wire": "comfyui",
+      "provides": [
+        "image-gen",
+        "video-gen",
+        "3d-gen"
+      ],
+      "billing": [
+        "byok",
+        "brainbits"
+      ],
+      "slots": {
+        "accepts": [
+          "text",
+          "image",
+          "audio"
+        ],
+        "emits": [
+          "image",
+          "video",
+          "3d",
+          "audio"
+        ]
+      }
+    },
+    {
       "id": "dashscope",
       "kind": "provider",
       "name": "DashScope (Alibaba)",
@@ -958,6 +992,35 @@
         ],
         "emits": [
           "audio"
+        ]
+      }
+    },
+    {
+      "id": "workers-ai",
+      "kind": "provider",
+      "name": "Cloudflare Workers AI",
+      "path": "templates/Providers/workers-ai.provider.yaml",
+      "requires": {
+        "env": [
+          "CF_API_TOKEN",
+          "CF_ACCOUNT_ID"
+        ]
+      },
+      "wire": "openai-compat",
+      "provides": [
+        "llm-chat",
+        "image-gen"
+      ],
+      "billing": [
+        "brainbits"
+      ],
+      "slots": {
+        "accepts": [
+          "text"
+        ],
+        "emits": [
+          "text",
+          "image"
         ]
       }
     }
