@@ -1,0 +1,32 @@
+# Cloudflare Workers AI. The OpenAI-compatible endpoint only covers chat
+# completions + embeddings; image generation goes through the native
+# per-model run endpoint (model id in the URL path, response is
+# binary/base64 image data, not JSON chat text). Both live behind the same
+# account + token, so one file covers both, same pattern as grok.provider.yaml.
+# Contracts: https://developers.cloudflare.com/workers-ai/ (model catalog),
+# https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/
+# (chat/completions, embeddings — no image endpoint), native run endpoint
+# POST /client/v4/accounts/{account_id}/ai/run/{model} for image models
+# (flux, stable-diffusion, dreamshaper, leonardo).
+# Verified against the live catalog (2026-08-21): no text-to-video,
+# image-to-video, or 3D-generation models exist yet — do not add video-gen
+# or 3d-gen until Cloudflare actually ships them.
+id: workers-ai
+kind: provider
+display: Cloudflare Workers AI
+wire: openai-compat
+base_url: https://api.cloudflare.com/client/v4/accounts/{{account_id}}/ai
+endpoint: /v1/chat/completions
+auth:
+  header: Authorization
+  scheme: Bearer
+  env: CF_API_TOKEN
+response:
+  text_path: choices.0.message.content
+slots:
+  accepts: [text]
+  emits: [text, image]
+provides: [llm-chat, image-gen]
+billing: [brainbits]
+requires:
+  env: [CF_API_TOKEN, CF_ACCOUNT_ID]
