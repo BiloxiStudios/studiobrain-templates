@@ -304,7 +304,14 @@ jobs:
                   "password": os.environ["CLOUD_CATALOG_BOT_PASSWORD"],
               }).encode("utf-8"),
               method="POST",
-              headers={"Content-Type": "application/json"},
+              headers={
+                  "Content-Type": "application/json",
+                  # Cloudflare Bot Fight Mode (error 1010) blocks the
+                  # default "Python-urllib/x.y" UA outright — measured live
+                  # 2026-08-21, the first trusted-run attempt 403'd on
+                  # exactly this before any app-level auth logic ran.
+                  "User-Agent": "studiobrain-templates-ci/1.0 (+https://github.com/BiloxiStudios/studiobrain-templates)",
+              },
           )
           with urllib.request.urlopen(req, timeout=30) as resp:
               body = json.load(resp)
@@ -344,7 +351,10 @@ jobs:
           entry_id, want_checksum = plugins[0]["id"], plugins[0]["manifest_sha256"]
           req = urllib.request.Request(
               f"{base}/api/catalog/plugins/{entry_id}",
-              headers={"Authorization": f"Bearer {token}"},
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "User-Agent": "studiobrain-templates-ci/1.0 (+https://github.com/BiloxiStudios/studiobrain-templates)",
+              },
           )
           with urllib.request.urlopen(req, timeout=30) as resp:
               body = json.load(resp)
