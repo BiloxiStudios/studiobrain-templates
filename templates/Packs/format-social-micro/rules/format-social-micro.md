@@ -1,3 +1,15 @@
+---
+# METADATA
+template_version: "1.0"
+template_category: "docs"
+editable: true
+marketplace_eligible: true
+id: "format-social-micro"
+entity_type: "pack-doc"
+created_date: "2026-08-21"
+last_updated: "2026-08-21"
+---
+
 # Format: Social Micro
 
 A **format** is a pack, not a new file class. It bundles existing catalog
