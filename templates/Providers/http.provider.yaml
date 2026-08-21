@@ -13,3 +13,5 @@ request:
     prompt: "{{prompt}}"
 response:
   text_path: text
+requires:
+  env: [CUSTOM_HTTP_KEY]

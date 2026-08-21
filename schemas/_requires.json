@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/_requires.json",
+  "title": "StudioBrain Runtime Requirements Metadata",
+  "description": "Shared schema fragment describing what a provider or workflow needs at runtime: target platforms, environment variables, local models, and CLI binaries. Consumed by the installer / validator to refuse cloud execution of desktop-only assets and to prompt the user for missing keys.",
+  "type": "object",
+  "properties": {
+    "platforms": {
+      "type": "array",
+      "description": "Platforms this asset can run on. 'wire: process' providers and any localhost base_url must include 'desktop'; cloud workers 501 assets they cannot serve.",
+      "items": {
+        "type": "string",
+        "enum": ["desktop", "cloud", "mobile"]
+      }
+    },
+    "env": {
+      "type": "array",
+      "description": "Environment variables (secrets / API keys) the user must set before running, e.g. FAL_KEY. Mirrors auth.env on providers.",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]*$"
+      }
+    },
+    "models": {
+      "type": "array",
+      "description": "Model ids resolved by the desktop model-manager gateway registry (e.g. 'pocket-tts'). Weights ship via the registry, not the installer.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    },
+    "binaries": {
+      "type": "array",
+      "description": "CLI binaries that must be on PATH for 'wire: process' providers (e.g. 'blender', 'uvr', 'ffmpeg').",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9._-]*$"
+      }
+    }
+  },
+  "additionalProperties": true
+}

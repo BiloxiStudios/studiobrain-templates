@@ -18,3 +18,5 @@ request:
 slots:
   accepts: [text, image]
   emits: [video]
+requires:
+  env: [FAL_KEY]

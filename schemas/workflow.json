@@ -27,6 +27,10 @@
       "minItems": 1,
       "items": { "type": "string" }
     },
+    "requires": {
+      "$ref": "./_requires.json",
+      "description": "Aggregated runtime requirements. A workflow must cover its steps' providers: desktop providers force platforms containing 'desktop'; env/models should be unioned from the providers used."
+    },
     "loop": {
       "type": "object",
       "properties": {

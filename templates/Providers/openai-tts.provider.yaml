@@ -16,3 +16,5 @@ request:
     voice: alloy
     input: "{{prompt}}"
     response_format: mp3
+requires:
+  env: [OPENAI_API_KEY]

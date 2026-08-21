@@ -1,0 +1,29 @@
+# Stable Audio text-to-music, hosted on fal.ai (contract verified against the
+# fal.ai model API docs). fal.run answers synchronously for short clips; for
+# long generations use the queue like tripo/kling — POST
+# https://queue.fal.run/fal-ai/stable-audio returns a request_id, poll
+# GET /fal-ai/stable-audio/requests/{request_id}/status until COMPLETED,
+# then GET .../result. Output audio URL at audio_file.url. Same FAL_KEY as fal.
+id: stable-audio
+kind: provider
+display: Stable Audio (fal.ai)
+wire: http
+base_url: https://fal.run
+endpoint: /fal-ai/stable-audio
+auth:
+  header: Authorization
+  scheme: Key
+  env: FAL_KEY
+request:
+  method: POST
+  body:
+    prompt: "{{prompt}}"
+    seconds_total: 30
+    steps: 100
+response:
+  image_url_path: audio_file.url
+requires:
+  env: [FAL_KEY]
+slots:
+  accepts: [text]
+  emits: [audio]

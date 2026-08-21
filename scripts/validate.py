@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""StudioBrain templates — schema + compat validator.
+"""StudioBrain templates -- schema + compat validator.
 
 Runs every CI-facing check from one place:
 
@@ -12,11 +12,15 @@ Runs every CI-facing check from one place:
      against ``schemas/provider.json``, ``schemas/ability.json``, and
      ``schemas/workflow.json`` (SBAI-7569 drop-in generation files).
   7. Validates entity markdown YAML frontmatter against ``schemas/<entity_type>.json``
-     (best-effort — skipped if pyyaml is unavailable).
+     (best-effort -- skipped if pyyaml is unavailable).
   8. Enforces compat metadata: every layout / pack / plugin / skill MUST declare
      ``compat.min_core_version`` as a semver string. When ``--core-version`` is
      supplied, the script also refuses assets whose ``min_core_version`` is
      newer than the running core.
+  9. Enforces ``requires`` metadata on providers / workflows: ``wire: process``
+     and localhost providers must declare ``platforms: [desktop]``; workflows
+     must cover the platforms (error) and env / models (warning) of every
+     provider their steps use.
 
 Intended for both local development and CI:
 
@@ -65,7 +69,7 @@ def _info(msg: str) -> None:
 def _parse_semver(value: str) -> tuple[int, int, int]:
     """Parse a semver string into a (major, minor, patch) tuple for ordering.
 
-    Pre-release/build metadata are stripped — compat ordering is purely on the
+    Pre-release/build metadata are stripped -- compat ordering is purely on the
     release triple.
     """
     match = SEMVER_RE.match(value)
@@ -232,7 +236,7 @@ def check_plugins() -> list[str]:
 def check_skills() -> list[str]:
     errors: list[str] = []
     if not HAVE_YAML:
-        _info("NOTE: pyyaml not installed — skipping skill YAML frontmatter validation.")
+        _info("NOTE: pyyaml not installed -- skipping skill YAML frontmatter validation.")
         return errors
     for skill_dir in [SKILLS_DIR / "Standard", SKILLS_DIR / "User"]:
         if not skill_dir.exists():
@@ -254,7 +258,7 @@ def check_providers_and_abilities() -> list[str]:
     """Validate drop-in generation files (SBAI-7569)."""
     errors: list[str] = []
     if not HAVE_YAML:
-        _info("NOTE: pyyaml not installed — skipping provider/ability YAML validation.")
+        _info("NOTE: pyyaml not installed -- skipping provider/ability YAML validation.")
         return errors
     search_roots = [TEMPLATES_DIR, ROOT / "Providers", ROOT / "Abilities"]
     for root in search_roots:
@@ -295,12 +299,12 @@ def check_providers_and_abilities() -> list[str]:
 
 def check_entity_frontmatter() -> list[str]:
     if not HAVE_YAML or not HAVE_JSONSCHEMA:
-        _info("NOTE: pyyaml or jsonschema not installed — skipping entity YAML frontmatter validation.")
+        _info("NOTE: pyyaml or jsonschema not installed -- skipping entity YAML frontmatter validation.")
         return []
     errors: list[str] = []
     skip_files = {"README.md"}
     # Template / example files use placeholder values ([snake_case_name], YYYY-MM-DD)
-    # by design — they are not real entity instances and must not be schema-validated.
+    # by design -- they are not real entity instances and must not be schema-validated.
     skip_suffixes = ("_TEMPLATE.md",)
     skip_path_parts = {"templates", "examples"}
     for md in sorted(TEMPLATES_DIR.rglob("*.md")):
@@ -336,6 +340,107 @@ def check_entity_frontmatter() -> list[str]:
             continue
         errors.extend(_validate_instance(data, f"{entity_type}.json", str(md)))
     return errors
+
+
+# ----- Requires enforcement ------------------------------------------------------
+
+_LOCALHOST_RE = re.compile(r"^(https?://)?(localhost|127\.0\.0\.1|\[?::1\]?)([:/]|$)")
+
+
+def check_requires() -> tuple[list[str], list[str]]:
+    """Enforce ``requires`` metadata on providers and workflows (SBAI-7569).
+
+    Returns (errors, warnings):
+    - ERROR: a ``wire: process`` provider must declare requires.platforms
+      containing ``desktop``.
+    - ERROR: a provider with a localhost base_url must declare
+      requires.platforms containing ``desktop`` (cloud workers cannot run it).
+    - WARN (migration period): ``auth.env`` not mirrored in ``requires.env``.
+    - ERROR: a workflow step that uses a desktop-only provider forces the
+      workflow to declare requires.platforms containing ``desktop``;
+      WARN on uncovered env / models.
+    """
+    errors: list[str] = []
+    warnings: list[str] = []
+    if not HAVE_YAML:
+        return errors, warnings
+
+    providers: dict[str, tuple[pathlib.Path, dict[str, Any]]] = {}
+    workflows: list[tuple[pathlib.Path, dict[str, Any]]] = []
+    search_roots = [TEMPLATES_DIR, ROOT / "Providers", ROOT / "Abilities"]
+    for root in search_roots:
+        if not root.exists():
+            continue
+        for pattern, sink in (("*.provider.yaml", "provider"), ("*.workflow.yaml", "workflow")):
+            for path in sorted(root.rglob(pattern)):
+                try:
+                    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+                except yaml.YAMLError:
+                    continue  # parse errors are reported by check_providers_and_abilities
+                if not isinstance(data, dict):
+                    continue
+                if sink == "provider":
+                    if data.get("id"):
+                        providers[str(data["id"])] = (path, data)
+                else:
+                    workflows.append((path, data))
+
+    for pid, (path, data) in sorted(providers.items()):
+        requires = data.get("requires") or {}
+        platforms = requires.get("platforms") or []
+        env = requires.get("env") or []
+        if data.get("wire") == "process" and "desktop" not in platforms:
+            errors.append(
+                f"{path}: provider '{pid}' has wire 'process' -- "
+                "requires.platforms must contain 'desktop'"
+            )
+        base_url = str(data.get("base_url") or "")
+        if _LOCALHOST_RE.match(base_url) and "desktop" not in platforms:
+            errors.append(
+                f"{path}: provider '{pid}' has a localhost base_url -- "
+                "requires.platforms must contain 'desktop'"
+            )
+        auth = data.get("auth") or {}
+        auth_env = auth.get("env")
+        if auth_env and auth_env not in env:
+            warnings.append(
+                f"{path}: provider '{pid}' auth.env={auth_env!r} is not listed in requires.env"
+            )
+
+    for path, data in workflows:
+        requires = data.get("requires") or {}
+        platforms = requires.get("platforms") or []
+        env = requires.get("env") or []
+        models = requires.get("models") or []
+        wid = data.get("id", path.name)
+        seen: set[str] = set()
+        for step in data.get("steps") or []:
+            if not isinstance(step, dict):
+                continue
+            pid = step.get("provider")
+            if not pid or pid not in providers:
+                continue
+            preq = providers[pid][1].get("requires") or {}
+            if "desktop" in (preq.get("platforms") or []) and "desktop" not in platforms:
+                errors.append(
+                    f"{path}: workflow '{wid}' step '{step.get('id')}' uses desktop-only "
+                    f"provider '{pid}' -- requires.platforms must contain 'desktop'"
+                )
+            for need in preq.get("env") or []:
+                if need not in env and ("env", need) not in seen:
+                    seen.add(("env", need))
+                    warnings.append(
+                        f"{path}: workflow '{wid}' uses provider '{pid}' requiring env "
+                        f"{need!r} -- not listed in requires.env"
+                    )
+            for need in preq.get("models") or []:
+                if need not in models and ("models", need) not in seen:
+                    seen.add(("models", need))
+                    warnings.append(
+                        f"{path}: workflow '{wid}' uses provider '{pid}' requiring model "
+                        f"{need!r} -- not listed in requires.models"
+                    )
+    return errors, warnings
 
 
 # ----- Compat enforcement --------------------------------------------------------
@@ -430,10 +535,10 @@ def check_fixtures() -> list[str]:
     """Validate fixture files against their schemas.
 
     Expects fixtures in schemas/fixtures/:
-    - valid_v2_*.json — should pass validation
-    - invalid_v2_*.json — should fail validation (we confirm errors are raised)
-    - valid_v1_*.json — legacy v1 manifests that should pass
-    - invalid_v1_*.json — legacy v1 manifests that should fail
+    - valid_v2_*.json -- should pass validation
+    - invalid_v2_*.json -- should fail validation (we confirm errors are raised)
+    - valid_v1_*.json -- legacy v1 manifests that should pass
+    - invalid_v1_*.json -- legacy v1 manifests that should fail
     """
     errors: list[str] = []
     if not FIXTURES_DIR.exists():
@@ -507,9 +612,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if not HAVE_JSONSCHEMA:
-        _info("WARNING: jsonschema not installed — schema-shape checks will be skipped.")
+        _info("WARNING: jsonschema not installed -- schema-shape checks will be skipped.")
     if not HAVE_YAML:
-        _info("WARNING: pyyaml not installed — YAML-dependent checks will be skipped.")
+        _info("WARNING: pyyaml not installed -- YAML-dependent checks will be skipped.")
 
     all_errors: list[str] = []
 
@@ -530,6 +635,12 @@ def main(argv: list[str] | None = None) -> int:
 
     _info("== Validating provider, ability, and workflow files ==")
     all_errors.extend(check_providers_and_abilities())
+
+    _info("== Enforcing requires metadata ==")
+    requires_errors, requires_warnings = check_requires()
+    for w in requires_warnings:
+        _info(f"WARN: {w}")
+    all_errors.extend(requires_errors)
 
     if not args.no_entity_yaml:
         _info("== Validating entity markdown frontmatter ==")
