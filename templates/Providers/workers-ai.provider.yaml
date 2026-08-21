@@ -28,5 +28,11 @@ slots:
   emits: [text, image]
 provides: [llm-chat, image-gen]
 billing: [brainbits]
+# Cheap BrainBits alternative to on-device Gemma 4 E2B — pickable, never a
+# silent fallback. Caps free users when they opt in. Pricing ~$0.10/$0.30
+# per 1M tokens (Workers AI @cf/google/gemma-4-26b-a4b-it).
+chat:
+  nativeChatPath: v1/chat/completions
+  defaultModel: '@cf/google/gemma-4-26b-a4b-it'
 requires:
   env: [CF_API_TOKEN, CF_ACCOUNT_ID]
