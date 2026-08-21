@@ -16,6 +16,11 @@
 # Gemma 4 is an owner lock (2026-08-21, supersedes any earlier Gemma 3 body
 # text): https://huggingface.co/blog/gemma4. Billing is intentionally
 # omitted -- the user's own device is free (WORKFLOW_RULES.md:227).
+# A row's `dtype` is an execution prerequisite, not a size preference: q4f16
+# and fp16 rows need the WebGPU `shader-f16` feature and are skipped by
+# selectWeights on any runtime that cannot prove it (SBAI-7682). Declare a
+# runnable non-f16 row for every device tier, or that tier dead-ends after
+# the user has already paid for the download.
 id: on-device
 kind: provider
 display: On-Device AI (Free)
@@ -54,25 +59,61 @@ weights:
     thinking: optional
     default: true
     modality: [text]
-  - id: on-device/gemma-4-e2b-it-q4-wasm
+  # SBAI-7682: the q4f16 rows above cannot execute on a WebGPU adapter that
+  # does not expose the `shader-f16` feature -- ORT compiles their graphs to
+  # half-precision shaders and aborts at OrtRun ("Program GatherBlockQuantized
+  # requires f16 but the device does not support it"). The acceptance witness
+  # hit exactly that on a hardware NVIDIA Blackwell adapter, after the ~3 GB
+  # download. This is the q4 step-down the executor falls to; no suffix is
+  # needed on the id now that there is only one Gemma q4 row.
+  # approx_download_mb is the witnessed transfer: 3,646,875,754 bytes for
+  # onnx/embed_tokens_q4 + onnx/decoder_model_merged_q4 + tokenizer + configs
+  # at revision 9f4bef82ea6e296bc69f8a2f5939f73af81b07a6.
+  - id: on-device/gemma-4-e2b-it-q4
     source: huggingface://onnx-community/gemma-4-E2B-it-ONNX
     dtype: q4
-    device: wasm
+    device: webgpu
     min_ram_gb: 8
-    approx_download_mb: 3400
+    approx_download_mb: 3647
     capability: llm-chat
     context_length: 131072
     max_output_tokens: 8192
     tools: true
     thinking: optional
-    experimental: true
     modality: [text]
+  # SBAI-7682: there is deliberately NO Gemma 4 WASM row. ORT-web's WASM
+  # execution provider has no GatherBlockQuantized kernel, so the q4 Gemma
+  # graph cannot even create a session there ("Could not find an
+  # implementation for GatherBlockQuantized(1)") -- witnessed after a 3.5 GB
+  # in-browser download. The only Gemma variant WASM has kernels for is q8,
+  # whose weights are ~9 GB, over the wasm32 4 GB ceiling. Qwen3-0.6B is the
+  # WASM tier instead: q8 is plain per-tensor quantization on standard
+  # kernels, and the same family completed the full entity.list round trip on
+  # ORT-web/WASM during the witness. Not marked `fallback` -- this row IS the
+  # WASM tier, so the executor may select it; it is labelled reduced-
+  # capability by being visibly not Gemma.
+  - id: on-device/qwen3-0.6b-q8-wasm
+    source: huggingface://onnx-community/Qwen3-0.6B-ONNX
+    dtype: q8
+    device: wasm
+    min_ram_gb: 4
+    approx_download_mb: 630
+    capability: llm-chat
+    context_length: 32768
+    max_output_tokens: 4096
+    tools: true
+    thinking: optional
+    modality: [text]
+  # Offered, never auto-selected (fallback: true). approx_download_mb
+  # corrected in SBAI-7682: onnx/model_q4.onnx is 919,096,585 bytes, not the
+  # ~500 MB originally declared -- q4 block quantization of this model is
+  # LARGER than its q8 above.
   - id: on-device/qwen3-0.6b-q4-any
     source: huggingface://onnx-community/Qwen3-0.6B-ONNX
     dtype: q4
     device: any
     min_ram_gb: 4
-    approx_download_mb: 500
+    approx_download_mb: 930
     capability: llm-chat
     context_length: 32768
     max_output_tokens: 4096
