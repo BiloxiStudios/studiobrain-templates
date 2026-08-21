@@ -18,9 +18,10 @@ Runs every CI-facing check from one place:
      supplied, the script also refuses assets whose ``min_core_version`` is
      newer than the running core.
   9. Enforces ``requires`` metadata on providers / canvases: ``wire: process``
-     and localhost providers must declare ``platforms: [desktop]``; canvases
-     must cover the platforms (error) and env / models (warning) of every
-     provider their steps use.
+     and localhost providers must declare ``platforms: [desktop]``; ``wire:
+     in-app`` providers must declare no ``base_url``/``auth``, a ``runtime``,
+     and at least one ``weights`` row; canvases must cover the platforms
+     (error) and env / models (warning) of every provider their steps use.
  10. Checks ``catalog-index.json`` (SBAI-7611) is in sync with the catalog
      files on disk by rebuilding the entries in-memory and comparing
      (``generated_at`` is ignored -- it pins to the commit timestamp).
@@ -373,6 +374,11 @@ def check_requires() -> tuple[list[str], list[str]]:
       containing ``desktop``.
     - ERROR: a provider with a localhost base_url must declare
       requires.platforms containing ``desktop`` (cloud workers cannot run it).
+    - ERROR: a ``wire: in-app`` provider must not declare ``base_url`` or
+      ``auth`` (it never talks to a URL), must declare ``runtime``, and must
+      declare at least one ``weights`` row (SBAI-7625/7626).
+    - WARN: an in-app ``weights`` row whose ``source`` is not
+      ``huggingface://...``.
     - WARN (migration period): ``auth.env`` not mirrored in ``requires.env``.
     - WARN: ``billing: [brainbits]`` without ``auth.env`` (nothing to meter
       against), and unknown ``provides`` capability tags (SBAI-7610).
@@ -442,6 +448,39 @@ def check_requires() -> tuple[list[str], list[str]]:
                     f"{path}: provider '{pid}' has unknown provides tag {tag!r} "
                     f"(known: {', '.join(sorted(_KNOWN_PROVIDES))})"
                 )
+
+        # wire: in-app invariants (SBAI-7625/7626): the model executes inside
+        # the client app via the ai-sdk on-device executor -- same doctrine as
+        # wire: process, cloud workers must 501 it. It never talks to a URL,
+        # so base_url/auth are meaningless; runtime + weights are how the
+        # executor knows what engine and which weight rows to use.
+        if data.get("wire") == "in-app":
+            if data.get("base_url"):
+                errors.append(
+                    f"{path}: provider '{pid}' has wire 'in-app' -- must not declare base_url"
+                )
+            if data.get("auth"):
+                errors.append(
+                    f"{path}: provider '{pid}' has wire 'in-app' -- must not declare auth"
+                )
+            if not data.get("runtime"):
+                errors.append(
+                    f"{path}: provider '{pid}' has wire 'in-app' -- runtime is required"
+                )
+            weights = data.get("weights") or []
+            if not weights:
+                errors.append(
+                    f"{path}: provider '{pid}' has wire 'in-app' -- requires at least one weights row"
+                )
+            for row in weights:
+                if not isinstance(row, dict):
+                    continue
+                source = str(row.get("source") or "")
+                if source and not source.startswith("huggingface://"):
+                    warnings.append(
+                        f"{path}: provider '{pid}' weights row {row.get('id')!r} has "
+                        f"source {source!r} -- expected 'huggingface://<repo-id>'"
+                    )
 
     for path, data in workflows:
         requires = data.get("requires") or {}

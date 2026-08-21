@@ -17,8 +17,8 @@
     "display": { "type": "string" },
     "wire": {
       "type": "string",
-      "enum": ["openai-compat", "anthropic", "google", "comfyui", "http", "process", "dashscope"],
-      "description": "process = desktop/LAN CLI (Blender, UVR). Cloud workers must 501 process and localhost base_url. dashscope = Alibaba DashScope native API, which is NOT openai-compatible; its compatible-mode endpoint (/compatible-mode/v1) can instead be used with wire: openai-compat."
+      "enum": ["openai-compat", "anthropic", "google", "comfyui", "http", "process", "dashscope", "in-app"],
+      "description": "process = desktop/LAN CLI (Blender, UVR). Cloud workers must 501 process and localhost base_url. dashscope = Alibaba DashScope native API, which is NOT openai-compatible; its compatible-mode endpoint (/compatible-mode/v1) can instead be used with wire: openai-compat. in-app = executes inside the client app via the ai-sdk on-device executor (WebGPU/WASM, no network hop); same doctrine as process -- cloud workers must 501 it."
     },
     "provides": {
       "type": "array",
@@ -32,12 +32,70 @@
       "type": "boolean",
       "description": "Curated knowledge that a browser may call this provider directly (CORS). Absent means unknown — the designed default for providers that do not publish a CORS policy."
     },
+    "runtime": {
+      "type": "string",
+      "enum": ["transformers.js"],
+      "description": "in-app only -- which engine the in-app executor uses to run this provider's weights on-device."
+    },
     "models": {
       "type": "object",
       "description": "Where the app pulls the provider's live model list, and the cache interval.",
       "properties": {
         "endpoint": { "type": "string", "description": "Model-list endpoint, e.g. /v1/models." },
         "refresh": { "type": "string", "description": "Cache interval, e.g. 24h." }
+      }
+    },
+    "weights": {
+      "type": "array",
+      "description": "Static per-device weight rows for wire:in-app providers -- distinct from 'models', which is live-list discovery. Each row is one downloadable weight variant the in-app executor may select based on detected device capability.",
+      "items": {
+        "type": "object",
+        "required": ["id", "source", "dtype", "device"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._-]*$",
+            "description": "Slug identifying this weight row, e.g. gemma-4-e2b-it-q4f16-webgpu."
+          },
+          "source": {
+            "type": "string",
+            "description": "Weight source, conventionally 'huggingface://<repo-id>' (scripts/validate.py WARNs on other forms rather than hard-failing, so alternate sources can still ship)."
+          },
+          "dtype": {
+            "type": "string",
+            "enum": ["fp32", "fp16", "q8", "q4", "q4f16", "bnb4"]
+          },
+          "device": {
+            "type": "string",
+            "enum": ["webgpu", "wasm", "any"]
+          },
+          "min_ram_gb": { "type": "number" },
+          "min_vram_gb": { "type": "number" },
+          "approx_download_mb": { "type": "number" },
+          "capability": {
+            "type": "string",
+            "description": "Capability this weight row serves, e.g. llm-chat or embeddings."
+          },
+          "default": {
+            "type": "boolean",
+            "description": "Preferred row for its capability/device tier when multiple rows qualify."
+          },
+          "fallback": {
+            "type": "boolean",
+            "description": "Reduced-capability row offered only when no default-tier row is admissible."
+          },
+          "experimental": {
+            "type": "boolean",
+            "description": "Row is offered but not yet hardened (e.g. near a WASM memory ceiling)."
+          },
+          "modality": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["text", "image", "audio"]
+            }
+          }
+        }
       }
     },
     "pricing": {

@@ -1,0 +1,68 @@
+# Zero-key, zero-install free tier: runs entirely on the user's device via
+# the ai-sdk on-device executor (packages/ai-sdk/src/ondevice, SBAI-7625) --
+# WebGPU with a WASM fallback, no network hop, never debited against
+# BrainBits. wire: in-app follows the wire: process precedent: cloud workers
+# must 501 it (they have no browser/device to run weights on). The
+# WebGPU -> WASM -> model-manager -> cloud fallback ladder is policy that
+# lives in the executor (resolver.ts), never in this file (WORKFLOW_RULES.md
+# fallback-chain doctrine). Weight rows below are the static per-device
+# matrix the executor selects from at runtime based on detected capability --
+# they are not a live model list (that's what `models` is for elsewhere).
+# Gemma 4 is an owner lock (2026-08-21, supersedes any earlier Gemma 3 body
+# text): https://huggingface.co/blog/gemma4. Billing is intentionally
+# omitted -- the user's own device is free (WORKFLOW_RULES.md:227).
+id: on-device
+kind: provider
+display: On-Device AI (Free)
+wire: in-app
+runtime: transformers.js
+provides: [llm-chat, embeddings]
+slots:
+  accepts: [text]
+  emits: [text, tool]
+requires:
+  platforms: [web, desktop, mobile]
+  webgpu: optional
+weights:
+  - id: gemma-4-e4b-it-q4f16-webgpu
+    source: huggingface://onnx-community/gemma-4-E4B-it-ONNX
+    dtype: q4f16
+    device: webgpu
+    min_ram_gb: 16
+    approx_download_mb: 4800
+    capability: llm-chat
+    modality: [text]
+  - id: gemma-4-e2b-it-q4f16-webgpu
+    source: huggingface://onnx-community/gemma-4-E2B-it-ONNX
+    dtype: q4f16
+    device: webgpu
+    min_ram_gb: 8
+    approx_download_mb: 2900
+    capability: llm-chat
+    default: true
+    modality: [text]
+  - id: gemma-4-e2b-it-q4-wasm
+    source: huggingface://onnx-community/gemma-4-E2B-it-ONNX
+    dtype: q4
+    device: wasm
+    min_ram_gb: 8
+    approx_download_mb: 3400
+    capability: llm-chat
+    experimental: true
+    modality: [text]
+  - id: qwen3-0.6b-q4-any
+    source: huggingface://onnx-community/Qwen3-0.6B-ONNX
+    dtype: q4
+    device: any
+    min_ram_gb: 4
+    approx_download_mb: 500
+    capability: llm-chat
+    fallback: true
+    modality: [text]
+  - id: nomic-embed-text-v1.5-q8-any
+    source: huggingface://nomic-ai/nomic-embed-text-v1.5
+    dtype: q8
+    device: any
+    approx_download_mb: 140
+    capability: embeddings
+    modality: [text]
