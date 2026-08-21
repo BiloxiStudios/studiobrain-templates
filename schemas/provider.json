@@ -17,8 +17,57 @@
     "display": { "type": "string" },
     "wire": {
       "type": "string",
-      "enum": ["openai-compat", "anthropic", "google", "comfyui", "http", "process"],
-      "description": "process = desktop/LAN CLI (Blender, UVR). Cloud workers must 501 process and localhost base_url."
+      "enum": ["openai-compat", "anthropic", "google", "comfyui", "http", "process", "dashscope"],
+      "description": "process = desktop/LAN CLI (Blender, UVR). Cloud workers must 501 process and localhost base_url. dashscope = Alibaba DashScope native API, which is NOT openai-compatible; its compatible-mode endpoint (/compatible-mode/v1) can instead be used with wire: openai-compat."
+    },
+    "provides": {
+      "type": "array",
+      "description": "Kebab-case capability tags (e.g. llm-chat, tts, voice-clone, image-gen, video-gen, music-gen, 3d-gen, audio-stems, media-convert). Capability matching (workflow step substitution) and marketplace filtering consume this.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+      }
+    },
+    "client_direct": {
+      "type": "boolean",
+      "description": "Curated knowledge that a browser may call this provider directly (CORS). Absent means unknown — the designed default for providers that do not publish a CORS policy."
+    },
+    "models": {
+      "type": "object",
+      "description": "Where the app pulls the provider's live model list, and the cache interval.",
+      "properties": {
+        "endpoint": { "type": "string", "description": "Model-list endpoint, e.g. /v1/models." },
+        "refresh": { "type": "string", "description": "Cache interval, e.g. 24h." }
+      }
+    },
+    "pricing": {
+      "type": "object",
+      "description": "Dynamic price feed or static per-model table. Prefer a real endpoint; static tables rot.",
+      "properties": {
+        "source": { "type": "string", "enum": ["endpoint", "table"] },
+        "endpoint": { "type": "string" },
+        "table": { "type": "object" }
+      }
+    },
+    "billing": {
+      "type": "array",
+      "description": "byok = user's own key, unmetered; brainbits = our preset key, metered. Local/device providers omit the field (free when it is the user's device or the user's key).",
+      "items": {
+        "type": "string",
+        "enum": ["byok", "brainbits"]
+      }
+    },
+    "chat": {
+      "type": "object",
+      "description": "Chat-routing hints so ai-sdk's hardcoded KNOWN_PROVIDERS table can be codegen'd from the catalog. Values mirror ProviderRecord in the ai-sdk provider registry.",
+      "properties": {
+        "nativeChatPath": { "type": "string", "description": "Native chat path, e.g. chat/completions or v1/messages." },
+        "modelPrefixes": {
+          "type": "array",
+          "description": "Model-id prefixes used for provider inference, e.g. [gpt-, claude-].",
+          "items": { "type": "string" }
+        }
+      }
     },
     "slots": {
       "type": "object",
@@ -51,6 +100,7 @@
     "endpoint": { "type": "string" },
     "auth": {
       "type": "object",
+      "description": "header/scheme/env describe key auth. scheme 'oauth2' is RESERVED (SBAI-7619): authorize_url / token_url / scopes / client_name may be declared, but no OAuth flow is implemented this cycle and no catalog provider uses it yet.",
       "properties": {
         "header": { "type": "string" },
         "scheme": { "type": "string" },

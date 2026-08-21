@@ -11,3 +11,4 @@ slots:
   emits: [image, video, 3d, audio]
 requires:
   platforms: [desktop]
+provides: [image-gen, video-gen, 3d-gen]

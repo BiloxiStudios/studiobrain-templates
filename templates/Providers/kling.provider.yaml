@@ -20,3 +20,5 @@ slots:
   emits: [video]
 requires:
   env: [FAL_KEY]
+provides: [video-gen]
+billing: [byok]

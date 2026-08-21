@@ -17,6 +17,7 @@ request:
 requires:
   platforms: [desktop]
   models: [pocket-tts]
+provides: [tts, voice-clone]
 slots:
   accepts: [text]
   emits: [audio]

@@ -1,0 +1,29 @@
+# xAI Grok. OpenAI-compatible chat plus image and video generation on the same
+# key. Contracts: https://docs.x.ai/docs/api-reference (chat + POST
+# /v1/images/generations) and https://docs.x.ai/docs/guides/video-generations
+# (grok-imagine-video -- async, the client polls until the video URL is ready).
+id: grok
+kind: provider
+display: xAI Grok
+wire: openai-compat
+base_url: https://api.x.ai
+endpoint: /v1/chat/completions
+auth:
+  header: Authorization
+  scheme: Bearer
+  env: XAI_API_KEY
+response:
+  text_path: choices.0.message.content
+provides: [llm-chat, image-gen, video-gen]
+billing: [byok]
+requires:
+  env: [XAI_API_KEY]
+models:
+  endpoint: /v1/models
+  refresh: 24h
+chat:
+  nativeChatPath: chat/completions
+  modelPrefixes: [grok-]
+slots:
+  accepts: [text, image]
+  emits: [text, image, video]

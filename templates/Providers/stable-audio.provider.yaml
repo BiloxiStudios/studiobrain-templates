@@ -24,6 +24,8 @@ response:
   image_url_path: audio_file.url
 requires:
   env: [FAL_KEY]
+provides: [music-gen]
+billing: [byok]
 slots:
   accepts: [text]
   emits: [audio]

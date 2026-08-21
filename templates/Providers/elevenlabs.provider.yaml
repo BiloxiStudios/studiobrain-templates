@@ -20,3 +20,8 @@ slots:
   emits: [audio]
 requires:
   env: [ELEVENLABS_API_KEY]
+provides: [tts, voice-clone]
+billing: [byok]
+models:
+  endpoint: /v1/models
+  refresh: 24h

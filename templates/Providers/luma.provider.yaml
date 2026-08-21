@@ -26,3 +26,5 @@ slots:
   emits: [video]
 requires:
   env: [LUMAAI_API_KEY]
+provides: [video-gen]
+billing: [byok]

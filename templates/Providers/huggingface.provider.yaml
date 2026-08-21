@@ -12,3 +12,8 @@ response:
   text_path: choices.0.message.content
 requires:
   env: [HF_TOKEN]
+provides: [llm-chat]
+billing: [byok]
+models:
+  endpoint: /v1/models
+  refresh: 24h

@@ -20,3 +20,5 @@ slots:
   emits: [image, video, audio]
 requires:
   env: [FAL_KEY]
+provides: [image-gen, video-gen]
+billing: [byok]

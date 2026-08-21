@@ -21,3 +21,5 @@ response:
   image_url_path: data.output.model_url
 requires:
   env: [TRIPO_API_KEY]
+provides: [3d-gen]
+billing: [byok]
