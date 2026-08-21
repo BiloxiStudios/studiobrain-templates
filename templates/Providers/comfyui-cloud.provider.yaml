@@ -1,0 +1,28 @@
+# ComfyUI Cloud (cloud.comfy.org) — separate from the desktop/LAN `comfyui`
+# provider (that one keeps its localhost base_url and desktop-only
+# requirement; resolution across the two is SBAI-7613, not this file).
+# Same wire protocol as local ComfyUI, reached over HTTPS with an /api path
+# prefix and an API-key header instead of loopback + no auth, so it runs
+# fine on Workers — no desktop relay needed. Ground truth: sb-cloud
+# crates/sb-cloud/src/comfyui/client.rs (COMFYUI_CLOUD_URL, X-API-Key,
+# /api{path} prefix) and packages/frontend-cloud/src/lib/comfyui-cloud-api.ts
+# (POST /api/comfyui/execute, BrainBits-metered by default with an optional
+# user-supplied cloud API key).
+id: comfyui-cloud
+kind: provider
+display: ComfyUI Cloud
+wire: comfyui
+base_url: https://cloud.comfy.org
+endpoint: /api/prompt
+auth:
+  header: X-API-Key
+  env: COMFYUI_CLOUD_API_KEY
+response:
+  image_url_path: images.0
+slots:
+  accepts: [text, image, audio]
+  emits: [image, video, 3d, audio]
+provides: [image-gen, video-gen, 3d-gen]
+billing: [byok, brainbits]
+requires:
+  env: [COMFYUI_CLOUD_API_KEY]
