@@ -2,7 +2,7 @@
 # a short image-to-video clip. Same skeleton as establishing-shot; the output
 # lands on broll_video instead of the establishing slot.
 id: broll-from-location
-kind: workflow
+kind: canvas
 name: B-roll from location
 label: B-roll from location
 description: Generate a short b-roll clip for a location from its description.

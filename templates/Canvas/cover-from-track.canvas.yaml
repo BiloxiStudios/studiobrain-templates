@@ -1,7 +1,7 @@
 # Music domain: song/album description -> art-direction text -> cover image.
 # Text hop keeps the image prompt on-brief; swap openai/fal endpoints freely.
 id: cover-from-track
-kind: workflow
+kind: canvas
 name: Cover art from track
 label: Cover from track
 description: Turn a track or album description into cover art via a short art-direction pass.
