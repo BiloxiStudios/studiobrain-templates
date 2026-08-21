@@ -256,14 +256,16 @@ jobs:
   # Same trust boundary as publish-plugins-to-r2 above, and covered by the
   # same check_workflow_secret_isolation.py gate: `needs` this job so it can
   # never run before the index is actually signed+published, and gate on
-  # push-to-main so CLOUD_CATALOG_ACCESS_TOKEN is never reachable from a
-  # pull_request run. The credential itself is a long-lived access token for
-  # a dedicated, low-privilege "catalog publisher" account (an
-  # otherwise-empty tenant it owns — no billing, no other repo/team access)
-  # — see scripts/sync_catalog_plugins.py's module docstring for why this
-  # is a static token rather than the standard interactive refresh-token
-  # flow (accounts' reuse-detection rotation would self-destruct an
-  # unattended headless credential on its second run).
+  # push-to-main so CLOUD_CATALOG_BOT_EMAIL/PASSWORD are never reachable
+  # from a pull_request run. The credential is the login password for a
+  # dedicated, low-privilege "catalog publisher" bot account (an
+  # otherwise-empty tenant it owns — no billing, no other repo/team
+  # access; self-registration already grants it the `owner` role, which
+  # is all the catalog publish endpoint requires). Every run logs in fresh
+  # for a short-lived access token rather than storing one long-lived —
+  # see scripts/sync_catalog_plugins.py's module docstring for why (accounts'
+  # refresh-token reuse-detection rotation would self-destruct a stored
+  # refresh token on a second run; a fresh login has no such reuse state).
   sync-catalog-plugins:
     runs-on: ubuntu-latest
     needs: [publish-plugins-to-r2]
@@ -286,9 +288,39 @@ jobs:
         run: |
           git fetch origin main
           git show origin/main:_plugins.index.json > _plugins.index.json
-      - name: Sync signed catalog entries into cloud (fail-closed on signature/checksum, idempotent upsert)
+      - name: Log in as the catalog-publisher bot to obtain a short-lived access token
         env:
-          CLOUD_CATALOG_ACCESS_TOKEN: ${{ secrets.CLOUD_CATALOG_ACCESS_TOKEN }}
+          CLOUD_CATALOG_BOT_EMAIL: ${{ secrets.CLOUD_CATALOG_BOT_EMAIL }}
+          CLOUD_CATALOG_BOT_PASSWORD: ${{ secrets.CLOUD_CATALOG_BOT_PASSWORD }}
+        run: |
+          python3 - "${{ vars.ACCOUNTS_API_BASE_URL || 'https://accounts.studiobrain.ai' }}" <<'PY'
+          import json, os, sys, urllib.request
+
+          base = sys.argv[1].rstrip("/")
+          req = urllib.request.Request(
+              f"{base}/api/auth/login",
+              data=json.dumps({
+                  "email": os.environ["CLOUD_CATALOG_BOT_EMAIL"],
+                  "password": os.environ["CLOUD_CATALOG_BOT_PASSWORD"],
+              }).encode("utf-8"),
+              method="POST",
+              headers={"Content-Type": "application/json"},
+          )
+          with urllib.request.urlopen(req, timeout=30) as resp:
+              body = json.load(resp)
+
+          token = body["access_token"]
+          # Mask first so the token never appears in plaintext in the log,
+          # even if a later step in this job echoes $GITHUB_ENV by mistake.
+          print(f"::add-mask::{token}")
+          with open(os.environ["GITHUB_ENV"], "a") as f:
+              f.write(f"CLOUD_CATALOG_ACCESS_TOKEN={token}\n")
+          print("Logged in: obtained a fresh access token for this run only.")
+          PY
+      - name: Sync signed catalog entries into cloud (fail-closed on signature/checksum, idempotent upsert)
+        # CLOUD_CATALOG_ACCESS_TOKEN is already in the job environment — the
+        # previous step wrote it to $GITHUB_ENV, which GitHub Actions exposes
+        # to every later step in this job automatically.
         run: |
           python3 scripts/sync_catalog_plugins.py \
             --index _plugins.index.json \
@@ -298,8 +330,6 @@ jobs:
         # GET /api/catalog/plugins/:id read path (SBAI-7209) a real client
         # would use, and fails the job if the checksum served back doesn't
         # match what was just published.
-        env:
-          CLOUD_CATALOG_ACCESS_TOKEN: ${{ secrets.CLOUD_CATALOG_ACCESS_TOKEN }}
         run: |
           python3 - "${{ vars.CLOUD_API_BASE_URL || 'https://api.studiobrain.ai' }}" <<'PY'
           import json, os, sys, urllib.request

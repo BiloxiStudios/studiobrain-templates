@@ -12,18 +12,25 @@ Trust model — same shape as ``scripts/sign_index.py`` /
 ``scripts/publish_to_r2.py``, and enforced by the same
 ``scripts/check_workflow_secret_isolation.py`` CI gate:
 
-  * This script is only ever invoked from the push-to-main publish job.
-    It is never reachable from a ``pull_request``-triggered run, so its
-    credential — a long-lived access token minted for a dedicated,
-    low-privilege "catalog publisher" account (an otherwise-empty tenant it
-    owns; no billing, no other repo/team access) — is never exposed to
-    PR-controlled code. Deliberately NOT the standard interactive
-    refresh-token flow: accounts' ``/api/auth/refresh`` enforces
-    reuse-detection rotation (a stale refresh token revokes ALL of that
-    user's tokens), which is the right model for a browser session but would
-    make an unattended headless CI credential self-destructing on the second
-    run. A static access token with a long, known expiry — rotated by hand
-    on the same schedule as ``PLUGIN_INDEX_SIGNING_KEY`` — avoids that trap.
+  * This script is only ever invoked from the push-to-main publish job, and
+    only ever receives a short-lived (15 minute, measured live 2026-08-21
+    against accounts.studiobrain.ai) access token minted just-in-time for
+    that one run. It is never reachable from a ``pull_request``-triggered
+    run, so the credential that mints it — the login password for a
+    dedicated, low-privilege "catalog publisher" bot account (an
+    otherwise-empty tenant it owns; no billing, no other repo/team access;
+    self-registration already gives it ``role: owner``, which is all
+    ``is_catalog_admin()`` requires) — is never exposed to PR-controlled
+    code. The publish job's own "log in" step (not this script) does
+    ``POST /api/auth/login`` fresh every run and hands this script only the
+    resulting access token via ``CLOUD_CATALOG_ACCESS_TOKEN``.
+    Deliberately NOT the standard interactive refresh-token flow: accounts'
+    ``/api/auth/refresh`` enforces reuse-detection rotation (a stale
+    refresh token revokes ALL of that user's tokens), which is the right
+    model for a browser session but would make an unattended headless CI
+    credential self-destruct on its second run if the workflow ever reused
+    an old refresh token. A fresh login has no such reuse state to collide
+    with, so every run is independent.
   * FAIL CLOSED on integrity: the whole run aborts, publishing NOTHING, if
     the index's Ed25519 signature is missing or does not verify against the
     checked-in trusted-key registry (delegates to
