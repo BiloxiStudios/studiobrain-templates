@@ -352,6 +352,7 @@ _LOCALHOST_RE = re.compile(r"^(https?://)?(localhost|127\.0\.0\.1|\[?::1\]?)([:/
 _KNOWN_PROVIDES = {
     "llm-chat", "tts", "voice-clone", "image-gen", "video-gen",
     "music-gen", "3d-gen", "3d-render", "audio-stems", "media-convert",
+    "embeddings",
 }
 
 

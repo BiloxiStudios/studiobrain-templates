@@ -111,6 +111,11 @@
       "type": "object",
       "properties": {
         "method": { "enum": ["POST", "GET"] },
+        "headers": {
+          "type": "object",
+          "description": "Static headers sent with every request, e.g. {\"anthropic-version\": \"2023-06-01\"}. Auth headers belong in the auth block, not here.",
+          "additionalProperties": { "type": "string" }
+        },
         "body": { "type": "object" }
       }
     },

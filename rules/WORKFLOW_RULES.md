@@ -219,12 +219,15 @@ requires:
 
 Beyond wire/auth/slots/requires, a provider may declare catalog metadata that capability matching, marketplace listings, and chat codegen consume. All fields are optional and additive; the provider file is the single source of truth — hand-rolled provider lists in apps become projections of the catalog.
 
-- `provides` — kebab-case capability tags (`llm-chat`, `tts`, `voice-clone`, `image-gen`, `video-gen`, `music-gen`, `3d-gen`, `audio-stems`, `media-convert`). A workflow step asking for a capability can be satisfied by any provider that lists the tag; marketplace filters badge on it.
+- `provides` — kebab-case capability tags (`llm-chat`, `tts`, `voice-clone`, `image-gen`, `video-gen`, `music-gen`, `3d-gen`, `3d-render`, `audio-stems`, `media-convert`, `embeddings`). A workflow step asking for a capability can be satisfied by any provider that lists the tag; marketplace filters badge on it.
+- `request.headers` — static headers sent with every request, machine-readable (e.g. Anthropic's required `anthropic-version`). Auth headers stay in the `auth` block; only fixed protocol headers go here.
 - `client_direct` — curated knowledge that a browser may call the provider directly (CORS). Absent means *unknown*, which is the designed default; only set it when the provider's CORS policy is genuinely known.
 - `models` — `{endpoint, refresh}`: where the app pulls the provider's live model list (e.g. `/v1/models`) and how long to cache it (e.g. `24h`). Only declare real list endpoints.
 - `pricing` — `{source: endpoint|table, endpoint?, table?}`. Declare only a real price-feed endpoint; static per-model tables rot, so omit rather than guess.
 - `billing` — `byok` (user's own key, unmetered) and/or `brainbits` (our preset key, metered). Convention: commercial API providers declare `billing: [byok]`; local/device providers (ollama, model-manager, comfyui, blender, uvr, ffmpeg, pocket-tts) omit the field entirely — free when it is the user's device or the user's key.
 - `chat` — `{nativeChatPath, modelPrefixes}`: chat-routing hints mirroring ai-sdk's `ProviderRecord`, so the hardcoded `KNOWN_PROVIDERS` table can be codegen'd from the catalog. Only declare it when a matching registry record exists.
+
+Whitelabeled services: a `studiobrain-*` service (studiobrain-embedding, studiobrain-llm-roleplay, …) is its own `*.provider.yaml` pointing at our endpoint; the backing store (e.g. Hugging Face storage + inference, custom/fine-tuned models) is an implementation detail of that service, noted in a comment — not a separate catalog provider.
 
 Two owner locks from epic SBAI-7608 apply to every catalog file:
 

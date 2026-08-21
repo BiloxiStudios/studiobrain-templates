@@ -1,3 +1,8 @@
+# Hugging Face router (OpenAI-compatible inference). Also our storage +
+# inference backend for whitelabeled services: studiobrain-embedding,
+# studiobrain-llm-roleplay, etc. can run custom/fine-tuned HF models behind
+# their own provider.yaml for customized needs. Contract:
+# https://router.huggingface.co (chat completions + embeddings).
 id: huggingface
 kind: provider
 display: Hugging Face
@@ -12,8 +17,11 @@ response:
   text_path: choices.0.message.content
 requires:
   env: [HF_TOKEN]
-provides: [llm-chat]
+provides: [llm-chat, embeddings]
 billing: [byok]
 models:
   endpoint: /v1/models
   refresh: 24h
+slots:
+  accepts: [text]
+  emits: [text, json]   # json = embedding vectors

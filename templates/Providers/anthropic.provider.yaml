@@ -1,5 +1,4 @@
 # Anthropic Messages API. Contract: https://docs.anthropic.com/en/api/messages
-# Also send header `anthropic-version: 2023-06-01` on every request.
 id: anthropic
 kind: provider
 display: Anthropic
@@ -11,6 +10,8 @@ auth:
   env: ANTHROPIC_API_KEY
 request:
   method: POST
+  headers:
+    anthropic-version: "2023-06-01"
   body:
     model: "{{model}}"
     max_tokens: 1024
