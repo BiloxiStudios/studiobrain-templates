@@ -247,3 +247,49 @@ jobs:
             git commit -m "SBAI-7183: regenerate signed plugin index [skip ci]"
             git push origin HEAD:main
           fi
+
+  # Catalog badge index (SBAI-7611, epic SBAI-7608). Kept fresh the same way
+  # as the signed plugin index: rebuilt deterministically on every push to
+  # main (generated_at pins to the commit timestamp) and committed back with
+  # the same rebase-proof, idempotent-rerun pattern. PRs need no staleness
+  # gate — the index self-heals on merge to main, and scripts/validate.py
+  # (validate-schemas-and-assets) already fails a PR whose catalog edits are
+  # inconsistent with the checked-in index. No secrets: this job only reads
+  # the repo and pushes the regenerated file.
+  regenerate-catalog-index:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pyyaml
+      - name: Compute a deterministic timestamp from the commit
+        # Same derivation as build-smoke-plugins (BUILT_AT) — two runs of the
+        # SAME commit must produce a byte-identical index.
+        run: |
+          GENERATED_AT=$(date -u -d "@$(git show -s --format=%ct "${{ github.sha }}")" +%Y-%m-%dT%H:%M:%SZ)
+          echo "GENERATED_AT=$GENERATED_AT" >> "$GITHUB_ENV"
+      - name: Regenerate the catalog index from this commit
+        run: python3 scripts/build_catalog_index.py --generated-at "$GENERATED_AT" --out /tmp/catalog-index.json
+      - name: Commit the regenerated index back to main
+        # Rebase-proof commit-back, mirroring _plugins.index.json above:
+        # commit from the CURRENT tip of origin/main so the push is always
+        # fast-forward, and no-op when the deterministic index is already
+        # there (idempotent-rerun witness).
+        run: |
+          git fetch origin main
+          git checkout -B catalog-index-update origin/main
+          cp /tmp/catalog-index.json catalog-index.json
+          git config user.name "studiobrain-templates-ci[bot]"
+          git config user.email "ci@studiobrain.ai"
+          git add catalog-index.json
+          if git diff --cached --quiet; then
+            echo "Catalog index unchanged — this commit's deterministic index is already on main (idempotent rerun confirmed)."
+          else
+            git commit -m "SBAI-7611: regenerate catalog index [skip ci]"
+            git push origin HEAD:main
+          fi

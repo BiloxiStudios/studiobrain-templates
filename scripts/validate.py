@@ -21,6 +21,9 @@ Runs every CI-facing check from one place:
      and localhost providers must declare ``platforms: [desktop]``; canvases
      must cover the platforms (error) and env / models (warning) of every
      provider their steps use.
+ 10. Checks ``catalog-index.json`` (SBAI-7611) is in sync with the catalog
+     files on disk by rebuilding the entries in-memory and comparing
+     (``generated_at`` is ignored -- it pins to the commit timestamp).
 
 Intended for both local development and CI:
 
@@ -476,6 +479,64 @@ def check_requires() -> tuple[list[str], list[str]]:
     return errors, warnings
 
 
+# ----- Catalog index -------------------------------------------------------------
+
+CATALOG_INDEX_PATH = ROOT / "catalog-index.json"
+
+
+def _load_catalog_builder():
+    """Import scripts/build_catalog_index.py (single source of truth for scanning)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "build_catalog_index", ROOT / "scripts" / "build_catalog_index.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module
+
+
+def check_catalog_index() -> list[str]:
+    """Check catalog-index.json is in sync with the files on disk (SBAI-7611).
+
+    Cheap consistency check: rebuild the entries in-memory with the builder
+    and compare. Catches stale/missing ids, paths, and badge drift in both
+    directions. ``generated_at`` is ignored (it pins to the commit timestamp
+    by design, so it legitimately differs from a local rebuild).
+    """
+    if not HAVE_YAML:
+        _info("NOTE: pyyaml not installed -- skipping catalog index validation.")
+        return []
+    if not CATALOG_INDEX_PATH.exists():
+        return [f"{CATALOG_INDEX_PATH}: catalog index missing -- run scripts/build_catalog_index.py"]
+    try:
+        index = json.loads(CATALOG_INDEX_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"{CATALOG_INDEX_PATH}: JSON parse error: {exc}"]
+    errors: list[str] = []
+    version = index.get("index_schema_version")
+    if version != 1:
+        errors.append(f"{CATALOG_INDEX_PATH}: index_schema_version must be 1, got {version!r}")
+    expected = _load_catalog_builder().build_entries(ROOT)
+    actual = index.get("entries")
+    if actual != expected:
+        expected_keys = {(e["kind"], e["id"]) for e in expected}
+        actual_keys = {(e.get("kind"), e.get("id")) for e in actual or [] if isinstance(e, dict)}
+        detail = ""
+        missing = sorted(expected_keys - actual_keys)
+        extra = sorted(actual_keys - expected_keys)
+        if missing:
+            detail += f" missing entries: {missing};"
+        if extra:
+            detail += f" stale entries: {extra};"
+        if not detail:
+            detail = " entry badge fields differ;"
+        errors.append(
+            f"{CATALOG_INDEX_PATH}: entries out of date ({detail.strip()})"
+            " -- run scripts/build_catalog_index.py"
+        )
+    return errors
+
+
 # ----- Compat enforcement --------------------------------------------------------
 
 def _walk_compat_objects() -> Iterable[tuple[pathlib.Path, dict[str, Any], str]]:
@@ -674,6 +735,9 @@ def main(argv: list[str] | None = None) -> int:
     for w in requires_warnings:
         _info(f"WARN: {w}")
     all_errors.extend(requires_errors)
+
+    _info("== Validating catalog index ==")
+    all_errors.extend(check_catalog_index())
 
     if not args.no_entity_yaml:
         _info("== Validating entity markdown frontmatter ==")

@@ -1,0 +1,917 @@
+{
+  "index_schema_version": 1,
+  "generated_at": "2026-08-21T12:13:30Z",
+  "entries": [
+    {
+      "id": "character-bio",
+      "kind": "ability",
+      "name": "Character bio",
+      "path": "templates/Standard/character-bio.ability.yaml",
+      "provider": "model-manager"
+    },
+    {
+      "id": "character-portrait",
+      "kind": "ability",
+      "name": "Character portrait",
+      "path": "templates/Standard/character-portrait.ability.yaml",
+      "provider": "comfyui"
+    },
+    {
+      "id": "character-voice",
+      "kind": "ability",
+      "name": "Character voice line",
+      "path": "templates/Standard/character-voice.ability.yaml",
+      "provider": "openai-tts"
+    },
+    {
+      "id": "item-model",
+      "kind": "ability",
+      "name": "Item 3D model",
+      "path": "templates/Standard/item-model.ability.yaml",
+      "provider": "tripo"
+    },
+    {
+      "id": "location-exterior",
+      "kind": "ability",
+      "name": "Location exterior",
+      "path": "templates/Standard/location-exterior.ability.yaml",
+      "provider": "comfyui"
+    },
+    {
+      "id": "broll-from-location",
+      "kind": "flow",
+      "name": "B-roll from location",
+      "description": "Generate a short b-roll clip for a location from its description.",
+      "path": "templates/Canvas/broll-from-location.canvas.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ],
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "slots": {
+        "clip": {
+          "modality": "video"
+        },
+        "look": {
+          "modality": "text"
+        },
+        "still": {
+          "modality": "image",
+          "optional": true
+        }
+      },
+      "domains": [
+        "video"
+      ],
+      "entity_types": [
+        "location"
+      ]
+    },
+    {
+      "id": "character-turnaround",
+      "kind": "flow",
+      "name": "Character turnaround sheet",
+      "description": "Generate (or reuse) a character portrait, then expand it into a multi-view turnaround sheet.",
+      "path": "templates/Canvas/character-turnaround.canvas.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ]
+      },
+      "slots": {
+        "look": {
+          "modality": "text"
+        },
+        "portrait": {
+          "modality": "image",
+          "optional": true
+        },
+        "sheet": {
+          "modality": "image"
+        }
+      },
+      "domains": [
+        "animation",
+        "game"
+      ],
+      "entity_types": [
+        "character"
+      ]
+    },
+    {
+      "id": "cold-open-two-shot",
+      "kind": "flow",
+      "name": "Cold open two-shot",
+      "description": "Episodic cold open — location exterior, two series leads composited in, animated two-shot.",
+      "path": "templates/Canvas/cold-open-two-shot.canvas.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ],
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "slots": {
+        "clip": {
+          "modality": "video"
+        },
+        "lead_a": {
+          "modality": "image"
+        },
+        "lead_b": {
+          "modality": "image"
+        },
+        "look": {
+          "modality": "text"
+        },
+        "place": {
+          "modality": "image",
+          "optional": true
+        },
+        "still": {
+          "modality": "image"
+        }
+      },
+      "domains": [
+        "tv"
+      ],
+      "entity_types": [
+        "location",
+        "character"
+      ]
+    },
+    {
+      "id": "cover-from-track",
+      "kind": "flow",
+      "name": "Cover art from track",
+      "description": "Turn a track or album description into cover art via a short art-direction pass.",
+      "path": "templates/Canvas/cover-from-track.canvas.yaml",
+      "requires": {
+        "env": [
+          "OPENAI_API_KEY",
+          "FAL_KEY"
+        ]
+      },
+      "slots": {
+        "brief": {
+          "modality": "text"
+        },
+        "concept": {
+          "modality": "text"
+        },
+        "cover": {
+          "modality": "image"
+        }
+      },
+      "domains": [
+        "music"
+      ],
+      "entity_types": [
+        "item"
+      ]
+    },
+    {
+      "id": "establishing-shot",
+      "kind": "flow",
+      "name": "Location description to establishing shot",
+      "description": "Paint (or reuse) a location exterior and animate it into a short establishing clip.",
+      "path": "templates/Canvas/establishing-shot.canvas.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ],
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "slots": {
+        "clip": {
+          "modality": "video"
+        },
+        "look": {
+          "modality": "text"
+        },
+        "plate": {
+          "modality": "image",
+          "optional": true
+        }
+      },
+      "domains": [
+        "movie"
+      ],
+      "entity_types": [
+        "location"
+      ]
+    },
+    {
+      "id": "item-turntable",
+      "kind": "flow",
+      "name": "Item render and 3D turntable",
+      "description": "Render an item hero image, then derive a game-ready 3D model from it.",
+      "path": "templates/Canvas/item-turntable.canvas.yaml",
+      "requires": {
+        "env": [
+          "FAL_KEY",
+          "TRIPO_API_KEY"
+        ]
+      },
+      "slots": {
+        "brief": {
+          "modality": "text"
+        },
+        "hero": {
+          "modality": "image",
+          "optional": true
+        },
+        "model": {
+          "modality": "3d",
+          "optional": true
+        }
+      },
+      "domains": [
+        "game"
+      ],
+      "entity_types": [
+        "item"
+      ]
+    },
+    {
+      "id": "lyric-to-shots",
+      "kind": "flow",
+      "name": "Lyrics to looped shots",
+      "description": "Split a song into looped shot clips — optional vocal stem, per-shot still, image-to-video.",
+      "path": "templates/Canvas/lyric-to-shots.canvas.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ],
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "slots": {
+        "brief": {
+          "modality": "text"
+        },
+        "clip": {
+          "modality": "video"
+        },
+        "shot": {
+          "modality": "image"
+        },
+        "stem": {
+          "modality": "audio",
+          "optional": true
+        },
+        "track": {
+          "modality": "audio",
+          "optional": true
+        }
+      },
+      "domains": [
+        "music-video",
+        "music"
+      ],
+      "entity_types": [
+        "item"
+      ]
+    },
+    {
+      "id": "prop-from-item",
+      "kind": "flow",
+      "name": "Prop from item",
+      "description": "Turn an item into a textured 3D prop, then render a turntable preview in Blender.",
+      "path": "templates/Canvas/prop-from-item.canvas.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ],
+        "env": [
+          "TRIPO_API_KEY"
+        ]
+      },
+      "slots": {
+        "brief": {
+          "modality": "text"
+        },
+        "model": {
+          "modality": "3d"
+        },
+        "render": {
+          "modality": "image",
+          "optional": true
+        }
+      },
+      "domains": [
+        "3d",
+        "game"
+      ],
+      "entity_types": [
+        "item"
+      ]
+    },
+    {
+      "id": "scene-with-two-leads",
+      "kind": "flow",
+      "name": "Location still, two leads, then video",
+      "description": "Generate or reuse a location exterior, place two character portraits, animate the still.",
+      "path": "templates/Canvas/scene-with-two-leads.canvas.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ],
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "slots": {
+        "clip": {
+          "modality": "video"
+        },
+        "lead_a": {
+          "modality": "image"
+        },
+        "lead_b": {
+          "modality": "image"
+        },
+        "look": {
+          "modality": "text"
+        },
+        "place": {
+          "modality": "image",
+          "optional": true
+        },
+        "still": {
+          "modality": "image"
+        }
+      },
+      "domains": [
+        "movie",
+        "tv",
+        "game",
+        "animation"
+      ],
+      "entity_types": [
+        "location",
+        "character"
+      ]
+    },
+    {
+      "id": "score-under-track",
+      "kind": "flow",
+      "name": "Score under track",
+      "description": "Generate a music bed from a brief and mix it under a video's existing audio.",
+      "path": "templates/Canvas/score-under-track.canvas.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ],
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "slots": {
+        "brief": {
+          "modality": "text"
+        },
+        "score": {
+          "modality": "audio"
+        },
+        "video_in": {
+          "modality": "video"
+        },
+        "video_out": {
+          "modality": "video"
+        }
+      },
+      "domains": [
+        "music-video",
+        "video",
+        "general"
+      ],
+      "entity_types": [
+        "item"
+      ]
+    },
+    {
+      "id": "stem-split",
+      "kind": "flow",
+      "name": "Stem split",
+      "description": "Split a track into vocal and instrumental stems for remixing or beat-matching.",
+      "path": "templates/Canvas/stem-split.canvas.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ]
+      },
+      "slots": {
+        "instrumental": {
+          "modality": "audio"
+        },
+        "track": {
+          "modality": "audio"
+        },
+        "vocals": {
+          "modality": "audio"
+        }
+      },
+      "domains": [
+        "music"
+      ],
+      "entity_types": [
+        "item"
+      ]
+    },
+    {
+      "id": "track-to-music-video",
+      "kind": "flow",
+      "name": "Track to music video",
+      "description": "From a song/entity description, make a hero still and an image-to-video clip.",
+      "path": "templates/Canvas/track-to-music-video.canvas.yaml",
+      "requires": {
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "slots": {
+        "brief": {
+          "modality": "text"
+        },
+        "clip": {
+          "modality": "video"
+        },
+        "hero": {
+          "modality": "image"
+        }
+      },
+      "domains": [
+        "music",
+        "music-video",
+        "video"
+      ],
+      "entity_types": [
+        "item"
+      ]
+    },
+    {
+      "id": "anthropic",
+      "kind": "provider",
+      "name": "Anthropic",
+      "path": "templates/Providers/anthropic.provider.yaml",
+      "requires": {
+        "env": [
+          "ANTHROPIC_API_KEY"
+        ]
+      },
+      "provides": [
+        "llm-chat"
+      ],
+      "billing": [
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text",
+          "image"
+        ],
+        "emits": [
+          "text"
+        ]
+      }
+    },
+    {
+      "id": "blender",
+      "kind": "provider",
+      "name": "Blender CLI",
+      "path": "templates/Providers/blender.provider.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ]
+      },
+      "provides": [
+        "3d-render"
+      ],
+      "slots": {
+        "accepts": [
+          "3d",
+          "json"
+        ],
+        "emits": [
+          "3d",
+          "image"
+        ]
+      }
+    },
+    {
+      "id": "comfyui",
+      "kind": "provider",
+      "name": "ComfyUI",
+      "path": "templates/Providers/comfyui.provider.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ]
+      },
+      "provides": [
+        "image-gen",
+        "video-gen",
+        "3d-gen"
+      ],
+      "slots": {
+        "accepts": [
+          "text",
+          "image",
+          "audio"
+        ],
+        "emits": [
+          "image",
+          "video",
+          "3d",
+          "audio"
+        ]
+      }
+    },
+    {
+      "id": "dashscope",
+      "kind": "provider",
+      "name": "DashScope (Alibaba)",
+      "path": "templates/Providers/dashscope.provider.yaml",
+      "requires": {
+        "env": [
+          "DASHSCOPE_API_KEY"
+        ]
+      },
+      "provides": [
+        "llm-chat"
+      ],
+      "billing": [
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text"
+        ],
+        "emits": [
+          "text"
+        ]
+      }
+    },
+    {
+      "id": "elevenlabs",
+      "kind": "provider",
+      "name": "ElevenLabs TTS",
+      "path": "templates/Providers/elevenlabs.provider.yaml",
+      "requires": {
+        "env": [
+          "ELEVENLABS_API_KEY"
+        ]
+      },
+      "provides": [
+        "tts",
+        "voice-clone"
+      ],
+      "billing": [
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text"
+        ],
+        "emits": [
+          "audio"
+        ]
+      }
+    },
+    {
+      "id": "fal",
+      "kind": "provider",
+      "name": "fal.ai",
+      "path": "templates/Providers/fal.provider.yaml",
+      "requires": {
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "provides": [
+        "image-gen",
+        "video-gen"
+      ],
+      "billing": [
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text",
+          "image",
+          "audio"
+        ],
+        "emits": [
+          "image",
+          "video",
+          "audio"
+        ]
+      }
+    },
+    {
+      "id": "ffmpeg",
+      "kind": "provider",
+      "name": "ffmpeg CLI",
+      "path": "templates/Providers/ffmpeg.provider.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ]
+      },
+      "provides": [
+        "media-convert"
+      ],
+      "slots": {
+        "accepts": [
+          "audio",
+          "video"
+        ],
+        "emits": [
+          "audio",
+          "video"
+        ]
+      }
+    },
+    {
+      "id": "grok",
+      "kind": "provider",
+      "name": "xAI Grok",
+      "path": "templates/Providers/grok.provider.yaml",
+      "requires": {
+        "env": [
+          "XAI_API_KEY"
+        ]
+      },
+      "provides": [
+        "llm-chat",
+        "image-gen",
+        "video-gen"
+      ],
+      "billing": [
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text",
+          "image"
+        ],
+        "emits": [
+          "text",
+          "image",
+          "video"
+        ]
+      }
+    },
+    {
+      "id": "http",
+      "kind": "provider",
+      "name": "Generic HTTP",
+      "path": "templates/Providers/http.provider.yaml",
+      "requires": {
+        "env": [
+          "CUSTOM_HTTP_KEY"
+        ]
+      },
+      "provides": [
+        "llm-chat"
+      ]
+    },
+    {
+      "id": "huggingface",
+      "kind": "provider",
+      "name": "Hugging Face",
+      "path": "templates/Providers/huggingface.provider.yaml",
+      "requires": {
+        "env": [
+          "HF_TOKEN"
+        ]
+      },
+      "provides": [
+        "llm-chat",
+        "embeddings"
+      ],
+      "billing": [
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text"
+        ],
+        "emits": [
+          "text",
+          "json"
+        ]
+      }
+    },
+    {
+      "id": "kling",
+      "kind": "provider",
+      "name": "Kling",
+      "path": "templates/Providers/kling.provider.yaml",
+      "requires": {
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "provides": [
+        "video-gen"
+      ],
+      "billing": [
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text",
+          "image"
+        ],
+        "emits": [
+          "video"
+        ]
+      }
+    },
+    {
+      "id": "luma",
+      "kind": "provider",
+      "name": "Luma Dream Machine",
+      "path": "templates/Providers/luma.provider.yaml",
+      "requires": {
+        "env": [
+          "LUMAAI_API_KEY"
+        ]
+      },
+      "provides": [
+        "video-gen"
+      ],
+      "billing": [
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text",
+          "image"
+        ],
+        "emits": [
+          "video"
+        ]
+      }
+    },
+    {
+      "id": "model-manager",
+      "kind": "provider",
+      "name": "Model Manager",
+      "path": "templates/Providers/model-manager.provider.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ]
+      },
+      "provides": [
+        "llm-chat"
+      ]
+    },
+    {
+      "id": "ollama",
+      "kind": "provider",
+      "name": "Ollama",
+      "path": "templates/Providers/ollama.provider.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ]
+      },
+      "provides": [
+        "llm-chat"
+      ]
+    },
+    {
+      "id": "openai",
+      "kind": "provider",
+      "name": "OpenAI",
+      "path": "templates/Providers/openai.provider.yaml",
+      "requires": {
+        "env": [
+          "OPENAI_API_KEY"
+        ]
+      },
+      "provides": [
+        "llm-chat"
+      ],
+      "billing": [
+        "byok"
+      ]
+    },
+    {
+      "id": "openai-tts",
+      "kind": "provider",
+      "name": "OpenAI TTS",
+      "path": "templates/Providers/openai-tts.provider.yaml",
+      "requires": {
+        "env": [
+          "OPENAI_API_KEY"
+        ]
+      },
+      "provides": [
+        "tts"
+      ],
+      "billing": [
+        "byok"
+      ]
+    },
+    {
+      "id": "pocket-tts",
+      "kind": "provider",
+      "name": "Pocket TTS (model-manager)",
+      "path": "templates/Providers/pocket-tts.provider.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ]
+      },
+      "provides": [
+        "tts",
+        "voice-clone"
+      ],
+      "slots": {
+        "accepts": [
+          "text"
+        ],
+        "emits": [
+          "audio"
+        ]
+      }
+    },
+    {
+      "id": "stable-audio",
+      "kind": "provider",
+      "name": "Stable Audio (fal.ai)",
+      "path": "templates/Providers/stable-audio.provider.yaml",
+      "requires": {
+        "env": [
+          "FAL_KEY"
+        ]
+      },
+      "provides": [
+        "music-gen"
+      ],
+      "billing": [
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text"
+        ],
+        "emits": [
+          "audio"
+        ]
+      }
+    },
+    {
+      "id": "tripo",
+      "kind": "provider",
+      "name": "Tripo 3D",
+      "path": "templates/Providers/tripo.provider.yaml",
+      "requires": {
+        "env": [
+          "TRIPO_API_KEY"
+        ]
+      },
+      "provides": [
+        "3d-gen"
+      ],
+      "billing": [
+        "byok"
+      ]
+    },
+    {
+      "id": "uvr",
+      "kind": "provider",
+      "name": "Ultimate Vocal Remover",
+      "path": "templates/Providers/uvr.provider.yaml",
+      "requires": {
+        "platforms": [
+          "desktop"
+        ]
+      },
+      "provides": [
+        "audio-stems"
+      ],
+      "slots": {
+        "accepts": [
+          "audio"
+        ],
+        "emits": [
+          "audio"
+        ]
+      }
+    }
+  ]
+}
