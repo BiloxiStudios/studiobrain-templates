@@ -59,7 +59,8 @@
           },
           "source": {
             "type": "string",
-            "description": "Weight source, conventionally 'huggingface://<repo-id>' (scripts/validate.py WARNs on other forms rather than hard-failing, so alternate sources can still ship)."
+            "minLength": 1,
+            "description": "Weight source, conventionally 'huggingface://<repo-id>' (scripts/validate.py WARNs on other forms rather than hard-failing, so alternate sources can still ship; an empty source is a hard error)."
           },
           "dtype": {
             "type": "string",
@@ -153,7 +154,7 @@
     },
     "base_url": {
       "type": "string",
-      "description": "Empty/omitted means the platform default (AI Gateway / local model-manager)."
+      "description": "Empty/omitted means the platform default (AI Gateway / local model-manager) -- EXCEPT for wire: in-app, which has no URL at all: consumers must branch on wire before applying any base_url default, or an on-device request silently becomes a metered cloud call."
     },
     "endpoint": { "type": "string" },
     "auth": {

@@ -850,7 +850,8 @@
           "web",
           "desktop",
           "mobile"
-        ]
+        ],
+        "webgpu": "optional"
       },
       "wire": "in-app",
       "runtime": "transformers.js",

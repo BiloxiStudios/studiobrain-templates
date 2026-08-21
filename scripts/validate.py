@@ -19,9 +19,11 @@ Runs every CI-facing check from one place:
      newer than the running core.
   9. Enforces ``requires`` metadata on providers / canvases: ``wire: process``
      and localhost providers must declare ``platforms: [desktop]``; ``wire:
-     in-app`` providers must declare no ``base_url``/``auth``, a ``runtime``,
-     and at least one ``weights`` row; canvases must cover the platforms
-     (error) and env / models (warning) of every provider their steps use.
+     in-app`` providers must declare no wire-call field (base_url / endpoint /
+     auth / request / response) and no money field (billing / pricing), plus a
+     ``runtime`` and at least one ``weights`` row; canvases must cover the
+     platforms (error) and env / models (warning) of every provider their
+     steps use.
  10. Checks ``catalog-index.json`` (SBAI-7611) is in sync with the catalog
      files on disk by rebuilding the entries in-memory and comparing
      (``generated_at`` is ignored -- it pins to the commit timestamp).
@@ -374,9 +376,15 @@ def check_requires() -> tuple[list[str], list[str]]:
       containing ``desktop``.
     - ERROR: a provider with a localhost base_url must declare
       requires.platforms containing ``desktop`` (cloud workers cannot run it).
-    - ERROR: a ``wire: in-app`` provider must not declare ``base_url`` or
-      ``auth`` (it never talks to a URL), must declare ``runtime``, and must
-      declare at least one ``weights`` row (SBAI-7625/7626).
+    - ERROR: a ``wire: in-app`` provider must not declare any wire-call field
+      (``base_url`` / ``endpoint`` / ``auth`` / ``request`` / ``response`` --
+      it never talks to a URL) nor any money field (``billing`` / ``pricing``
+      -- the user's own device is free and must never debit BrainBits); it
+      must declare ``runtime`` and at least one ``weights`` row with a
+      non-empty, unique ``id`` and a non-empty ``source`` (SBAI-7625/7626).
+    - ERROR: ``runtime`` / ``weights`` on a provider whose wire is not
+      ``in-app`` -- they describe on-device execution only, and the catalog
+      index badges them to the marketplace.
     - WARN: an in-app ``weights`` row whose ``source`` is not
       ``huggingface://...``.
     - WARN (migration period): ``auth.env`` not mirrored in ``requires.env``.
@@ -452,17 +460,26 @@ def check_requires() -> tuple[list[str], list[str]]:
         # wire: in-app invariants (SBAI-7625/7626): the model executes inside
         # the client app via the ai-sdk on-device executor -- same doctrine as
         # wire: process, cloud workers must 501 it. It never talks to a URL,
-        # so base_url/auth are meaningless; runtime + weights are how the
-        # executor knows what engine and which weight rows to use.
-        if data.get("wire") == "in-app":
-            if data.get("base_url"):
-                errors.append(
-                    f"{path}: provider '{pid}' has wire 'in-app' -- must not declare base_url"
-                )
-            if data.get("auth"):
-                errors.append(
-                    f"{path}: provider '{pid}' has wire 'in-app' -- must not declare auth"
-                )
+        # so every wire-call field (base_url, endpoint, request, response) and
+        # auth are meaningless; runtime + weights are how the executor knows
+        # what engine and which weight rows to use. billing/pricing are
+        # forbidden outright: the user's own device is free and this path must
+        # never debit BrainBits (owner lock, SBAI-7625 design §1).
+        is_in_app = data.get("wire") == "in-app"
+        if is_in_app:
+            for field in ("base_url", "endpoint", "auth", "request", "response"):
+                if data.get(field):
+                    errors.append(
+                        f"{path}: provider '{pid}' has wire 'in-app' -- must not declare "
+                        f"{field} (it never talks to a URL)"
+                    )
+            for field in ("billing", "pricing"):
+                if data.get(field):
+                    errors.append(
+                        f"{path}: provider '{pid}' has wire 'in-app' -- must not declare "
+                        f"{field}: execution on the user's own device is free and must "
+                        "never be metered"
+                    )
             if not data.get("runtime"):
                 errors.append(
                     f"{path}: provider '{pid}' has wire 'in-app' -- runtime is required"
@@ -472,14 +489,40 @@ def check_requires() -> tuple[list[str], list[str]]:
                 errors.append(
                     f"{path}: provider '{pid}' has wire 'in-app' -- requires at least one weights row"
                 )
+            seen_rows: set[str] = set()
             for row in weights:
                 if not isinstance(row, dict):
                     continue
+                rid = str(row.get("id") or "")
+                if rid:
+                    if rid in seen_rows:
+                        errors.append(
+                            f"{path}: provider '{pid}' has duplicate weights row id {rid!r} "
+                            "-- the executor selects rows by id, so ids must be unique"
+                        )
+                    seen_rows.add(rid)
                 source = str(row.get("source") or "")
-                if source and not source.startswith("huggingface://"):
+                if not source:
+                    errors.append(
+                        f"{path}: provider '{pid}' weights row {rid!r} has an "
+                        "empty source -- nothing to download"
+                    )
+                elif not source.startswith("huggingface://"):
                     warnings.append(
                         f"{path}: provider '{pid}' weights row {row.get('id')!r} has "
                         f"source {source!r} -- expected 'huggingface://<repo-id>'"
+                    )
+        else:
+            # runtime / weights describe on-device execution and are in-app
+            # only. Left unguarded, a cloud provider could declare them and
+            # build_catalog_index.py would badge it "runtime: transformers.js"
+            # in the marketplace index -- telling the client it runs locally
+            # when every call still leaves the device.
+            for field in ("runtime", "weights"):
+                if data.get(field):
+                    errors.append(
+                        f"{path}: provider '{pid}' declares {field} but has wire "
+                        f"{data.get('wire')!r} -- {field} is 'wire: in-app' only"
                     )
 
     for path, data in workflows:
@@ -496,7 +539,15 @@ def check_requires() -> tuple[list[str], list[str]]:
             if not pid or pid not in providers:
                 continue
             preq = providers[pid][1].get("requires") or {}
-            if "desktop" in (preq.get("platforms") or []) and "desktop" not in platforms:
+            # "desktop-only" means the provider CANNOT run anywhere else --
+            # i.e. its platform list is exactly {desktop} (WORKFLOW_RULES.md
+            # "Canvases aggregate requires from their providers"). A provider
+            # that also runs on web/mobile/cloud (e.g. the wire: in-app
+            # on-device provider, platforms: [web, desktop, mobile]) must NOT
+            # drag the whole canvas down to desktop-only -- that would make
+            # cloud workers 501 it and hide it on web and mobile.
+            pplatforms = set(preq.get("platforms") or [])
+            if pplatforms and pplatforms <= {"desktop"} and "desktop" not in platforms:
                 errors.append(
                     f"{path}: workflow '{wid}' step '{step.get('id')}' uses desktop-only "
                     f"provider '{pid}' -- requires.platforms must contain 'desktop'"

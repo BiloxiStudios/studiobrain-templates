@@ -93,12 +93,20 @@ def _compact_canvas_slots(slots: Any) -> dict[str, Any]:
 
 
 def _compact_requires(requires: Any) -> dict[str, Any]:
-    """Keep only the requires badges the marketplace shows: platforms + env."""
+    """Keep only the requires badges the marketplace shows.
+
+    platforms + env, plus ``webgpu`` for wire: in-app providers -- it is a
+    hard runnability gate (``required`` means a device without WebGPU cannot
+    run the provider at all), so dropping it would make such a provider look
+    universally installable in the index.
+    """
     compact: dict[str, Any] = {}
     if not isinstance(requires, dict):
         return compact
     if requires.get("platforms"):
         compact["platforms"] = list(requires["platforms"])
+    if requires.get("webgpu"):
+        compact["webgpu"] = str(requires["webgpu"])
     if requires.get("env"):
         compact["env"] = list(requires["env"])
     return compact
