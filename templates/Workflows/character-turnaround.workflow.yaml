@@ -1,0 +1,41 @@
+# Animation domain: character appearance -> reference portrait -> multi-view
+# turnaround sheet. Uses comfyui; point it at your own URL/keys on download.
+id: character-turnaround
+kind: workflow
+name: Character turnaround sheet
+label: Character turnaround
+description: Generate (or reuse) a character portrait, then expand it into a multi-view turnaround sheet.
+domains: [animation, game]
+entity_types: [character]
+
+requires:
+  platforms: [desktop]   # comfyui is localhost
+
+slots:
+  look:
+    modality: text
+    ref: entity.character[0].appearance
+  portrait:
+    modality: image
+    ref: entity.character[0].primary_image
+    optional: true
+  sheet:
+    modality: image
+    out: entity.character[0].turnaround_sheet
+
+steps:
+  - id: portrait
+    provider: comfyui
+    in:
+      prompt: look
+    out:
+      image: portrait
+    skip_if: portrait
+  - id: turnaround
+    provider: comfyui
+    in:
+      prompt: look
+      image: portrait
+    out:
+      image: sheet
+    skip_if: sheet

@@ -1,0 +1,42 @@
+# Movie domain: location description -> painted exterior plate -> I2V
+# establishing clip. Same shape as the gold scene-with-two-leads, minus the
+# character composite. Swap comfyui/kling endpoints without changing the graph.
+id: establishing-shot
+kind: workflow
+name: Location description to establishing shot
+label: Establishing shot
+description: Paint (or reuse) a location exterior and animate it into a short establishing clip.
+domains: [movie]
+entity_types: [location]
+
+requires:
+  platforms: [desktop]   # comfyui is localhost
+  env: [FAL_KEY]         # kling
+
+slots:
+  look:
+    modality: text
+    ref: entity.location.description
+  plate:
+    modality: image
+    ref: entity.location.exterior_image
+    optional: true
+  clip:
+    modality: video
+    out: entity.location.establishing_video
+
+steps:
+  - id: paint-plate
+    provider: comfyui
+    in:
+      prompt: look
+    out:
+      image: plate
+    skip_if: plate
+  - id: animate
+    provider: kling
+    in:
+      image: plate
+      prompt: look
+    out:
+      video: clip

@@ -1,0 +1,43 @@
+# Music-video / video: generate a score from a text brief (Stable Audio on
+# fal) and duck it under the video's existing audio with ffmpeg amix
+# (desktop CLI, wire: process -- cloud must 501). To supply your own score
+# instead, treat the score slot as a required input and delete compose-score.
+id: score-under-track
+kind: workflow
+name: Score under track
+label: Score under track
+description: Generate a music bed from a brief and mix it under a video's existing audio.
+domains: [music-video, video, general]
+entity_types: [item]
+
+requires:
+  platforms: [desktop]   # ffmpeg is wire: process
+  env: [FAL_KEY]         # stable-audio
+
+slots:
+  brief:
+    modality: text
+    ref: entity.item.description
+  video_in:
+    modality: video
+    ref: entity.item.music_video
+  score:
+    modality: audio
+  video_out:
+    modality: video
+    out: entity.item.scored_video
+
+steps:
+  - id: compose-score
+    provider: stable-audio
+    in:
+      prompt: brief
+    out:
+      audio: score
+  - id: mix
+    provider: ffmpeg
+    in:
+      video: video_in
+      music: score
+    out:
+      video: video_out

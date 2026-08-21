@@ -1,0 +1,42 @@
+# Video domain: location -> b-roll. Paint (or reuse) the exterior still, then
+# a short image-to-video clip. Same skeleton as establishing-shot; the output
+# lands on broll_video instead of the establishing slot.
+id: broll-from-location
+kind: workflow
+name: B-roll from location
+label: B-roll from location
+description: Generate a short b-roll clip for a location from its description.
+domains: [video]
+entity_types: [location]
+
+requires:
+  platforms: [desktop]   # comfyui is localhost
+  env: [FAL_KEY]         # kling
+
+slots:
+  look:
+    modality: text
+    ref: entity.location.description
+  still:
+    modality: image
+    ref: entity.location.exterior_image
+    optional: true
+  clip:
+    modality: video
+    out: entity.location.broll_video
+
+steps:
+  - id: paint-still
+    provider: comfyui
+    in:
+      prompt: look
+    out:
+      image: still
+    skip_if: still
+  - id: animate
+    provider: kling
+    in:
+      image: still
+      prompt: look
+    out:
+      video: clip

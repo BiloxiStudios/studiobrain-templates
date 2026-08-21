@@ -1,0 +1,22 @@
+# ElevenLabs text-to-speech. Synchronous POST; the response is audio bytes
+# (mp3), not JSON — same shape as openai-tts. Voice id goes in the path.
+id: elevenlabs
+kind: provider
+display: ElevenLabs TTS
+wire: http
+base_url: https://api.elevenlabs.io
+endpoint: /v1/text-to-speech/{{voice_id}}
+auth:
+  header: xi-api-key
+  env: ELEVENLABS_API_KEY
+request:
+  method: POST
+  body:
+    text: "{{prompt}}"
+    model_id: eleven_multilingual_v2
+    output_format: mp3_44100_128
+slots:
+  accepts: [text]
+  emits: [audio]
+requires:
+  env: [ELEVENLABS_API_KEY]

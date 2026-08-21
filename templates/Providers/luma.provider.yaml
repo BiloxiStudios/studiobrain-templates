@@ -1,0 +1,28 @@
+# Luma Dream Machine text/image-to-video. Async: POST creates a generation
+# and returns an id; poll GET /dream-machine/v1/generations/{id} until
+# state == completed, then take assets.video (same pattern as tripo).
+id: luma
+kind: provider
+display: Luma Dream Machine
+wire: http
+base_url: https://api.lumalabs.ai
+endpoint: /dream-machine/v1/generations
+auth:
+  header: Authorization
+  scheme: Bearer
+  env: LUMAAI_API_KEY
+request:
+  method: POST
+  body:
+    prompt: "{{prompt}}"
+    keyframes:
+      frame0:
+        type: image
+        url: "{{image}}"
+response:
+  image_url_path: assets.video
+slots:
+  accepts: [text, image]
+  emits: [video]
+requires:
+  env: [LUMAAI_API_KEY]
