@@ -196,6 +196,11 @@ class IdempotencyTests(unittest.TestCase):
             self.assertEqual(req.full_url, "https://cloud.example/api/catalog/plugins/my-id")
             self.assertEqual(req.get_method(), "PUT")
             self.assertEqual(req.get_header("Authorization"), "Bearer secret-tok")
+            # Cloudflare Bot Fight Mode (error 1010) blocks the default
+            # "Python-urllib/x.y" UA outright — measured live 2026-08-21,
+            # the pipeline's first trusted-run attempt 403'd on exactly
+            # this. Every request this script makes must set a real UA.
+            self.assertEqual(req.get_header("User-agent"), sync_catalog_plugins.USER_AGENT)
 
 
 class BoundedFailureAndAuthTests(unittest.TestCase):

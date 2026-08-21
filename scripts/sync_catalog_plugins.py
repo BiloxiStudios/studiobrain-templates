@@ -76,6 +76,13 @@ from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+# Cloudflare's Bot Fight Mode WAF (error 1010) blocks Python's default
+# "Python-urllib/x.y" User-Agent outright — measured live against
+# accounts.studiobrain.ai/api.studiobrain.ai 2026-08-21 (first trusted-run
+# attempt 403'd on exactly this). A descriptive, identifiable UA is required
+# for every request this script makes.
+USER_AGENT = "studiobrain-templates-ci/1.0 (+https://github.com/BiloxiStudios/studiobrain-templates)"
+
 
 def _err(msg: str) -> None:
     print(f"ERROR: {msg}", file=sys.stderr)
@@ -167,6 +174,7 @@ def publish_entry(
         headers={
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
+            "User-Agent": USER_AGENT,
         },
     )
     try:
