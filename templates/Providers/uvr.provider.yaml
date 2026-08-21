@@ -18,3 +18,4 @@ slots:
 requires:
   platforms: [desktop]
   binaries: [uvr]
+provides: [audio-stems]

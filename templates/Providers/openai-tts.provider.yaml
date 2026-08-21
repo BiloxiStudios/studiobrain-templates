@@ -18,3 +18,5 @@ request:
     response_format: mp3
 requires:
   env: [OPENAI_API_KEY]
+provides: [tts]
+billing: [byok]

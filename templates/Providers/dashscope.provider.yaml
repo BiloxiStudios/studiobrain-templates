@@ -1,0 +1,30 @@
+# Alibaba DashScope native API (qwen). Contract:
+# https://www.alibabacloud.com/help/en/model-studio/text-generation
+# The native API is NOT openai-compatible. Users who want the OpenAI shape can
+# instead point wire: openai-compat at the compatible-mode base_url
+# https://dashscope-intl.aliyuncs.com/compatible-mode/v1 (chat/completions).
+id: dashscope
+kind: provider
+display: DashScope (Alibaba)
+wire: dashscope
+base_url: https://dashscope-intl.aliyuncs.com
+endpoint: /api/v1/services/aigc/text-generation/generation
+auth:
+  header: Authorization
+  scheme: Bearer
+  env: DASHSCOPE_API_KEY
+request:
+  method: POST
+  body:
+    model: qwen-plus
+    input:
+      prompt: "{{prompt}}"
+response:
+  text_path: output.text
+provides: [llm-chat]
+billing: [byok]
+requires:
+  env: [DASHSCOPE_API_KEY]
+slots:
+  accepts: [text]
+  emits: [text]

@@ -17,6 +17,7 @@ request:
 requires:
   platforms: [desktop]
   binaries: [ffmpeg]
+provides: [media-convert]
 slots:
   accepts: [audio, video]
   emits: [audio, video]

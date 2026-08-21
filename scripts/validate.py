@@ -346,6 +346,15 @@ def check_entity_frontmatter() -> list[str]:
 
 _LOCALHOST_RE = re.compile(r"^(https?://)?(localhost|127\.0\.0\.1|\[?::1\]?)([:/]|$)")
 
+# Known capability tags for provider `provides` (SBAI-7610). Consumed by
+# capability matching + marketplace filtering; unknown tags only WARN so new
+# capabilities can ship ahead of the validator.
+_KNOWN_PROVIDES = {
+    "llm-chat", "tts", "voice-clone", "image-gen", "video-gen",
+    "music-gen", "3d-gen", "3d-render", "audio-stems", "media-convert",
+    "embeddings",
+}
+
 
 def check_requires() -> tuple[list[str], list[str]]:
     """Enforce ``requires`` metadata on providers and workflows (SBAI-7569).
@@ -356,6 +365,8 @@ def check_requires() -> tuple[list[str], list[str]]:
     - ERROR: a provider with a localhost base_url must declare
       requires.platforms containing ``desktop`` (cloud workers cannot run it).
     - WARN (migration period): ``auth.env`` not mirrored in ``requires.env``.
+    - WARN: ``billing: [brainbits]`` without ``auth.env`` (nothing to meter
+      against), and unknown ``provides`` capability tags (SBAI-7610).
     - ERROR: a workflow step that uses a desktop-only provider forces the
       workflow to declare requires.platforms containing ``desktop``;
       WARN on uncovered env / models.
@@ -406,6 +417,18 @@ def check_requires() -> tuple[list[str], list[str]]:
             warnings.append(
                 f"{path}: provider '{pid}' auth.env={auth_env!r} is not listed in requires.env"
             )
+        billing = data.get("billing") or []
+        if "brainbits" in billing and not auth_env:
+            warnings.append(
+                f"{path}: provider '{pid}' declares billing 'brainbits' but has no "
+                "auth.env -- nothing to meter against"
+            )
+        for tag in data.get("provides") or []:
+            if tag not in _KNOWN_PROVIDES:
+                warnings.append(
+                    f"{path}: provider '{pid}' has unknown provides tag {tag!r} "
+                    f"(known: {', '.join(sorted(_KNOWN_PROVIDES))})"
+                )
 
     for path, data in workflows:
         requires = data.get("requires") or {}

@@ -16,3 +16,4 @@ slots:
 requires:
   platforms: [desktop]
   binaries: [blender]
+provides: [3d-render]

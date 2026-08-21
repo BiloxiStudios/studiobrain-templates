@@ -8,3 +8,7 @@ response:
   text_path: choices.0.message.content
 requires:
   platforms: [desktop]
+provides: [llm-chat]
+models:
+  endpoint: /v1/models
+  refresh: 24h
