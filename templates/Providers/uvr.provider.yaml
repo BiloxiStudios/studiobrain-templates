@@ -1,0 +1,20 @@
+# Desktop-only. Ultimate Vocal Remover CLI — splits a mix into vocal /
+# instrumental stems on the user's machine. Cloud workers must 501
+# wire: process and any localhost URL; never give it a cloud base_url.
+id: uvr
+kind: provider
+display: Ultimate Vocal Remover
+wire: process
+base_url: ""
+endpoint: uvr
+auth: {}
+request:
+  method: POST
+  body:
+    argv: ["{{input_audio}}", "--model", "UVR-MDX-NET-Voc_FT", "--output", "{{output_dir}}"]
+slots:
+  accepts: [audio]
+  emits: [audio]
+requires:
+  platforms: [desktop]
+  binaries: [uvr]

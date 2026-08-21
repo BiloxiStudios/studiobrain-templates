@@ -9,3 +9,5 @@ response:
 slots:
   accepts: [text, image, audio]
   emits: [image, video, 3d, audio]
+requires:
+  platforms: [desktop]

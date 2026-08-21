@@ -8,6 +8,9 @@ description: From a song/entity description, make a hero still and an image-to-v
 domains: [music, music-video, video]
 entity_types: [item]
 
+requires:
+  env: [FAL_KEY]   # fal + kling
+
 loop:
   over: shots
   max: 8

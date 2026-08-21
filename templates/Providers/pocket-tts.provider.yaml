@@ -1,0 +1,22 @@
+# CPU voice/TTS served by the local model-manager gateway (OpenAI
+# TTS-compatible). Weights ship via the model-manager registry, not the
+# installer; voice-clone capable. Localhost only — cloud workers must 501.
+id: pocket-tts
+kind: provider
+display: Pocket TTS (model-manager)
+wire: openai-compat
+base_url: http://127.0.0.1:7077
+endpoint: /v1/audio/speech
+request:
+  method: POST
+  body:
+    model: pocket-tts
+    voice: "{{voice}}"
+    input: "{{prompt}}"
+    response_format: wav
+requires:
+  platforms: [desktop]
+  models: [pocket-tts]
+slots:
+  accepts: [text]
+  emits: [audio]

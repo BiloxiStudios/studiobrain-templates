@@ -1,0 +1,14 @@
+# One-click exterior for a location. Documents the exterior_image field the
+# establishing-shot / cold-open-two-shot / broll-from-location workflows read.
+id: location-exterior
+kind: image
+name: Location exterior
+label: Generate exterior
+entity_types: [location]
+provider: comfyui
+endpoint: /prompt
+input:
+  workflow: location-exterior.json
+  bindings: [entity.name, entity.description]
+output:
+  asset_field: exterior_image

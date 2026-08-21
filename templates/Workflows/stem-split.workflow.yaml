@@ -1,0 +1,40 @@
+# Music domain: split a finished track into vocal + instrumental stems with
+# UVR (desktop CLI, wire: process -- cloud must 501). Feeds beat-matching and
+# remix graphs like lyric-to-shots.
+id: stem-split
+kind: workflow
+name: Stem split
+label: Stem split
+description: Split a track into vocal and instrumental stems for remixing or beat-matching.
+domains: [music]
+entity_types: [item]
+
+requires:
+  platforms: [desktop]   # uvr is wire: process
+
+slots:
+  track:
+    modality: audio
+    ref: entity.item.audio
+  vocals:
+    modality: audio
+    out: entity.item.vocal_stem
+  instrumental:
+    modality: audio
+    out: entity.item.instrumental_stem
+
+steps:
+  - id: split-vocals
+    provider: uvr
+    in:
+      audio: track
+    out:
+      audio: vocals
+    skip_if: vocals
+  - id: split-instrumental
+    provider: uvr
+    in:
+      audio: track
+    out:
+      audio: instrumental
+    skip_if: instrumental

@@ -1,0 +1,42 @@
+# 3D domain: item description -> Tripo text-to-3D -> optional Blender preview
+# render. Tripo is async (task_id + poll, see tripo.provider.yaml). Blender is
+# wire: process — desktop CLI only; cloud workers must 501.
+id: prop-from-item
+kind: workflow
+name: Prop from item
+label: Prop from item
+description: Turn an item into a textured 3D prop, then render a turntable preview in Blender.
+domains: [3d, game]
+entity_types: [item]
+
+requires:
+  platforms: [desktop]      # blender is wire: process
+  env: [TRIPO_API_KEY]      # tripo
+
+slots:
+  brief:
+    modality: text
+    ref: entity.item.description
+  model:
+    modality: 3d
+    out: entity.item.primary_model
+  render:
+    modality: image
+    out: entity.item.primary_image
+    optional: true
+
+steps:
+  - id: to-3d
+    provider: tripo
+    in:
+      prompt: brief
+    out:
+      3d: model
+    skip_if: model
+  - id: render-preview
+    provider: blender
+    in:
+      mesh: model
+    out:
+      image: render
+    skip_if: render

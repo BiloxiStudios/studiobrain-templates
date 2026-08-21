@@ -6,3 +6,5 @@ base_url: http://127.0.0.1:11434
 endpoint: /v1/chat/completions
 response:
   text_path: choices.0.message.content
+requires:
+  platforms: [desktop]

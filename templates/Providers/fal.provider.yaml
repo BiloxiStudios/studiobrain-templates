@@ -18,3 +18,5 @@ response:
 slots:
   accepts: [text, image, audio]
   emits: [image, video, audio]
+requires:
+  env: [FAL_KEY]

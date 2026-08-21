@@ -1,0 +1,29 @@
+{
+  "id": "format-social-micro",
+  "name": "Format: Social Micro",
+  "description": "Short-form social video format. Bundles the catalog generation graphs for vertical/micro clips: location b-roll, lyric-to-shots loops, and score-under-track mixdown, plus the providers they call (comfyui, kling, fal, uvr, stable-audio, ffmpeg). Desktop run required -- uvr and ffmpeg are wire: process.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": { "min_core_version": "0.5.0" },
+  "entity_types": ["item", "location"],
+  "categories": ["social", "film-tv"],
+  "tags": ["short-form", "social", "music-video", "b-roll", "vertical", "format"],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "templates": [],
+  "rules": ["rules/format-social-micro.md"],
+  "workflows": [
+    "broll-from-location",
+    "lyric-to-shots",
+    "score-under-track"
+  ],
+  "providers": [
+    "comfyui",
+    "kling",
+    "fal",
+    "uvr",
+    "stable-audio",
+    "ffmpeg"
+  ]
+}

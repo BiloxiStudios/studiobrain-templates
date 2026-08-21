@@ -13,3 +13,6 @@ request:
 slots:
   accepts: [3d, json]
   emits: [3d, image]
+requires:
+  platforms: [desktop]
+  binaries: [blender]

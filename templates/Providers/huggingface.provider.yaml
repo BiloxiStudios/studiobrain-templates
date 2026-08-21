@@ -10,3 +10,5 @@ auth:
   env: HF_TOKEN
 response:
   text_path: choices.0.message.content
+requires:
+  env: [HF_TOKEN]

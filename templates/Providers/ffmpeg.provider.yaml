@@ -1,0 +1,22 @@
+# Desktop-only. ffmpeg CLI — mix, convert, and extract audio/video locally.
+# Cloud workers must 501 wire: process and any localhost URL.
+# Also the extract-audio-from-video path:
+#   argv: ["-i", "{{video}}", "-vn", "-c:a", "copy", "{{audio_out}}"]
+id: ffmpeg
+kind: provider
+display: ffmpeg CLI
+wire: process
+base_url: ""
+endpoint: ffmpeg
+auth: {}
+request:
+  method: POST
+  body:
+    # Layer a music bed under the video's existing audio (amix), video copied through.
+    argv: ["-i", "{{video}}", "-i", "{{music}}", "-filter_complex", "[0:a][1:a]amix=inputs=2:duration=first:dropout_transition=2[a]", "-map", "0:v", "-map", "[a]", "-c:v", "copy", "{{out}}"]
+requires:
+  platforms: [desktop]
+  binaries: [ffmpeg]
+slots:
+  accepts: [audio, video]
+  emits: [audio, video]

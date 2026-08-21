@@ -187,6 +187,34 @@ workflow:
   deprecated_stages: []
 ```
 
+## Generation-File `requires` Metadata
+
+Drop-in generation files (`*.provider.yaml`, `*.workflow.yaml` — see `schemas/provider.json` / `schemas/workflow.json`) declare what they need at runtime in an optional `requires` block (`schemas/_requires.json`). Four fields:
+
+- `platforms` — where the asset can run: `desktop`, `cloud`, `mobile`.
+- `env` — environment variables (secrets / API keys) the user must set, e.g. `FAL_KEY`. Mirror of the provider's `auth.env`.
+- `models` — model ids resolved by the desktop model-manager gateway registry, e.g. `pocket-tts`. Weights ship via the registry, not the installer.
+- `binaries` — CLI binaries that must be on PATH, e.g. `blender`, `uvr`, `ffmpeg`.
+
+Rules of thumb:
+
+1. `wire: process` implies `platforms: [desktop]` — a desktop CLI can never run on a cloud worker, and the validator errors without it. The same applies to any provider with a localhost (`127.0.0.1`) `base_url`.
+2. Workflows aggregate `requires` from their providers: if any step calls a desktop-only provider, the workflow must itself declare `platforms: [desktop]`, and it should union the `env` / `models` of every provider it calls so the installer can prompt for keys up front.
+3. Cloud workers must 501 any `wire: process` step and any localhost `base_url`.
+
+Formats are packs, not a new file class — see `templates/Packs/format-social-micro` for a format that bundles existing workflows and providers with marketplace metadata.
+
+```yaml
+# Example: a desktop CLI provider and the workflow that uses it
+requires:
+  platforms: [desktop]
+  binaries: [ffmpeg]
+
+requires:
+  platforms: [desktop]   # aggregated from the ffmpeg step
+  env: [FAL_KEY]         # aggregated from stable-audio
+```
+
 ## Cross-Workflow References
 
 For shared stages/transitions:
@@ -591,6 +619,11 @@ When workflow triggers notifications:
 ---
 
 # CHANGELOG
+
+## 2026-08-20 (v1.1)
+- Added `requires` metadata section for generation files (providers / workflows)
+- Documented platforms / env / models / binaries and desktop-only rules
+- Noted that formats are packs, not a new file class
 
 ## 2024-03-30 (v1.0)
 - Initial workflow system definition

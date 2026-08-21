@@ -19,3 +19,5 @@ request:
     pbr: true
 response:
   image_url_path: data.output.model_url
+requires:
+  env: [TRIPO_API_KEY]

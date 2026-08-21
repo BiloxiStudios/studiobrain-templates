@@ -1,0 +1,59 @@
+# Music-video variant of the gold track-to-music-video: per-shot loop.
+# Optional UVR vocal stem (desktop, wire: process — cloud must 501) for
+# beat-matching downstream; the clip steps only need text + image.
+id: lyric-to-shots
+kind: workflow
+name: Lyrics to looped shots
+label: Lyric to shots
+description: Split a song into looped shot clips — optional vocal stem, per-shot still, image-to-video.
+domains: [music-video, music]
+entity_types: [item]
+
+requires:
+  platforms: [desktop]   # uvr is wire: process
+  env: [FAL_KEY]         # fal + kling
+
+loop:
+  over: shots
+  max: 8
+
+slots:
+  brief:
+    modality: text
+    # Song brief / lyrics. Point at your project's lyrics field if it has one.
+    ref: entity.item.description
+  track:
+    modality: audio
+    ref: entity.item.audio
+    optional: true
+  stem:
+    modality: audio
+    out: entity.item.vocal_stem
+    optional: true
+  shot:
+    modality: image
+  clip:
+    modality: video
+    out: entity.item.music_video
+
+steps:
+  - id: vocal-stem
+    provider: uvr
+    in:
+      audio: track
+    out:
+      audio: stem
+    skip_if: stem
+  - id: shot-still
+    provider: fal
+    in:
+      prompt: brief
+    out:
+      image: shot
+  - id: animate
+    provider: kling
+    in:
+      image: shot
+      prompt: brief
+    out:
+      video: clip
