@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+"""Build catalog-index.json -- the flat badge index the marketplace lanes
+consume (SBAI-7611, epic SBAI-7608).
+
+Scans the catalog drop-in locations:
+
+  templates/Providers/*.provider.yaml   -> kind "provider"
+  templates/Standard/*.ability.yaml     -> kind "ability"
+  templates/Workflows/*.workflow.yaml   -> kind "flow"
+  templates/Canvas/*.canvas.yaml        -> kind "flow"   (SBAI-7651 rename target)
+
+and emits catalog-index.json at the repo root:
+
+  {"index_schema_version": 1, "generated_at": ..., "entries": [...]}
+
+Each entry carries badges only -- id, kind, name/display, description, path,
+plus per-kind badge metadata (providers: provides/requires/billing/slots;
+flows: requires/slots/domains/entity_types; abilities: provider). Full file
+bodies stay in the YAML; the index stays small.
+
+Entries are sorted by (kind, id) so diffs are stable. ``generated_at`` is
+deterministic: pass --generated-at (CI passes the commit's author timestamp,
+the same derivation the plugin-index jobs use), otherwise it falls back to
+HEAD's commit timestamp, then wall clock.
+
+Usage:
+    python3 scripts/build_catalog_index.py
+    python3 scripts/build_catalog_index.py --generated-at 2026-08-21T00:00:00Z
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import pathlib
+import subprocess
+import sys
+from datetime import datetime, timezone
+from typing import Any, Iterable
+
+try:
+    import yaml  # type: ignore
+except ImportError:
+    yaml = None  # type: ignore
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+TEMPLATES_DIR = ROOT / "templates"
+DEFAULT_OUT = ROOT / "catalog-index.json"
+INDEX_SCHEMA_VERSION = 1
+
+# (kind, directory, glob patterns). Canvas/*.canvas.yaml is the SBAI-7651
+# rename target for Workflows/*.workflow.yaml -- both are accepted so the
+# index does not break across the rename.
+SCAN: list[tuple[str, pathlib.Path, tuple[str, ...]]] = [
+    ("provider", TEMPLATES_DIR / "Providers", ("*.provider.yaml", "*.provider.yml")),
+    ("ability", TEMPLATES_DIR / "Standard", ("*.ability.yaml", "*.ability.yml")),
+    ("flow", TEMPLATES_DIR / "Workflows", ("*.workflow.yaml", "*.workflow.yml")),
+    ("flow", TEMPLATES_DIR / "Canvas", ("*.canvas.yaml", "*.canvas.yml")),
+]
+
+
+def iter_catalog_files(root: pathlib.Path = ROOT) -> Iterable[tuple[str, pathlib.Path]]:
+    """Yield (kind, path) for every catalog file, in deterministic order."""
+    for kind, directory, patterns in SCAN:
+        if not directory.exists():
+            continue
+        for pattern in patterns:
+            for path in sorted(directory.rglob(pattern)):
+                yield kind, path
+
+
+def _compact_flow_slots(slots: Any) -> dict[str, Any]:
+    """Reduce workflow slots to badge data: modality + optional flag.
+
+    Slot refs/outs are file-body wiring, not badges -- the marketplace only
+    needs to show what goes in and out.
+    """
+    compact: dict[str, Any] = {}
+    if not isinstance(slots, dict):
+        return compact
+    for name in sorted(slots):
+        slot = slots[name]
+        if not isinstance(slot, dict):
+            continue
+        badge: dict[str, Any] = {}
+        if slot.get("modality"):
+            badge["modality"] = slot["modality"]
+        if slot.get("optional"):
+            badge["optional"] = True
+        compact[str(name)] = badge
+    return compact
+
+
+def _compact_requires(requires: Any) -> dict[str, Any]:
+    """Keep only the requires badges the marketplace shows: platforms + env."""
+    compact: dict[str, Any] = {}
+    if not isinstance(requires, dict):
+        return compact
+    if requires.get("platforms"):
+        compact["platforms"] = list(requires["platforms"])
+    if requires.get("env"):
+        compact["env"] = list(requires["env"])
+    return compact
+
+
+def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
+    """Parse every catalog file and return the sorted entry list."""
+    entries: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for kind, path in iter_catalog_files(root):
+        if yaml is None:
+            raise RuntimeError("pyyaml is required to build the catalog index")
+        try:
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as exc:
+            raise RuntimeError(f"{path}: YAML parse error: {exc}") from exc
+        if not isinstance(data, dict):
+            raise RuntimeError(f"{path}: top-level YAML is not a mapping")
+        if not data.get("id"):
+            raise RuntimeError(f"{path}: missing required 'id'")
+        entry_id = str(data["id"])
+        if (kind, entry_id) in seen:
+            raise RuntimeError(f"{path}: duplicate (kind={kind!r}, id={entry_id!r})")
+        seen.add((kind, entry_id))
+
+        entry: dict[str, Any] = {"id": entry_id, "kind": kind}
+        name = data.get("name") or data.get("display")
+        if name:
+            entry["name"] = str(name)
+        if data.get("description"):
+            entry["description"] = str(data["description"])
+        entry["path"] = path.relative_to(root).as_posix()
+
+        requires = _compact_requires(data.get("requires"))
+        if requires:
+            entry["requires"] = requires
+
+        if kind == "provider":
+            if data.get("provides"):
+                entry["provides"] = list(data["provides"])
+            if data.get("billing"):
+                entry["billing"] = list(data["billing"])
+            if data.get("slots"):
+                entry["slots"] = data["slots"]
+        elif kind == "flow":
+            slots = _compact_flow_slots(data.get("slots"))
+            if slots:
+                entry["slots"] = slots
+            if data.get("domains"):
+                entry["domains"] = list(data["domains"])
+            if data.get("entity_types"):
+                entry["entity_types"] = list(data["entity_types"])
+        elif kind == "ability":
+            if data.get("provider"):
+                entry["provider"] = str(data["provider"])
+
+        entries.append(entry)
+
+    entries.sort(key=lambda e: (e["kind"], e["id"]))
+    return entries
+
+
+def default_generated_at(root: pathlib.Path = ROOT) -> str:
+    """HEAD commit timestamp (deterministic per commit), else wall clock."""
+    try:
+        out = subprocess.run(
+            ["git", "show", "-s", "--format=%cI", "HEAD"],
+            cwd=root, capture_output=True, text=True, check=True,
+        ).stdout.strip()
+        stamp = datetime.fromisoformat(out)
+    except (subprocess.CalledProcessError, ValueError, FileNotFoundError):
+        stamp = datetime.now(timezone.utc)
+    return stamp.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def build_index(generated_at: str, root: pathlib.Path = ROOT) -> dict[str, Any]:
+    return {
+        "index_schema_version": INDEX_SCHEMA_VERSION,
+        "generated_at": generated_at,
+        "entries": build_entries(root),
+    }
+
+
+def render(index: dict[str, Any]) -> str:
+    return json.dumps(index, indent=2, ensure_ascii=False) + "\n"
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Build catalog-index.json (marketplace badge index).")
+    parser.add_argument(
+        "--out",
+        default=str(DEFAULT_OUT),
+        help="Output path (default: catalog-index.json at the repo root).",
+    )
+    parser.add_argument(
+        "--generated-at",
+        help="ISO-8601 UTC timestamp for generated_at. Default: HEAD commit "
+             "timestamp (deterministic per commit), falling back to wall clock.",
+    )
+    args = parser.parse_args(argv)
+
+    generated_at = args.generated_at or default_generated_at()
+    index = build_index(generated_at)
+    out = pathlib.Path(args.out)
+    # newline="\n" keeps the committed artifact byte-identical across platforms.
+    with out.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write(render(index))
+
+    counts: dict[str, int] = {}
+    for entry in index["entries"]:
+        counts[entry["kind"]] = counts.get(entry["kind"], 0) + 1
+    summary = ", ".join(f"{n} {k}" for k, n in sorted(counts.items()))
+    print(f"wrote {out}: {len(index['entries'])} entries ({summary})")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
