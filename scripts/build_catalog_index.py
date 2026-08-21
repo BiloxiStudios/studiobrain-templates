@@ -6,8 +6,8 @@ Scans the catalog drop-in locations:
 
   templates/Providers/*.provider.yaml   -> kind "provider"
   templates/Standard/*.ability.yaml     -> kind "ability"
-  templates/Workflows/*.workflow.yaml   -> kind "flow"
-  templates/Canvas/*.canvas.yaml        -> kind "flow"   (SBAI-7651 rename target)
+  templates/Workflows/*.workflow.yaml   -> kind "canvas" (one-release alias)
+  templates/Canvas/*.canvas.yaml        -> kind "canvas" (canonical, SBAI-7650)
 
 and emits catalog-index.json at the repo root:
 
@@ -15,7 +15,7 @@ and emits catalog-index.json at the repo root:
 
 Each entry carries badges only -- id, kind, name/display, description, path,
 plus per-kind badge metadata (providers: provides/requires/billing/slots;
-flows: requires/slots/domains/entity_types; abilities: provider). Full file
+canvas entries: requires/slots/domains/entity_types; abilities: provider). Full file
 bodies stay in the YAML; the index stays small.
 
 Entries are sorted by (kind, id) so diffs are stable. ``generated_at`` is
@@ -53,8 +53,8 @@ INDEX_SCHEMA_VERSION = 1
 SCAN: list[tuple[str, pathlib.Path, tuple[str, ...]]] = [
     ("provider", TEMPLATES_DIR / "Providers", ("*.provider.yaml", "*.provider.yml")),
     ("ability", TEMPLATES_DIR / "Standard", ("*.ability.yaml", "*.ability.yml")),
-    ("flow", TEMPLATES_DIR / "Workflows", ("*.workflow.yaml", "*.workflow.yml")),
-    ("flow", TEMPLATES_DIR / "Canvas", ("*.canvas.yaml", "*.canvas.yml")),
+    ("canvas", TEMPLATES_DIR / "Workflows", ("*.workflow.yaml", "*.workflow.yml")),
+    ("canvas", TEMPLATES_DIR / "Canvas", ("*.canvas.yaml", "*.canvas.yml")),
 ]
 
 
@@ -68,7 +68,7 @@ def iter_catalog_files(root: pathlib.Path = ROOT) -> Iterable[tuple[str, pathlib
                 yield kind, path
 
 
-def _compact_flow_slots(slots: Any) -> dict[str, Any]:
+def _compact_canvas_slots(slots: Any) -> dict[str, Any]:
     """Reduce workflow slots to badge data: modality + optional flag.
 
     Slot refs/outs are file-body wiring, not badges -- the marketplace only
@@ -141,8 +141,8 @@ def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
                 entry["billing"] = list(data["billing"])
             if data.get("slots"):
                 entry["slots"] = data["slots"]
-        elif kind == "flow":
-            slots = _compact_flow_slots(data.get("slots"))
+        elif kind == "canvas":
+            slots = _compact_canvas_slots(data.get("slots"))
             if slots:
                 entry["slots"] = slots
             if data.get("domains"):
