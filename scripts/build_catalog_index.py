@@ -14,9 +14,11 @@ and emits catalog-index.json at the repo root:
   {"index_schema_version": 1, "generated_at": ..., "entries": [...]}
 
 Each entry carries badges only -- id, kind, name/display, description, path,
-plus per-kind badge metadata (providers: provides/requires/billing/slots;
-canvas entries: requires/slots/domains/entity_types; abilities: provider). Full file
-bodies stay in the YAML; the index stays small.
+plus per-kind badge metadata (providers: wire/runtime/provides/requires/
+billing/slots; canvas entries: requires/slots/domains/entity_types;
+abilities: provider). Full file bodies stay in the YAML; the index stays
+small. wire/runtime badge the marketplace on execution mode, e.g. "on-device"
+for wire: in-app.
 
 Entries are sorted by (kind, id) so diffs are stable. ``generated_at`` is
 deterministic: pass --generated-at (CI passes the commit's author timestamp,
@@ -135,6 +137,10 @@ def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
             entry["requires"] = requires
 
         if kind == "provider":
+            if data.get("wire"):
+                entry["wire"] = str(data["wire"])
+            if data.get("runtime"):
+                entry["runtime"] = str(data["runtime"])
             if data.get("provides"):
                 entry["provides"] = list(data["provides"])
             if data.get("billing"):

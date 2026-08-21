@@ -7,11 +7,16 @@
   "properties": {
     "platforms": {
       "type": "array",
-      "description": "Platforms this asset can run on. 'wire: process' providers and any localhost base_url must include 'desktop'; cloud workers 501 assets they cannot serve.",
+      "description": "Platforms this asset can run on. 'wire: process' providers and any localhost base_url must include 'desktop'; cloud workers 501 assets they cannot serve. 'web' = runs in a browser tab (e.g. wire: in-app executed by the in-app executor).",
       "items": {
         "type": "string",
-        "enum": ["desktop", "cloud", "mobile"]
+        "enum": ["desktop", "cloud", "mobile", "web"]
       }
+    },
+    "webgpu": {
+      "type": "string",
+      "enum": ["required", "optional"],
+      "description": "in-app only: whether WebGPU is required, or a WASM fallback exists."
     },
     "env": {
       "type": "array",

@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-21T15:37:06Z",
+  "generated_at": "2026-08-21T15:17:15Z",
   "entries": [
     {
       "id": "character-bio",
@@ -467,6 +467,7 @@
           "ANTHROPIC_API_KEY"
         ]
       },
+      "wire": "anthropic",
       "provides": [
         "llm-chat"
       ],
@@ -493,6 +494,7 @@
           "desktop"
         ]
       },
+      "wire": "process",
       "provides": [
         "3d-render"
       ],
@@ -517,43 +519,11 @@
           "desktop"
         ]
       },
+      "wire": "comfyui",
       "provides": [
         "image-gen",
         "video-gen",
         "3d-gen"
-      ],
-      "slots": {
-        "accepts": [
-          "text",
-          "image",
-          "audio"
-        ],
-        "emits": [
-          "image",
-          "video",
-          "3d",
-          "audio"
-        ]
-      }
-    },
-    {
-      "id": "comfyui-cloud",
-      "kind": "provider",
-      "name": "ComfyUI Cloud",
-      "path": "templates/Providers/comfyui-cloud.provider.yaml",
-      "requires": {
-        "env": [
-          "COMFYUI_CLOUD_API_KEY"
-        ]
-      },
-      "provides": [
-        "image-gen",
-        "video-gen",
-        "3d-gen"
-      ],
-      "billing": [
-        "byok",
-        "brainbits"
       ],
       "slots": {
         "accepts": [
@@ -579,6 +549,7 @@
           "DASHSCOPE_API_KEY"
         ]
       },
+      "wire": "dashscope",
       "provides": [
         "llm-chat"
       ],
@@ -604,6 +575,7 @@
           "ELEVENLABS_API_KEY"
         ]
       },
+      "wire": "http",
       "provides": [
         "tts",
         "voice-clone"
@@ -630,6 +602,7 @@
           "FAL_KEY"
         ]
       },
+      "wire": "http",
       "provides": [
         "image-gen",
         "video-gen"
@@ -660,6 +633,7 @@
           "desktop"
         ]
       },
+      "wire": "process",
       "provides": [
         "media-convert"
       ],
@@ -684,6 +658,7 @@
           "XAI_API_KEY"
         ]
       },
+      "wire": "openai-compat",
       "provides": [
         "llm-chat",
         "image-gen",
@@ -714,6 +689,7 @@
           "CUSTOM_HTTP_KEY"
         ]
       },
+      "wire": "http",
       "provides": [
         "llm-chat"
       ]
@@ -728,6 +704,7 @@
           "HF_TOKEN"
         ]
       },
+      "wire": "openai-compat",
       "provides": [
         "llm-chat",
         "embeddings"
@@ -755,6 +732,7 @@
           "FAL_KEY"
         ]
       },
+      "wire": "http",
       "provides": [
         "video-gen"
       ],
@@ -781,6 +759,7 @@
           "LUMAAI_API_KEY"
         ]
       },
+      "wire": "http",
       "provides": [
         "video-gen"
       ],
@@ -807,6 +786,7 @@
           "desktop"
         ]
       },
+      "wire": "openai-compat",
       "provides": [
         "llm-chat"
       ]
@@ -821,9 +801,38 @@
           "desktop"
         ]
       },
+      "wire": "openai-compat",
       "provides": [
         "llm-chat"
       ]
+    },
+    {
+      "id": "on-device",
+      "kind": "provider",
+      "name": "On-Device AI (Free)",
+      "path": "templates/Providers/on-device.provider.yaml",
+      "requires": {
+        "platforms": [
+          "web",
+          "desktop",
+          "mobile"
+        ]
+      },
+      "wire": "in-app",
+      "runtime": "transformers.js",
+      "provides": [
+        "llm-chat",
+        "embeddings"
+      ],
+      "slots": {
+        "accepts": [
+          "text"
+        ],
+        "emits": [
+          "text",
+          "tool"
+        ]
+      }
     },
     {
       "id": "openai",
@@ -835,6 +844,7 @@
           "OPENAI_API_KEY"
         ]
       },
+      "wire": "openai-compat",
       "provides": [
         "llm-chat"
       ],
@@ -852,6 +862,7 @@
           "OPENAI_API_KEY"
         ]
       },
+      "wire": "http",
       "provides": [
         "tts"
       ],
@@ -869,6 +880,7 @@
           "desktop"
         ]
       },
+      "wire": "openai-compat",
       "provides": [
         "tts",
         "voice-clone"
@@ -892,6 +904,7 @@
           "FAL_KEY"
         ]
       },
+      "wire": "http",
       "provides": [
         "music-gen"
       ],
@@ -917,6 +930,7 @@
           "TRIPO_API_KEY"
         ]
       },
+      "wire": "http",
       "provides": [
         "3d-gen"
       ],
@@ -934,6 +948,7 @@
           "desktop"
         ]
       },
+      "wire": "process",
       "provides": [
         "audio-stems"
       ],
@@ -943,34 +958,6 @@
         ],
         "emits": [
           "audio"
-        ]
-      }
-    },
-    {
-      "id": "workers-ai",
-      "kind": "provider",
-      "name": "Cloudflare Workers AI",
-      "path": "templates/Providers/workers-ai.provider.yaml",
-      "requires": {
-        "env": [
-          "CF_API_TOKEN",
-          "CF_ACCOUNT_ID"
-        ]
-      },
-      "provides": [
-        "llm-chat",
-        "image-gen"
-      ],
-      "billing": [
-        "brainbits"
-      ],
-      "slots": {
-        "accepts": [
-          "text"
-        ],
-        "emits": [
-          "text",
-          "image"
         ]
       }
     }
