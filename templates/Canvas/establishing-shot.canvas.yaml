@@ -2,7 +2,7 @@
 # establishing clip. Same shape as the gold scene-with-two-leads, minus the
 # character composite. Swap comfyui/kling endpoints without changing the graph.
 id: establishing-shot
-kind: workflow
+kind: canvas
 name: Location description to establishing shot
 label: Establishing shot
 description: Paint (or reuse) a location exterior and animate it into a short establishing clip.

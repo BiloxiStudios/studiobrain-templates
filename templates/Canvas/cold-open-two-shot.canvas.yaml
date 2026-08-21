@@ -1,11 +1,11 @@
-# Gold-standard graph: paint a location (or reuse one), composite two
-# character stills, then image-to-video. Canvas / agent both write this shape.
-id: scene-with-two-leads
-kind: workflow
-name: Location still, two leads, then video
-label: Scene with two leads
-description: Generate or reuse a location exterior, place two character portraits, animate the still.
-domains: [movie, tv, game, animation]
+# TV domain: clone of the gold scene-with-two-leads, framed as an episodic
+# cold open — reuse the location exterior, seat the two leads, animate.
+id: cold-open-two-shot
+kind: canvas
+name: Cold open two-shot
+label: Cold open with two leads
+description: Episodic cold open — location exterior, two series leads composited in, animated two-shot.
+domains: [tv]
 entity_types: [location, character]
 
 requires:
@@ -30,7 +30,7 @@ slots:
     modality: image
   clip:
     modality: video
-    out: entity.location.establishing_video
+    out: entity.location.cold_open_video
 
 steps:
   - id: paint-location

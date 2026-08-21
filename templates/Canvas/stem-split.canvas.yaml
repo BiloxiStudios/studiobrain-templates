@@ -2,7 +2,7 @@
 # UVR (desktop CLI, wire: process -- cloud must 501). Feeds beat-matching and
 # remix graphs like lyric-to-shots.
 id: stem-split
-kind: workflow
+kind: canvas
 name: Stem split
 label: Stem split
 description: Split a track into vocal and instrumental stems for remixing or beat-matching.

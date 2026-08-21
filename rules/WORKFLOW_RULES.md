@@ -189,7 +189,7 @@ workflow:
 
 ## Generation-File `requires` Metadata
 
-Drop-in generation files (`*.provider.yaml`, `*.workflow.yaml` — see `schemas/provider.json` / `schemas/workflow.json`) declare what they need at runtime in an optional `requires` block (`schemas/_requires.json`). Four fields:
+Drop-in generation files (`*.provider.yaml`, `*.canvas.yaml` — see `schemas/provider.json` / `schemas/canvas.json`; leftover `*.workflow.yaml` is a one-release alias) declare what they need at runtime in an optional `requires` block (`schemas/_requires.json`). Four fields:
 
 - `platforms` — where the asset can run: `desktop`, `cloud`, `mobile`.
 - `env` — environment variables (secrets / API keys) the user must set, e.g. `FAL_KEY`. Mirror of the provider's `auth.env`.
@@ -199,10 +199,10 @@ Drop-in generation files (`*.provider.yaml`, `*.workflow.yaml` — see `schemas/
 Rules of thumb:
 
 1. `wire: process` implies `platforms: [desktop]` — a desktop CLI can never run on a cloud worker, and the validator errors without it. The same applies to any provider with a localhost (`127.0.0.1`) `base_url`.
-2. Workflows aggregate `requires` from their providers: if any step calls a desktop-only provider, the workflow must itself declare `platforms: [desktop]`, and it should union the `env` / `models` of every provider it calls so the installer can prompt for keys up front.
+2. Canvases aggregate `requires` from their providers: if any step calls a desktop-only provider, the canvas must itself declare `platforms: [desktop]`, and it should union the `env` / `models` of every provider it calls so the installer can prompt for keys up front.
 3. Cloud workers must 501 any `wire: process` step and any localhost `base_url`.
 
-Formats are packs, not a new file class — see `templates/Packs/format-social-micro` for a format that bundles existing workflows and providers with marketplace metadata.
+Formats are packs, not a new file class — see `templates/Packs/format-social-micro` for a format that bundles existing canvases and providers with marketplace metadata.
 
 ```yaml
 # Example: a desktop CLI provider and the workflow that uses it

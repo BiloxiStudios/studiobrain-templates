@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/canvas.json",
+  "title": "StudioBrain Canvas File",
+  "description": "A repeatable generation graph (storyboard). Drop *.canvas.yaml in _Canvas/ or templates/Canvas/. kind: canvas is canonical; kind: workflow is a one-release alias. Steps name exactly one identity: provider XOR provides XOR kind: agent|validate|skill. Skills only constrain or verify. The canvas surface and an agent both write this file.",
+  "type": "object",
+  "required": ["id", "kind", "entity_types", "slots", "steps"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["canvas", "workflow"],
+      "description": "canvas is canonical. workflow is a one-release alias for leftover *.workflow.yaml files."
+    },
+    "name": { "type": "string" },
+    "label": { "type": "string" },
+    "description": { "type": "string" },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["movie", "tv", "video", "game", "music", "music-video", "animation", "3d", "general"]
+      }
+    },
+    "entity_types": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "requires": {
+      "$ref": "./_requires.json",
+      "description": "Aggregated runtime requirements. A canvas must cover its steps' providers: desktop providers force platforms containing 'desktop'; env/models should be unioned from the providers used."
+    },
+    "loop": {
+      "type": "object",
+      "properties": {
+        "over": { "type": "string" },
+        "max": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "slots": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/slot" }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" }
+    },
+    "canvas": {
+      "type": "object",
+      "description": "Optional ReactFlow layout. Edges here must match steps[].in/out; the file is the source of truth, not the surface.",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": { "type": "string" },
+              "x": { "type": "number" },
+              "y": { "type": "number" }
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "type": "string" },
+              "to": { "type": "string" },
+              "from_slot": { "type": "string" },
+              "to_slot": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "modality": {
+      "type": "string",
+      "enum": ["text", "image", "audio", "video", "3d", "json", "tool"]
+    },
+    "ref": {
+      "type": "string",
+      "description": "entity.<type>[index].<field> | step.<id>.<out> | slot.<name> | const.<name>"
+    },
+    "slot": {
+      "type": "object",
+      "required": ["modality"],
+      "additionalProperties": true,
+      "properties": {
+        "modality": { "$ref": "#/$defs/modality" },
+        "ref": { "$ref": "#/$defs/ref" },
+        "out": { "$ref": "#/$defs/ref" },
+        "optional": { "type": "boolean" }
+      }
+    },
+    "wireValue": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "step": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$"
+        },
+        "provider": {
+          "type": "string",
+          "description": "Pin one vendor. XOR with provides and kind."
+        },
+        "provides": {
+          "type": "string",
+          "description": "One catalog capability tag. Never an array. XOR with provider and kind."
+        },
+        "ability": {
+          "type": "string",
+          "description": "Reusable step shape only — not a resolver and not an identity."
+        },
+        "skill": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["agent", "validate", "skill"],
+          "description": "Non-generation step identity. Omit on generation steps. XOR with provider and provides."
+        },
+        "in": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/wireValue" }
+        },
+        "out": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/wireValue" }
+        },
+        "skip_if": { "type": "string" },
+        "verify": {
+          "type": "object",
+          "properties": {
+            "must": { "enum": ["pass", "warn"] }
+          }
+        },
+        "branch": {
+          "type": "object",
+          "description": "when is opaque in SBAI-7651; evaluation is SBAI-7654.",
+          "properties": {
+            "when": { "type": "string" },
+            "else": { "type": "string" }
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional ChatOrchestrator tool allowlist for kind: agent."
+        }
+      }
+    }
+  }
+}

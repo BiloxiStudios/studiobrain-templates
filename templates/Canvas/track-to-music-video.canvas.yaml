@@ -1,7 +1,7 @@
 # Gold-standard music-video loop: lyrics/text + optional vocal stem (UVR later)
 # → still → video. Swap fal/kling endpoints without changing the graph.
 id: track-to-music-video
-kind: workflow
+kind: canvas
 name: Track to music video
 label: Music video from track
 description: From a song/entity description, make a hero still and an image-to-video clip.

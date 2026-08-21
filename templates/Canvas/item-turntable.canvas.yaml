@@ -1,7 +1,7 @@
 # Game domain: item description -> hero render (fal) -> optional Tripo 3D
 # model. Tripo is async — task_id + poll, see tripo.provider.yaml.
 id: item-turntable
-kind: workflow
+kind: canvas
 name: Item render and 3D turntable
 label: Item turntable
 description: Render an item hero image, then derive a game-ready 3D model from it.

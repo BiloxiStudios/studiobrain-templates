@@ -2,7 +2,7 @@
 # Optional UVR vocal stem (desktop, wire: process — cloud must 501) for
 # beat-matching downstream; the clip steps only need text + image.
 id: lyric-to-shots
-kind: workflow
+kind: canvas
 name: Lyrics to looped shots
 label: Lyric to shots
 description: Split a song into looped shot clips — optional vocal stem, per-shot still, image-to-video.
