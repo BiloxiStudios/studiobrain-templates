@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-21T13:28:21Z",
+  "generated_at": "2026-08-21T13:29:16Z",
   "entries": [
     {
       "id": "character-bio",
@@ -39,7 +39,7 @@
     },
     {
       "id": "broll-from-location",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "B-roll from location",
       "description": "Generate a short b-roll clip for a location from its description.",
       "path": "templates/Canvas/broll-from-location.canvas.yaml",
@@ -72,7 +72,7 @@
     },
     {
       "id": "character-turnaround",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Character turnaround sheet",
       "description": "Generate (or reuse) a character portrait, then expand it into a multi-view turnaround sheet.",
       "path": "templates/Canvas/character-turnaround.canvas.yaml",
@@ -103,7 +103,7 @@
     },
     {
       "id": "cold-open-two-shot",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Cold open two-shot",
       "description": "Episodic cold open — location exterior, two series leads composited in, animated two-shot.",
       "path": "templates/Canvas/cold-open-two-shot.canvas.yaml",
@@ -146,7 +146,7 @@
     },
     {
       "id": "cover-from-track",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Cover art from track",
       "description": "Turn a track or album description into cover art via a short art-direction pass.",
       "path": "templates/Canvas/cover-from-track.canvas.yaml",
@@ -176,7 +176,7 @@
     },
     {
       "id": "establishing-shot",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Location description to establishing shot",
       "description": "Paint (or reuse) a location exterior and animate it into a short establishing clip.",
       "path": "templates/Canvas/establishing-shot.canvas.yaml",
@@ -209,7 +209,7 @@
     },
     {
       "id": "item-turntable",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Item render and 3D turntable",
       "description": "Render an item hero image, then derive a game-ready 3D model from it.",
       "path": "templates/Canvas/item-turntable.canvas.yaml",
@@ -241,7 +241,7 @@
     },
     {
       "id": "lyric-to-shots",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Lyrics to looped shots",
       "description": "Split a song into looped shot clips — optional vocal stem, per-shot still, image-to-video.",
       "path": "templates/Canvas/lyric-to-shots.canvas.yaml",
@@ -282,7 +282,7 @@
     },
     {
       "id": "prop-from-item",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Prop from item",
       "description": "Turn an item into a textured 3D prop, then render a turntable preview in Blender.",
       "path": "templates/Canvas/prop-from-item.canvas.yaml",
@@ -316,7 +316,7 @@
     },
     {
       "id": "scene-with-two-leads",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Location still, two leads, then video",
       "description": "Generate or reuse a location exterior, place two character portraits, animate the still.",
       "path": "templates/Canvas/scene-with-two-leads.canvas.yaml",
@@ -362,7 +362,7 @@
     },
     {
       "id": "score-under-track",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Score under track",
       "description": "Generate a music bed from a brief and mix it under a video's existing audio.",
       "path": "templates/Canvas/score-under-track.canvas.yaml",
@@ -399,7 +399,7 @@
     },
     {
       "id": "stem-split",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Stem split",
       "description": "Split a track into vocal and instrumental stems for remixing or beat-matching.",
       "path": "templates/Canvas/stem-split.canvas.yaml",
@@ -428,7 +428,7 @@
     },
     {
       "id": "track-to-music-video",
-      "kind": "flow",
+      "kind": "canvas",
       "name": "Track to music video",
       "description": "From a song/entity description, make a hero still and an image-to-video clip.",
       "path": "templates/Canvas/track-to-music-video.canvas.yaml",
