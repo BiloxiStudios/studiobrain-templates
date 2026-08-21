@@ -266,30 +266,77 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertNotIn("billing", data, "the on-device free tier must never declare billing")
         self.assertNotIn("pricing", data)
         rows = {r["id"]: r for r in data["weights"]}
-        # Spec SBAI-7625 §5 tiers, all five present. Ids are namespaced so the
-        # cloud money-leak guard can reject the lane by 'on-device/' prefix.
+        # Spec SBAI-7625 §5 tiers as revised by the SBAI-7682 witness. Ids are
+        # namespaced so the cloud money-leak guard can reject the lane by
+        # 'on-device/' prefix.
         self.assertEqual(
             sorted(rows),
             [
-                "on-device/gemma-4-e2b-it-q4-wasm",
+                "on-device/gemma-4-e2b-it-q4",
                 "on-device/gemma-4-e2b-it-q4f16-webgpu",
                 "on-device/gemma-4-e4b-it-q4f16-webgpu",
                 "on-device/nomic-embed-text-v1.5-q8-any",
                 "on-device/qwen3-0.6b-q4-any",
+                "on-device/qwen3-0.6b-q8-wasm",
             ],
         )
         # Exactly one free-tier default, and it is the E2B WebGPU tier.
         defaults = [r["id"] for r in data["weights"] if r.get("default")]
         self.assertEqual(defaults, ["on-device/gemma-4-e2b-it-q4f16-webgpu"])
-        # The WASM step-down is the experimental one; Qwen is the labelled
-        # reduced-capability fallback, never a Gemma tier.
-        self.assertTrue(rows["on-device/gemma-4-e2b-it-q4-wasm"]["experimental"])
-        self.assertEqual(rows["on-device/gemma-4-e2b-it-q4-wasm"]["device"], "wasm")
+        # Qwen is the labelled reduced-capability fallback, never a Gemma tier.
         self.assertTrue(rows["on-device/qwen3-0.6b-q4-any"]["fallback"])
         self.assertNotIn("gemma", rows["on-device/qwen3-0.6b-q4-any"]["source"].lower())
         self.assertEqual(
             rows["on-device/nomic-embed-text-v1.5-q8-any"]["capability"], "embeddings"
         )
+
+    def test_no_gemma_wasm_row(self):
+        """SBAI-7682: the Gemma WASM tier is falsified, not merely untested.
+
+        ORT-web's WASM execution provider has no GatherBlockQuantized kernel,
+        so Gemma 4's q4 ONNX cannot create a session there at all (witnessed
+        after a 3.5 GB in-browser download), and its q8 weights are ~9 GB,
+        over the wasm32 4 GB ceiling. Re-adding a Gemma WASM row would hand
+        every WebGPU-less user a multi-gigabyte download that cannot run.
+        """
+        import yaml  # noqa: PLC0415
+
+        path = ROOT / "templates" / "Providers" / "on-device.provider.yaml"
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        gemma_wasm = [
+            r["id"]
+            for r in data["weights"]
+            if "gemma" in r["source"].lower() and r.get("device") in ("wasm", "any")
+        ]
+        self.assertEqual(gemma_wasm, [], "no Gemma row may be reachable on WASM")
+
+    def test_every_device_tier_has_a_runnable_non_f16_row(self):
+        """SBAI-7682: an f16-only tier dead-ends AFTER the download.
+
+        q4f16 / fp16 graphs need the WebGPU `shader-f16` feature. The witness
+        ran a hardware NVIDIA Blackwell adapter that grants WebGPU and does
+        not expose it, so the catalog's q4f16 default downloaded ~3 GB and
+        then aborted at OrtRun. Each runtime needs at least one chat row the
+        executor can select without f16.
+        """
+        import yaml  # noqa: PLC0415
+
+        path = ROOT / "templates" / "Providers" / "on-device.provider.yaml"
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        f16 = {"q4f16", "fp16"}
+        for device in ("webgpu", "wasm"):
+            runnable = [
+                r["id"]
+                for r in data["weights"]
+                if r.get("capability", "llm-chat") == "llm-chat"
+                and r.get("device") in (device, "any")
+                and r.get("dtype") not in f16
+                and not r.get("fallback")
+            ]
+            self.assertTrue(
+                runnable,
+                f"device {device!r} has no selectable non-f16 chat row",
+            )
         for row in data["weights"]:
             self.assertTrue(row["source"].startswith("huggingface://"), row)
             self.assertTrue(
@@ -317,12 +364,13 @@ class ShippedCatalogTests(unittest.TestCase):
         for rid in (
             "on-device/gemma-4-e4b-it-q4f16-webgpu",
             "on-device/gemma-4-e2b-it-q4f16-webgpu",
-            "on-device/gemma-4-e2b-it-q4-wasm",
+            "on-device/gemma-4-e2b-it-q4",
         ):
             self.assertEqual(rows[rid]["context_length"], 131072, rid)
             self.assertEqual(rows[rid]["max_output_tokens"], 8192, rid)
-        self.assertEqual(rows["on-device/qwen3-0.6b-q4-any"]["context_length"], 32768)
-        self.assertEqual(rows["on-device/qwen3-0.6b-q4-any"]["max_output_tokens"], 4096)
+        for rid in ("on-device/qwen3-0.6b-q4-any", "on-device/qwen3-0.6b-q8-wasm"):
+            self.assertEqual(rows[rid]["context_length"], 32768, rid)
+            self.assertEqual(rows[rid]["max_output_tokens"], 4096, rid)
         # The embeddings row has a window but no chat-only capability keys.
         nomic = rows["on-device/nomic-embed-text-v1.5-q8-any"]
         self.assertEqual(nomic["context_length"], 8192)
