@@ -8,6 +8,11 @@
 # fallback-chain doctrine). Weight rows below are the static per-device
 # matrix the executor selects from at runtime based on detected capability --
 # they are not a live model list (that's what `models` is for elsewhere).
+# Model capability metadata (context_length, max_output_tokens, tools,
+# thinking) is declared per weight row, not per provider: tiers of the same
+# family differ, and the executor must read the row it actually selected.
+# Row ids are namespaced `on-device/...` so the cloud money-leak guard can
+# reject the whole lane by prefix rather than by a list of bare slugs.
 # Gemma 4 is an owner lock (2026-08-21, supersedes any earlier Gemma 3 body
 # text): https://huggingface.co/blog/gemma4. Billing is intentionally
 # omitted -- the user's own device is free (WORKFLOW_RULES.md:227).
@@ -24,45 +29,62 @@ requires:
   platforms: [web, desktop, mobile]
   webgpu: optional
 weights:
-  - id: gemma-4-e4b-it-q4f16-webgpu
+  - id: on-device/gemma-4-e4b-it-q4f16-webgpu
     source: huggingface://onnx-community/gemma-4-E4B-it-ONNX
     dtype: q4f16
     device: webgpu
     min_ram_gb: 16
     approx_download_mb: 4800
     capability: llm-chat
+    context_length: 131072
+    max_output_tokens: 8192
+    tools: true
+    thinking: optional
     modality: [text]
-  - id: gemma-4-e2b-it-q4f16-webgpu
+  - id: on-device/gemma-4-e2b-it-q4f16-webgpu
     source: huggingface://onnx-community/gemma-4-E2B-it-ONNX
     dtype: q4f16
     device: webgpu
     min_ram_gb: 8
     approx_download_mb: 2900
     capability: llm-chat
+    context_length: 131072
+    max_output_tokens: 8192
+    tools: true
+    thinking: optional
     default: true
     modality: [text]
-  - id: gemma-4-e2b-it-q4-wasm
+  - id: on-device/gemma-4-e2b-it-q4-wasm
     source: huggingface://onnx-community/gemma-4-E2B-it-ONNX
     dtype: q4
     device: wasm
     min_ram_gb: 8
     approx_download_mb: 3400
     capability: llm-chat
+    context_length: 131072
+    max_output_tokens: 8192
+    tools: true
+    thinking: optional
     experimental: true
     modality: [text]
-  - id: qwen3-0.6b-q4-any
+  - id: on-device/qwen3-0.6b-q4-any
     source: huggingface://onnx-community/Qwen3-0.6B-ONNX
     dtype: q4
     device: any
     min_ram_gb: 4
     approx_download_mb: 500
     capability: llm-chat
+    context_length: 32768
+    max_output_tokens: 4096
+    tools: true
+    thinking: optional
     fallback: true
     modality: [text]
-  - id: nomic-embed-text-v1.5-q8-any
+  - id: on-device/nomic-embed-text-v1.5-q8-any
     source: huggingface://nomic-ai/nomic-embed-text-v1.5
     dtype: q8
     device: any
     approx_download_mb: 140
     capability: embeddings
+    context_length: 8192
     modality: [text]

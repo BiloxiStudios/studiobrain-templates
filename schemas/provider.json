@@ -54,12 +54,13 @@
         "properties": {
           "id": {
             "type": "string",
-            "pattern": "^[a-z][a-z0-9._-]*$",
-            "description": "Slug identifying this weight row, e.g. gemma-4-e2b-it-q4f16-webgpu."
+            "pattern": "^[a-z][a-z0-9._/-]*$",
+            "description": "Slug identifying this weight row. '/' is allowed so rows can be namespaced by provider, e.g. on-device/gemma-4-e2b-it-q4f16-webgpu. Namespacing is what lets a money-leak guard reject an on-device id ('on-device/*') by prefix instead of by an ever-growing list of bare slugs."
           },
           "source": {
             "type": "string",
-            "description": "Weight source, conventionally 'huggingface://<repo-id>' (scripts/validate.py WARNs on other forms rather than hard-failing, so alternate sources can still ship)."
+            "minLength": 1,
+            "description": "Weight source, conventionally 'huggingface://<repo-id>' (scripts/validate.py WARNs on other forms rather than hard-failing, so alternate sources can still ship; an empty source is a hard error)."
           },
           "dtype": {
             "type": "string",
@@ -72,6 +73,25 @@
           "min_ram_gb": { "type": "number" },
           "min_vram_gb": { "type": "number" },
           "approx_download_mb": { "type": "number" },
+          "context_length": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Model context window in tokens for this weight row. Consumed as ModelGateway.contextLength so the orchestrator compacts against the real window instead of a hard-coded default -- a tier that clamps lower for memory must say so here."
+          },
+          "max_output_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Upper bound on tokens this row should generate in one turn; the executor caps max_new_tokens at this value."
+          },
+          "tools": {
+            "type": "boolean",
+            "description": "Whether this model reliably emits tool calls. False means the executor must not pass tool definitions into the chat template -- a model that cannot call tools but is handed them tends to hallucinate the call syntax as prose."
+          },
+          "thinking": {
+            "type": "string",
+            "enum": ["none", "optional", "always"],
+            "description": "Thinking/reasoning mode support: 'none' = the row has no thinking mode (never enable it), 'optional' = caller may request it, 'always' = the model always thinks and the flag is forced on."
+          },
           "capability": {
             "type": "string",
             "description": "Capability this weight row serves, e.g. llm-chat or embeddings."
@@ -153,7 +173,7 @@
     },
     "base_url": {
       "type": "string",
-      "description": "Empty/omitted means the platform default (AI Gateway / local model-manager)."
+      "description": "Empty/omitted means the platform default (AI Gateway / local model-manager) -- EXCEPT for wire: in-app, which has no URL at all: consumers must branch on wire before applying any base_url default, or an on-device request silently becomes a metered cloud call."
     },
     "endpoint": { "type": "string" },
     "auth": {
