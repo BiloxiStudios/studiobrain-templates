@@ -6,7 +6,8 @@ Runs every CI-facing check from one place:
   1. Confirms every schema file in ``schemas/`` is a valid JSON Schema (Draft 2020-12).
   2. Validates every ``*.layout.json`` against ``schemas/layout.json``.
   3. Validates every ``pack.json`` against ``schemas/pack.json``.
-  4. Validates every ``plugin.json`` against ``schemas/plugin.json``.
+  4. Validates leftover ``plugin.json`` files if a ``plugins/`` tree exists
+     (official plugins no longer live in this repo — SBAI-7665).
   5. Validates every skill YAML frontmatter against ``schemas/skill.yaml.json``.
   6. Validates ``*.provider.yaml`` / ``*.ability.yaml`` / ``*.canvas.yaml``
      (and leftover ``*.workflow.yaml``) against ``schemas/provider.json``,
@@ -234,6 +235,8 @@ def check_packs() -> list[str]:
 
 def check_plugins() -> list[str]:
     errors: list[str] = []
+    if not PLUGINS_DIR.is_dir():
+        return errors
     for manifest in sorted(PLUGINS_DIR.glob("*/plugin.json")):
         try:
             data = json.loads(manifest.read_text(encoding="utf-8"))
@@ -911,11 +914,12 @@ def _walk_compat_objects() -> Iterable[tuple[pathlib.Path, dict[str, Any], str]]
                 yield f, json.loads(f.read_text(encoding="utf-8")), "pack"
             except json.JSONDecodeError:
                 continue
-    for f in PLUGINS_DIR.glob("*/plugin.json"):
-        try:
-            yield f, json.loads(f.read_text(encoding="utf-8")), "plugin"
-        except json.JSONDecodeError:
-            continue
+    if PLUGINS_DIR.is_dir():
+        for f in PLUGINS_DIR.glob("*/plugin.json"):
+            try:
+                yield f, json.loads(f.read_text(encoding="utf-8")), "plugin"
+            except json.JSONDecodeError:
+                continue
     if HAVE_YAML:
         for skill_dir in [SKILLS_DIR / "Standard", SKILLS_DIR / "User"]:
             if not skill_dir.exists():

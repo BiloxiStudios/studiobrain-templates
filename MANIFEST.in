@@ -1,6 +1,5 @@
 recursive-include studiobrain_templates/templates *.md *.json *.yaml *.yml
 recursive-include studiobrain_templates/rules *.md *.yaml *.yml
-recursive-include studiobrain_templates/plugins *.json *.css *.html *.py *.js
 recursive-include studiobrain_templates/schemas *.json
 recursive-include studiobrain_templates/skills *.yaml *.yml
 recursive-include studiobrain_templates/taxonomies *.yaml *.yml *.json

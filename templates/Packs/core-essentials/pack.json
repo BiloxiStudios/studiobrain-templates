@@ -20,5 +20,6 @@
     "../../Layouts/item.layout.json"
   ],
   "examples": [],
-  "tags": ["essentials", "starter", "default"]
+  "tags": ["essentials", "starter", "default"],
+  "plugins": ["entity-notes", "entity-snapshots", "content-stats"]
 }

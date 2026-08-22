@@ -48,6 +48,23 @@ jobs:
       - run: echo "${{ secrets.R2_ACCESS_KEY_ID }}"
 """
 
+SCHEDULE_GATED_WORKFLOW = """
+name: schedule-gated
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 * * * *"
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
+    steps:
+      - run: echo "${{ secrets.R2_ACCESS_KEY_ID }}"
+"""
+
 GITHUB_TOKEN_ONLY_WORKFLOW = """
 name: token-only
 on:
@@ -132,6 +149,10 @@ class CheckWorkflowSecretIsolationTest(unittest.TestCase):
     def test_allows_secret_in_push_gated_job(self):
         errors = self._check(GOOD_WORKFLOW)
         self.assertEqual(errors, [], f"push-gated job must not be flagged: {errors}")
+
+    def test_allows_secret_in_push_or_schedule_gated_job(self):
+        errors = self._check(SCHEDULE_GATED_WORKFLOW)
+        self.assertEqual(errors, [], f"push-or-schedule-gated job must not be flagged: {errors}")
 
     def test_github_token_is_always_safe(self):
         errors = self._check(GITHUB_TOKEN_ONLY_WORKFLOW)

@@ -1,6 +1,6 @@
 """StudioBrain Templates — pip-installable data package.
 
-Provides filesystem paths to bundled templates, rules, plugins, schemas,
+Provides filesystem paths to bundled templates, rules, schemas,
 skills, and layouts so that the StudioBrain backend can discover them at runtime.
 
 All content types live under templates/ with subdirectories:
@@ -14,7 +14,7 @@ All content types live under templates/ with subdirectories:
 
 Usage::
 
-    from studiobrain_templates import TEMPLATES_DIR, RULES_DIR, PLUGINS_DIR
+    from studiobrain_templates import TEMPLATES_DIR, RULES_DIR
 
     for md in TEMPLATES_DIR.rglob("*_TEMPLATE.md"):
         ...
@@ -31,7 +31,7 @@ RULES_DIR: Path = _PKG_ROOT / "rules"
 """Path to the ``rules/`` tree."""
 
 PLUGINS_DIR: Path = _PKG_ROOT / "plugins"
-"""Path to the ``plugins/`` tree."""
+"""Deprecated empty path. Official plugins live in studiobrain-plugins (SBAI-7665)."""
 
 SCHEMAS_DIR: Path = _PKG_ROOT / "schemas"
 """Path to the ``schemas/`` tree (JSON Schema for entity frontmatter validation,
