@@ -157,24 +157,35 @@ def canonical_axes(doc: dict[str, Any]) -> str:
     """Canonical JSON of the axes block -- the pre-image of ``content_hash``.
 
     Only the fields that change the embedded text are included (template +
-    ordered term id/prompt pairs), so editing a ``display`` string does not
-    invalidate a perfectly good artifact. Keys are sorted; term ORDER is
-    preserved because the artifact stores vectors in that order.
+    term id/prompt pairs), so editing a ``display`` string does not invalidate
+    a perfectly good artifact.
+
+    The payload is a LIST, not a mapping, because ORDER IS PART OF THE
+    CONTRACT: ``build_labels`` walks axes in document order and the artifact
+    stores one vector per label in exactly that order, so swapping two axes
+    re-pairs every vector with a different label. A sorted-keys mapping hashes
+    identically before and after such a swap, which would make ``content_hash``
+    -- the one staleness signal a consumer gets -- blind to the exact edit that
+    silently relabels every asset. Object keys inside each entry are still
+    sorted, so the form stays canonical.
     """
     axes = doc.get("axes")
     if not isinstance(axes, dict) or not axes:
         raise SystemExit("taxonomy has no axes")
-    payload: dict[str, Any] = {}
+    payload: list[dict[str, Any]] = []
     for axis_id, axis in axes.items():
         if not isinstance(axis, dict):
             raise SystemExit(f"axis {axis_id!r} is not a mapping")
-        payload[str(axis_id)] = {
-            "hypothesis_template": str(axis.get("hypothesis_template") or ""),
-            "terms": [
-                {"id": str(t.get("id")), "prompt": str(t.get("prompt"))}
-                for t in (axis.get("terms") or [])
-            ],
-        }
+        payload.append(
+            {
+                "axis": str(axis_id),
+                "hypothesis_template": str(axis.get("hypothesis_template") or ""),
+                "terms": [
+                    {"id": str(t.get("id")), "prompt": str(t.get("prompt"))}
+                    for t in (axis.get("terms") or [])
+                ],
+            }
+        )
     return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 

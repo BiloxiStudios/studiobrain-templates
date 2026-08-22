@@ -727,18 +727,36 @@ def check_requires() -> tuple[list[str], list[str]]:
                         )
                     else:
                         try:
-                            stamp = json.loads(
+                            artifact_doc = json.loads(
                                 artifact_path.read_text(encoding="utf-8")
-                            ).get("taxonomy") or {}
+                            )
                         except json.JSONDecodeError as exc:
                             errors.append(f"{artifact_path}: JSON parse error: {exc}")
-                            stamp = {}
+                            artifact_doc = {}
+                        stamp = artifact_doc.get("taxonomy") or {}
                         declared_tax = row.get("taxonomy")
                         if declared_tax and stamp.get("id") != declared_tax:
                             errors.append(
                                 f"{path}: provider '{pid}' weights row {rid!r} declares "
                                 f"taxonomy {declared_tax!r} but {artifact_rel} holds "
                                 f"{stamp.get('id')!r}"
+                            )
+                        # The artifact is per MODEL TIER, not per taxonomy: one
+                        # taxonomy has an artifact per tier and they are NOT
+                        # interchangeable (siglip2-base embeds at 768 dims,
+                        # so400m at 1152). Both artifacts name the same taxonomy
+                        # id, so the check above cannot separate them -- only the
+                        # model the vectors were produced by can. A crossed
+                        # pointer passes every other gate and then dot-products
+                        # mismatched widths on the device, AFTER the download.
+                        artifact_model = str((artifact_doc.get("model") or {}).get("id") or "")
+                        row_repo = str(row.get("source") or "").split("://", 1)[-1]
+                        if artifact_model and row_repo and artifact_model != row_repo:
+                            errors.append(
+                                f"{path}: provider '{pid}' weights row {rid!r} loads "
+                                f"{row_repo} but {artifact_rel} was built from "
+                                f"{artifact_model} -- taxonomy_embeddings is per model "
+                                "tier and tiers are not interchangeable"
                             )
                 elif row.get("taxonomy"):
                     warnings.append(

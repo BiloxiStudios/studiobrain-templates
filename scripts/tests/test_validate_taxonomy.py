@@ -106,6 +106,51 @@ class ShippedTaxonomyTests(unittest.TestCase):
     def test_content_hash_is_the_real_hash(self):
         self.assertEqual(self.doc["content_hash"], _tools().content_hash(self.doc))
 
+    def test_content_hash_covers_axis_order_not_just_term_order(self):
+        """Reordering axes re-pairs every vector with a different label.
+
+        ``build_labels`` walks axes in document order and the artifact stores
+        one vector per label in that order, so an axis swap silently relabels
+        the whole taxonomy. ``content_hash`` is the only staleness signal a
+        consumer gets, so it has to move when that happens -- a canonical form
+        built from a sorted-keys mapping hashes identically before and after
+        the swap and would not.
+        """
+        import copy  # noqa: PLC0415
+
+        tools = _tools()
+        base = tools.content_hash(self.doc)
+
+        swapped = copy.deepcopy(self.doc)
+        keys = list(self.doc["axes"])
+        self.assertGreater(len(keys), 1, "need >1 axis for this to mean anything")
+        swapped["axes"] = {k: self.doc["axes"][k] for k in reversed(keys)}
+        self.assertNotEqual(
+            [lbl["id"] for lbl in tools.build_labels(swapped)],
+            [lbl["id"] for lbl in tools.build_labels(self.doc)],
+            "precondition: the swap must change label order",
+        )
+        self.assertNotEqual(
+            tools.content_hash(swapped), base, "axis order must be part of content_hash"
+        )
+
+        reordered_terms = copy.deepcopy(self.doc)
+        first = keys[0]
+        reordered_terms["axes"][first]["terms"] = list(
+            reversed(self.doc["axes"][first]["terms"])
+        )
+        self.assertNotEqual(
+            tools.content_hash(reordered_terms), base, "term order must be part of content_hash"
+        )
+
+        # Cosmetic-only edits must NOT invalidate a good artifact.
+        cosmetic = copy.deepcopy(self.doc)
+        cosmetic["axes"][first]["display"] = "Totally Different Display Name"
+        cosmetic["description"] = "reworded"
+        self.assertEqual(
+            tools.content_hash(cosmetic), base, "display/description are not part of the pre-image"
+        )
+
 
 @unittest.skipUnless(validate.HAVE_YAML, "pyyaml required")
 class ArtifactTests(unittest.TestCase):

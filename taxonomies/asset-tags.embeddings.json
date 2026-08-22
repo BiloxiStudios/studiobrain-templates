@@ -3,7 +3,7 @@
   "taxonomy": {
     "id": "studiobrain.asset-tags",
     "revision": "1.0.0",
-    "content_hash": "sha256:4e9b1cbffedb4a464a6253ac20e5bf977b9c163cc08c982424bf8dddaff1faef"
+    "content_hash": "sha256:656eea8dcb2c89d4bbae4560a79c18293e79cd2fe0a20abdc27094d6c5d0aef2"
   },
   "model": {
     "id": "onnx-community/siglip2-base-patch16-256-ONNX",
