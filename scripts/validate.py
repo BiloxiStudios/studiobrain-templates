@@ -11,6 +11,10 @@ Runs every CI-facing check from one place:
   6. Validates ``*.provider.yaml`` / ``*.ability.yaml`` / ``*.canvas.yaml``
      (and leftover ``*.workflow.yaml``) against ``schemas/provider.json``,
      ``schemas/ability.json``, and ``schemas/canvas.json`` (SBAI-7569 / SBAI-7651).
+  6b. Validates ``taxonomies/*.yaml`` against ``schemas/taxonomy.json``,
+     recomputes each ``content_hash``, and proves every
+     ``taxonomies/*.embeddings.json`` still matches the taxonomy it stamps --
+     label for label, in order (SBAI-7726).
   7. Validates entity markdown YAML frontmatter against ``schemas/<entity_type>.json``
      (best-effort -- skipped if pyyaml is unavailable).
   8. Enforces compat metadata: every layout / pack / plugin / skill MUST declare
@@ -55,6 +59,7 @@ SCHEMAS_DIR = ROOT / "schemas"
 TEMPLATES_DIR = ROOT / "templates"
 PLUGINS_DIR = ROOT / "plugins"
 SKILLS_DIR = ROOT / "skills"
+TAXONOMIES_DIR = ROOT / "taxonomies"
 
 SEMVER_RE = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
@@ -354,6 +359,185 @@ def check_entity_frontmatter() -> list[str]:
     return errors
 
 
+# ----- Taxonomies (SBAI-7726) ----------------------------------------------------
+
+def _load_taxonomy_tools():
+    """Import scripts/generate_taxonomy_embeddings.py.
+
+    Same trick as _load_catalog_builder: the generator owns the canonical-form
+    and label-flattening logic, and re-implementing either here would let the
+    two drift and quietly stop enforcing anything. Its module level is
+    stdlib-only (the heavy deps are imported inside the functions that need
+    them), so this import is cheap.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "generate_taxonomy_embeddings", ROOT / "scripts" / "generate_taxonomy_embeddings.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module
+
+
+def _artifact_stamp_errors(
+    label: str,
+    artifact: dict[str, Any],
+    doc: dict[str, Any],
+    computed_hash: str,
+    tools: Any,
+) -> list[str]:
+    """Cross-check one embeddings artifact against the taxonomy it claims."""
+    errors: list[str] = []
+    stamp = artifact.get("taxonomy") or {}
+    if stamp.get("content_hash") != computed_hash:
+        errors.append(
+            f"{label}: artifact is STALE -- taxonomy content_hash is {computed_hash}, "
+            f"artifact carries {stamp.get('content_hash')!r}. Regenerate with "
+            "scripts/generate_taxonomy_embeddings.py"
+        )
+    if str(stamp.get("revision")) != str(doc.get("revision")):
+        errors.append(
+            f"{label}: artifact taxonomy revision {stamp.get('revision')!r} != "
+            f"taxonomy revision {doc.get('revision')!r}"
+        )
+
+    scoring = artifact.get("scoring") or {}
+    for field in ("formula", "logit_scale", "logit_bias"):
+        if field not in scoring:
+            errors.append(
+                f"{label}: scoring.{field} missing -- without the learned sigmoid "
+                "calibration every device-side threshold is meaningless"
+            )
+
+    model = artifact.get("model") or {}
+    embed_dim = model.get("embed_dim")
+    if not isinstance(embed_dim, int) or embed_dim <= 0:
+        errors.append(f"{label}: model.embed_dim must be a positive integer")
+        embed_dim = None
+    for field in ("id", "revision", "file"):
+        if not model.get(field):
+            errors.append(f"{label}: model.{field} missing -- artifact has no provenance")
+
+    try:
+        expected = tools.build_labels(doc)
+    except SystemExit as exc:  # noqa: PERF203 -- taxonomy already reported broken
+        return errors + [f"{label}: cannot flatten taxonomy: {exc}"]
+
+    labels = artifact.get("labels")
+    if not isinstance(labels, list):
+        return errors + [f"{label}: labels must be a list"]
+    if len(labels) != len(expected):
+        return errors + [
+            f"{label}: has {len(labels)} label vectors but the taxonomy has "
+            f"{len(expected)} labels"
+        ]
+    if artifact.get("label_count") != len(labels):
+        errors.append(
+            f"{label}: label_count {artifact.get('label_count')!r} != {len(labels)} vectors"
+        )
+
+    for index, (got, want) in enumerate(zip(labels, expected)):
+        if not isinstance(got, dict):
+            errors.append(f"{label}: labels[{index}] is not an object")
+            continue
+        for field in ("id", "axis", "term", "text"):
+            if got.get(field) != want[field]:
+                errors.append(
+                    f"{label}: labels[{index}].{field} is {got.get(field)!r}, "
+                    f"taxonomy order says {want[field]!r}"
+                )
+        vec = got.get("embedding")
+        if not isinstance(vec, list):
+            errors.append(f"{label}: labels[{index}].embedding is not a list")
+            continue
+        if embed_dim is not None and len(vec) != embed_dim:
+            errors.append(
+                f"{label}: labels[{index}].embedding has {len(vec)} dims, "
+                f"model.embed_dim says {embed_dim}"
+            )
+            continue
+        # Vectors are stored L2-normalised and rounded; anything materially off
+        # unit length means the file was hand-edited or truncated.
+        norm = sum(float(x) * float(x) for x in vec) ** 0.5
+        if abs(norm - 1.0) > 1e-3:
+            errors.append(
+                f"{label}: labels[{index}] ({got.get('id')}) has L2 norm {norm:.6f}, "
+                "expected a unit vector"
+            )
+    return errors
+
+
+def check_taxonomies() -> list[str]:
+    """Validate taxonomies/ and their precomputed embedding artifacts (SBAI-7726).
+
+    Two things are enforced that a JSON Schema cannot express:
+
+    - ``content_hash`` really is the hash of the axes block. It lives in the
+      file it stamps, so nothing but a recompute proves it.
+    - every ``*.embeddings.json`` matches the taxonomy it names, label for
+      label, in order. That pairing is the ONLY staleness signal the device
+      has: it downloads a vision tower and trusts these vectors blindly, so a
+      taxonomy edit without a regenerated artifact would silently score assets
+      against the previous vocabulary.
+    """
+    errors: list[str] = []
+    if not TAXONOMIES_DIR.exists():
+        return errors
+    if not HAVE_YAML:
+        _info("NOTE: pyyaml not installed -- skipping taxonomy validation.")
+        return errors
+    tools = _load_taxonomy_tools()
+
+    taxonomies: dict[str, tuple[pathlib.Path, dict[str, Any], str]] = {}
+    for path in sorted(TAXONOMIES_DIR.glob("*.yaml")) + sorted(TAXONOMIES_DIR.glob("*.yml")):
+        try:
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as exc:
+            errors.append(f"{path}: YAML parse error: {exc}")
+            continue
+        if not isinstance(data, dict):
+            errors.append(f"{path}: top-level YAML is not a mapping")
+            continue
+        errors.extend(_validate_instance(data, "taxonomy.json", str(path)))
+        try:
+            computed = tools.content_hash(data)
+        except SystemExit as exc:
+            errors.append(f"{path}: {exc}")
+            continue
+        declared = str(data.get("content_hash") or "")
+        if declared != computed:
+            errors.append(
+                f"{path}: content_hash is stale (declared {declared or '<missing>'}, "
+                f"computed {computed}) -- run "
+                "scripts/generate_taxonomy_embeddings.py --update-hash"
+            )
+        tid = str(data.get("id") or "")
+        if tid:
+            if tid in taxonomies:
+                errors.append(f"{path}: duplicate taxonomy id {tid!r}")
+            taxonomies[tid] = (path, data, computed)
+
+    for path in sorted(TAXONOMIES_DIR.glob("*.embeddings.json")):
+        try:
+            artifact = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"{path}: JSON parse error: {exc}")
+            continue
+        if artifact.get("artifact_schema_version") != 1:
+            errors.append(
+                f"{path}: artifact_schema_version must be 1, got "
+                f"{artifact.get('artifact_schema_version')!r}"
+            )
+        tid = str((artifact.get("taxonomy") or {}).get("id") or "")
+        if tid not in taxonomies:
+            errors.append(f"{path}: names taxonomy id {tid!r}, which no taxonomies/*.yaml declares")
+            continue
+        _, doc, computed = taxonomies[tid]
+        errors.extend(_artifact_stamp_errors(str(path), artifact, doc, computed, tools))
+
+    return errors
+
+
 # ----- Requires enforcement ------------------------------------------------------
 
 _LOCALHOST_RE = re.compile(r"^(https?://)?(localhost|127\.0\.0\.1|\[?::1\]?)([:/]|$)")
@@ -365,6 +549,9 @@ _KNOWN_PROVIDES = {
     "llm-chat", "tts", "voice-clone", "image-gen", "video-gen",
     "music-gen", "3d-gen", "3d-render", "audio-stems", "media-convert",
     "embeddings",
+    # SBAI-7726 asset intelligence: asset-tagging = zero-shot scoring against a
+    # taxonomy (SigLIP-2), asset-caption = describing an asset in prose.
+    "asset-tagging", "asset-caption",
 }
 
 
@@ -524,6 +711,42 @@ def check_requires() -> tuple[list[str], list[str]]:
                 # definitions to a model that may render them as prose. Both
                 # are WARN, not ERROR: the fields are optional in the schema
                 # and older catalogs must keep validating.
+                # Zero-shot rows (SBAI-7726) are useless without the artifact
+                # holding their taxonomy's precomputed text embeddings: the row
+                # ships a vision tower only, so a dangling pointer means the
+                # device downloads weights and then has nothing to score
+                # against. Hard error -- exactly the class of "dead-ends AFTER
+                # the download" failure the SBAI-7682 witness paid for once.
+                artifact_rel = row.get("taxonomy_embeddings")
+                if artifact_rel:
+                    artifact_path = ROOT / str(artifact_rel)
+                    if not artifact_path.is_file():
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} points at "
+                            f"taxonomy_embeddings {artifact_rel!r}, which does not exist"
+                        )
+                    else:
+                        try:
+                            stamp = json.loads(
+                                artifact_path.read_text(encoding="utf-8")
+                            ).get("taxonomy") or {}
+                        except json.JSONDecodeError as exc:
+                            errors.append(f"{artifact_path}: JSON parse error: {exc}")
+                            stamp = {}
+                        declared_tax = row.get("taxonomy")
+                        if declared_tax and stamp.get("id") != declared_tax:
+                            errors.append(
+                                f"{path}: provider '{pid}' weights row {rid!r} declares "
+                                f"taxonomy {declared_tax!r} but {artifact_rel} holds "
+                                f"{stamp.get('id')!r}"
+                            )
+                elif row.get("taxonomy"):
+                    warnings.append(
+                        f"{path}: provider '{pid}' weights row {rid!r} names a taxonomy "
+                        "but no taxonomy_embeddings artifact -- the device would have to "
+                        "run the text tower it does not download"
+                    )
+
                 row_capability = row.get("capability") or "llm-chat"
                 if row_capability == "llm-chat":
                     missing = [
@@ -844,6 +1067,9 @@ def main(argv: list[str] | None = None) -> int:
 
     _info("== Validating provider, ability, and workflow files ==")
     all_errors.extend(check_providers_and_abilities())
+
+    _info("== Validating taxonomies and embedding artifacts ==")
+    all_errors.extend(check_taxonomies())
 
     _info("== Enforcing requires metadata ==")
     requires_errors, requires_warnings = check_requires()

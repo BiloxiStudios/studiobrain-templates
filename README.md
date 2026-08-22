@@ -26,6 +26,10 @@ This repository contains the schema definitions that power StudioBrain's dynamic
 │   ├── CHARACTER_RULES.md
 │   ├── LOCATION_RULES.md
 │   └── ...
+├── taxonomies/             # Controlled vocabularies (SBAI-7726)
+│   ├── asset-tags.yaml     # Axes of prompt-bearing terms + content_hash
+│   ├── asset-tags.embeddings.json          # SigLIP-2 base   (768d)
+│   └── asset-tags.so400m.embeddings.json   # SigLIP-2 so400m (1152d)
 └── plugins/                # Plugin system
     ├── _plugins.json       # Plugin registry
     ├── hello-world/        # Example plugin

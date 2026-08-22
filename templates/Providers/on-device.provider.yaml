@@ -21,15 +21,36 @@
 # selectWeights on any runtime that cannot prove it (SBAI-7682). Declare a
 # runnable non-f16 row for every device tier, or that tier dead-ends after
 # the user has already paid for the download.
+#
+# SBAI-7726 adds the asset-intelligence capabilities `asset-tagging` (SigLIP-2
+# zero-shot scoring against taxonomies/asset-tags.yaml) and `asset-caption`
+# (deep-tag captioner used when Gemma 4 is not cached). Two catalog rulings
+# are load-bearing there and must not be quietly reversed:
+#
+#   * NO FastVLM row. onnx-community/FastVLM-0.5B-ONNX is the strongest small
+#     captioner and has a working WebGPU demo, but it ships under `apple-amlr`
+#     (Apple ML Research license, not OSI). This catalog is consumed by the
+#     Apache-2.0 core product, so the license needs review before it becomes a
+#     row. Florence-2-base-ft (MIT) is the caption tier until then.
+#   * NO SigLIP-2 NaFlex row. onnx-community/siglip2-base-patch16-naflex-ONNX
+#     is tagged exactly like its FixRes siblings, but its config declares
+#     `model_type: siglip2`, which has no entry in the transformers.js v4
+#     registry -- it fails at load, AFTER the download. Only FixRes SigLIP-2
+#     repos (`model_type: siglip`) may be added here.
+#
+# Encoder rows (asset-tagging) deliberately omit context_length /
+# max_output_tokens / tools / thinking: SigLIP is an image encoder scored
+# against precomputed text embeddings, it has no chat window and emits no
+# tokens. validate.py only demands those on `llm-chat` rows.
 id: on-device
 kind: provider
 display: On-Device AI (Free)
 wire: in-app
 runtime: transformers.js
-provides: [llm-chat, embeddings]
+provides: [llm-chat, embeddings, asset-tagging, asset-caption]
 slots:
-  accepts: [text]
-  emits: [text, tool]
+  accepts: [text, image]
+  emits: [text, tool, json]
 requires:
   platforms: [web, desktop, mobile]
   webgpu: optional
@@ -129,3 +150,124 @@ weights:
     capability: embeddings
     context_length: 8192
     modality: [text]
+  # ---------------------------------------------------------------------------
+  # capability: asset-tagging -- SigLIP-2 zero-shot scoring (SBAI-7726 §5).
+  #
+  # These rows download the VISION TOWER ONLY (`model_file_name: vision_model`,
+  # SiglipVisionModel). The text tower never ships: every taxonomy label is
+  # embedded offline by scripts/generate_taxonomy_embeddings.py into the
+  # artifact named by `taxonomy_embeddings`, which also carries the learned
+  # `logit_scale` / `logit_bias` so the device's
+  # sigmoid(scale*cos_sim + bias) reproduces pipeline probabilities. That is
+  # what turns a 378 MB-1.07 GB combined model into a 55-95 MB download.
+  # `taxonomy_embeddings` is per-tier, not per-taxonomy: base-256 embeds at
+  # 768 dims and so400m at 1152, so a row must never point at the other tier's
+  # artifact.
+  #
+  # Only FixRes SigLIP-2 repos belong here. The NaFlex variant
+  # (siglip2-base-patch16-naflex-ONNX) declares `model_type: siglip2`, which
+  # transformers.js v4 does not register -- it would fail at load after the
+  # download completes.
+  - id: on-device/siglip2-base-256-vision-q4f16-webgpu
+    source: huggingface://onnx-community/siglip2-base-patch16-256-ONNX
+    model_file_name: vision_model
+    dtype: q4f16
+    device: webgpu
+    min_ram_gb: 4
+    approx_download_mb: 55
+    capability: asset-tagging
+    taxonomy: studiobrain.asset-tags
+    taxonomy_embeddings: taxonomies/asset-tags.embeddings.json
+    modality: [image]
+    default: true
+  # The non-f16 WebGPU step-down (SBAI-7682 doctrine): plain q4 compiles to
+  # fp32 shaders and runs on adapters without the `shader-f16` feature.
+  - id: on-device/siglip2-base-256-vision-q4-webgpu
+    source: huggingface://onnx-community/siglip2-base-patch16-256-ONNX
+    model_file_name: vision_model
+    dtype: q4
+    device: webgpu
+    min_ram_gb: 4
+    approx_download_mb: 63
+    capability: asset-tagging
+    taxonomy: studiobrain.asset-tags
+    taxonomy_embeddings: taxonomies/asset-tags.embeddings.json
+    modality: [image]
+  # The WASM tier. q4 cannot run on ORT-web's WASM execution provider (no
+  # GatherBlockQuantized kernel), so this tier must be plain per-tensor int8;
+  # `q8` resolves to vision_model_quantized.onnx, byte-identical to
+  # vision_model_int8.onnx in this repo (94,737,653 B).
+  - id: on-device/siglip2-base-256-vision-q8-wasm
+    source: huggingface://onnx-community/siglip2-base-patch16-256-ONNX
+    model_file_name: vision_model
+    dtype: q8
+    device: wasm
+    min_ram_gb: 4
+    approx_download_mb: 95
+    capability: asset-tagging
+    taxonomy: studiobrain.asset-tags
+    taxonomy_embeddings: taxonomies/asset-tags.embeddings.json
+    modality: [image]
+  # Quality tier: so400m embeds at 1152 dims, so it needs its OWN artifact --
+  # taxonomies/asset-tags.so400m.embeddings.json, produced by
+  # `scripts/generate_taxonomy_embeddings.py --tier so400m`. Its text tower is
+  # 711 MB int8 and must never be put on-device.
+  - id: on-device/siglip2-so400m-256-vision-q4f16-webgpu
+    source: huggingface://onnx-community/siglip2-so400m-patch16-256-ONNX
+    model_file_name: vision_model
+    dtype: q4f16
+    device: webgpu
+    min_ram_gb: 8
+    approx_download_mb: 246
+    capability: asset-tagging
+    taxonomy: studiobrain.asset-tags
+    taxonomy_embeddings: taxonomies/asset-tags.so400m.embeddings.json
+    modality: [image]
+  # ---------------------------------------------------------------------------
+  # capability: asset-caption -- deep-tag captioner fallback (SBAI-7726 §5).
+  #
+  # Used only when Gemma 4 is not already cached: the deep tier prefers the
+  # Gemma rows above (one multimodal model for chat AND captions beats a
+  # second download). Florence-2 is task-prompted
+  # (<CAPTION>/<MORE_DETAILED_CAPTION>/<OD>/<OCR>) with parsed regions via
+  # post_process_generation -- structured output rather than free-form chat,
+  # which is why it also covers OCR on sprite sheets and textures.
+  #
+  # Florence-2 is a MULTI-MODULE model (embed_tokens + vision_encoder +
+  # encoder_model + decoder_model_merged), so `dtype` is the tier label and
+  # f16 gate while `dtype_map` carries the per-module truth. The vision
+  # encoder is conv-heavy: q4 quantizes MatMul only and buys nothing there,
+  # hence fp16/int8 for that module in both tiers.
+  #
+  # NOT FastVLM: onnx-community/FastVLM-0.5B-ONNX is the better captioner and
+  # has a working WebGPU demo, but its license is `apple-amlr`, not OSI. It
+  # stays out of this Apache-2.0 catalog until that review lands (SBAI-7726).
+  - id: on-device/florence-2-base-ft-fp16-webgpu
+    source: huggingface://onnx-community/Florence-2-base-ft
+    dtype: q4f16
+    dtype_map:
+      embed_tokens: fp16
+      vision_encoder: fp16
+      encoder_model: q4f16
+      decoder_model_merged: q4f16
+    device: webgpu
+    min_ram_gb: 8
+    approx_download_mb: 345
+    capability: asset-caption
+    max_output_tokens: 1024
+    modality: [text, image]
+    default: true
+  - id: on-device/florence-2-base-ft-q8-wasm
+    source: huggingface://onnx-community/Florence-2-base-ft
+    dtype: q8
+    dtype_map:
+      embed_tokens: q8
+      vision_encoder: q8
+      encoder_model: q8
+      decoder_model_merged: q8
+    device: wasm
+    min_ram_gb: 4
+    approx_download_mb: 275
+    capability: asset-caption
+    max_output_tokens: 1024
+    modality: [text, image]

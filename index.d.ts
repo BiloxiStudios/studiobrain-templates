@@ -8,6 +8,7 @@ export type SchemaName =
   | "pack"
   | "plugin"
   | "skill"
+  | "taxonomy"
   | "character"
   | "location"
   | "item"
@@ -45,6 +46,7 @@ export const RULES_DIR: string;
 export const PLUGINS_DIR: string;
 export const SCHEMAS_DIR: string;
 export const SKILLS_DIR: string;
+export const TAXONOMIES_DIR: string;
 export const LAYOUTS_DIR: string;
 export const PACKS_DIR: string;
 

@@ -10,7 +10,9 @@
     "plugins/",
     "schemas/",
     "skills/",
+    "taxonomies/",
     "scripts/validate.py",
+    "scripts/generate_taxonomy_embeddings.py",
     "index.js",
     "index.d.ts"
   ],
