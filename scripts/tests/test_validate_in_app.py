@@ -516,5 +516,96 @@ class AssetIntelligenceRowTests(unittest.TestCase):
         self.assertEqual(offenders, [], "FastVLM needs a license review before shipping")
 
 
+@unittest.skipUnless(validate.HAVE_YAML, "pyyaml required")
+class TaxonomyEmbeddingsPointerTests(unittest.TestCase):
+    """check_requires() must reject a row wired to the WRONG TIER's artifact.
+
+    One taxonomy has one artifact per model tier and they are not
+    interchangeable -- siglip2-base embeds at 768 dims, so400m at 1152. Both
+    artifacts legitimately carry the SAME taxonomy id, so the taxonomy-id check
+    cannot tell them apart; only the model the vectors came from can. A crossed
+    pointer passes schema validation, passes the taxonomy stamp check, and then
+    dot-products mismatched widths on the user's device AFTER the download has
+    already been paid for.
+    """
+
+    PROVIDER = """\
+id: on-device-test
+kind: provider
+display: On-Device (test)
+wire: in-app
+runtime: transformers.js
+provides: [asset-tagging]
+requires:
+  platforms: [web, desktop, mobile]
+  webgpu: optional
+weights:
+  - id: on-device/siglip2-base-256-vision-q4f16-webgpu
+    source: huggingface://onnx-community/siglip2-base-patch16-256-ONNX
+    model_file_name: vision_model
+    dtype: q4f16
+    device: webgpu
+    capability: asset-tagging
+    taxonomy: studiobrain.asset-tags
+    taxonomy_embeddings: taxonomies/{artifact}
+"""
+
+    TIERS = {
+        "asset-tags.embeddings.json": ("onnx-community/siglip2-base-patch16-256-ONNX", 768),
+        "asset-tags.so400m.embeddings.json": (
+            "onnx-community/siglip2-so400m-patch16-256-ONNX",
+            1152,
+        ),
+    }
+
+    def run_pointing_at(self, artifact_name: str) -> tuple[list[str], list[str]]:
+        with tempfile.TemporaryDirectory() as td:
+            tmp = pathlib.Path(td)
+            (tmp / "taxonomies").mkdir(parents=True, exist_ok=True)
+            for name, (model_id, dim) in self.TIERS.items():
+                (tmp / "taxonomies" / name).write_text(
+                    json.dumps(
+                        {
+                            "artifact_schema_version": 1,
+                            "taxonomy": {
+                                "id": "studiobrain.asset-tags",
+                                "revision": "1.0.0",
+                                "content_hash": "sha256:" + "0" * 64,
+                            },
+                            "model": {"id": model_id, "embed_dim": dim, "tower": "text"},
+                            "scoring": {
+                                "formula": "sigmoid(...)",
+                                "logit_scale": 1.0,
+                                "logit_bias": 0.0,
+                            },
+                            "label_count": 0,
+                            "labels": [],
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+            return _run(
+                tmp, {"x.provider.yaml": self.PROVIDER.format(artifact=artifact_name)}
+            )
+
+    def test_matching_tier_is_clean(self):
+        errors, _ = self.run_pointing_at("asset-tags.embeddings.json")
+        self.assertEqual(errors, [])
+
+    def test_crossed_tier_is_an_error(self):
+        errors, _ = self.run_pointing_at("asset-tags.so400m.embeddings.json")
+        self.assertTrue(
+            any("not interchangeable" in e for e in errors),
+            f"a base row pointing at the so400m artifact must fail; got {errors!r}",
+        )
+
+    def test_missing_artifact_is_an_error(self):
+        errors, _ = self.run_pointing_at("asset-tags.nope.embeddings.json")
+        self.assertTrue(
+            any("does not exist" in e for e in errors),
+            f"a dangling taxonomy_embeddings pointer must fail; got {errors!r}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

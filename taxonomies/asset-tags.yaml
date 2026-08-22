@@ -27,9 +27,12 @@
 #   tower. `id` is `<axis>/<term>`; `term` alone is what lands in
 #   `assets.tags` (case-sensitive LIKE match, so ids stay snake_case).
 #
-# `content_hash` covers ONLY the canonical form of the `axes` block
-# (JSON, sorted keys, each term reduced to {id, prompt}), so it can live in
-# the same file it stamps. scripts/validate.py recomputes and enforces it,
+# `content_hash` covers ONLY the canonical form of the `axes` block (JSON,
+# each term reduced to {id, prompt}), so it can live in the same file it
+# stamps. Axis order and term order are BOTH part of that pre-image, because
+# the artifact stores one vector per label in exactly that order -- swapping
+# two axes re-pairs every vector with a different label, so the hash has to
+# move when it happens. scripts/validate.py recomputes and enforces it,
 # and the embeddings artifact must carry the same hash -- that pair is the
 # staleness check: change a prompt, the hash moves, the artifact is stale
 # until regenerated with scripts/generate_taxonomy_embeddings.py.
@@ -42,7 +45,7 @@ description: >-
   Controlled vocabulary for zero-shot asset tagging (objects, style, mood,
   setting, composition, colors, details).
 revision: 1.0.0
-content_hash: sha256:4e9b1cbffedb4a464a6253ac20e5bf977b9c163cc08c982424bf8dddaff1faef
+content_hash: sha256:656eea8dcb2c89d4bbae4560a79c18293e79cd2fe0a20abdc27094d6c5d0aef2
 axes:
   objects:
     display: Objects

@@ -22,7 +22,7 @@
     "content_hash": {
       "type": "string",
       "pattern": "^sha256:[0-9a-f]{64}$",
-      "description": "sha256 of the canonical JSON of the axes block (sorted keys, each term reduced to {id, prompt}, term order preserved). Recomputed and enforced by scripts/validate.py; a precomputed embedding artifact must carry the same value or it is stale."
+      "description": "sha256 of the canonical JSON of the axes block (each term reduced to {id, prompt}, with axis order AND term order preserved -- the artifact stores one vector per label in exactly that order, so a reordering must move the hash). Recomputed and enforced by scripts/validate.py; a precomputed embedding artifact must carry the same value or it is stale."
     },
     "axes": {
       "type": "object",
