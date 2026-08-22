@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/taxonomy.json",
+  "title": "StudioBrain Taxonomy File",
+  "description": "A controlled vocabulary shipped as pure data. Drop *.yaml in taxonomies/. Axes group terms; each term carries the prompt phrase that is substituted into its axis hypothesis_template to build the candidate text a zero-shot model scores. `content_hash` stamps the canonical form of the axes block so a precomputed embedding artifact can prove it is not stale.",
+  "type": "object",
+  "required": ["id", "kind", "revision", "content_hash", "axes"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "kind": { "const": "taxonomy" },
+    "display": { "type": "string" },
+    "description": { "type": "string" },
+    "revision": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "description": "Human-facing semver. Bump minor when terms are added, major when an existing term id changes meaning or is removed."
+    },
+    "content_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "sha256 of the canonical JSON of the axes block (sorted keys, each term reduced to {id, prompt}, term order preserved). Recomputed and enforced by scripts/validate.py; a precomputed embedding artifact must carry the same value or it is stale."
+    },
+    "axes": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Axis id -> axis. Axis order and term order are significant: a precomputed embedding artifact stores one vector per label in exactly this order.",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["hypothesis_template", "terms"],
+        "additionalProperties": true,
+        "properties": {
+          "display": { "type": "string" },
+          "description": { "type": "string" },
+          "hypothesis_template": {
+            "type": "string",
+            "pattern": "\\{\\}",
+            "description": "Candidate-text template containing exactly one '{}' placeholder. The term's `prompt` carries its own article/inflection so one template stays grammatical across the axis."
+          },
+          "terms": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["id", "prompt"],
+              "additionalProperties": true,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9_]*$",
+                  "description": "Bare tag written into assets.tags. Kept snake_case and stable -- the tags filter is a case-sensitive JSON LIKE match."
+                },
+                "prompt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Phrase substituted into the axis hypothesis_template to form the candidate text that is actually embedded."
+                },
+                "display": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

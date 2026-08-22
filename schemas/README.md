@@ -26,6 +26,15 @@ will load in StudioBrain.
 | `pack.json` | `templates/Packs/<id>/pack.json` — template pack manifests | pack installer, marketplace |
 | `plugin.json` | `plugins/<id>/plugin.json` — plugin manifests (full / frontend-only / protocol-adapter variants) | plugin loader |
 | `skill.yaml.json` | `skills/Standard/*.yaml` and `skills/User/*.yaml` — AI skill frontmatter (parsed YAML mapping) | skill picker |
+| `taxonomy.json` | `taxonomies/*.yaml` — controlled vocabularies (axes of prompt-bearing terms) with a `content_hash` stamp | on-device zero-shot tagger (SBAI-7726), server tag normalisation |
+
+Taxonomies additionally ship a precomputed embedding artifact
+`taxonomies/<name>[.tier].embeddings.json` — label vectors plus the model's
+learned `logit_scale` / `logit_bias`. It has no JSON Schema: what matters
+about it cannot be expressed as one (it must match its taxonomy label-for-label
+IN ORDER, and its vectors must be unit length), so `scripts/validate.py`
+cross-checks it against the taxonomy in code instead. Regenerate with
+`scripts/generate_taxonomy_embeddings.py`.
 
 ## How schemas are used
 
@@ -411,4 +420,5 @@ ids and values describe the field. Allowed `type` values:
 | `pack.json` | Template pack contract (templates/Packs/<id>/pack.json) |
 | `plugin.json` | Plugin manifest contract (full / frontend-only / protocol-adapter; v1 and v2) |
 | `skill.yaml.json` | AI skill frontmatter contract (skills/*.yaml) |
+| `taxonomy.json` | Controlled-vocabulary contract (taxonomies/*.yaml) |
 | `fixtures/` | Test fixtures for plugin.json v2 schema validation (valid/invalid v1 and v2 manifests) |

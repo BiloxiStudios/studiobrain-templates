@@ -64,7 +64,30 @@
           },
           "dtype": {
             "type": "string",
-            "enum": ["fp32", "fp16", "q8", "q4", "q4f16", "bnb4"]
+            "enum": ["fp32", "fp16", "q8", "q4", "q4f16", "bnb4"],
+            "description": "Tier dtype AND execution prerequisite: q4f16/fp16 rows need the WebGPU shader-f16 feature, and q4 has no WASM kernel. For a multi-module model this is the tier label and f16 gate; dtype_map carries the per-module truth."
+          },
+          "dtype_map": {
+            "type": "object",
+            "description": "Per-module dtype overrides for multi-file models (Florence-2, Gemma multimodal, FastVLM-class): module name -> dtype, e.g. {embed_tokens: fp16, vision_encoder: fp16, decoder_model_merged: q4f16}. Modules quantize very differently -- q4 only touches MatMul, so it is useless on a conv-heavy vision encoder -- and picking the mix is a catalog decision, not something each client should re-derive.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": ["fp32", "fp16", "q8", "q4", "q4f16", "bnb4"]
+            }
+          },
+          "model_file_name": {
+            "type": "string",
+            "description": "Load only this graph out of a multi-tower repo, e.g. 'vision_model' for a SigLIP row that ships the vision tower alone and scores against precomputed text embeddings. Maps to transformers.js model_file_name.",
+            "pattern": "^[A-Za-z0-9._-]+$"
+          },
+          "taxonomy": {
+            "type": "string",
+            "description": "id of the taxonomy this row scores against (taxonomies/*.yaml). Zero-shot rows only."
+          },
+          "taxonomy_embeddings": {
+            "type": "string",
+            "description": "Repo-relative path to the precomputed text-embedding artifact for this row's model tier (taxonomies/*.embeddings.json). Per-TIER, not per-taxonomy: embedding dimensionality differs between tiers, so a row must never point at another tier's artifact. scripts/validate.py checks the file exists and that its taxonomy stamp is current.",
+            "pattern": "^taxonomies/[A-Za-z0-9._-]+\\.embeddings\\.json$"
           },
           "device": {
             "type": "string",

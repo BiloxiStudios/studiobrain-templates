@@ -41,6 +41,11 @@ SKILLS_DIR: Path = _PKG_ROOT / "skills"
 """Path to the ``skills/`` tree (AI skill YAML definitions with frontmatter
 validated against schemas/skill.yaml.json)."""
 
+TAXONOMIES_DIR: Path = _PKG_ROOT / "taxonomies"
+"""Path to the ``taxonomies/`` tree (controlled vocabularies validated against
+schemas/taxonomy.json, each with its precomputed zero-shot text-embedding
+artifact ``<name>[.tier].embeddings.json``)."""
+
 LAYOUTS_DIR: Path = TEMPLATES_DIR / "Layouts"
 """Path to the ``templates/Layouts/`` tree (UI layout JSON, validated against
 schemas/layout.json)."""
@@ -55,6 +60,7 @@ __all__ = [
     "PLUGINS_DIR",
     "SCHEMAS_DIR",
     "SKILLS_DIR",
+    "TAXONOMIES_DIR",
     "LAYOUTS_DIR",
     "PACKS_DIR",
 ]

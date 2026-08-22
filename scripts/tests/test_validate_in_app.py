@@ -15,6 +15,7 @@ every canvas that uses it to become desktop-only.
 """
 from __future__ import annotations
 
+import json
 import pathlib
 import sys
 import tempfile
@@ -266,23 +267,42 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertNotIn("billing", data, "the on-device free tier must never declare billing")
         self.assertNotIn("pricing", data)
         rows = {r["id"]: r for r in data["weights"]}
-        # Spec SBAI-7625 §5 tiers as revised by the SBAI-7682 witness. Ids are
-        # namespaced so the cloud money-leak guard can reject the lane by
-        # 'on-device/' prefix.
+        # Spec SBAI-7625 §5 tiers as revised by the SBAI-7682 witness, plus the
+        # SBAI-7726 asset-intelligence rows. Ids are namespaced so the cloud
+        # money-leak guard can reject the lane by 'on-device/' prefix.
         self.assertEqual(
             sorted(rows),
             [
+                "on-device/florence-2-base-ft-fp16-webgpu",
+                "on-device/florence-2-base-ft-q8-wasm",
                 "on-device/gemma-4-e2b-it-q4",
                 "on-device/gemma-4-e2b-it-q4f16-webgpu",
                 "on-device/gemma-4-e4b-it-q4f16-webgpu",
                 "on-device/nomic-embed-text-v1.5-q8-any",
                 "on-device/qwen3-0.6b-q4-any",
                 "on-device/qwen3-0.6b-q8-wasm",
+                "on-device/siglip2-base-256-vision-q4-webgpu",
+                "on-device/siglip2-base-256-vision-q4f16-webgpu",
+                "on-device/siglip2-base-256-vision-q8-wasm",
+                "on-device/siglip2-so400m-256-vision-q4f16-webgpu",
             ],
         )
-        # Exactly one free-tier default, and it is the E2B WebGPU tier.
-        defaults = [r["id"] for r in data["weights"] if r.get("default")]
-        self.assertEqual(defaults, ["on-device/gemma-4-e2b-it-q4f16-webgpu"])
+        # Exactly one default PER CAPABILITY. `default` means "preferred row
+        # for its capability/device tier"; a second default inside one
+        # capability is an ambiguous selection, but chat/tagging/caption each
+        # need their own.
+        defaults: dict[str, list[str]] = {}
+        for row in data["weights"]:
+            if row.get("default"):
+                defaults.setdefault(row.get("capability", "llm-chat"), []).append(row["id"])
+        self.assertEqual(
+            defaults,
+            {
+                "llm-chat": ["on-device/gemma-4-e2b-it-q4f16-webgpu"],
+                "asset-tagging": ["on-device/siglip2-base-256-vision-q4f16-webgpu"],
+                "asset-caption": ["on-device/florence-2-base-ft-fp16-webgpu"],
+            },
+        )
         # Qwen is the labelled reduced-capability fallback, never a Gemma tier.
         self.assertTrue(rows["on-device/qwen3-0.6b-q4-any"]["fallback"])
         self.assertNotIn("gemma", rows["on-device/qwen3-0.6b-q4-any"]["source"].lower())
@@ -376,6 +396,124 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertEqual(nomic["context_length"], 8192)
         self.assertNotIn("tools", nomic)
         self.assertNotIn("thinking", nomic)
+
+
+@unittest.skipUnless(validate.HAVE_YAML, "pyyaml required")
+class AssetIntelligenceRowTests(unittest.TestCase):
+    """SBAI-7726 §5: the asset-tagging / asset-caption rows and their guards."""
+
+    def setUp(self):
+        import yaml  # noqa: PLC0415
+
+        path = ROOT / "templates" / "Providers" / "on-device.provider.yaml"
+        self.data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        self.rows = {r["id"]: r for r in self.data["weights"]}
+
+    def rows_for(self, capability: str) -> dict:
+        return {
+            rid: row
+            for rid, row in self.rows.items()
+            if row.get("capability") == capability
+        }
+
+    def test_provider_declares_the_new_capabilities(self):
+        for tag in ("asset-tagging", "asset-caption"):
+            self.assertIn(tag, self.data["provides"])
+            self.assertIn(tag, validate._KNOWN_PROVIDES, f"{tag} must not WARN as unknown")
+        # It scores images now, so the slot contract has to say so or no canvas
+        # edge can ever reach it.
+        self.assertIn("image", self.data["slots"]["accepts"])
+
+    def test_siglip_rows_are_vision_tower_only_with_a_real_artifact(self):
+        """The whole size story depends on never shipping the text tower.
+
+        A row that forgets model_file_name downloads the COMBINED model (378 MB
+        - 1.07 GB) instead of 55-95 MB, and a row whose artifact is missing
+        downloads a vision tower with nothing to score against.
+        """
+        tagging = self.rows_for("asset-tagging")
+        self.assertTrue(tagging, "no asset-tagging rows")
+        for rid, row in tagging.items():
+            self.assertEqual(row.get("model_file_name"), "vision_model", rid)
+            self.assertEqual(row.get("taxonomy"), "studiobrain.asset-tags", rid)
+            artifact_rel = row.get("taxonomy_embeddings")
+            self.assertTrue(artifact_rel, f"{rid} has no taxonomy_embeddings")
+            artifact = ROOT / artifact_rel
+            self.assertTrue(artifact.is_file(), f"{rid} -> missing {artifact_rel}")
+            stamp = json.loads(artifact.read_text(encoding="utf-8"))
+            self.assertEqual(stamp["taxonomy"]["id"], row["taxonomy"], rid)
+            self.assertEqual(row.get("modality"), ["image"], rid)
+            # Encoders have no chat window and emit no tokens.
+            for chat_only in ("context_length", "max_output_tokens", "tools", "thinking"):
+                self.assertNotIn(chat_only, row, f"{rid} declares chat-only key {chat_only}")
+
+    def test_tier_artifacts_are_not_interchangeable(self):
+        """base embeds at 768 dims, so400m at 1152 -- crossing them scores garbage."""
+        dims = {}
+        for rid, row in self.rows_for("asset-tagging").items():
+            artifact = json.loads((ROOT / row["taxonomy_embeddings"]).read_text(encoding="utf-8"))
+            dims.setdefault(row["source"], set()).add(artifact["model"]["embed_dim"])
+            self.assertEqual(
+                artifact["model"]["id"],
+                row["source"].removeprefix("huggingface://"),
+                f"{rid} points at an artifact built from a different repo",
+            )
+        for source, seen in dims.items():
+            self.assertEqual(len(seen), 1, f"{source} rows disagree on embed_dim: {seen}")
+
+    def test_asset_tagging_has_a_runnable_row_on_every_runtime(self):
+        """Same SBAI-7682 doctrine as chat: q4f16 needs shader-f16, q4 has no
+        WASM kernel. A tier with only f16 rows dead-ends after the download."""
+        f16 = {"q4f16", "fp16"}
+        tagging = self.rows_for("asset-tagging").values()
+        webgpu_non_f16 = [
+            r["id"] for r in tagging
+            if r.get("device") in ("webgpu", "any") and r.get("dtype") not in f16
+        ]
+        self.assertTrue(webgpu_non_f16, "asset-tagging has no non-f16 WebGPU row")
+        wasm = [
+            r["id"] for r in tagging
+            if r.get("device") in ("wasm", "any") and r.get("dtype") not in (f16 | {"q4"})
+        ]
+        self.assertTrue(wasm, "asset-tagging has no WASM-runnable (non-q4, non-f16) row")
+
+    def test_caption_rows_declare_their_per_module_dtypes(self):
+        """Florence-2 is four graphs. A scalar dtype cannot express the mix, and
+        q4 on the conv-heavy vision encoder buys nothing (it is fp32-sized)."""
+        caption = self.rows_for("asset-caption")
+        self.assertTrue(caption, "no asset-caption rows")
+        for rid, row in caption.items():
+            self.assertIn("dtype_map", row, rid)
+            self.assertEqual(
+                sorted(row["dtype_map"]),
+                ["decoder_model_merged", "embed_tokens", "encoder_model", "vision_encoder"],
+                rid,
+            )
+            self.assertNotEqual(row["dtype_map"]["vision_encoder"], "q4", rid)
+            self.assertEqual(row.get("modality"), ["text", "image"], rid)
+        wasm = [r for r in caption.values() if r.get("device") == "wasm"]
+        self.assertTrue(wasm, "asset-caption has no WASM row")
+        for row in wasm:
+            self.assertNotIn(row["dtype"], ("q4", "q4f16", "fp16"), row["id"])
+            for module, dt in row["dtype_map"].items():
+                self.assertNotIn(dt, ("q4", "q4f16", "fp16"), f"{row['id']}:{module}")
+
+    def test_no_naflex_row(self):
+        """siglip2-*-naflex-ONNX declares model_type 'siglip2', which has no
+        entry in the transformers.js v4 registry -- it fails at load, AFTER the
+        download. Only FixRes SigLIP-2 repos may be added."""
+        offenders = [r["id"] for r in self.data["weights"] if "naflex" in r["source"].lower()]
+        self.assertEqual(offenders, [], "NaFlex is unsupported in transformers.js")
+
+    def test_no_fastvlm_row(self):
+        """onnx-community/FastVLM-0.5B-ONNX ships under `apple-amlr`, not an OSI
+        license. It stays out of this Apache-2.0 catalog until reviewed."""
+        offenders = [
+            r["id"]
+            for r in self.data["weights"]
+            if "fastvlm" in r["source"].lower() or "/apple/" in r["source"].lower()
+        ]
+        self.assertEqual(offenders, [], "FastVLM needs a license review before shipping")
 
 
 if __name__ == "__main__":

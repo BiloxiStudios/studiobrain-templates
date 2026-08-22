@@ -1,0 +1,255 @@
+# StudioBrain asset-tag taxonomy v1 (SBAI-7726).
+#
+# Pure data. This is the controlled vocabulary the on-device SigLIP-2 quick
+# tagger scores every asset against, and the same vocabulary the server tier
+# normalises its output to (SBAI-7728). It is deliberately NOT code: the
+# desktop Rust three-tier tagger's hard-coded TAG_VOCABULARY
+# (studiobrain-app/packages/desktop/src-tauri/src/asset_tagger.rs:36-92) is
+# the thing this file replaces, and every runtime now reads the vocabulary
+# from here instead of embedding its own copy.
+#
+# Seed provenance:
+#   * axes objects / style / mood / setting / composition -- the 50 snake_case
+#     terms of that TAG_VOCABULARY, term-for-term, ids unchanged so tags
+#     already written by the desktop tagger keep matching.
+#   * axes colors / details -- the cloud assets-worker analysis axes
+#     (studiobrain-cloud .../assets-worker/src/contract.ts AssetAnalysisV1:
+#     description/tags/colors/style/mood/composition/details), so an
+#     on-device analysis can populate the same fields the cloud shape has.
+#
+# Scoring contract (spec SBAI-7726 §4/§5):
+#   candidate text = hypothesis_template with `{}` replaced by the term's
+#   `prompt`. The prompt carries its own article/inflection so one template
+#   per axis stays grammatical for every term in that axis. Those exact
+#   strings -- not the ids -- are what gets embedded; `taxonomies/
+#   asset-tags.embeddings.json` stores one 768-d fp32 vector per label in the
+#   axis/term order below, and the device only ever runs the SigLIP vision
+#   tower. `id` is `<axis>/<term>`; `term` alone is what lands in
+#   `assets.tags` (case-sensitive LIKE match, so ids stay snake_case).
+#
+# `content_hash` covers ONLY the canonical form of the `axes` block
+# (JSON, sorted keys, each term reduced to {id, prompt}), so it can live in
+# the same file it stamps. scripts/validate.py recomputes and enforces it,
+# and the embeddings artifact must carry the same hash -- that pair is the
+# staleness check: change a prompt, the hash moves, the artifact is stale
+# until regenerated with scripts/generate_taxonomy_embeddings.py.
+# `revision` is the human-facing semver; bump minor when terms are added,
+# major when an existing term id changes meaning or disappears.
+id: studiobrain.asset-tags
+kind: taxonomy
+display: StudioBrain Asset Tags
+description: >-
+  Controlled vocabulary for zero-shot asset tagging (objects, style, mood,
+  setting, composition, colors, details).
+revision: 1.0.0
+content_hash: sha256:4e9b1cbffedb4a464a6253ac20e5bf977b9c163cc08c982424bf8dddaff1faef
+axes:
+  objects:
+    display: Objects
+    description: What the asset depicts.
+    hypothesis_template: a photo of {}.
+    terms:
+      - id: character
+        prompt: a character
+      - id: vehicle
+        prompt: a vehicle
+      - id: weapon
+        prompt: a weapon
+      - id: building
+        prompt: a building
+      - id: furniture
+        prompt: a piece of furniture
+      - id: food
+        prompt: food
+      - id: plant
+        prompt: a plant
+      - id: animal
+        prompt: an animal
+      - id: creature
+        prompt: a fantasy creature
+      - id: robot
+        prompt: a robot
+      - id: tool
+        prompt: a tool
+      - id: artifact
+        prompt: an artifact
+  style:
+    display: Style
+    description: How the asset was made or rendered.
+    hypothesis_template: an image in the style of {}.
+    terms:
+      - id: concept_art
+        prompt: concept art
+      - id: pixel_art
+        prompt: pixel art
+      - id: 3d_render
+        prompt: a 3d render
+      - id: photograph
+        prompt: a photograph
+      - id: sketch
+        prompt: a pencil sketch
+      - id: painting
+        prompt: a painting
+      - id: ui_element
+        prompt: a user interface element
+      - id: icon
+        prompt: an icon
+      - id: sprite
+        prompt: a game sprite
+      - id: texture
+        prompt: a tiling texture
+      - id: wireframe
+        prompt: a wireframe render
+  mood:
+    display: Mood
+    description: Emotional register of the image.
+    hypothesis_template: an image with {} mood.
+    terms:
+      - id: dark
+        prompt: a dark
+      - id: bright
+        prompt: a bright
+      - id: colorful
+        prompt: a colorful
+      - id: muted
+        prompt: a muted
+      - id: warm
+        prompt: a warm
+      - id: cool
+        prompt: a cool
+      - id: dramatic
+        prompt: a dramatic
+      - id: peaceful
+        prompt: a peaceful
+      - id: eerie
+        prompt: an eerie
+  setting:
+    display: Setting
+    description: Where the depicted scene takes place.
+    hypothesis_template: a photo of {} scene.
+    terms:
+      - id: indoor
+        prompt: an indoor
+      - id: outdoor
+        prompt: an outdoor
+      - id: urban
+        prompt: an urban
+      - id: rural
+        prompt: a rural
+      - id: fantasy
+        prompt: a fantasy
+      - id: sci_fi
+        prompt: a science fiction
+      - id: modern
+        prompt: a modern
+      - id: medieval
+        prompt: a medieval
+      - id: underwater
+        prompt: an underwater
+      - id: space
+        prompt: an outer space
+  composition:
+    display: Composition
+    description: Framing and camera treatment.
+    hypothesis_template: a photo composed as {}.
+    terms:
+      - id: portrait
+        prompt: a portrait
+      - id: landscape
+        prompt: a landscape
+      - id: close_up
+        prompt: a close up
+      - id: wide_shot
+        prompt: a wide shot
+      - id: top_down
+        prompt: a top down view
+      - id: isometric
+        prompt: an isometric view
+      - id: side_view
+        prompt: a side view
+      - id: panoramic
+        prompt: a panoramic view
+  colors:
+    display: Colors
+    description: >-
+      Dominant palette. Mirrors the cloud analysis `colors` axis; hue terms
+      plus the palette treatments an artist actually searches for.
+    hypothesis_template: an image with a mostly {} color palette.
+    terms:
+      - id: red
+        prompt: red
+      - id: orange
+        prompt: orange
+      - id: yellow
+        prompt: yellow
+      - id: green
+        prompt: green
+      - id: blue
+        prompt: blue
+      - id: purple
+        prompt: purple
+      - id: pink
+        prompt: pink
+      - id: brown
+        prompt: brown
+      - id: black
+        prompt: black
+      - id: white
+        prompt: white
+      - id: grey
+        prompt: grey
+      - id: gold
+        prompt: gold
+      - id: silver
+        prompt: silver
+      - id: teal
+        prompt: teal
+      - id: monochrome
+        prompt: monochrome
+      - id: pastel
+        prompt: pastel
+      - id: neon
+        prompt: neon
+      - id: sepia
+        prompt: sepia
+      - id: earth_tone
+        prompt: earth tone
+      - id: high_contrast
+        prompt: high contrast
+  details:
+    display: Details
+    description: >-
+      Surface, material, and level-of-detail cues. Mirrors the cloud analysis
+      `details` axis.
+    hypothesis_template: an image showing {}.
+    terms:
+      - id: high_detail
+        prompt: highly detailed rendering
+      - id: low_detail
+        prompt: simple low detail shapes
+      - id: minimalist
+        prompt: a minimalist composition
+      - id: ornate
+        prompt: ornate decoration
+      - id: weathered
+        prompt: worn and weathered surfaces
+      - id: pristine
+        prompt: clean pristine surfaces
+      - id: glossy
+        prompt: glossy reflective surfaces
+      - id: matte
+        prompt: matte non reflective surfaces
+      - id: metallic
+        prompt: metallic materials
+      - id: wooden
+        prompt: wooden materials
+      - id: stone
+        prompt: stone materials
+      - id: fabric
+        prompt: fabric or cloth materials
+      - id: transparent
+        prompt: transparent glass materials
+      - id: glowing
+        prompt: glowing emissive light
+      - id: text_overlay
+        prompt: overlaid text or lettering

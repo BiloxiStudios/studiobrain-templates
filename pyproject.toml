@@ -40,6 +40,11 @@ studiobrain_templates = [
     "schemas/**/*.json",
     "skills/**/*.yaml",
     "skills/**/*.yml",
+    "taxonomies/**/*.yaml",
+    "taxonomies/**/*.yml",
+    # Precomputed zero-shot text embeddings (SBAI-7726). Data, not a binary:
+    # JSON arrays of fp32 label vectors plus the model's sigmoid calibration.
+    "taxonomies/**/*.json",
 ]
 
 [project.optional-dependencies]

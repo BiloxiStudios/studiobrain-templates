@@ -16,6 +16,7 @@ const RULES_DIR = path.join(ROOT, "rules");
 const PLUGINS_DIR = path.join(ROOT, "plugins");
 const SCHEMAS_DIR = path.join(ROOT, "schemas");
 const SKILLS_DIR = path.join(ROOT, "skills");
+const TAXONOMIES_DIR = path.join(ROOT, "taxonomies");
 const LAYOUTS_DIR = path.join(TEMPLATES_DIR, "Layouts");
 const PACKS_DIR = path.join(TEMPLATES_DIR, "Packs");
 
@@ -30,6 +31,7 @@ const SCHEMA_FILES = Object.freeze({
   pack: "pack.json",
   plugin: "plugin.json",
   skill: "skill.yaml.json",
+  taxonomy: "taxonomy.json",
   character: "character.json",
   location: "location.json",
   item: "item.json",
@@ -67,6 +69,7 @@ module.exports = {
   PLUGINS_DIR,
   SCHEMAS_DIR,
   SKILLS_DIR,
+  TAXONOMIES_DIR,
   LAYOUTS_DIR,
   PACKS_DIR,
   SCHEMA_FILES,

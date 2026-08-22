@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-21T19:44:29Z",
+  "generated_at": "2026-08-21T19:45:14Z",
   "entries": [
     {
       "id": "character-bio",
@@ -857,15 +857,19 @@
       "runtime": "transformers.js",
       "provides": [
         "llm-chat",
-        "embeddings"
+        "embeddings",
+        "asset-tagging",
+        "asset-caption"
       ],
       "slots": {
         "accepts": [
-          "text"
+          "text",
+          "image"
         ],
         "emits": [
           "text",
-          "tool"
+          "tool",
+          "json"
         ]
       }
     },
