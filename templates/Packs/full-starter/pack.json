@@ -6,8 +6,8 @@
   "version": "1.0.0",
   "entity_types": ["character", "location", "district", "faction", "brand", "job", "item"],
   "categories": ["narrative", "game-dev", "film-tv", "world-building"],
-  "tags": ["starter", "complete", "recommended", "all-in-one"],
   "plugins": ["entity-notes", "entity-snapshots", "content-stats"],
+  "tags": ["starter", "complete", "recommended", "all-in-one"],
   "icon": null,
   "is_meta_pack": true,
   "includes": [
