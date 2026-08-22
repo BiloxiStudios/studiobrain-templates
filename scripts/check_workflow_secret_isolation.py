@@ -66,7 +66,9 @@ SAFE_SECRET_NAMES = {"GITHUB_TOKEN"}
 # any step-level `if:` that might be interpreted as a gate — but per the
 # rule, the JOB-level if is what we require; a step-level if is not
 # sufficient because other steps in the same job could still run un-gated.
-PUSH_ONLY_IF_RE = re.compile(r"github\.event_name\s*==\s*['\"]push['\"]")
+# A job may hold secrets if it is gated off pull_request — push-to-main
+# and schedule are both allowed (SBAI-7665 catalog-index republish).
+SAFE_EVENT_IF_RE = re.compile(r"github\.event_name\s*==\s*['\"](?:push|schedule)['\"]")
 
 
 def _err(msg: str) -> None:
@@ -127,7 +129,7 @@ def _triggers(workflow: dict) -> set[str]:
 
 def _job_is_push_gated(job: dict) -> bool:
     job_if = job.get("if", "")
-    return bool(PUSH_ONLY_IF_RE.search(str(job_if)))
+    return bool(SAFE_EVENT_IF_RE.search(str(job_if)))
 
 
 def check_workflow(path: pathlib.Path) -> list[str]:

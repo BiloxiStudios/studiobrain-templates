@@ -1,6 +1,6 @@
 # StudioBrain Templates SDK
 
-> Entity templates, generation rules, and plugin system for StudioBrain.
+> Entity templates, generation rules, and catalog data for StudioBrain.
 
 ## Overview
 
@@ -8,7 +8,9 @@ This repository contains the schema definitions that power StudioBrain's dynamic
 
 - **Templates**: YAML+Markdown entity type definitions (Character, Location, Brand, etc.)
 - **Rules**: AI generation rules that guide content creation
-- **Plugins**: Plugin system with 22+ plugins for extended functionality
+- **Catalog data**: provider / ability / canvas YAML plus `catalog-index.json` (published to R2)
+
+Official plugins live in `studiobrain-plugins`. Community data/plugins go to `studiobrain-community`. Do not PR plugin source here.
 
 ## Structure
 
@@ -30,12 +32,7 @@ This repository contains the schema definitions that power StudioBrain's dynamic
 │   ├── asset-tags.yaml     # Axes of prompt-bearing terms + content_hash
 │   ├── asset-tags.embeddings.json          # SigLIP-2 base   (768d)
 │   └── asset-tags.so400m.embeddings.json   # SigLIP-2 so400m (1152d)
-└── plugins/                # Plugin system
-    ├── _plugins.json       # Plugin registry
-    ├── hello-world/        # Example plugin
-    ├── jira-sync/
-    ├── comfyui-workflows/
-    └── ...
+└── catalog-index.json      # Badge index republished to R2
 ```
 
 ## Usage
@@ -61,15 +58,9 @@ Templates are consumed by StudioBrain's type generation system:
 | [studiobrain-desktop](https://github.com/BiloxiStudios/studiobrain-desktop) | Desktop + mobile apps |
 
 
-## Cloudflare Worker Convention
-
-This repo follows the [StudioBrain CF Worker convention](/mnt/tank/Studio/Brains/crews/sbcrew/sbcrew-charters/ADR-cloudflare-worker-convention.md) (ADR, owner-accepted 2026-08-14):
-
-- CF-specific code lives in `packages/cloudflare-worker/` (Worker entrypoint, wrangler config, DO/R2/D1 glue only)
-- Portable TypeScript logic extends `studiobrain-sdk`, not the worker package
-- Rust-to-TS moves must preserve all features (serde/zod parity required for shape enforcement)
-- Workers named to match their crate/service; wasm32 boundary guard applies
-- Preferred deploy: Cloudflare native GitHub-to-Worker git integration
 ## License
 
-Private. Copyright (c) 2024-2026 Biloxi Studios Inc.
+Apache 2.0. Copyright (c) 2024-2026 Biloxi Studios Inc.
+
+This repo is data only. Official plugin Workers live in `studiobrain-plugins`.
+Community data/plugin PRs belong in `studiobrain-community`, not here.

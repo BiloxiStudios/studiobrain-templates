@@ -4,6 +4,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: "0 * * * *"
 
 jobs:
   validate-templates:
@@ -102,6 +104,9 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install "jsonschema>=4.17" "referencing>=0.30" pyyaml
+      - name: Prove PR-controlled workflow changes cannot reach publish secrets
+        # Secret-free. Fails a PR that puts secrets.* on a pull_request-reachable job.
+        run: python3 scripts/check_workflow_secret_isolation.py
       - name: Run scripts/validate.py (schema shape + instance validation + semver compat + fixtures)
         # --allow-missing-compat grandfathers existing assets that pre-date the
         # compat.min_core_version requirement (see SBAI-4649). New assets MUST
@@ -110,273 +115,14 @@ jobs:
         run: |
           python3 scripts/validate.py --allow-missing-compat --fixtures
 
-  # ─────────────────────────────────────────────────────────────────────────
-  # Plugin v2 build/publish pipeline (SBAI-7183).
-  #
-  # Three-job split is deliberate and is itself the security boundary:
-  #   1. check-plugin-ci-security / build-smoke-plugins run on EVERY push and
-  #      pull_request (including forked PRs) and reference NO secrets. This
-  #      is what makes it safe to run untrusted PR code through build+smoke.
-  #   2. publish-plugins-to-r2 is gated to push-to-main only and is the ONLY
-  #      job that reads publish/signing secrets.
-  # scripts/check_workflow_secret_isolation.py enforces this split on every
-  # PR: it fails CI if any pull_request-reachable job in this file ever
-  # references a secret other than GITHUB_TOKEN.
-  # ─────────────────────────────────────────────────────────────────────────
-
-  check-plugin-ci-security:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: pip install "jsonschema>=4.17" "referencing>=0.30" pyyaml cryptography boto3
-      - name: Prove PR-controlled workflow changes cannot reach publish/signing secrets
-        run: python3 scripts/check_workflow_secret_isolation.py
-      - name: Prove the index sign->verify->tamper-detect pipeline actually works
-        run: python3 scripts/verify_index_signature.py --selftest
-      - name: Unit tests (build pipeline + secret-isolation checker)
-        run: python3 -m unittest discover -s scripts/tests -v
-
-  build-smoke-plugins:
-    runs-on: ubuntu-latest
-    needs: [check-plugin-ci-security]
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - run: pip install "jsonschema>=4.17" "referencing>=0.30" pyyaml
-      - name: Compute a deterministic build timestamp from the commit
-        # Two CI runs for the SAME commit must produce a byte-identical
-        # index (manager review, SBAI-7183) — `date -u +%s`/wall-clock at
-        # build time is NOT reproducible across runs. The commit's own
-        # author timestamp is a stable, commit-derived value instead.
-        run: |
-          BUILT_AT=$(date -u -d "@$(git show -s --format=%ct "${{ github.sha }}")" +%Y-%m-%dT%H:%M:%SZ)
-          echo "BUILT_AT=$BUILT_AT" >> "$GITHUB_ENV"
-      - name: Validate manifest_version=2 plugins, build + smoke-test surface artifacts
-        run: |
-          python3 scripts/build_plugin_artifacts.py \
-            --out dist \
-            --built-at "$BUILT_AT" \
-            --source-commit "${{ github.sha }}" \
-            --public-base-url "${{ vars.R2_PUBLIC_BASE_URL }}"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: plugin-build-${{ github.sha }}
-          path: dist/
-          retention-days: 14
-
-  publish-plugins-to-r2:
-    runs-on: ubuntu-latest
-    needs: [check-plugin-ci-security, build-smoke-plugins]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment: plugins-publish
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - run: pip install "jsonschema>=4.17" "referencing>=0.30" pyyaml cryptography boto3
-      - name: Compute a deterministic build timestamp from the commit
-        # Same derivation as build-smoke-plugins, so a manual rerun of this
-        # job on an unchanged commit re-signs a byte-identical index instead
-        # of drifting on generated_at (manager review, SBAI-7183).
-        run: |
-          BUILT_AT=$(date -u -d "@$(git show -s --format=%ct "${{ github.sha }}")" +%Y-%m-%dT%H:%M:%SZ)
-          echo "BUILT_AT=$BUILT_AT" >> "$GITHUB_ENV"
-      - name: Rebuild dist/ from this exact commit (deterministic, never trust a prior job's artifact for publish)
-        run: |
-          python3 scripts/build_plugin_artifacts.py \
-            --out dist \
-            --built-at "$BUILT_AT" \
-            --source-commit "${{ github.sha }}" \
-            --public-base-url "${{ vars.R2_PUBLIC_BASE_URL }}"
-      - name: Sign the index
-        env:
-          PLUGIN_INDEX_SIGNING_KEY: ${{ secrets.PLUGIN_INDEX_SIGNING_KEY }}
-        run: |
-          python3 scripts/sign_index.py \
-            --index dist/_plugins.index.json \
-            --key-id sb-templates-ci-index-2026 \
-            --signing-key-b64 "$PLUGIN_INDEX_SIGNING_KEY"
-      - name: Verify the signature we just produced against the checked-in public key
-        run: python3 scripts/verify_index_signature.py --index dist/_plugins.index.json
-      - name: Publish immutable versioned artifacts + signed index to R2
-        env:
-          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET: ${{ secrets.R2_BUCKET }}
-        run: python3 scripts/publish_to_r2.py --dist dist
-      - name: Commit the freshly-signed index back to main (source-of-truth copy alongside the R2 copy)
-        # Rebase-proof commit-back (SBAI-7183): main may have advanced past this
-        # run's head by the time we push (a prior index commit, a concurrent
-        # merge, or a manual rerun of this very job). Committing from the
-        # CURRENT tip of origin/main instead of the run's checkout makes the
-        # push always-fast-forward, and because signing is deterministic
-        # (signed_at pins to the commit-derived generated_at), a rerun of an
-        # unchanged commit finds the identical index already on main and
-        # no-ops — the idempotent-rerun witness. The old form
-        # (`git push origin HEAD:main` from the run-head checkout) failed
-        # non-fast-forward exactly this way on 2026-08-19 (run 32245077450).
-        run: |
-          git fetch origin main
-          git checkout -B index-update origin/main
-          cp dist/_plugins.index.json _plugins.index.json
-          git config user.name "studiobrain-templates-ci[bot]"
-          git config user.email "ci@studiobrain.ai"
-          git add _plugins.index.json
-          if git diff --cached --quiet; then
-            echo "Index unchanged — this commit's deterministic index is already on main (idempotent rerun confirmed)."
-          else
-            git commit -m "SBAI-7183: regenerate signed plugin index [skip ci]"
-            git push origin HEAD:main
-          fi
-
-  # Signed-index -> cloud catalog sync (SBAI-7210). Makes the plugins CI just
-  # built/signed/published to R2 also DISCOVERABLE through cloud's catalog
-  # API (SBAI-7209's `PUT /api/catalog/plugins/:id`), so app/desktop/mobile
-  # clients browsing the marketplace see them.
-  #
-  # Same trust boundary as publish-plugins-to-r2 above, and covered by the
-  # same check_workflow_secret_isolation.py gate: `needs` this job so it can
-  # never run before the index is actually signed+published, and gate on
-  # push-to-main so CLOUD_CATALOG_BOT_EMAIL/PASSWORD are never reachable
-  # from a pull_request run. The credential is the login password for a
-  # dedicated, low-privilege "catalog publisher" bot account (an
-  # otherwise-empty tenant it owns — no billing, no other repo/team
-  # access; self-registration already grants it the `owner` role, which
-  # is all the catalog publish endpoint requires). Every run logs in fresh
-  # for a short-lived access token rather than storing one long-lived —
-  # see scripts/sync_catalog_plugins.py's module docstring for why (accounts'
-  # refresh-token reuse-detection rotation would self-destruct a stored
-  # refresh token on a second run; a fresh login has no such reuse state).
-  sync-catalog-plugins:
-    runs-on: ubuntu-latest
-    needs: [publish-plugins-to-r2]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment: plugins-publish
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: pip install cryptography
-      - name: Read the just-published signed index off the current tip of main
-        # Don't trust this run's own checkout SHA for the index content —
-        # publish-plugins-to-r2 (this job's `needs`) may have just committed
-        # a fresher copy back to main than what triggered this workflow run.
-        # Reading origin/main's own copy is what makes a rerun idempotent:
-        # an unchanged index syncs the identical request bodies again.
-        run: |
-          git fetch origin main
-          git show origin/main:_plugins.index.json > _plugins.index.json
-      - name: Log in as the catalog-publisher bot to obtain a short-lived access token
-        env:
-          CLOUD_CATALOG_BOT_EMAIL: ${{ secrets.CLOUD_CATALOG_BOT_EMAIL }}
-          CLOUD_CATALOG_BOT_PASSWORD: ${{ secrets.CLOUD_CATALOG_BOT_PASSWORD }}
-        run: |
-          python3 - "${{ vars.ACCOUNTS_API_BASE_URL || 'https://accounts.studiobrain.ai' }}" <<'PY'
-          import json, os, sys, urllib.request
-
-          base = sys.argv[1].rstrip("/")
-          req = urllib.request.Request(
-              f"{base}/api/auth/login",
-              data=json.dumps({
-                  "email": os.environ["CLOUD_CATALOG_BOT_EMAIL"],
-                  "password": os.environ["CLOUD_CATALOG_BOT_PASSWORD"],
-              }).encode("utf-8"),
-              method="POST",
-              headers={
-                  "Content-Type": "application/json",
-                  # Cloudflare Bot Fight Mode (error 1010) blocks the
-                  # default "Python-urllib/x.y" UA outright — measured live
-                  # 2026-08-21, the first trusted-run attempt 403'd on
-                  # exactly this before any app-level auth logic ran.
-                  "User-Agent": "studiobrain-templates-ci/1.0 (+https://github.com/BiloxiStudios/studiobrain-templates)",
-              },
-          )
-          with urllib.request.urlopen(req, timeout=30) as resp:
-              body = json.load(resp)
-
-          token = body["access_token"]
-          # Mask first so the token never appears in plaintext in the log,
-          # even if a later step in this job echoes $GITHUB_ENV by mistake.
-          print(f"::add-mask::{token}")
-          with open(os.environ["GITHUB_ENV"], "a") as f:
-              f.write(f"CLOUD_CATALOG_ACCESS_TOKEN={token}\n")
-          print("Logged in: obtained a fresh access token for this run only.")
-          PY
-      - name: Sync signed catalog entries into cloud (fail-closed on signature/checksum, idempotent upsert)
-        # CLOUD_CATALOG_ACCESS_TOKEN is already in the job environment — the
-        # previous step wrote it to $GITHUB_ENV, which GitHub Actions exposes
-        # to every later step in this job automatically.
-        run: |
-          python3 scripts/sync_catalog_plugins.py \
-            --index _plugins.index.json \
-            --cloud-api-base "${{ vars.CLOUD_API_BASE_URL || 'https://api.studiobrain.ai' }}"
-      - name: Catalog GET read-back witness — prove the synced entry is visible through the read path
-        # Not just "the PUT returned 200" — round-trips through the actual
-        # GET /api/catalog/plugins/:id read path (SBAI-7209) a real client
-        # would use, and fails the job if the checksum served back doesn't
-        # match what was just published.
-        run: |
-          python3 - "${{ vars.CLOUD_API_BASE_URL || 'https://api.studiobrain.ai' }}" <<'PY'
-          import json, os, sys, urllib.request
-
-          base = sys.argv[1].rstrip("/")
-          token = os.environ["CLOUD_CATALOG_ACCESS_TOKEN"]
-          plugins = json.load(open("_plugins.index.json")).get("plugins", [])
-          if not plugins:
-              print("No plugins in this index — nothing to read back (trivially satisfied witness).")
-              sys.exit(0)
-
-          entry_id, want_checksum = plugins[0]["id"], plugins[0]["manifest_sha256"]
-          req = urllib.request.Request(
-              f"{base}/api/catalog/plugins/{entry_id}",
-              headers={
-                  "Authorization": f"Bearer {token}",
-                  "User-Agent": "studiobrain-templates-ci/1.0 (+https://github.com/BiloxiStudios/studiobrain-templates)",
-              },
-          )
-          with urllib.request.urlopen(req, timeout=30) as resp:
-              body = json.load(resp)
-
-          got_checksum = body.get("entry", {}).get("checksum")
-          print(f"GET readback for {entry_id}: checksum={got_checksum}")
-          if got_checksum != want_checksum:
-              print(f"ERROR: readback checksum mismatch — got {got_checksum!r}, expected {want_checksum!r}", file=sys.stderr)
-              sys.exit(1)
-          PY
-
-  # Catalog badge index (SBAI-7611, epic SBAI-7608). Kept fresh the same way
-  # as the signed plugin index: rebuilt deterministically on every push to
-  # main (generated_at pins to the commit timestamp) and committed back with
-  # the same rebase-proof, idempotent-rerun pattern. PRs need no staleness
-  # gate — the index self-heals on merge to main, and scripts/validate.py
-  # (validate-schemas-and-assets) already fails a PR whose catalog edits are
-  # inconsistent with the checked-in index. No secrets: this job only reads
-  # the repo and pushes the regenerated file.
+  # Catalog badge index (SBAI-7611 / SBAI-7665). Rebuilt deterministically on
+  # every push to main and every hourly schedule (generated_at pins to the
+  # commit timestamp), committed back, then uploaded to R2 at
+  # catalog/catalog-index.json. PRs never see R2 secrets.
   regenerate-catalog-index:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
+    environment: plugins-publish
     permissions:
       contents: write
     steps:
@@ -384,20 +130,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install pyyaml
+      - run: pip install pyyaml boto3
       - name: Compute a deterministic timestamp from the commit
-        # Same derivation as build-smoke-plugins (BUILT_AT) — two runs of the
-        # SAME commit must produce a byte-identical index.
+        # Two runs of the SAME commit must produce a byte-identical index.
         run: |
           GENERATED_AT=$(date -u -d "@$(git show -s --format=%ct "${{ github.sha }}")" +%Y-%m-%dT%H:%M:%SZ)
           echo "GENERATED_AT=$GENERATED_AT" >> "$GITHUB_ENV"
       - name: Regenerate the catalog index from this commit
         run: python3 scripts/build_catalog_index.py --generated-at "$GENERATED_AT" --out /tmp/catalog-index.json
       - name: Commit the regenerated index back to main
-        # Rebase-proof commit-back, mirroring _plugins.index.json above:
-        # commit from the CURRENT tip of origin/main so the push is always
-        # fast-forward, and no-op when the deterministic index is already
-        # there (idempotent-rerun witness).
+        # Rebase-proof commit-back: commit from the CURRENT tip of origin/main
+        # so the push is always fast-forward, and no-op when the deterministic
+        # index is already there (idempotent-rerun witness).
         run: |
           git fetch origin main
           git checkout -B catalog-index-update origin/main
@@ -411,3 +155,13 @@ jobs:
             git commit -m "SBAI-7611: regenerate catalog index [skip ci]"
             git push origin HEAD:main
           fi
+      - name: Publish catalog-index.json to R2
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          python3 scripts/publish_catalog_index_to_r2.py \
+            --file catalog-index.json \
+            --key catalog/catalog-index.json

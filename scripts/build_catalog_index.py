@@ -22,7 +22,7 @@ for wire: in-app.
 
 Entries are sorted by (kind, id) so diffs are stable. ``generated_at`` is
 deterministic: pass --generated-at (CI passes the commit's author timestamp,
-the same derivation the plugin-index jobs use), otherwise it falls back to
+the same derivation the catalog-index CI job uses), otherwise it falls back to
 HEAD's commit timestamp, then wall clock.
 
 Usage:

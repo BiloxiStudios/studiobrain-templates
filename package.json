@@ -1,13 +1,12 @@
 {
   "name": "@studiobrain/templates",
   "version": "0.2.0",
-  "description": "StudioBrain entity templates, generation rules, and plugin SDK",
+  "description": "StudioBrain entity templates, generation rules, and catalog data",
   "main": "index.js",
   "types": "index.d.ts",
   "files": [
     "templates/",
     "rules/",
-    "plugins/",
     "schemas/",
     "skills/",
     "taxonomies/",
@@ -20,7 +19,6 @@
     "validate": "python3 scripts/validate.py --allow-missing-compat",
     "validate:strict": "python3 scripts/validate.py",
     "validate:core": "python3 scripts/validate.py --core-version",
-    "build:plugins": "python3 scripts/build_plugin_artifacts.py",
     "lint": "echo 'No linting configured yet'",
     "test": "python3 -m unittest discover -s scripts/tests"
   },
@@ -28,8 +26,7 @@
     "studiobrain",
     "templates",
     "game-development",
-    "entity-types",
-    "plugins"
+    "entity-types"
   ],
   "repository": {
     "type": "git",
