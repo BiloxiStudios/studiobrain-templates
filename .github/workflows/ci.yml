@@ -107,6 +107,8 @@ jobs:
       - name: Prove PR-controlled workflow changes cannot reach publish secrets
         # Secret-free. Fails a PR that puts secrets.* on a pull_request-reachable job.
         run: python3 scripts/check_workflow_secret_isolation.py
+      - name: Prove catalog-index R2 publish has ETag + read-back witness
+        run: python3 -m unittest discover -s scripts/tests -p 'test_publish_catalog_index_to_r2.py' -v
       - name: Run scripts/validate.py (schema shape + instance validation + semver compat + fixtures)
         # --allow-missing-compat grandfathers existing assets that pre-date the
         # compat.min_core_version requirement (see SBAI-4649). New assets MUST
@@ -161,6 +163,7 @@ jobs:
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_PUBLIC_BASE_URL: ${{ vars.R2_PUBLIC_BASE_URL }}
         run: |
           python3 scripts/publish_catalog_index_to_r2.py \
             --file catalog-index.json \
