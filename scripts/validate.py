@@ -576,9 +576,9 @@ def check_requires() -> tuple[list[str], list[str]]:
       -- the user's own device is free and must never debit BrainBits); it
       must declare ``runtime`` and at least one ``weights`` row with a
       non-empty, unique ``id`` and a non-empty ``source`` (SBAI-7625/7626).
-    - ERROR: ``runtime`` / ``weights`` on a provider whose wire is not
-      ``in-app`` -- they describe on-device execution only, and the catalog
-      index badges them to the marketplace.
+    - ERROR: ``runtime`` / ``weights`` / ``requires.webgpu`` on a provider
+      whose wire is not ``in-app`` -- they describe on-device execution only,
+      and the catalog index badges them to the marketplace.
     - WARN: an in-app ``weights`` row whose ``source`` is not
       ``huggingface://...``.
     - ERROR: a ``runtime: litert-lm`` weights row without a ``.litertlm``
@@ -867,6 +867,11 @@ def check_requires() -> tuple[list[str], list[str]]:
                         f"{path}: provider '{pid}' declares {field} but has wire "
                         f"{data.get('wire')!r} -- {field} is 'wire: in-app' only"
                     )
+            if requires.get("webgpu"):
+                errors.append(
+                    f"{path}: provider '{pid}' declares requires.webgpu but has wire "
+                    f"{data.get('wire')!r} -- requires.webgpu is 'wire: in-app' only"
+                )
 
     for path, data in workflows:
         requires = data.get("requires") or {}

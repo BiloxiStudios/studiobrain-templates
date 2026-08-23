@@ -200,6 +200,20 @@ weights:
         self.assert_error_matching(errors, "runtime is 'wire: in-app' only")
         self.assert_error_matching(errors, "weights is 'wire: in-app' only")
 
+    def test_requires_webgpu_is_in_app_only(self):
+        cloud = """
+id: cloudy-webgpu
+kind: provider
+wire: openai-compat
+base_url: https://api.example.com
+requires:
+  webgpu: optional
+"""
+        errors, _ = self.check(cloud)
+        self.assert_error_matching(
+            errors, "requires.webgpu is 'wire: in-app' only"
+        )
+
 
 @unittest.skipUnless(validate.HAVE_YAML, "pyyaml required")
 class DesktopOnlyAggregationTests(unittest.TestCase):
