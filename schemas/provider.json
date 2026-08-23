@@ -34,8 +34,8 @@
     },
     "runtime": {
       "type": "string",
-      "enum": ["transformers.js"],
-      "description": "in-app only -- which engine the in-app executor uses to run this provider's weights on-device."
+      "enum": ["transformers.js", "litert-lm"],
+      "description": "in-app only -- the DEFAULT engine the in-app executor uses to run this provider's weights on-device. A weights row may override it with its own 'runtime' (SBAI-7844): one in-app provider can hold tiers for more than one engine, and the executor loads the row it selected, not the provider header."
     },
     "models": {
       "type": "object",
@@ -74,6 +74,16 @@
               "type": "string",
               "enum": ["fp32", "fp16", "q8", "q4", "q4f16", "bnb4"]
             }
+          },
+          "runtime": {
+            "type": "string",
+            "enum": ["transformers.js", "litert-lm"],
+            "description": "Which in-app engine loads THIS row, overriding the provider-level runtime (SBAI-7844). Per row rather than per provider because the on-device provider now holds transformers.js tiers and litert-lm tiers side by side. Omitted, the row is a transformers.js row -- which is what every row that predates this field is, so absence must never be reinterpreted."
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]+$",
+            "description": "One named weight FILE inside the repo, WITH its extension, e.g. 'gemma-4-E2B-it-web.litertlm'. Required for runtime: litert-lm, where a repo publishes several mutually incompatible .litertlm builds side by side (-web, -gpu, and one per NPU vendor) and only the -web one runs in a browser -- guessing would download gigabytes of the wrong build. Distinct from model_file_name, which is transformers.js's EXTENSIONLESS model_file_name for picking one graph out of a repo's onnx/ directory."
           },
           "model_file_name": {
             "type": "string",
