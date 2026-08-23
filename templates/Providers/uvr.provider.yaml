@@ -5,6 +5,9 @@ id: uvr
 kind: provider
 display: Ultimate Vocal Remover
 wire: process
+engine:
+  category: local_spawned
+  requirement: required
 base_url: ""
 endpoint: uvr
 auth: {}

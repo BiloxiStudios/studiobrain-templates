@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://studiobrain.biloxistudios.com/schemas/provider.json",
   "title": "StudioBrain Provider File",
-  "description": "How to talk to a generation backend. Drop *.provider.yaml in _Providers/ (project) or templates/Providers/ (catalog). Unknown backends are a second tiny file — no new Rust crate.",
+  "description": "How to talk to a generation backend. Drop *.provider.yaml in _Providers/ (project) or templates/Providers/ (catalog) — never a single providers.yaml. Unknown backends are a second tiny file — no new Rust crate. Engine/framework choice + default weight rows per device/build live in *.platform.yaml (schemas/platform.json), not in divergent code (SBAI-7974).",
   "type": "object",
   "required": ["id", "kind", "wire"],
   "additionalProperties": true,
@@ -27,7 +27,18 @@
     "wire": {
       "type": "string",
       "enum": ["openai-compat", "anthropic", "google", "comfyui", "http", "process", "dashscope", "in-app"],
-      "description": "process = desktop/LAN CLI (Blender, UVR). Cloud workers must 501 process and localhost base_url. dashscope = Alibaba DashScope native API, which is NOT openai-compatible; its compatible-mode endpoint (/compatible-mode/v1) can instead be used with wire: openai-compat. in-app = executes inside the client app via the ai-sdk on-device executor (WebGPU/WASM, no network hop); same doctrine as process -- cloud workers must 501 it."
+      "description": "Protocol-level dialect this backend speaks (openai-compat, anthropic, …). NOT the execution engine — that is `engine.category` (MM v2 taxonomy: local_inprocess / local_spawned / lan_endpoint / distributed / cloud_provider / llm_router). Do not conflate the two (SBAI-7974). process = desktop/LAN CLI (Blender, UVR). Cloud workers must 501 process and localhost base_url. dashscope = Alibaba DashScope native API, which is NOT openai-compatible; its compatible-mode endpoint (/compatible-mode/v1) can instead be used with wire: openai-compat. in-app = executes inside the client app via the ai-sdk on-device executor (WebGPU/WASM, no network hop); same doctrine as process -- cloud workers must 501 it."
+    },
+    "engine": {
+      "description": "Preferred-or-required execution engine (SBAI-7974). Reuses model-manager engines.schema.json v2 taxonomy_category. Shorthand string = category with requirement=preferred. Distinct from `wire` (protocol) and from in-app `runtime` (which in-app engine loads the weights).",
+      "oneOf": [
+        { "$ref": "./_engine.json#/$defs/taxonomy_category" },
+        { "$ref": "./_engine.json" }
+      ]
+    },
+    "limits": {
+      "$ref": "./_limits.json",
+      "description": "Provider-level caps passed through and honored by every executor type. Settings and platform.yaml overlay these at runtime; do not hard-code the same numbers at call sites."
     },
     "provides": {
       "type": "array",
@@ -112,9 +123,9 @@
             "type": "string",
             "enum": ["webgpu", "wasm", "any"]
           },
-          "min_ram_gb": { "type": "number" },
-          "min_vram_gb": { "type": "number" },
-          "approx_download_mb": { "type": "number" },
+          "min_ram_gb": { "type": "number", "minimum": 0, "description": "Minimum host RAM in GiB. Same field as schemas/_limits.json; honored by every executor type." },
+          "min_vram_gb": { "type": "number", "minimum": 0, "description": "Minimum GPU VRAM in GiB. Same field as schemas/_limits.json; honored by every executor type." },
+          "approx_download_mb": { "type": "number", "minimum": 0, "description": "Approximate download size in MiB. Same field as schemas/_limits.json; honored by every executor type." },
           "revision": {
             "type": "string",
             "pattern": "^[0-9a-f]{40}$",
@@ -175,7 +186,12 @@
           "max_output_tokens": {
             "type": "integer",
             "minimum": 1,
-            "description": "Upper bound on tokens this row should generate in one turn; the executor caps max_new_tokens at this value."
+            "description": "Upper bound on tokens this row should generate in one turn; the executor caps max_new_tokens at this value. Alias of limits.max_tokens — if both are set they must agree (validate.py errors on disagreement)."
+          },
+          "max_tokens": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Canonical generation-cap name (SBAI-7974). Alias of max_output_tokens. Prefer this in platform.yaml / settings overlays; weight rows may keep max_output_tokens."
           },
           "tools": {
             "type": "boolean",

@@ -1,0 +1,37 @@
+# SBAI-7974: web-surface defaults. Platform divergence lives HERE, not in
+# executor code. Catalog bodies stay in templates/Providers/*.provider.yaml.
+#
+# LiteRT-LM web is experimental and not the default (SBAI-7844: no browser
+# witness yet). transformers.js Gemma is the shipped chat default; WASM
+# dead-ends honestly at Qwen3-0.6B (SBAI-7682 — no Gemma WASM row).
+id: web
+kind: platform
+display: Web
+surface: web
+engine:
+  category: local_inprocess
+  requirement: preferred
+  framework: transformers.js
+limits:
+  max_weights: 1
+  max_tokens: 8192
+defaults:
+  - capability: llm-chat
+    provider: on-device
+    engine:
+      category: local_inprocess
+      requirement: preferred
+      framework: transformers.js
+    weight: on-device/gemma-4-e2b-it-q4f16-webgpu
+  - capability: embeddings
+    provider: on-device
+    weight: on-device/nomic-embed-text-v1.5-q8-any
+  - capability: asset-tagging
+    provider: on-device
+    weight: on-device/siglip2-base-256-vision-q4f16-webgpu
+  - capability: asset-caption
+    provider: on-device
+    weight: on-device/florence-2-base-ft-fp16-webgpu
+  - capability: stt
+    provider: on-device
+    weight: on-device/whisper-base-q4-webgpu

@@ -6,6 +6,9 @@ id: grok
 kind: provider
 display: xAI Grok
 wire: openai-compat
+engine:
+  category: llm_router
+  requirement: preferred
 route: aigateway
 starter: true
 base_url: https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat

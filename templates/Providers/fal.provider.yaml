@@ -3,6 +3,9 @@ id: fal
 kind: provider
 display: fal.ai
 wire: http
+engine:
+  category: cloud_provider
+  requirement: preferred
 base_url: https://fal.run
 endpoint: /fal-ai/flux/dev
 auth:

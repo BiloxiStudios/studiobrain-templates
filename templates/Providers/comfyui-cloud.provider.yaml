@@ -12,6 +12,9 @@ id: comfyui-cloud
 kind: provider
 display: ComfyUI Cloud
 wire: comfyui
+engine:
+  category: cloud_provider
+  requirement: preferred
 base_url: https://cloud.comfy.org
 endpoint: /api/prompt
 auth:

@@ -5,6 +5,9 @@ id: luma
 kind: provider
 display: Luma Dream Machine
 wire: http
+engine:
+  category: cloud_provider
+  requirement: preferred
 base_url: https://api.lumalabs.ai
 endpoint: /dream-machine/v1/generations
 auth:

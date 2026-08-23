@@ -7,6 +7,9 @@ id: dashscope
 kind: provider
 display: DashScope (Alibaba)
 wire: dashscope
+engine:
+  category: cloud_provider
+  requirement: preferred
 base_url: https://dashscope-intl.aliyuncs.com
 endpoint: /api/v1/services/aigc/text-generation/generation
 auth:

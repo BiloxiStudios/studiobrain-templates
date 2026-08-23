@@ -2,6 +2,9 @@ id: http
 kind: provider
 display: Generic HTTP
 wire: http
+engine:
+  category: lan_endpoint
+  requirement: preferred
 endpoint: /generate
 auth:
   header: Authorization

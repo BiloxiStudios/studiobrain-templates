@@ -4,7 +4,7 @@ description: "JSON Schema definitions for entity frontmatter, layouts, template 
 category: "schemas"
 version: "2.0"
 created_date: "2026-04-01"
-last_updated: "2026-08-17"
+last_updated: "2026-08-23"
 ---
 
 # StudioBrain JSON Schemas
@@ -27,6 +27,10 @@ will load in StudioBrain.
 | `plugin.json` | `plugins/<id>/plugin.json` — plugin manifests (full / frontend-only / protocol-adapter variants) | plugin loader |
 | `skill.yaml.json` | `skills/Standard/*.yaml` and `skills/User/*.yaml` — AI skill frontmatter (parsed YAML mapping) | skill picker |
 | `taxonomy.json` | `taxonomies/*.yaml` — controlled vocabularies (axes of prompt-bearing terms) with a `content_hash` stamp | on-device zero-shot tagger (SBAI-7726), server tag normalisation |
+| `_engine.json` | Shared engine/framework declaration (MM v2 taxonomy) | `$ref`'d by `provider.json` and `platform.json` |
+| `_limits.json` | Shared execution caps (`max_weights`, `max_tokens`, `context_length`, RAM/VRAM/download) | `$ref`'d by `provider.json` and `platform.json` |
+| `provider.json` | `templates/Providers/*.provider.yaml` and project `_Providers/*.provider.yaml` | catalog + drop-in backends |
+| `platform.json` | `templates/Platforms/*.platform.yaml` and a project/build `platform.yaml` overlay | per-surface engine + default weight rows (SBAI-7974) |
 
 Taxonomies additionally ship a precomputed embedding artifact
 `taxonomies/<name>[.tier].embeddings.json` — label vectors plus the model's
@@ -421,4 +425,8 @@ ids and values describe the field. Allowed `type` values:
 | `plugin.json` | Plugin manifest contract (full / frontend-only / protocol-adapter; v1 and v2) |
 | `skill.yaml.json` | AI skill frontmatter contract (skills/*.yaml) |
 | `taxonomy.json` | Controlled-vocabulary contract (taxonomies/*.yaml) |
+| `_engine.json` | Shared engine/framework fragment (MM v2 taxonomy_category) |
+| `_limits.json` | Shared execution-limits fragment |
+| `provider.json` | Provider catalog contract (`*.provider.yaml`) |
+| `platform.json` | Per-surface platform contract (`*.platform.yaml` / `platform.yaml`) |
 | `fixtures/` | Test fixtures for plugin.json v2 schema validation (valid/invalid v1 and v2 manifests) |

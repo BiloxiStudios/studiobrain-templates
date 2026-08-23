@@ -3,6 +3,9 @@ id: blender
 kind: provider
 display: Blender CLI
 wire: process
+engine:
+  category: local_spawned
+  requirement: required
 base_url: ""
 endpoint: blender
 auth: {}

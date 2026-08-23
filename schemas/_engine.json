@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/_engine.json",
+  "title": "StudioBrain engine/framework declaration",
+  "description": "Preferred-or-required execution engine for a provider entry or a platform default (SBAI-7974). `category` MUST reuse model-manager's engines.schema.json v2 `taxonomy_category` enum. This is NOT `wire` — wire is the protocol (openai-compat, anthropic, …). Drift-prevention: never invent a new category here without adding it to registry/engines.schema.json in studiobrain-model-manager first.",
+  "type": "object",
+  "required": ["category"],
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "$ref": "#/$defs/taxonomy_category"
+    },
+    "requirement": {
+      "type": "string",
+      "enum": ["preferred", "required"],
+      "default": "preferred",
+      "description": "preferred = executor may fall through to another engine/framework when this one cannot run. required = executor must use this category (or dead-end honestly). Never silently spill to a paid/cloud lane."
+    },
+    "framework": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9._-]*$",
+      "description": "Optional more-specific engine/runtime id (transformers.js, litert-lm, llama-server, onnx-inprocess, …). Not a closed enum so it can match MM engines.json ids and in-app runtimes without a schema PR for every new engine."
+    }
+  },
+  "$defs": {
+    "taxonomy_category": {
+      "type": "string",
+      "description": "model-manager engines.schema.json v2 taxonomy_category. Keep this enum byte-identical to that schema.",
+      "enum": [
+        "local_inprocess",
+        "local_spawned",
+        "lan_endpoint",
+        "distributed",
+        "cloud_provider",
+        "llm_router"
+      ]
+    }
+  }
+}

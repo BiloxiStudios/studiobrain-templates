@@ -72,6 +72,10 @@ id: on-device
 kind: provider
 display: On-Device AI (Free)
 wire: in-app
+engine:
+  category: local_inprocess
+  requirement: preferred
+  framework: transformers.js
 runtime: transformers.js
 provides: [llm-chat, embeddings, asset-tagging, asset-caption, stt]
 slots:

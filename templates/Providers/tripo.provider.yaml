@@ -4,6 +4,9 @@ id: tripo
 kind: provider
 display: Tripo 3D
 wire: http
+engine:
+  category: cloud_provider
+  requirement: preferred
 base_url: https://openapi.tripo3d.ai
 endpoint: /v3/generation/text-to-model
 auth:

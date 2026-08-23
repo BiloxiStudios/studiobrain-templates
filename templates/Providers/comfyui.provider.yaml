@@ -2,6 +2,9 @@ id: comfyui
 kind: provider
 display: ComfyUI
 wire: comfyui
+engine:
+  category: local_spawned
+  requirement: preferred
 base_url: http://127.0.0.1:8188
 endpoint: /prompt
 response:

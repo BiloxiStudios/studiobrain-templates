@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/_limits.json",
+  "title": "StudioBrain execution limits",
+  "description": "Resource and generation caps honored by every executor type — in-app runtime, backend handlers, and model-manager requests (mapped onto X-SB-* budget/context headers). Tunable in settings and platform.yaml; never hard-coded at call sites (SBAI-7974). Overlay order, later wins: weight-row fields → provider.limits → platform.limits → settings.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "max_weights": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum concurrently loaded weight rows on this surface. Desktop may hold more than a phone."
+    },
+    "max_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Generation cap per turn. Canonical name for the settings/platform overlay. Weight rows may spell the same fact as max_output_tokens; consumers treat them as aliases (max_tokens wins if both are set and equal; validate.py errors if they disagree)."
+    },
+    "context_length": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Context window in tokens. A surface that clamps lower for memory must say so here rather than in executor code."
+    },
+    "min_ram_gb": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Minimum host RAM in GiB for this declaration to be admissible."
+    },
+    "min_vram_gb": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Minimum GPU VRAM in GiB for this declaration to be admissible."
+    },
+    "approx_download_mb": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Approximate download size in MiB. Human-facing; exact byte size lives on weight-row `size`."
+    }
+  }
+}

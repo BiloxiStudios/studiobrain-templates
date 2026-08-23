@@ -12,6 +12,10 @@ Runs every CI-facing check from one place:
   6. Validates ``*.provider.yaml`` / ``*.ability.yaml`` / ``*.canvas.yaml``
      (and leftover ``*.workflow.yaml``) against ``schemas/provider.json``,
      ``schemas/ability.json``, and ``schemas/canvas.json`` (SBAI-7569 / SBAI-7651).
+  6c. Validates ``*.platform.yaml`` / ``platform.yaml`` against
+     ``schemas/platform.json`` (SBAI-7974): engine.category must be an MM v2
+     taxonomy value; default.provider / default.weight must exist in the
+     catalog; ``wire`` is protocol-level and must never appear as engine.
   6b. Validates ``taxonomies/*.yaml`` against ``schemas/taxonomy.json``,
      recomputes each ``content_hash``, and proves every
      ``taxonomies/*.embeddings.json`` still matches the taxonomy it stamps --
@@ -579,6 +583,93 @@ _KNOWN_PROVIDES = {
     "stt",
 }
 
+# model-manager engines.schema.json v2 taxonomy_category. Keep byte-identical
+# to schemas/_engine.json $defs.taxonomy_category (SBAI-7974).
+ENGINE_TAXONOMY = {
+    "local_inprocess",
+    "local_spawned",
+    "lan_endpoint",
+    "distributed",
+    "cloud_provider",
+    "llm_router",
+}
+ENGINE_REQUIREMENTS = {"preferred", "required"}
+# Protocol-level wire values. Using one as engine.category is the exact
+# confusion this contract exists to prevent.
+PROVIDER_WIRES = {
+    "openai-compat",
+    "anthropic",
+    "google",
+    "comfyui",
+    "http",
+    "process",
+    "dashscope",
+    "in-app",
+}
+
+
+def normalize_engine(value: Any, label: str) -> tuple[dict[str, Any] | None, list[str]]:
+    """Accept shorthand string or {category, requirement?, framework?}.
+
+    Returns (normalized dict or None, error messages). None + no errors means
+    the field was absent.
+    """
+    errors: list[str] = []
+    if value is None:
+        return None, errors
+    if isinstance(value, str):
+        if value in PROVIDER_WIRES:
+            errors.append(
+                f"{label}: engine {value!r} is a wire protocol, not a taxonomy "
+                "category — use local_inprocess|local_spawned|lan_endpoint|"
+                "distributed|cloud_provider|llm_router (SBAI-7974)"
+            )
+            return None, errors
+        if value not in ENGINE_TAXONOMY:
+            errors.append(
+                f"{label}: engine {value!r} is not an MM v2 taxonomy category "
+                f"({', '.join(sorted(ENGINE_TAXONOMY))})"
+            )
+            return None, errors
+        return {"category": value, "requirement": "preferred"}, errors
+    if not isinstance(value, dict):
+        errors.append(f"{label}: engine must be a taxonomy string or a mapping")
+        return None, errors
+    category = value.get("category")
+    if not isinstance(category, str) or not category:
+        errors.append(f"{label}: engine.category is required")
+        return None, errors
+    if category in PROVIDER_WIRES:
+        errors.append(
+            f"{label}: engine.category {category!r} is a wire protocol, not a "
+            "taxonomy category (SBAI-7974)"
+        )
+        return None, errors
+    if category not in ENGINE_TAXONOMY:
+        errors.append(
+            f"{label}: engine.category {category!r} is not an MM v2 taxonomy "
+            f"category ({', '.join(sorted(ENGINE_TAXONOMY))})"
+        )
+        return None, errors
+    requirement = value.get("requirement", "preferred")
+    if requirement not in ENGINE_REQUIREMENTS:
+        errors.append(
+            f"{label}: engine.requirement {requirement!r} must be "
+            "preferred or required"
+        )
+    framework = value.get("framework")
+    if framework is not None and (
+        not isinstance(framework, str) or not re.match(r"^[a-z][a-z0-9._-]*$", framework)
+    ):
+        errors.append(
+            f"{label}: engine.framework {framework!r} must match "
+            "^[a-z][a-z0-9._-]*$"
+        )
+    normalized: dict[str, Any] = {"category": category, "requirement": requirement}
+    if isinstance(framework, str) and framework:
+        normalized["framework"] = framework
+    return normalized, errors
+
 
 def check_requires() -> tuple[list[str], list[str]]:
     """Enforce ``requires`` metadata on providers and workflows (SBAI-7569).
@@ -702,6 +793,15 @@ def check_requires() -> tuple[list[str], list[str]]:
                     f"(known: {', '.join(sorted(_KNOWN_PROVIDES))})"
                 )
 
+        # SBAI-7974: engine is taxonomy, wire is protocol. Invalid values
+        # are errors; absence is allowed on user drop-ins (shipped catalog
+        # completeness is asserted by tests).
+        _, engine_errors = normalize_engine(data.get("engine"), f"{path}: provider '{pid}'")
+        errors.extend(engine_errors)
+        limits = data.get("limits")
+        if limits is not None and not isinstance(limits, dict):
+            errors.append(f"{path}: provider '{pid}' limits must be a mapping")
+
         # wire: in-app invariants (SBAI-7625/7626): the model executes inside
         # the client app via the ai-sdk on-device executor -- same doctrine as
         # wire: process, cloud workers must 501 it. It never talks to a URL,
@@ -756,6 +856,20 @@ def check_requires() -> tuple[list[str], list[str]]:
                     warnings.append(
                         f"{path}: provider '{pid}' weights row {row.get('id')!r} has "
                         f"source {source!r} -- expected 'huggingface://<repo-id>'"
+                    )
+
+                row_max_tokens = row.get("max_tokens")
+                row_max_output = row.get("max_output_tokens")
+                if (
+                    isinstance(row_max_tokens, (int, float))
+                    and isinstance(row_max_output, (int, float))
+                    and row_max_tokens != row_max_output
+                ):
+                    errors.append(
+                        f"{path}: provider '{pid}' weights row {rid!r} has "
+                        f"max_tokens={row_max_tokens} disagreeing with "
+                        f"max_output_tokens={row_max_output} — they are aliases "
+                        "(SBAI-7974)"
                     )
 
                 # Weights-mirror contract (SBAI-7881, epic SBAI-7842). Every
@@ -984,6 +1098,111 @@ def check_requires() -> tuple[list[str], list[str]]:
                     warnings.append(
                         f"{path}: workflow '{wid}' uses provider '{pid}' requiring model "
                         f"{need!r} -- not listed in requires.models"
+                    )
+    return errors, warnings
+
+
+def _iter_platform_files() -> Iterable[pathlib.Path]:
+    """Shipped defaults plus a singular overlay at repo root."""
+    seen: set[pathlib.Path] = set()
+    roots = [TEMPLATES_DIR / "Platforms", ROOT]
+    names = ("*.platform.yaml", "*.platform.yml", "platform.yaml", "platform.yml")
+    for root in roots:
+        if not root.exists():
+            continue
+        for pattern in names:
+            for path in sorted(root.glob(pattern)):
+                resolved = path.resolve()
+                if resolved in seen:
+                    continue
+                seen.add(resolved)
+                yield path
+
+
+def check_platforms() -> tuple[list[str], list[str]]:
+    """Validate platform.yaml files and their catalog references (SBAI-7974)."""
+    errors: list[str] = []
+    warnings: list[str] = []
+    if not HAVE_YAML:
+        _info("NOTE: pyyaml not installed -- skipping platform YAML validation.")
+        return errors, warnings
+
+    providers: dict[str, dict[str, Any]] = {}
+    weight_ids: set[str] = set()
+    search_roots = [TEMPLATES_DIR, ROOT / "Providers"]
+    for root in search_roots:
+        if not root.exists():
+            continue
+        for path in sorted(root.rglob("*.provider.yaml")) + sorted(root.rglob("*.provider.yml")):
+            try:
+                data = yaml.safe_load(path.read_text(encoding="utf-8"))
+            except yaml.YAMLError:
+                continue
+            if not isinstance(data, dict) or not data.get("id"):
+                continue
+            providers[str(data["id"])] = data
+            for row in data.get("weights") or []:
+                if isinstance(row, dict) and row.get("id"):
+                    weight_ids.add(str(row["id"]))
+
+    seen_ids: dict[str, pathlib.Path] = {}
+    for path in _iter_platform_files():
+        try:
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as exc:
+            errors.append(f"{path}: YAML parse error: {exc}")
+            continue
+        if not isinstance(data, dict):
+            errors.append(f"{path}: top-level YAML is not a mapping")
+            continue
+        errors.extend(_validate_instance(data, "platform.json", str(path)))
+        platform_id = str(data.get("id") or "")
+        if platform_id:
+            first = seen_ids.get(platform_id)
+            if first is not None:
+                errors.append(
+                    f"{path}: duplicate platform id {platform_id!r}; first declared in {first}"
+                )
+            else:
+                seen_ids[platform_id] = path
+        _, engine_errors = normalize_engine(data.get("engine"), f"{path}: platform '{platform_id}'")
+        errors.extend(engine_errors)
+        if "wire" in data:
+            errors.append(
+                f"{path}: platform '{platform_id}' must not declare 'wire' — "
+                "wire is protocol-level and lives on *.provider.yaml (SBAI-7974)"
+            )
+        for default in data.get("defaults") or []:
+            if not isinstance(default, dict):
+                continue
+            capability = default.get("capability")
+            provider_id = str(default.get("provider") or "")
+            _, default_engine_errors = normalize_engine(
+                default.get("engine"),
+                f"{path}: platform '{platform_id}' default capability {capability!r}",
+            )
+            errors.extend(default_engine_errors)
+            if provider_id and provider_id not in providers:
+                errors.append(
+                    f"{path}: platform '{platform_id}' default capability {capability!r} "
+                    f"references unknown provider {provider_id!r}"
+                )
+            weight = default.get("weight")
+            if weight and str(weight) not in weight_ids:
+                errors.append(
+                    f"{path}: platform '{platform_id}' default capability {capability!r} "
+                    f"references unknown weight {weight!r}"
+                )
+            elif weight and provider_id in providers:
+                owned = {
+                    str(row.get("id"))
+                    for row in (providers[provider_id].get("weights") or [])
+                    if isinstance(row, dict)
+                }
+                if str(weight) not in owned:
+                    errors.append(
+                        f"{path}: platform '{platform_id}' default capability {capability!r} "
+                        f"weight {weight!r} does not belong to provider {provider_id!r}"
                     )
     return errors, warnings
 
@@ -1327,6 +1546,12 @@ def main(argv: list[str] | None = None) -> int:
 
     _info("== Validating provider, ability, and workflow files ==")
     all_errors.extend(check_providers_and_abilities())
+
+    _info("== Validating platform files ==")
+    platform_errors, platform_warnings = check_platforms()
+    for w in platform_warnings:
+        _info(f"WARN: {w}")
+    all_errors.extend(platform_errors)
 
     _info("== Validating taxonomies and embedding artifacts ==")
     all_errors.extend(check_taxonomies())

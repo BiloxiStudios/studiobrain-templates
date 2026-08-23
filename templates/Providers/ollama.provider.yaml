@@ -2,6 +2,9 @@ id: ollama
 kind: provider
 display: Ollama
 wire: openai-compat
+engine:
+  category: local_spawned
+  requirement: preferred
 base_url: http://127.0.0.1:11434
 endpoint: /v1/chat/completions
 response:
