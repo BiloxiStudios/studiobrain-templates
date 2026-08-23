@@ -2,7 +2,7 @@
 
 ## Repo Boundaries
 
-This repo is **studiobrain-templates** — **data only**. Entity templates, document templates, map templates, layouts, rules, skills, taxonomies, and `*.provider.yaml` / ability / canvas catalog files. Apache 2.0, public. Consumed by core and cloud editions.
+This repo is **studiobrain-templates** — **data only**. Entity templates, document templates, map templates, layouts, rules, skills, taxonomies, `*.provider.yaml` / ability / canvas catalog files, and `*.platform.yaml` per-surface defaults (SBAI-7974). Apache 2.0, public. Consumed by core and cloud editions.
 
 This repo is **NOT a plugin home**. Do not add plugin source, WASM, Workers, or a plugin catalog here.
 

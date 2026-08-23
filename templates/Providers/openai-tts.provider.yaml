@@ -3,6 +3,9 @@ id: openai-tts
 kind: provider
 display: OpenAI TTS
 wire: http
+engine:
+  category: cloud_provider
+  requirement: preferred
 base_url: https://api.openai.com
 endpoint: /v1/audio/speech
 auth:

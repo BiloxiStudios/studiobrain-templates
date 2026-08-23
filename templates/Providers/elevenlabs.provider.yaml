@@ -4,6 +4,9 @@ id: elevenlabs
 kind: provider
 display: ElevenLabs TTS
 wire: http
+engine:
+  category: cloud_provider
+  requirement: preferred
 base_url: https://api.elevenlabs.io
 endpoint: /v1/text-to-speech/{{voice_id}}
 auth:

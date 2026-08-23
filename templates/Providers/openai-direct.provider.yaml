@@ -2,6 +2,9 @@ id: openai-direct
 kind: provider
 display: OpenAI Direct
 wire: openai-compat
+engine:
+  category: cloud_provider
+  requirement: required
 route: direct
 starter: false
 base_url: https://api.openai.com

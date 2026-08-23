@@ -8,6 +8,9 @@ id: stable-audio
 kind: provider
 display: Stable Audio (fal.ai)
 wire: http
+engine:
+  category: cloud_provider
+  requirement: preferred
 base_url: https://fal.run
 endpoint: /fal-ai/stable-audio
 auth:

@@ -7,6 +7,9 @@ id: huggingface
 kind: provider
 display: Hugging Face
 wire: openai-compat
+engine:
+  category: llm_router
+  requirement: preferred
 base_url: https://router.huggingface.co
 endpoint: /v1/chat/completions
 auth:

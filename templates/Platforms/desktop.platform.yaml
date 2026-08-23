@@ -1,0 +1,42 @@
+# SBAI-7974: desktop-surface defaults. Same on-device catalog as web; the
+# extra budget is more concurrent weights and a LAN model-manager hop as a
+# progressive enablement (not a silent fallback chain — ordering stays in
+# project settings, WORKFLOW_RULES.md).
+id: desktop
+kind: platform
+display: Desktop
+surface: desktop
+os: [linux, macos, windows]
+engine:
+  category: local_inprocess
+  requirement: preferred
+  framework: transformers.js
+limits:
+  max_weights: 2
+  max_tokens: 8192
+defaults:
+  - capability: llm-chat
+    provider: on-device
+    engine:
+      category: local_inprocess
+      requirement: preferred
+      framework: transformers.js
+    weight: on-device/gemma-4-e2b-it-q4f16-webgpu
+  - capability: embeddings
+    provider: on-device
+    weight: on-device/nomic-embed-text-v1.5-q8-any
+  - capability: asset-tagging
+    provider: on-device
+    weight: on-device/siglip2-base-256-vision-q4f16-webgpu
+  - capability: asset-caption
+    provider: on-device
+    weight: on-device/florence-2-base-ft-fp16-webgpu
+  - capability: stt
+    provider: on-device
+    weight: on-device/whisper-base-q4-webgpu
+  - capability: tts
+    provider: pocket-tts
+    engine:
+      category: lan_endpoint
+      requirement: preferred
+    model: pocket-tts

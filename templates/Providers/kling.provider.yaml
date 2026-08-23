@@ -4,6 +4,9 @@ id: kling
 kind: provider
 display: Kling
 wire: http
+engine:
+  category: cloud_provider
+  requirement: preferred
 base_url: https://fal.run
 endpoint: /fal-ai/kling-video/v1.6/pro/image-to-video
 auth:

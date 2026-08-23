@@ -249,6 +249,24 @@ Two owner locks from epic SBAI-7608 apply to every catalog file:
 
 Workflows name a capability (`provides` tag) or a preferred provider id — they never encode fallback chains. Portability comes from execution-layer resolution, not from workflow content.
 
+## Catalog vs platform files (SBAI-7974)
+
+One cross-platform contract. Platform divergence lives ONLY in declared data — engine/framework choice and default model/weight rows per device/build — never in divergent code paths.
+
+| What | Canonical name | Location |
+|---|---|---|
+| Provider catalog | `*.provider.yaml` (**never** a single `providers.yaml`) | `templates/Providers/` in this repo; project overlay `_Providers/` |
+| Platform declarations | `*.platform.yaml` shipped defaults; singular `platform.yaml` as a project/build overlay | `templates/Platforms/` shipped (`web`, `desktop`, `ios`, `android`); per-build overlay beside the app |
+
+Do not invent `providers.yaml`. The catalog is one file per provider so slugs cannot collide and a drop-in is a drop-in.
+
+- `engine` — preferred-or-required execution engine. `category` reuses model-manager `engines.schema.json` v2 `taxonomy_category`: `local_inprocess`, `local_spawned`, `lan_endpoint`, `distributed`, `cloud_provider`, `llm_router`. `requirement` is `preferred` (may fall through) or `required` (dead-end honestly). Optional `framework` names the more specific runtime (`transformers.js`, `litert-lm`, `llama-server`, …). Shorthand `engine: local_inprocess` equals `{category, requirement: preferred}`.
+- `wire` stays protocol-level (`openai-compat`, `anthropic`, `in-app`, …). Never put a wire value in `engine.category`. One provider entry is then legible to both the in-app executor and model-manager.
+- `limits` — `{max_weights?, max_tokens?, context_length?, min_ram_gb?, min_vram_gb?, approx_download_mb?}`. Passed through and honored by every executor type. Overlay order, later wins: weight-row fields → `provider.limits` → `platform.limits` → settings. Never hard-code the same numbers at call sites. Weight-row `max_output_tokens` is an alias of `max_tokens`; if both are set they must agree.
+- `templates/Platforms/*.platform.yaml` names the default provider + weight/model row per capability on that surface. It **references** catalog ids; it does not duplicate catalog bodies. Fallback *ordering* still stays out of these files (settings / executor policy).
+
+`runtime` on an in-app provider is which in-app engine loads the weights (`transformers.js` / `litert-lm`). That is a finer grain than `engine.category: local_inprocess` and may still be overridden per weight row.
+
 ## Cross-Workflow References
 
 For shared stages/transitions:

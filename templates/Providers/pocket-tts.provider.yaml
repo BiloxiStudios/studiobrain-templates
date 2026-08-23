@@ -5,6 +5,9 @@ id: pocket-tts
 kind: provider
 display: Pocket TTS (model-manager)
 wire: openai-compat
+engine:
+  category: lan_endpoint
+  requirement: preferred
 base_url: http://127.0.0.1:7077
 endpoint: /v1/audio/speech
 request:

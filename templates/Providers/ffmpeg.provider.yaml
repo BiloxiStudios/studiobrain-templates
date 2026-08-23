@@ -6,6 +6,9 @@ id: ffmpeg
 kind: provider
 display: ffmpeg CLI
 wire: process
+engine:
+  category: local_spawned
+  requirement: required
 base_url: ""
 endpoint: ffmpeg
 auth: {}

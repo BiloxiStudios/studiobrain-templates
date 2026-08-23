@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/platform.json",
+  "title": "StudioBrain Platform File",
+  "description": "Per-surface / per-build declaration of engine/framework choice and default model/weight rows (SBAI-7974). THIS is where platform divergence lives — never in divergent code paths. Catalog providers stay as templates/Providers/*.provider.yaml (never a single providers.yaml). Shipped defaults live in templates/Platforms/*.platform.yaml. A project or build overlay may drop a singular platform.yaml next to the app.",
+  "type": "object",
+  "required": ["id", "kind", "surface"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9._-]*$",
+      "description": "Stable slug. Shipped defaults use the surface name (web, desktop, ios, android)."
+    },
+    "kind": { "const": "platform" },
+    "display": { "type": "string" },
+    "surface": {
+      "type": "string",
+      "enum": ["web", "desktop", "ios", "android"],
+      "description": "The product surface this file describes. Distinct from model-manager engines.schema.json `$defs.platform` (OS/arch/gpu build artefacts for engine binaries)."
+    },
+    "os": {
+      "type": "array",
+      "description": "Optional OS filter when one surface file is too coarse (e.g. desktop-windows).",
+      "items": { "type": "string", "enum": ["linux", "macos", "windows"] }
+    },
+    "arch": {
+      "type": "array",
+      "description": "Optional architecture filter.",
+      "items": { "type": "string", "enum": ["x86_64", "aarch64"] }
+    },
+    "engine": {
+      "description": "Surface-wide preferred/required engine. Per-capability defaults may override. Shorthand string = taxonomy category with requirement=preferred.",
+      "oneOf": [
+        { "$ref": "./_engine.json#/$defs/taxonomy_category" },
+        { "$ref": "./_engine.json" }
+      ]
+    },
+    "limits": {
+      "$ref": "./_limits.json",
+      "description": "Surface-wide caps. Settings overlay these at runtime."
+    },
+    "defaults": {
+      "type": "array",
+      "description": "Default provider + optional weight/model row per capability on this surface. References catalog ids; does not duplicate catalog bodies. Executor selects among admissible rows; this array names the preferred starting point, not a fallback chain (fallback ordering stays in settings).",
+      "items": {
+        "type": "object",
+        "required": ["capability", "provider"],
+        "additionalProperties": false,
+        "properties": {
+          "capability": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "description": "Matches provider `provides` tags and in-app weight-row `capability`."
+          },
+          "provider": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._-]*$",
+            "description": "Catalog provider id (templates/Providers/<id>.provider.yaml)."
+          },
+          "engine": {
+            "description": "Per-capability engine override. Shorthand string = taxonomy category with requirement=preferred.",
+            "oneOf": [
+              { "$ref": "./_engine.json#/$defs/taxonomy_category" },
+              { "$ref": "./_engine.json" }
+            ]
+          },
+          "weight": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._/-]*$",
+            "description": "Optional catalog weight-row id (e.g. on-device/gemma-4-e2b-it-q4f16-webgpu). For wire:in-app providers."
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Optional live-list model id for network providers (not a weight row)."
+          }
+        }
+      }
+    }
+  }
+}

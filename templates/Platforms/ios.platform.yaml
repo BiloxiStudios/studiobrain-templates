@@ -1,0 +1,33 @@
+# SBAI-7974: iOS defaults. LiteRT preferred for Gemma (owner lock, design
+# §2.3.1 / §2.5); transformers.js is the declared under-layer, not a
+# divergent code path. Image-gen path on mobile is still TBD (SBAI-7978).
+id: ios
+kind: platform
+display: iOS
+surface: ios
+arch: [aarch64]
+engine:
+  category: local_inprocess
+  requirement: preferred
+  framework: litert-lm
+limits:
+  max_weights: 1
+  max_tokens: 4096
+  context_length: 32768
+defaults:
+  - capability: llm-chat
+    provider: on-device
+    engine:
+      category: local_inprocess
+      requirement: preferred
+      framework: litert-lm
+    weight: on-device/gemma-4-e2b-it-litert-web
+  - capability: embeddings
+    provider: on-device
+    weight: on-device/nomic-embed-text-v1.5-q8-any
+  - capability: asset-tagging
+    provider: on-device
+    weight: on-device/siglip2-base-256-vision-q4-webgpu
+  - capability: stt
+    provider: on-device
+    weight: on-device/whisper-base-q4-webgpu
