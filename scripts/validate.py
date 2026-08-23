@@ -555,6 +555,10 @@ _KNOWN_PROVIDES = {
     # SBAI-7726 asset intelligence: asset-tagging = zero-shot scoring against a
     # taxonomy (SigLIP-2), asset-caption = describing an asset in prose.
     "asset-tagging", "asset-caption",
+    # SBAI-7837: speech-to-text. Distinct from `tts` (the other direction) and
+    # from `asset-caption` (which describes an asset rather than transcribing
+    # what was said in it).
+    "stt",
 }
 
 

@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-22T23:03:43Z",
+  "generated_at": "2026-08-23T00:06:40Z",
   "entries": [
     {
       "id": "character-bio",
@@ -859,12 +859,14 @@
         "llm-chat",
         "embeddings",
         "asset-tagging",
-        "asset-caption"
+        "asset-caption",
+        "stt"
       ],
       "slots": {
         "accepts": [
           "text",
-          "image"
+          "image",
+          "audio"
         ],
         "emits": [
           "text",

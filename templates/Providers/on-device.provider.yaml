@@ -42,14 +42,21 @@
 # max_output_tokens / tools / thinking: SigLIP is an image encoder scored
 # against precomputed text embeddings, it has no chat window and emits no
 # tokens. validate.py only demands those on `llm-chat` rows.
+#
+# SBAI-7837 adds `stt` -- Whisper dictation for the chat mic button. The
+# division of labour with the audio rows above is deliberate and must not be
+# collapsed: Whisper is FAST DICTATION (one encoder-decoder pass, ~76 MB), and
+# Gemma 4's audio encoder is UNDERSTANDING (a full LLM decode per utterance,
+# 30 s hard cap, no built-in windowing). Routing the mic button through Gemma
+# would be the wrong tool at a large multiple of the cost.
 id: on-device
 kind: provider
 display: On-Device AI (Free)
 wire: in-app
 runtime: transformers.js
-provides: [llm-chat, embeddings, asset-tagging, asset-caption]
+provides: [llm-chat, embeddings, asset-tagging, asset-caption, stt]
 slots:
-  accepts: [text, image]
+  accepts: [text, image, audio]
   emits: [text, tool, json]
 requires:
   platforms: [web, desktop, mobile]
@@ -271,3 +278,111 @@ weights:
     capability: asset-caption
     max_output_tokens: 1024
     modality: [text, image]
+  # ---------------------------------------------------------------------------
+  # capability: stt -- Whisper dictation for the chat mic button (SBAI-7837).
+  #
+  # Repo: onnx-community/whisper-base. That id, not Xenova/whisper-base and not
+  # whisper-base.en, because it is what Hugging Face's own reference demo loads
+  # (Xenova/realtime-whisper-webgpu hardcodes `model_id =
+  # "onnx-community/whisper-base"`), and because `.en` silently degrades every
+  # non-English user. Xenova/whisper-base is additionally BROKEN for int8 --
+  # encoder_model_int8.onnx is absent from its tree entirely.
+  #
+  # Whisper is a seq2seq model, so a row's real download is
+  # encoder_model + decoder_model_merged, and the two quantize so differently
+  # that a scalar dtype cannot describe a runnable tier. dtype_map carries the
+  # truth; dtype stays the tier label and the f16 gate. The valid module keys
+  # are exactly `encoder_model` and `decoder_model_merged` (transformers.js
+  # src/models/session_config.js, MODEL_TYPES.Seq2Seq) -- a misspelt key does
+  # not error, it silently falls back to the device default.
+  #
+  # Verified file sizes (huggingface.co/api/models/onnx-community/whisper-base
+  # /tree/main/onnx?recursive=true, LFS `size`), in bytes:
+  #     encoder_model.onnx                     82,468,078   (fp32)
+  #     encoder_model_quantized.onnx           23,201,314   (q8)
+  #     decoder_model_merged_q4.onnx          123,602,419   (q4)
+  #     decoder_model_merged_quantized.onnx    53,693,315   (q8)
+  # plus 2,769,562 B of tokenizer/config sidecars on every row.
+  #
+  # 🔴 COUNTERINTUITIVE AND LOAD-BEARING: q4 is LARGER than q8 for every
+  # decoder in this family (123.6 MB vs 53.7 MB). Block-4-bit quantizes MatMul
+  # weights only; the embedding table and lm_head stay wide. Do not "shrink" a
+  # row by moving it to q4.
+  #
+  # There is NO q4f16 in this repo at all -- the only suffixes published are
+  # fp32/fp16/int8/uint8/_quantized/_q4/_bnb4. A q4f16 row here would 404 after
+  # the user had already waited for the rest of the download.
+  - id: on-device/whisper-base-q4-webgpu
+    source: huggingface://onnx-community/whisper-base
+    dtype: q4
+    dtype_map:
+      encoder_model: fp32
+      decoder_model_merged: q4
+    device: webgpu
+    min_ram_gb: 4
+    approx_download_mb: 209
+    capability: stt
+    modality: [audio]
+    default: true
+  # ^ This mix is not a guess: it is byte-for-byte the configuration shipped in
+  # the official Xenova/realtime-whisper-webgpu Space. Both halves are forced.
+  #   * The decoder is q4 and NOT q8 because a q8 decoder on the WebGPU EP
+  #     produces GIBBERISH while the same weights are correct on WASM
+  #     (transformers.js #1317, reproduced across tiny/base/small/large-v3-
+  #     turbo). Silent wrong output, not an error.
+  #   * The encoder stays fp32 rather than fp16 because fp16 whisper encoders
+  #     have an open precision bug on the v4 WebGPU EP (transformers.js #1590,
+  #     still open) -- and fp32 also keeps this row off the `shader-f16` gate,
+  #     so it runs on an adapter without that feature instead of dead-ending
+  #     after the download (the SBAI-7682 rule).
+  # KNOWN OPERATIONAL RISK, recorded rather than hidden: transformers.js #1739
+  # (open, filed 2026-08-03) reports ~650 MB of GPU memory leaked per 30 s
+  # window on exactly this {fp32, q4} configuration. Dictation utterances are
+  # seconds long, which is why this ships; a long-file transcription feature
+  # must not reuse this row without checking that issue first.
+  #
+  # The WASM tier. q4 has no ORT-web WASM kernel (the GatherBlockQuantized
+  # doctrine from SBAI-7682), so this tier is plain per-tensor int8 -- `q8`
+  # resolves to *_quantized.onnx.
+  # `experimental` is not decoration: transformers.js #1707 (open) reports
+  # `device: wasm` + `dtype: q8` failing at SESSION CREATION on 4.2.0 with
+  #   qdq_actions.cc:137 TransposeDQWeightsForMatMulNBits Missing required
+  #   scale: model.decoder.embed_tokens.weight_merged_0_scale
+  # against a *_timestamped whisper repo. Byte-scanning every q8 decoder in
+  # this family (onnx-community AND Xenova, all producer onnx.quantize 0.1.0)
+  # found the identical QDQ graph markers, so the plain repos are very likely
+  # affected too -- that is structural evidence, NOT a browser run, and nobody
+  # has executed ORT-web against this row yet. The maintainer says 4.2.0 is the
+  # last affected release ("fixed in v4.3.0"), which is not on npm. If it does
+  # reproduce, the honest step-down is fp32 -- 82,468,078 + 208,521,528 +
+  # sidecars = 293,759,168 B, ~294 MB, i.e. 3.7x this row but every tensor on a
+  # standard op -- and NOT q4, which has no WASM kernel and is larger anyway.
+  - id: on-device/whisper-base-q8-wasm
+    source: huggingface://onnx-community/whisper-base
+    dtype: q8
+    dtype_map:
+      encoder_model: q8
+      decoder_model_merged: q8
+    device: wasm
+    min_ram_gb: 4
+    approx_download_mb: 80
+    capability: stt
+    modality: [audio]
+    experimental: true
+  # NO larger "quality" tier, and that is a decision rather than an omission.
+  # selectWeights ranks by min_ram_gb DESCENDING when the device reports its
+  # RAM, so any row declaring a higher floor becomes the AUTO-SELECTED default
+  # on every machine that clears it. The candidates were priced:
+  #     onnx-community/distil-small.en   q8         172,068,091 B  (English-only,
+  #                                                 862 downloads, untouched
+  #                                                 since 2024-10-08)
+  #     onnx-community/whisper-small     q8         249,077,005 B  (q8 decoder --
+  #                                                 gibberish on WebGPU, #1317)
+  #     onnx-community/whisper-small     fp32+q4    585,975,197 B
+  # Making any of those the default would hand a 0.6 GB download to someone who
+  # tapped a mic button to dictate one sentence. Whisper-base is the dictation
+  # tier on purpose; a quality tier belongs to a transcription FEATURE, with
+  # its own opt-in, not to this capability's ladder.
+  # (onnx-community/distil-whisper-small.en, distil-medium.en and
+  # distil-large-v3 were checked and DO NOT EXIST -- the HF API 401s on all
+  # three. The real distil ONNX id is onnx-community/distil-small.en.)

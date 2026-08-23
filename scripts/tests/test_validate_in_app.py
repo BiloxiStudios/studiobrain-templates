@@ -285,6 +285,8 @@ class ShippedCatalogTests(unittest.TestCase):
                 "on-device/siglip2-base-256-vision-q4f16-webgpu",
                 "on-device/siglip2-base-256-vision-q8-wasm",
                 "on-device/siglip2-so400m-256-vision-q4f16-webgpu",
+                "on-device/whisper-base-q4-webgpu",
+                "on-device/whisper-base-q8-wasm",
             ],
         )
         # Exactly one default PER CAPABILITY. `default` means "preferred row
@@ -301,6 +303,7 @@ class ShippedCatalogTests(unittest.TestCase):
                 "llm-chat": ["on-device/gemma-4-e2b-it-q4f16-webgpu"],
                 "asset-tagging": ["on-device/siglip2-base-256-vision-q4f16-webgpu"],
                 "asset-caption": ["on-device/florence-2-base-ft-fp16-webgpu"],
+                "stt": ["on-device/whisper-base-q4-webgpu"],
             },
         )
         # Qwen is the labelled reduced-capability fallback, never a Gemma tier.
@@ -329,6 +332,100 @@ class ShippedCatalogTests(unittest.TestCase):
             if "gemma" in r["source"].lower() and r.get("device") in ("wasm", "any")
         ]
         self.assertEqual(gemma_wasm, [], "no Gemma row may be reachable on WASM")
+
+    def _stt_rows(self) -> dict:
+        import yaml  # noqa: PLC0415
+
+        path = ROOT / "templates" / "Providers" / "on-device.provider.yaml"
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        return {r["id"]: r for r in data["weights"] if r.get("capability") == "stt"}
+
+    def test_stt_covers_both_runtimes(self):
+        """SBAI-7837: a runtime with no STT row silently has no mic button.
+
+        The whole point of the ticket is that voice input dead-ended. A tier
+        that declares nothing here reproduces that, just one layer down.
+        """
+        rows = self._stt_rows()
+        self.assertTrue(rows, "the on-device provider must declare stt rows")
+        devices = {r.get("device") for r in rows.values()}
+        for runtime in ("webgpu", "wasm"):
+            self.assertTrue(
+                runtime in devices or "any" in devices,
+                f"no stt weights row is reachable on {runtime}: {sorted(rows)}",
+            )
+
+    def test_stt_declares_the_capability_on_the_provider(self):
+        import yaml  # noqa: PLC0415
+
+        path = ROOT / "templates" / "Providers" / "on-device.provider.yaml"
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        # A row whose capability is not in `provides` is invisible to
+        # capability matching and marketplace filtering.
+        self.assertIn("stt", data["provides"])
+        # ...and the provider must admit it accepts audio at all.
+        self.assertIn("audio", data["slots"]["accepts"])
+        for row in self._stt_rows().values():
+            self.assertEqual(row.get("modality"), ["audio"])
+
+    def test_no_q4f16_stt_row(self):
+        """onnx-community/whisper-base publishes NO q4f16 weights.
+
+        Its onnx/ tree carries fp32 / fp16 / int8 / uint8 / _quantized / _q4 /
+        _bnb4 and nothing else, so a q4f16 row would 404 mid-download. Verified
+        against huggingface.co/api/models/onnx-community/whisper-base/tree/main
+        /onnx?recursive=true (SBAI-7837).
+        """
+        for row_id, row in self._stt_rows().items():
+            dtypes = {row.get("dtype"), *(row.get("dtype_map") or {}).values()}
+            self.assertNotIn("q4f16", dtypes, f"{row_id}: whisper-base has no q4f16 weights")
+
+    def test_stt_wasm_tier_is_int8_not_q4(self):
+        """q4 has no ORT-web WASM kernel, and for whisper it is also BIGGER.
+
+        Block-4-bit quantizes MatMul weights only, so whisper-base's q4 decoder
+        (123,602,419 B) is more than twice its q8 one (53,693,315 B). A WASM
+        row on q4 would be unrunnable AND larger.
+        """
+        for row_id, row in self._stt_rows().items():
+            if row.get("device") not in ("wasm", "any"):
+                continue
+            dtypes = {row.get("dtype"), *(row.get("dtype_map") or {}).values()}
+            self.assertFalse(
+                dtypes & {"q4", "q4f16", "bnb4"},
+                f"{row_id}: the WASM stt tier must be plain int8/q8, got {sorted(dtypes)}",
+            )
+
+    def test_stt_webgpu_decoder_is_not_q8(self):
+        """transformers.js #1317: a q8 decoder on the WebGPU EP emits GIBBERISH.
+
+        Reproduced across whisper tiny/base/small/large-v3-turbo, and the same
+        weights decode correctly on WASM -- so this is silent wrong output, not
+        a load error something downstream could catch.
+        """
+        for row_id, row in self._stt_rows().items():
+            if row.get("device") != "webgpu":
+                continue
+            decoder = (row.get("dtype_map") or {}).get("decoder_model_merged", row.get("dtype"))
+            self.assertNotIn(
+                decoder, ("q8", "int8"), f"{row_id}: q8 decoders are gibberish on WebGPU"
+            )
+
+    def test_stt_dtype_map_names_only_real_seq2seq_modules(self):
+        """A misspelt module key does not error -- it silently falls back.
+
+        transformers.js resolves a seq2seq model's sessions to exactly
+        `encoder_model` and `decoder_model_merged` (src/models/session_config.js,
+        MODEL_TYPES.Seq2Seq). Any other key is dropped with an info log, and the
+        row then loads at the device default instead of the tier it declares.
+        """
+        for row_id, row in self._stt_rows().items():
+            for module in (row.get("dtype_map") or {}):
+                self.assertIn(
+                    module,
+                    ("encoder_model", "decoder_model_merged"),
+                    f"{row_id}: {module!r} is not a whisper session key",
+                )
 
     def test_every_device_tier_has_a_runnable_non_f16_row(self):
         """SBAI-7682: an f16-only tier dead-ends AFTER the download.
