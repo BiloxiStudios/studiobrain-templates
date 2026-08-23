@@ -147,6 +147,10 @@ def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
         if kind == "provider":
             if data.get("wire"):
                 entry["wire"] = str(data["wire"])
+            if data.get("route"):
+                entry["route"] = str(data["route"])
+            if "starter" in data:
+                entry["starter"] = bool(data["starter"])
             if data.get("runtime"):
                 entry["runtime"] = str(data["runtime"])
             if data.get("provides"):

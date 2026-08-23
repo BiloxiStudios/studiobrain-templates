@@ -14,6 +14,15 @@
     "kind": {
       "const": "provider"
     },
+    "route": {
+      "type": "string",
+      "enum": ["aigateway", "direct"],
+      "description": "aigateway = StudioBrain's Cloudflare AI Gateway route for BrainBits or BYOK; direct = the provider/local endpoint with no BrainBits billing."
+    },
+    "starter": {
+      "type": "boolean",
+      "description": "Whether new projects install this catalog provider automatically. Only hosted aigateway providers may be starters."
+    },
     "display": { "type": "string" },
     "wire": {
       "type": "string",
