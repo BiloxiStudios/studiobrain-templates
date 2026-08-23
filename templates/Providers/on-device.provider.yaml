@@ -386,3 +386,99 @@ weights:
   # (onnx-community/distil-whisper-small.en, distil-medium.en and
   # distil-large-v3 were checked and DO NOT EXIST -- the HF API 401s on all
   # three. The real distil ONNX id is onnx-community/distil-small.en.)
+  # ---------------------------------------------------------------------------
+  # runtime: litert-lm -- Google's LiteRT-LM WebGPU engine (SBAI-7844 §2).
+  #
+  # A SECOND in-app engine, not a replacement. `runtime` is declared per ROW
+  # here (the provider header still says transformers.js) because this one
+  # provider now holds tiers for both engines and the executor must load the
+  # engine the SELECTED row names.
+  #
+  # These rows are `experimental: true` and NOT `default`. transformers.js
+  # Gemma stays the default tier until the SBAI-7729 web-lane bench measures
+  # both on our own hardware -- the decode-speed claim is Google's published
+  # number (73 tok/s on an M4 Max via WebGPU), not ours, and NOBODY HAS RUN
+  # THIS ENGINE IN A BROWSER YET. Ranking makes that safe rather than
+  # accidental: selectWeights sorts by min_ram_gb DESCENDING and then puts
+  # `default` first, so at every RAM tier these rows tie with the ONNX row of
+  # the same size and lose the stable-sort tiebreak to the row declared above
+  # them. Appending them at the END of this list is therefore load-bearing --
+  # moving them up would silently promote an unwitnessed engine to default.
+  #
+  # `file` is required and is NOT decoration: litert-community repos publish
+  # several mutually incompatible .litertlm builds side by side and only the
+  # `-web` one runs in a browser. The others -- `-gpu`, plus per-vendor NPU
+  # builds (Google Tensor G5, Intel LNL/PTL, Qualcomm qcs8275/sm8750) -- would
+  # download gigabytes and then fail to load.
+  #
+  # TEXT-ONLY, and structurally so. Two independent confirmations:
+  #   * @litert-lm/core 0.15.0 declares ImageContentPart / AudioContentPart /
+  #     VideoContentPart as literal placeholders, each commented "not supported
+  #     in JS yet" (conversation_config.d.ts).
+  #   * The model card: "Web on LiteRT-LM uses a specially optimized model for
+  #     Web because of its unique memory constraints. Currently the model is
+  #     text-only."
+  # So `modality: [text]` here is a hard fact about the weights, and the vision
+  # / audio / encoder / STT capabilities above stay on transformers.js. The
+  # executor refuses a multimodal gateway on these rows at construction.
+  #
+  # context_length is 32768, NOT Gemma's 131072 that the ONNX rows above
+  # correctly declare. The model card says "The model can support up to 32k
+  # context length", and LiteRT fixes maxNumTokens when the engine is created,
+  # so a row claiming 128k would let the orchestrator fill a window the runtime
+  # cannot hold. The SDK clamps to 32768 regardless; this row states the truth.
+  #
+  # tools: false -- and that is a decision, not a limitation of the runtime.
+  # The engine's tool support is real and STRUCTURED (preface.tools takes
+  # OpenAI-shaped function declarations, enableConstrainedDecoding exists, and
+  # calls return as message.tool_calls), and the SDK implements it. It ships
+  # off because no browser has yet closed a tool loop on this engine, and "the
+  # type declarations say tool calls come back" is not the same claim as "the
+  # tool loop closes". Flip this to true in the same change that records the
+  # witness, never before.
+  #
+  # approx_download_mb is the real byte size from the HF API, not an estimate:
+  #     gemma-4-E2B-it-web.litertlm   2,008,432,640 B
+  #     gemma-4-E4B-it-web.litertlm   2,969,059,328 B
+  # Note the -web build is SMALLER than the bare .litertlm of the same tier
+  # (2,588,147,712 B for E2B) -- it is the memory-optimized web variant.
+  #
+  # These weights DO NOT share a cache with the ONNX rows above: the engine
+  # fetches the model with a plain fetch() and streams it into the runtime,
+  # touching neither the Cache API nor the transformers.js browser cache. A
+  # user who already downloaded Gemma for transformers.js pays again here.
+  # Tracked as cache-dedupe work in SBAI-7670, deliberately not solved here.
+  - id: on-device/gemma-4-e2b-it-litert-web
+    source: huggingface://litert-community/gemma-4-E2B-it-litert-lm
+    file: gemma-4-E2B-it-web.litertlm
+    runtime: litert-lm
+    dtype: q4
+    device: webgpu
+    min_ram_gb: 8
+    approx_download_mb: 2008
+    capability: llm-chat
+    context_length: 32768
+    max_output_tokens: 8192
+    tools: false
+    thinking: none
+    modality: [text]
+    experimental: true
+  # The quality tier. ~1.5x the download of E2B for the same 32k window.
+  # min_ram_gb 16 mirrors the E4B ONNX row above: same model family, same
+  # class of device. It ties with that row at every RAM tier and loses the
+  # tiebreak to it, exactly as intended.
+  - id: on-device/gemma-4-e4b-it-litert-web
+    source: huggingface://litert-community/gemma-4-E4B-it-litert-lm
+    file: gemma-4-E4B-it-web.litertlm
+    runtime: litert-lm
+    dtype: q4
+    device: webgpu
+    min_ram_gb: 16
+    approx_download_mb: 2969
+    capability: llm-chat
+    context_length: 32768
+    max_output_tokens: 8192
+    tools: false
+    thinking: none
+    modality: [text]
+    experimental: true

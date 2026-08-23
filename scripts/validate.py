@@ -581,6 +581,9 @@ def check_requires() -> tuple[list[str], list[str]]:
       index badges them to the marketplace.
     - WARN: an in-app ``weights`` row whose ``source`` is not
       ``huggingface://...``.
+    - ERROR: a ``runtime: litert-lm`` weights row without a ``.litertlm``
+      ``file``, or one declaring non-text modality, ``device: wasm``, or a
+      ``context_length`` above the runtime's 32768 ceiling (SBAI-7844).
     - WARN: an in-app ``weights`` row serving ``llm-chat`` (explicitly, or by
       omitting ``capability``) that lacks ``context_length`` or omits
       ``tools`` -- the executor would fall back to unverifiable defaults.
@@ -770,6 +773,73 @@ def check_requires() -> tuple[list[str], list[str]]:
                         f"{path}: provider '{pid}' weights row {rid!r} names a taxonomy "
                         "but no taxonomy_embeddings artifact -- the device would have to "
                         "run the text tower it does not download"
+                    )
+
+                # runtime: litert-lm invariants (SBAI-7844). A litert repo
+                # publishes several mutually incompatible .litertlm builds side
+                # by side -- `-web`, `-gpu`, and one per NPU vendor -- and only
+                # `-web` runs in a browser. Without `file` the executor has no
+                # way to pick, so this is a hard ERROR: the failure it prevents
+                # is a multi-gigabyte download that dead-ends at load, which is
+                # exactly the class of bug the SBAI-7682 witness paid for once.
+                row_runtime = row.get("runtime") or data.get("runtime")
+                if row_runtime == "litert-lm":
+                    row_file = str(row.get("file") or "")
+                    if not row_file:
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} declares "
+                            "runtime 'litert-lm' but no 'file' -- a litert repo holds "
+                            "several .litertlm variants (-web, -gpu, per-vendor NPU) "
+                            "and only the -web one runs in a browser"
+                        )
+                    elif not row_file.endswith(".litertlm"):
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} has runtime "
+                            f"'litert-lm' but file {row_file!r} -- the engine loads "
+                            ".litertlm files only"
+                        )
+                    elif "-web" not in row_file:
+                        # The -gpu / NPU builds are real files that download
+                        # fine and then fail inside the runtime.
+                        warnings.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} loads "
+                            f"{row_file!r} -- only the '-web' .litertlm variant runs in "
+                            "a browser; the -gpu and NPU builds fail after downloading"
+                        )
+                    # The web build is text-only: @litert-lm/core declares the
+                    # image/audio/video content parts as placeholders and the
+                    # model card says the same of the weights. A row promising
+                    # more would route media to an engine that cannot see it.
+                    row_modality = row.get("modality")
+                    if row_modality and [m for m in row_modality if m != "text"]:
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} is runtime "
+                            f"'litert-lm' but declares modality {row_modality!r} -- the "
+                            "LiteRT-LM web build is text-only"
+                        )
+                    if row.get("device") == "wasm":
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} is runtime "
+                            "'litert-lm' with device 'wasm' -- the engine is WebGPU-only "
+                            "(it requests a GPU adapter during Engine.create)"
+                        )
+                    # 32k is the model's ceiling and LiteRT fixes the window at
+                    # engine-create time, so a larger number is not optimistic,
+                    # it is wrong -- the orchestrator would compact against a
+                    # window the runtime cannot hold.
+                    row_ctx = row.get("context_length")
+                    if isinstance(row_ctx, int) and row_ctx > 32768:
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} is runtime "
+                            f"'litert-lm' and declares context_length {row_ctx} -- the "
+                            "ceiling is 32768 and the engine clamps to it"
+                        )
+                elif row.get("file"):
+                    warnings.append(
+                        f"{path}: provider '{pid}' weights row {rid!r} declares 'file' "
+                        f"but runtime {row_runtime!r} -- 'file' addresses a whole "
+                        "self-contained model file and is read by litert-lm only "
+                        "(transformers.js uses model_file_name)"
                     )
 
                 row_capability = row.get("capability") or "llm-chat"

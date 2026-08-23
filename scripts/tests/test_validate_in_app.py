@@ -275,8 +275,10 @@ class ShippedCatalogTests(unittest.TestCase):
             [
                 "on-device/florence-2-base-ft-fp16-webgpu",
                 "on-device/florence-2-base-ft-q8-wasm",
+                "on-device/gemma-4-e2b-it-litert-web",
                 "on-device/gemma-4-e2b-it-q4",
                 "on-device/gemma-4-e2b-it-q4f16-webgpu",
+                "on-device/gemma-4-e4b-it-litert-web",
                 "on-device/gemma-4-e4b-it-q4f16-webgpu",
                 "on-device/nomic-embed-text-v1.5-q8-any",
                 "on-device/qwen3-0.6b-q4-any",
@@ -305,6 +307,38 @@ class ShippedCatalogTests(unittest.TestCase):
                 "asset-caption": ["on-device/florence-2-base-ft-fp16-webgpu"],
                 "stt": ["on-device/whisper-base-q4-webgpu"],
             },
+        )
+        # SBAI-7844: the litert-lm rows are a SECOND engine, and every property
+        # that keeps them from silently becoming the default tier is pinned
+        # here. selectWeights ranks by min_ram_gb DESC then `default`, so a
+        # litert row that gained `default: true` -- or that was moved above the
+        # ONNX row it ties with -- would promote an engine no browser has run.
+        litert = [r for r in data["weights"] if r.get("runtime") == "litert-lm"]
+        self.assertEqual(
+            [r["id"] for r in litert],
+            ["on-device/gemma-4-e2b-it-litert-web", "on-device/gemma-4-e4b-it-litert-web"],
+        )
+        ids = [r["id"] for r in data["weights"]]
+        for row in litert:
+            self.assertTrue(row["experimental"], f"{row['id']} must stay experimental")
+            self.assertNotIn("default", row, f"{row['id']} must not be a default tier")
+            self.assertTrue(row["file"].endswith("-web.litertlm"), row["file"])
+            self.assertEqual(row["device"], "webgpu", "litert-lm is WebGPU-only")
+            self.assertEqual(row["modality"], ["text"], "the litert web build is text-only")
+            self.assertEqual(row["context_length"], 32768, "32k is the model's ceiling")
+            self.assertFalse(row["tools"], f"{row['id']}: tools stay off until witnessed")
+        # Declared LAST, after every transformers.js row: the stable-sort
+        # tiebreak is what keeps the ONNX tier ahead at equal min_ram_gb.
+        self.assertEqual(ids[-2:], [r["id"] for r in litert])
+        # Same RAM floors as the ONNX rows they tie with, so neither outranks.
+        floors = {r["id"]: r["min_ram_gb"] for r in data["weights"] if "min_ram_gb" in r}
+        self.assertEqual(
+            floors["on-device/gemma-4-e2b-it-litert-web"],
+            floors["on-device/gemma-4-e2b-it-q4f16-webgpu"],
+        )
+        self.assertEqual(
+            floors["on-device/gemma-4-e4b-it-litert-web"],
+            floors["on-device/gemma-4-e4b-it-q4f16-webgpu"],
         )
         # Qwen is the labelled reduced-capability fallback, never a Gemma tier.
         self.assertTrue(rows["on-device/qwen3-0.6b-q4-any"]["fallback"])
@@ -474,7 +508,16 @@ class ShippedCatalogTests(unittest.TestCase):
                 continue
             self.assertIn("context_length", row, rid)
             self.assertIn("max_output_tokens", row, rid)
-            self.assertIs(row.get("tools"), True, rid)
+            # Every chat row states its tool story explicitly -- the point of
+            # this assertion is that no tier ships with the question unanswered.
+            # `True` for every ONNX tier; the litert-lm rows say False, and that
+            # is the honest answer rather than a missing one: the runtime's tool
+            # support is real and structured, but no browser has closed a tool
+            # loop on it yet, so the catalog does not claim one. When the
+            # SBAI-7844 witness lands, that row flips to True in the same
+            # change and this exemption goes away (SBAI-7729/7844).
+            expected_tools = row.get("runtime") != "litert-lm"
+            self.assertIs(row.get("tools"), expected_tools, rid)
             self.assertIn(row.get("thinking"), ("none", "optional", "always"), rid)
         # Gemma 4 is a 128k-context family; the Qwen fallback is not, and must
         # not inherit Gemma's window by copy-paste.
@@ -706,3 +749,119 @@ weights:
 
 if __name__ == "__main__":
     unittest.main()
+GOOD_LITERT = """
+id: on-device-test
+kind: provider
+display: On-Device (test)
+wire: in-app
+runtime: transformers.js
+provides: [llm-chat]
+requires:
+  platforms: [web, desktop, mobile]
+  webgpu: optional
+weights:
+  - id: on-device/gemma-4-e2b-it-q4f16-webgpu
+    source: huggingface://onnx-community/gemma-4-E2B-it-ONNX
+    dtype: q4f16
+    device: webgpu
+    capability: llm-chat
+    context_length: 131072
+    max_output_tokens: 8192
+    tools: true
+    thinking: optional
+    default: true
+  - id: on-device/gemma-4-e2b-it-litert-web
+    source: huggingface://litert-community/gemma-4-E2B-it-litert-lm
+    file: gemma-4-E2B-it-web.litertlm
+    runtime: litert-lm
+    dtype: q4
+    device: webgpu
+    capability: llm-chat
+    context_length: 32768
+    max_output_tokens: 8192
+    tools: false
+    thinking: none
+    modality: [text]
+    experimental: true
+"""
+
+
+def _drop_line(body: str, needle: str) -> str:
+    """The catalog body with every line containing `needle` removed."""
+    return "".join(line for line in body.splitlines(keepends=True) if needle not in line)
+
+
+@unittest.skipUnless(validate.HAVE_YAML, "pyyaml required")
+class LitertRowTests(unittest.TestCase):
+    """runtime: litert-lm invariants (SBAI-7844).
+
+    Every branch here prevents the same shape of failure: a multi-gigabyte
+    download that only dead-ends once it reaches the runtime. The shipped
+    catalog is the happy path, so it proves none of them.
+    """
+
+    def check(self, body: str) -> tuple[list[str], list[str]]:
+        with tempfile.TemporaryDirectory() as td:
+            return _run(pathlib.Path(td), {"x.provider.yaml": body})
+
+    def assert_error_matching(self, errors: list[str], needle: str) -> None:
+        self.assertTrue(
+            any(needle in e for e in errors),
+            f"expected an error containing {needle!r}, got {errors!r}",
+        )
+
+    def test_good_litert_row_is_clean(self):
+        errors, warnings = self.check(GOOD_LITERT)
+        self.assertEqual(errors, [])
+        self.assertEqual(
+            [w for w in warnings if "litert" in w.lower() or "file" in w.lower()], []
+        )
+
+    def test_litert_row_without_file_is_an_error(self):
+        errors, _ = self.check(_drop_line(GOOD_LITERT, "file: gemma-4-E2B-it-web.litertlm"))
+        self.assert_error_matching(errors, "no 'file'")
+
+    def test_litert_row_with_non_litertlm_file_is_an_error(self):
+        errors, _ = self.check(
+            GOOD_LITERT.replace("gemma-4-E2B-it-web.litertlm", "gemma-4-E2B-it-web.task")
+        )
+        self.assert_error_matching(errors, ".litertlm files only")
+
+    def test_non_web_litertlm_variant_warns(self):
+        # -gpu and the NPU builds download fine and then fail inside the runtime.
+        _, warnings = self.check(
+            GOOD_LITERT.replace("gemma-4-E2B-it-web.litertlm", "gemma-4-E2B-it-gpu.litertlm")
+        )
+        self.assertTrue(
+            any("-web" in w for w in warnings), f"expected a -web warning, got {warnings!r}"
+        )
+
+    def test_litert_row_claiming_non_text_modality_is_an_error(self):
+        errors, _ = self.check(GOOD_LITERT.replace("modality: [text]", "modality: [text, image]"))
+        self.assert_error_matching(errors, "text-only")
+
+    def test_litert_row_on_wasm_is_an_error(self):
+        # Only the litert row's device moves: it is the LAST `device:` line.
+        head, sep, tail = GOOD_LITERT.rpartition("    device: webgpu")
+        errors, _ = self.check(head + "    device: wasm" + tail if sep else GOOD_LITERT)
+        self.assert_error_matching(errors, "WebGPU-only")
+
+    def test_litert_row_over_the_context_ceiling_is_an_error(self):
+        errors, _ = self.check(GOOD_LITERT.replace("context_length: 32768", "context_length: 131072"))
+        self.assert_error_matching(errors, "ceiling is 32768")
+
+    def test_file_on_a_transformers_row_warns(self):
+        # `file` is litert-lm's addressing; transformers.js uses model_file_name.
+        _, warnings = self.check(
+            GOOD_LITERT.replace("    dtype: q4f16", "    file: model.onnx" + chr(10) + "    dtype: q4f16", 1)
+        )
+        self.assertTrue(
+            any("model_file_name" in w for w in warnings),
+            f"expected a model_file_name warning, got {warnings!r}",
+        )
+
+    def test_provider_level_litert_runtime_applies_to_unmarked_rows(self):
+        # A provider whose header says litert-lm makes its rows litert rows.
+        body = GOOD_LITERT.replace("runtime: transformers.js", "runtime: litert-lm", 1)
+        errors, _ = self.check(body)
+        self.assert_error_matching(errors, "no 'file'")
