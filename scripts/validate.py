@@ -32,6 +32,13 @@ Runs every CI-facing check from one place:
  10. Checks ``catalog-index.json`` (SBAI-7611) is in sync with the catalog
      files on disk by rebuilding the entries in-memory and comparing
      (``generated_at`` is ignored -- it pins to the commit timestamp).
+ 11. Checks ``mirror-manifest.json`` (SBAI-7881) is in sync with wire:in-app
+     weights rows and internally consistent: immutable revision, an
+     allow-listed redistributable license, an existing license artifact, and
+     a checksummed ``files`` list whose sizes sum to the row's declared
+     ``size`` -- via ``scripts/verify_mirror_manifest.py``. No network, no
+     bucket -- the staging-set and ``--verify-remote`` checks are separate,
+     opt-in commands run outside CI.
 
 Intended for both local development and CI:
 
@@ -750,6 +757,32 @@ def check_requires() -> tuple[list[str], list[str]]:
                         f"{path}: provider '{pid}' weights row {row.get('id')!r} has "
                         f"source {source!r} -- expected 'huggingface://<repo-id>'"
                     )
+
+                # Weights-mirror contract (SBAI-7881, epic SBAI-7842). Every
+                # wire:in-app weights row must carry an immutable revision,
+                # license, license artifact, mirror path, and a checksummed
+                # files[] list -- this is the producer-side contract the R2
+                # mirror (SBAI-7882), app fetch path (SBAI-7883), and
+                # model-manager download path (SBAI-7884) all depend on.
+                # Format/consistency detail (hex patterns, size-sum drift,
+                # duplicate-object-different-checksum) lives in
+                # scripts/verify_mirror_manifest.py so both this validator
+                # and a standalone CI/maintenance run share one
+                # implementation; this block only enforces PRESENCE, which a
+                # missing weights-mirror.json rebuild cannot silently skip.
+                for field in ("revision", "license", "license_artifact", "mirror_path", "size"):
+                    if not row.get(field):
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} is missing "
+                            f"'{field}' -- required for the weights mirror manifest (SBAI-7881)"
+                        )
+                if not row.get("files"):
+                    errors.append(
+                        f"{path}: provider '{pid}' weights row {rid!r} has no 'files' -- "
+                        "the weights mirror manifest needs at least one checksummed "
+                        "constituent file (SBAI-7881)"
+                    )
+
                 # Capability metadata on chat rows (SBAI-7625/7626). A row
                 # with no explicit capability is a chat row by convention.
                 # Without context_length the orchestrator compacts against a
@@ -1013,6 +1046,94 @@ def check_catalog_index() -> list[str]:
     return errors
 
 
+# ----- Mirror manifest (SBAI-7881) ------------------------------------------------
+
+MIRROR_MANIFEST_PATH = ROOT / "mirror-manifest.json"
+
+
+def _load_mirror_manifest_builder():
+    """Import scripts/build_mirror_manifest.py (single source of truth for scanning)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "build_mirror_manifest", ROOT / "scripts" / "build_mirror_manifest.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module
+
+
+def _load_verify_mirror_manifest():
+    """Import scripts/verify_mirror_manifest.py (single source of truth for structural checks)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "verify_mirror_manifest", ROOT / "scripts" / "verify_mirror_manifest.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module
+
+
+def check_mirror_manifest() -> list[str]:
+    """Check mirror-manifest.json is in sync with the catalog and internally consistent (SBAI-7881).
+
+    Two things, neither of which touches a network or a bucket:
+    - mirror-manifest.json on disk matches a fresh in-memory rebuild from
+      templates/Providers/*.provider.yaml (same drift-detection shape as
+      check_catalog_index, SBAI-7611).
+    - the rebuilt entries pass scripts/verify_mirror_manifest.py's structural
+      checks (immutable revision, allow-listed license, license artifact
+      present, files[] checksummed and size-consistent, no colliding object
+      keys). The staging-set check and --verify-remote are deliberately NOT
+      run here -- CI has no live mirror to check against yet (SBAI-7882) and
+      must never require network to pass.
+    """
+    if not HAVE_YAML:
+        _info("NOTE: pyyaml not installed -- skipping mirror manifest validation.")
+        return []
+    entries = _load_mirror_manifest_builder().build_entries(ROOT)
+    if not entries:
+        # No wire:in-app provider has finished backfilling mirror fields yet --
+        # nothing to check. Once on-device.provider.yaml (or any future
+        # wire:in-app provider) is fully backfilled, entries is non-empty and
+        # every check below applies.
+        return []
+
+    errors: list[str] = []
+    if not MIRROR_MANIFEST_PATH.exists():
+        errors.append(f"{MIRROR_MANIFEST_PATH}: mirror manifest missing -- run scripts/build_mirror_manifest.py")
+    else:
+        try:
+            on_disk = json.loads(MIRROR_MANIFEST_PATH.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            on_disk = None
+            errors.append(f"{MIRROR_MANIFEST_PATH}: JSON parse error: {exc}")
+        if on_disk is not None:
+            if on_disk.get("manifest_schema_version") != 1:
+                errors.append(
+                    f"{MIRROR_MANIFEST_PATH}: manifest_schema_version must be 1, "
+                    f"got {on_disk.get('manifest_schema_version')!r}"
+                )
+            if on_disk.get("objects") != entries:
+                expected_ids = {e["id"] for e in entries}
+                actual_ids = {e.get("id") for e in on_disk.get("objects") or [] if isinstance(e, dict)}
+                missing = sorted(expected_ids - actual_ids)
+                extra = sorted(actual_ids - expected_ids)
+                detail = ""
+                if missing:
+                    detail += f" missing objects: {missing};"
+                if extra:
+                    detail += f" stale objects: {extra};"
+                if not detail:
+                    detail = " object fields differ;"
+                errors.append(
+                    f"{MIRROR_MANIFEST_PATH}: objects out of date ({detail.strip()})"
+                    " -- run scripts/build_mirror_manifest.py"
+                )
+
+    errors.extend(_load_verify_mirror_manifest().check_structural(entries, ROOT))
+    return errors
+
+
 # ----- Compat enforcement --------------------------------------------------------
 
 def _walk_compat_objects() -> Iterable[tuple[pathlib.Path, dict[str, Any], str]]:
@@ -1218,6 +1339,9 @@ def main(argv: list[str] | None = None) -> int:
 
     _info("== Validating catalog index ==")
     all_errors.extend(check_catalog_index())
+
+    _info("== Validating weights mirror manifest ==")
+    all_errors.extend(check_mirror_manifest())
 
     if not args.no_entity_yaml:
         _info("== Validating entity markdown frontmatter ==")

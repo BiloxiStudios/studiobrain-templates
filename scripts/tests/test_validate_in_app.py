@@ -41,6 +41,15 @@ weights:
     source: huggingface://onnx-community/gemma-4-E2B-it-ONNX
     dtype: q4f16
     device: webgpu
+    revision: 9f4bef82ea6e296bc69f8a2f5939f73af81b07a6
+    mirror_path: on-device/onnx-community__gemma-4-E2B-it-ONNX/9f4bef82ea6e296bc69f8a2f5939f73af81b07a6/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 1
+    files:
+      - name: model.onnx
+        sha256: 0000000000000000000000000000000000000000000000000000000000000000
+        size: 1
     capability: llm-chat
     context_length: 131072
     max_output_tokens: 8192
@@ -176,6 +185,15 @@ weights:
     source: huggingface://nomic-ai/nomic-embed-text-v1.5
     dtype: q8
     device: any
+    revision: e9b6763023c676ca8431644204f50c2b100d9aab
+    mirror_path: on-device/nomic-ai__nomic-embed-text-v1.5/e9b6763023c676ca8431644204f50c2b100d9aab/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 1
+    files:
+      - name: model.onnx
+        sha256: 0000000000000000000000000000000000000000000000000000000000000000
+        size: 1
     capability: embeddings
     context_length: 8192
 """
@@ -699,6 +717,15 @@ weights:
     model_file_name: vision_model
     dtype: q4f16
     device: webgpu
+    revision: d1114256522a37ffa257a0a58017348ab0058db2
+    mirror_path: on-device/onnx-community__siglip2-base-patch16-256-ONNX/d1114256522a37ffa257a0a58017348ab0058db2/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 1
+    files:
+      - name: vision_model.onnx
+        sha256: 0000000000000000000000000000000000000000000000000000000000000000
+        size: 1
     capability: asset-tagging
     taxonomy: studiobrain.asset-tags
     taxonomy_embeddings: taxonomies/{artifact}
@@ -778,6 +805,15 @@ weights:
     source: huggingface://onnx-community/gemma-4-E2B-it-ONNX
     dtype: q4f16
     device: webgpu
+    revision: 9f4bef82ea6e296bc69f8a2f5939f73af81b07a6
+    mirror_path: on-device/onnx-community__gemma-4-E2B-it-ONNX/9f4bef82ea6e296bc69f8a2f5939f73af81b07a6/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 1
+    files:
+      - name: model.onnx
+        sha256: 0000000000000000000000000000000000000000000000000000000000000000
+        size: 1
     capability: llm-chat
     context_length: 131072
     max_output_tokens: 8192
@@ -790,6 +826,15 @@ weights:
     runtime: litert-lm
     dtype: q4
     device: webgpu
+    revision: 6b78abd019e61a1ca4cbe3b212d2c9ce8ff38a94
+    mirror_path: on-device/litert-community__gemma-4-E2B-it-litert-lm/6b78abd019e61a1ca4cbe3b212d2c9ce8ff38a94/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 1
+    files:
+      - name: gemma-4-E2B-it-web.litertlm
+        sha256: 0000000000000000000000000000000000000000000000000000000000000000
+        size: 1
     capability: llm-chat
     context_length: 32768
     max_output_tokens: 8192
