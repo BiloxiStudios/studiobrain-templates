@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-23T15:04:08Z",
+  "generated_at": "2026-08-23T10:48:56-05:00",
   "entries": [
     {
       "id": "character-bio",
@@ -474,16 +474,14 @@
       "kind": "provider",
       "name": "Anthropic",
       "path": "templates/Providers/anthropic.provider.yaml",
-      "requires": {
-        "env": [
-          "ANTHROPIC_API_KEY"
-        ]
-      },
-      "wire": "anthropic",
+      "wire": "openai-compat",
+      "route": "aigateway",
+      "starter": true,
       "provides": [
         "llm-chat"
       ],
       "billing": [
+        "brainbits",
         "byok"
       ],
       "slots": {
@@ -699,18 +697,16 @@
       "kind": "provider",
       "name": "xAI Grok",
       "path": "templates/Providers/grok.provider.yaml",
-      "requires": {
-        "env": [
-          "XAI_API_KEY"
-        ]
-      },
       "wire": "openai-compat",
+      "route": "aigateway",
+      "starter": true,
       "provides": [
         "llm-chat",
         "image-gen",
         "video-gen"
       ],
       "billing": [
+        "brainbits",
         "byok"
       ],
       "slots": {
@@ -892,12 +888,30 @@
       "kind": "provider",
       "name": "OpenAI",
       "path": "templates/Providers/openai.provider.yaml",
+      "wire": "openai-compat",
+      "route": "aigateway",
+      "starter": true,
+      "provides": [
+        "llm-chat"
+      ],
+      "billing": [
+        "brainbits",
+        "byok"
+      ]
+    },
+    {
+      "id": "openai-direct",
+      "kind": "provider",
+      "name": "OpenAI Direct",
+      "path": "templates/Providers/openai-direct.provider.yaml",
       "requires": {
         "env": [
           "OPENAI_API_KEY"
         ]
       },
       "wire": "openai-compat",
+      "route": "direct",
+      "starter": false,
       "provides": [
         "llm-chat"
       ],
@@ -1019,19 +1033,16 @@
       "kind": "provider",
       "name": "Cloudflare Workers AI",
       "path": "templates/Providers/workers-ai.provider.yaml",
-      "requires": {
-        "env": [
-          "CF_API_TOKEN",
-          "CF_ACCOUNT_ID"
-        ]
-      },
       "wire": "openai-compat",
+      "route": "aigateway",
+      "starter": true,
       "provides": [
         "llm-chat",
         "image-gen"
       ],
       "billing": [
-        "brainbits"
+        "brainbits",
+        "byok"
       ],
       "slots": {
         "accepts": [

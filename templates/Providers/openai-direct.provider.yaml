@@ -1,0 +1,24 @@
+id: openai-direct
+kind: provider
+display: OpenAI Direct
+wire: openai-compat
+route: direct
+starter: false
+base_url: https://api.openai.com
+endpoint: /v1/chat/completions
+auth:
+  header: Authorization
+  scheme: Bearer
+  env: OPENAI_API_KEY
+response:
+  text_path: choices.0.message.content
+requires:
+  env: [OPENAI_API_KEY]
+provides: [llm-chat]
+billing: [byok]
+models:
+  endpoint: /v1/models
+  refresh: 24h
+chat:
+  nativeChatPath: chat/completions
+  modelPrefixes: [gpt-, o1-, o3-, o4-]

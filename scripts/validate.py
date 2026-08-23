@@ -274,6 +274,7 @@ def check_providers_and_abilities() -> list[str]:
     if not HAVE_YAML:
         _info("NOTE: pyyaml not installed -- skipping provider/ability YAML validation.")
         return errors
+    seen_provider_ids: dict[str, pathlib.Path] = {}
     search_roots = [TEMPLATES_DIR, ROOT / "Providers", ROOT / "Abilities"]
     for root in search_roots:
         if not root.exists():
@@ -287,6 +288,16 @@ def check_providers_and_abilities() -> list[str]:
             if not isinstance(data, dict):
                 errors.append(f"{path}: top-level YAML is not a mapping")
                 continue
+            provider_id = str(data.get("id") or "")
+            if provider_id:
+                first_path = seen_provider_ids.get(provider_id)
+                if first_path is not None:
+                    errors.append(
+                        f"{path}: duplicate provider id {provider_id!r}; "
+                        f"first declared in {first_path}"
+                    )
+                else:
+                    seen_provider_ids[provider_id] = path
             errors.extend(_validate_instance(data, "provider.json", str(path)))
         for path in sorted(root.rglob("*.ability.yaml")) + sorted(root.rglob("*.ability.yml")):
             try:
@@ -645,7 +656,34 @@ def check_requires() -> tuple[list[str], list[str]]:
                 f"{path}: provider '{pid}' auth.env={auth_env!r} is not listed in requires.env"
             )
         billing = data.get("billing") or []
-        if "brainbits" in billing and not auth_env:
+        route = data.get("route")
+        starter = data.get("starter") is True
+        if starter and route != "aigateway":
+            errors.append(
+                f"{path}: provider '{pid}' is starter=true -- starter providers must use "
+                "route 'aigateway'"
+            )
+        if route == "direct" and "brainbits" in billing:
+            errors.append(
+                f"{path}: provider '{pid}' has route 'direct' -- brainbits billing is forbidden"
+            )
+        if route == "aigateway":
+            if set(billing) != {"brainbits", "byok"}:
+                errors.append(
+                    f"{path}: provider '{pid}' has route 'aigateway' -- billing "
+                    "[brainbits, byok] is required"
+                )
+            if data.get("wire") != "openai-compat":
+                errors.append(
+                    f"{path}: provider '{pid}' has route 'aigateway' -- wire must be "
+                    "'openai-compat'"
+                )
+            if "gateway.ai.cloudflare.com" not in base_url:
+                errors.append(
+                    f"{path}: provider '{pid}' has route 'aigateway' -- base_url must use "
+                    "gateway.ai.cloudflare.com"
+                )
+        if "brainbits" in billing and not auth_env and route != "aigateway":
             warnings.append(
                 f"{path}: provider '{pid}' declares billing 'brainbits' but has no "
                 "auth.env -- nothing to meter against"

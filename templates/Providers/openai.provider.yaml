@@ -2,19 +2,16 @@ id: openai
 kind: provider
 display: OpenAI
 wire: openai-compat
-endpoint: /v1/chat/completions
-auth:
-  header: Authorization
-  scheme: Bearer
-  env: OPENAI_API_KEY
+route: aigateway
+starter: true
+base_url: https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat
+endpoint: /chat/completions
 response:
   text_path: choices.0.message.content
-requires:
-  env: [OPENAI_API_KEY]
 provides: [llm-chat]
-billing: [byok]
+billing: [brainbits, byok]
 models:
-  endpoint: /v1/models
+  endpoint: /models
   refresh: 24h
 chat:
   nativeChatPath: chat/completions
