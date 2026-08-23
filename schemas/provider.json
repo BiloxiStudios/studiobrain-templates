@@ -153,11 +153,34 @@
     },
     "pricing": {
       "type": "object",
-      "description": "Dynamic price feed or static per-model table. Prefer a real endpoint; static tables rot.",
+      "description": "Dynamic price feed or static per-model table. Prefer a real endpoint; static tables rot. 'operand' is the separate, typed, provider-neutral price the marketplace approx-cost badge multiplies by a canvas's step_count (SBAI-7675) -- distinct from 'table', which is an unstructured per-model blob with no consumer contract. A provider that omits 'operand' has UNKNOWN pricing to the marketplace: consumers must render unknown/unavailable, and must never default a missing operand to 0 (0 means 'confirmed free', which is a different fact).",
       "properties": {
         "source": { "type": "string", "enum": ["endpoint", "table"] },
         "endpoint": { "type": "string" },
-        "table": { "type": "object" }
+        "table": { "type": "object" },
+        "operand": {
+          "type": "object",
+          "description": "Static price operand: approx_cost = operand.amount * canvas.step_count when unit is 'per-step' (other units are informational only until a per-unit consumption estimator exists -- out of scope for SBAI-7675). Only declare this for a price attributable to a real, current vendor rate card. Never estimate or invent one -- a provider with no trustworthy source must omit 'operand' entirely rather than guess.",
+          "required": ["currency", "unit", "amount"],
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "type": "string",
+              "enum": ["USD"],
+              "description": "ISO 4217 code. Only USD is modeled this cycle -- add codes here (not free-text) when a second currency is actually needed."
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["per-step", "per-request", "per-image", "per-second", "per-minute", "per-1k-tokens"],
+              "description": "What one 'amount' buys. 'per-step' is the only unit the step_count multiplier consumes directly today; the others are declared for forward compatibility with a future per-unit estimator."
+            },
+            "amount": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Positive price in 'currency' per 'unit'. There is deliberately no zero/free spelling here: a free provider expresses that by omitting 'pricing' entirely (unknown-not-zero), so the marketplace can never conflate 'we don't know the price' with 'this is confirmed free'."
+            }
+          }
+        }
       }
     },
     "billing": {
