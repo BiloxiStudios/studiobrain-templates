@@ -2,31 +2,20 @@
 id: anthropic
 kind: provider
 display: Anthropic
-wire: anthropic
-base_url: https://api.anthropic.com
-endpoint: /v1/messages
-auth:
-  header: x-api-key
-  env: ANTHROPIC_API_KEY
-request:
-  method: POST
-  headers:
-    anthropic-version: "2023-06-01"
-  body:
-    model: "{{model}}"
-    max_tokens: 1024
-    messages: [{role: user, content: "{{prompt}}"}]
+wire: openai-compat
+route: aigateway
+starter: true
+base_url: https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat
+endpoint: /chat/completions
 response:
-  text_path: content.0.text
+  text_path: choices.0.message.content
 provides: [llm-chat]
-billing: [byok]
-requires:
-  env: [ANTHROPIC_API_KEY]
+billing: [brainbits, byok]
 models:
-  endpoint: /v1/models
+  endpoint: /models
   refresh: 24h
 chat:
-  nativeChatPath: v1/messages
+  nativeChatPath: chat/completions
   modelPrefixes: [claude-]
 slots:
   accepts: [text, image]

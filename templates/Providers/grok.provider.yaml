@@ -6,20 +6,16 @@ id: grok
 kind: provider
 display: xAI Grok
 wire: openai-compat
-base_url: https://api.x.ai
-endpoint: /v1/chat/completions
-auth:
-  header: Authorization
-  scheme: Bearer
-  env: XAI_API_KEY
+route: aigateway
+starter: true
+base_url: https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat
+endpoint: /chat/completions
 response:
   text_path: choices.0.message.content
 provides: [llm-chat, image-gen, video-gen]
-billing: [byok]
-requires:
-  env: [XAI_API_KEY]
+billing: [brainbits, byok]
 models:
-  endpoint: /v1/models
+  endpoint: /models
   refresh: 24h
 chat:
   nativeChatPath: chat/completions
