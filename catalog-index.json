@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-23T15:47:10Z",
+  "generated_at": "2026-08-23T10:48:56-05:00",
   "entries": [
     {
       "id": "character-bio",
@@ -68,7 +68,8 @@
       ],
       "entity_types": [
         "location"
-      ]
+      ],
+      "step_count": 2
     },
     {
       "id": "character-turnaround",
@@ -99,7 +100,8 @@
       ],
       "entity_types": [
         "character"
-      ]
+      ],
+      "step_count": 2
     },
     {
       "id": "cold-open-two-shot",
@@ -142,7 +144,8 @@
       "entity_types": [
         "location",
         "character"
-      ]
+      ],
+      "step_count": 3
     },
     {
       "id": "cover-from-track",
@@ -172,7 +175,8 @@
       ],
       "entity_types": [
         "item"
-      ]
+      ],
+      "step_count": 2
     },
     {
       "id": "establishing-shot",
@@ -205,7 +209,8 @@
       ],
       "entity_types": [
         "location"
-      ]
+      ],
+      "step_count": 2
     },
     {
       "id": "item-turntable",
@@ -237,7 +242,8 @@
       ],
       "entity_types": [
         "item"
-      ]
+      ],
+      "step_count": 2
     },
     {
       "id": "lyric-to-shots",
@@ -278,7 +284,8 @@
       ],
       "entity_types": [
         "item"
-      ]
+      ],
+      "step_count": 3
     },
     {
       "id": "prop-from-item",
@@ -312,7 +319,8 @@
       ],
       "entity_types": [
         "item"
-      ]
+      ],
+      "step_count": 2
     },
     {
       "id": "scene-with-two-leads",
@@ -358,7 +366,8 @@
       "entity_types": [
         "location",
         "character"
-      ]
+      ],
+      "step_count": 3
     },
     {
       "id": "score-under-track",
@@ -395,7 +404,8 @@
       ],
       "entity_types": [
         "item"
-      ]
+      ],
+      "step_count": 2
     },
     {
       "id": "stem-split",
@@ -424,7 +434,8 @@
       ],
       "entity_types": [
         "item"
-      ]
+      ],
+      "step_count": 2
     },
     {
       "id": "track-to-music-video",
@@ -455,7 +466,8 @@
       ],
       "entity_types": [
         "item"
-      ]
+      ],
+      "step_count": 2
     },
     {
       "id": "anthropic",
