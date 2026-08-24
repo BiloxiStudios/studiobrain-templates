@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-23T23:58:56Z",
+  "generated_at": "2026-08-24T00:11:23Z",
   "entries": [
     {
       "id": "character-bio",
@@ -476,6 +476,7 @@
       "path": "templates/Providers/anthropic.provider.yaml",
       "wire": "openai-compat",
       "route": "aigateway",
+      "base_url": "https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat",
       "starter": true,
       "provides": [
         "llm-chat"
@@ -530,6 +531,7 @@
         ]
       },
       "wire": "comfyui",
+      "base_url": "http://127.0.0.1:8188",
       "provides": [
         "image-gen",
         "video-gen",
@@ -560,6 +562,7 @@
         ]
       },
       "wire": "comfyui",
+      "base_url": "https://cloud.comfy.org",
       "provides": [
         "image-gen",
         "video-gen",
@@ -594,6 +597,7 @@
         ]
       },
       "wire": "dashscope",
+      "base_url": "https://dashscope-intl.aliyuncs.com",
       "provides": [
         "llm-chat"
       ],
@@ -620,6 +624,7 @@
         ]
       },
       "wire": "http",
+      "base_url": "https://api.elevenlabs.io",
       "provides": [
         "tts",
         "voice-clone"
@@ -647,6 +652,7 @@
         ]
       },
       "wire": "http",
+      "base_url": "https://fal.run",
       "provides": [
         "image-gen",
         "video-gen"
@@ -699,6 +705,7 @@
       "path": "templates/Providers/grok.provider.yaml",
       "wire": "openai-compat",
       "route": "aigateway",
+      "base_url": "https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat",
       "starter": true,
       "provides": [
         "llm-chat",
@@ -747,6 +754,7 @@
         ]
       },
       "wire": "openai-compat",
+      "base_url": "https://router.huggingface.co",
       "provides": [
         "llm-chat",
         "embeddings"
@@ -775,6 +783,7 @@
         ]
       },
       "wire": "http",
+      "base_url": "https://fal.run",
       "provides": [
         "video-gen"
       ],
@@ -802,6 +811,7 @@
         ]
       },
       "wire": "http",
+      "base_url": "https://api.lumalabs.ai",
       "provides": [
         "video-gen"
       ],
@@ -829,6 +839,7 @@
         ]
       },
       "wire": "openai-compat",
+      "base_url": "http://127.0.0.1:7077",
       "provides": [
         "llm-chat"
       ]
@@ -844,6 +855,7 @@
         ]
       },
       "wire": "openai-compat",
+      "base_url": "http://127.0.0.1:11434",
       "provides": [
         "llm-chat"
       ]
@@ -890,6 +902,7 @@
       "path": "templates/Providers/openai.provider.yaml",
       "wire": "openai-compat",
       "route": "aigateway",
+      "base_url": "https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat",
       "starter": true,
       "provides": [
         "llm-chat"
@@ -911,6 +924,7 @@
       },
       "wire": "openai-compat",
       "route": "direct",
+      "base_url": "https://api.openai.com",
       "starter": false,
       "provides": [
         "llm-chat"
@@ -930,6 +944,7 @@
         ]
       },
       "wire": "http",
+      "base_url": "https://api.openai.com",
       "provides": [
         "tts"
       ],
@@ -948,6 +963,7 @@
         ]
       },
       "wire": "openai-compat",
+      "base_url": "http://127.0.0.1:7077",
       "provides": [
         "tts",
         "voice-clone"
@@ -972,6 +988,7 @@
         ]
       },
       "wire": "http",
+      "base_url": "https://fal.run",
       "provides": [
         "music-gen"
       ],
@@ -998,6 +1015,7 @@
         ]
       },
       "wire": "http",
+      "base_url": "https://openapi.tripo3d.ai",
       "provides": [
         "3d-gen"
       ],
@@ -1035,6 +1053,7 @@
       "path": "templates/Providers/workers-ai.provider.yaml",
       "wire": "openai-compat",
       "route": "aigateway",
+      "base_url": "https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat",
       "starter": true,
       "provides": [
         "llm-chat",

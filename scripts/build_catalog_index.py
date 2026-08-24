@@ -186,6 +186,10 @@ def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
                 entry["wire"] = str(data["wire"])
             if data.get("route"):
                 entry["route"] = str(data["route"])
+            # SBAI-7833/7612: direct-to-vendor rows (*-direct) need their base
+            # URL published or the cloud direct-proxy refuses them (fail-closed).
+            if data.get("base_url"):
+                entry["base_url"] = str(data["base_url"])
             if "starter" in data:
                 entry["starter"] = bool(data["starter"])
             if data.get("runtime"):
