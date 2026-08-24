@@ -6,6 +6,9 @@ engine:
   category: local_spawned
   requirement: preferred
 base_url: http://127.0.0.1:11434
+bootstrap:
+  base_url_env: OLLAMA_URL
+  base_url_env_aliases: [LITELLM_URL, MODEL_MANAGER_URL]
 endpoint: /v1/chat/completions
 response:
   text_path: choices.0.message.content

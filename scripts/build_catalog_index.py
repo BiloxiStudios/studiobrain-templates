@@ -190,6 +190,12 @@ def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
             # URL published or the cloud direct-proxy refuses them (fail-closed).
             if data.get("base_url"):
                 entry["base_url"] = str(data["base_url"])
+            # SBAI-8017: bootstrap env aliases for base_url override
+            if data.get("bootstrap"):
+                entry["bootstrap"] = data["bootstrap"]
+            # SBAI-8017: mm_cloud mapping for cloud-specific routing
+            if data.get("mm_cloud"):
+                entry["mm_cloud"] = data["mm_cloud"]
             if "starter" in data:
                 entry["starter"] = bool(data["starter"])
             if data.get("runtime"):
