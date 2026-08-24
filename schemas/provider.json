@@ -308,6 +308,52 @@
       "type": "string",
       "description": "Empty/omitted means the platform default (AI Gateway / local model-manager) -- EXCEPT for wire: in-app, which has no URL at all: consumers must branch on wire before applying any base_url default, or an on-device request silently becomes a metered cloud call."
     },
+    "bootstrap": {
+      "type": "object",
+      "description": "Environment variable aliases for base_url override. Enables transparent failover between compatible endpoints (e.g., OLLAMA_URL -> LITELLM_URL -> MODEL_MANAGER_URL).",
+      "additionalProperties": false,
+      "required": ["base_url_env", "base_url_env_aliases"],
+      "properties": {
+        "base_url_env": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Primary environment variable for base URL override (e.g., OLLAMA_URL)"
+        },
+        "base_url_env_aliases": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "description": "Fallback environment variables tried in order if primary is unset"
+        }
+      }
+    },
+    "mm_cloud": {
+      "type": "object",
+      "description": "Cloud-specific routing metadata for model-manager. Used when the same provider YAML is consumed by both desktop (local) and cloud (metered API) contexts.",
+      "additionalProperties": false,
+      "required": ["id", "kind", "api_key_env", "base_url"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Cloud provider identifier (e.g., 'openai', 'anthropic')"
+        },
+        "kind": {
+          "type": "string",
+          "description": "Provider kind for cloud routing (e.g., 'openai', 'anthropic', 'google')"
+        },
+        "api_key_env": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Environment variable containing the cloud API key"
+        },
+        "base_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Cloud base URL (e.g., https://api.openai.com)"
+        }
+      }
+    },
     "endpoint": { "type": "string" },
     "auth": {
       "type": "object",

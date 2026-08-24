@@ -16,6 +16,7 @@ rather than polluting the real catalog with fixture pricing data.
 """
 from __future__ import annotations
 
+import json
 import pathlib
 import sys
 import tempfile
@@ -121,6 +122,52 @@ steps:
       prompt: brief
     out:
       image: out1
+"""
+
+PROVIDER_WITH_BOOTSTRAP = """
+id: bootstrap-test
+kind: provider
+display: Bootstrap Test Provider
+wire: openai-compat
+base_url: http://127.0.0.1:11434
+bootstrap:
+  base_url_env: TEST_URL
+  base_url_env_aliases: [FALLBACK_URL, DEFAULT_URL]
+endpoint: /v1/chat/completions
+provides: [llm-chat]
+"""
+
+PROVIDER_WITH_MM_CLOUD = """
+id: mm-cloud-test
+kind: provider
+display: MM Cloud Test Provider
+wire: openai-compat
+base_url: http://127.0.0.1:7077
+mm_cloud:
+  id: test-provider
+  kind: openai
+  api_key_env: TEST_API_KEY
+  base_url: https://api.test.com
+endpoint: /v1/chat/completions
+provides: [llm-chat]
+"""
+
+PROVIDER_WITH_BOTH = """
+id: both-test
+kind: provider
+display: Both Test Provider
+wire: openai-compat
+base_url: http://127.0.0.1:8080
+bootstrap:
+  base_url_env: PRIMARY_URL
+  base_url_env_aliases: [BACKUP_URL]
+mm_cloud:
+  id: cloud-id
+  kind: anthropic
+  api_key_env: CLOUD_KEY
+  base_url: https://api.anthropic.com
+endpoint: /v1/chat/completions
+provides: [llm-chat]
 """
 
 
@@ -270,6 +317,107 @@ class ShippedCatalogTests(unittest.TestCase):
         for canvas in canvases:
             self.assertIn("step_count", canvas, canvas["id"])
             self.assertGreaterEqual(canvas["step_count"], 1, canvas["id"])
+
+
+@unittest.skipUnless(bci.yaml is not None, "pyyaml required")
+class BootstrapMmCloudTests(unittest.TestCase):
+    """Tests for SBAI-8017: bootstrap env aliases and mm_cloud mapping."""
+
+    def test_provider_with_bootstrap_exposes_env_aliases(self):
+        with tempfile.TemporaryDirectory() as td:
+            tmp = pathlib.Path(td)
+            _write_tree(tmp, {"bootstrap.provider.yaml": PROVIDER_WITH_BOOTSTRAP}, {})
+            entries = bci.build_entries(tmp)
+        provider = next(e for e in entries if e["id"] == "bootstrap-test")
+        self.assertIn("bootstrap", provider)
+        self.assertEqual(provider["bootstrap"]["base_url_env"], "TEST_URL")
+        self.assertEqual(provider["bootstrap"]["base_url_env_aliases"], ["FALLBACK_URL", "DEFAULT_URL"])
+
+    def test_provider_with_mm_cloud_exposes_routing_metadata(self):
+        with tempfile.TemporaryDirectory() as td:
+            tmp = pathlib.Path(td)
+            _write_tree(tmp, {"mm-cloud.provider.yaml": PROVIDER_WITH_MM_CLOUD}, {})
+            entries = bci.build_entries(tmp)
+        provider = next(e for e in entries if e["id"] == "mm-cloud-test")
+        self.assertIn("mm_cloud", provider)
+        self.assertEqual(provider["mm_cloud"]["id"], "test-provider")
+        self.assertEqual(provider["mm_cloud"]["kind"], "openai")
+        self.assertEqual(provider["mm_cloud"]["api_key_env"], "TEST_API_KEY")
+        self.assertEqual(provider["mm_cloud"]["base_url"], "https://api.test.com")
+
+    def test_provider_with_both_bootstrap_and_mm_cloud(self):
+        with tempfile.TemporaryDirectory() as td:
+            tmp = pathlib.Path(td)
+            _write_tree(tmp, {"both.provider.yaml": PROVIDER_WITH_BOTH}, {})
+            entries = bci.build_entries(tmp)
+        provider = next(e for e in entries if e["id"] == "both-test")
+        self.assertIn("bootstrap", provider)
+        self.assertIn("mm_cloud", provider)
+        self.assertEqual(provider["bootstrap"]["base_url_env"], "PRIMARY_URL")
+        self.assertEqual(provider["mm_cloud"]["id"], "cloud-id")
+
+    def test_provider_without_bootstrap_omits_fields(self):
+        """Providers without bootstrap/mm_cloud should not have those keys."""
+        with tempfile.TemporaryDirectory() as td:
+            tmp = pathlib.Path(td)
+            _write_tree(tmp, {"unpriced.provider.yaml": UNPRICED_PROVIDER}, {})
+            entries = bci.build_entries(tmp)
+        provider = next(e for e in entries if e["id"] == "unpriced-test")
+        self.assertNotIn("bootstrap", provider)
+        self.assertNotIn("mm_cloud", provider)
+
+    def test_real_ollama_has_bootstrap(self):
+        """Integration test: the real ollama provider has bootstrap metadata."""
+        entries = bci.build_entries(ROOT)
+        ollama = next((e for e in entries if e["id"] == "ollama"), None)
+        self.assertIsNotNone(ollama, "ollama provider not found")
+        self.assertIn("bootstrap", ollama)
+        self.assertEqual(ollama["bootstrap"]["base_url_env"], "OLLAMA_URL")
+
+    def test_real_model_manager_has_bootstrap(self):
+        """Integration test: the real model-manager provider has bootstrap metadata."""
+        entries = bci.build_entries(ROOT)
+        mm = next((e for e in entries if e["id"] == "model-manager"), None)
+        self.assertIsNotNone(mm, "model-manager provider not found")
+        self.assertIn("bootstrap", mm)
+        self.assertEqual(mm["bootstrap"]["base_url_env"], "AI_GATEWAY_URL")
+
+    def test_real_openai_has_mm_cloud(self):
+        """Integration test: the real openai provider has mm_cloud metadata."""
+        entries = bci.build_entries(ROOT)
+        openai_entry = next((e for e in entries if e["id"] == "openai"), None)
+        self.assertIsNotNone(openai_entry, "openai provider not found")
+        self.assertIn("mm_cloud", openai_entry)
+        self.assertEqual(openai_entry["mm_cloud"]["id"], "openai")
+        self.assertEqual(openai_entry["mm_cloud"]["kind"], "openai")
+
+    def test_catalog_is_byte_reproducible_for_fixed_provenance(self):
+        """Two builds from one source revision and timestamp are identical."""
+        generated_at = "2026-08-24T00:00:00Z"
+        first = bci.render(bci.build_index(generated_at, ROOT))
+        second = bci.render(bci.build_index(generated_at, ROOT))
+        self.assertEqual(first.encode("utf-8"), second.encode("utf-8"))
+        self.assertEqual(json.loads(first)["generated_at"], generated_at)
+
+    def test_catalog_contains_env_names_not_credential_values(self):
+        """Executable catalog metadata may name secrets, never carry values."""
+        entries = bci.build_entries(ROOT)
+        forbidden_value_keys = {"api_key", "password", "secret", "token", "credential"}
+
+        def walk(value, path=()):
+            if isinstance(value, dict):
+                for key, child in value.items():
+                    self.assertNotIn(
+                        key.lower(),
+                        forbidden_value_keys,
+                        f"credential value field published at {'.'.join((*path, key))}",
+                    )
+                    walk(child, (*path, key))
+            elif isinstance(value, list):
+                for index, child in enumerate(value):
+                    walk(child, (*path, str(index)))
+
+        walk(entries)
 
 
 if __name__ == "__main__":

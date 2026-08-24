@@ -840,6 +840,13 @@
       },
       "wire": "openai-compat",
       "base_url": "http://127.0.0.1:7077",
+      "bootstrap": {
+        "base_url_env": "AI_GATEWAY_URL",
+        "base_url_env_aliases": [
+          "LITELLM_URL",
+          "MODEL_MANAGER_URL"
+        ]
+      },
       "provides": [
         "llm-chat"
       ]
@@ -856,6 +863,13 @@
       },
       "wire": "openai-compat",
       "base_url": "http://127.0.0.1:11434",
+      "bootstrap": {
+        "base_url_env": "OLLAMA_URL",
+        "base_url_env_aliases": [
+          "LITELLM_URL",
+          "MODEL_MANAGER_URL"
+        ]
+      },
       "provides": [
         "llm-chat"
       ]
@@ -903,6 +917,18 @@
       "wire": "openai-compat",
       "route": "aigateway",
       "base_url": "https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat",
+      "bootstrap": {
+        "base_url_env": "OPENAI_BASE_URL",
+        "base_url_env_aliases": [
+          "OPENAI_API_BASE"
+        ]
+      },
+      "mm_cloud": {
+        "id": "openai",
+        "kind": "openai",
+        "api_key_env": "OPENAI_API_KEY",
+        "base_url": "https://api.openai.com"
+      },
       "starter": true,
       "provides": [
         "llm-chat"

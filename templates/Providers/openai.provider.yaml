@@ -8,6 +8,14 @@ engine:
 route: aigateway
 starter: true
 base_url: https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat
+bootstrap:
+  base_url_env: OPENAI_BASE_URL
+  base_url_env_aliases: [OPENAI_API_BASE]
+mm_cloud:
+  id: openai
+  kind: openai
+  api_key_env: OPENAI_API_KEY
+  base_url: https://api.openai.com
 endpoint: /chat/completions
 response:
   text_path: choices.0.message.content
