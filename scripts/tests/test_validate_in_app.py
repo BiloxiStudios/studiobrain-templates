@@ -101,6 +101,11 @@ class InAppInvariantTests(unittest.TestCase):
             with self.subTest(field=field):
                 errors, _ = self.check(GOOD_IN_APP + snippet + "\n")
                 self.assert_error_matching(errors, f"must not declare {field}")
+                matching = [
+                    error for error in errors
+                    if f"must not declare {field}" in error
+                ]
+                self.assertEqual(len(matching), 1, errors)
 
     def test_money_fields_are_rejected(self):
         for field, snippet in (
