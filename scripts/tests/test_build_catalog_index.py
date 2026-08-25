@@ -70,6 +70,28 @@ pricing:
     some-model: 0.02
 """
 
+WEIGHTED_PROVIDER = """
+id: weighted-test
+kind: provider
+display: Weighted Test Provider
+wire: in-app
+runtime: transformers.js
+provides: [llm-chat]
+weights:
+  - id: weighted-test/q4-webgpu
+    capability: llm-chat
+    dtype: q4
+    device: webgpu
+    min_ram_gb: 8
+    revision: abc123
+    source: huggingface://example/model
+  - id: weighted-test/q8-wasm
+    capability: llm-chat
+    dtype: q8
+    device: wasm
+    max_output_tokens: 2048
+"""
+
 MULTI_STEP_CANVAS = """
 id: multi-step-test
 kind: canvas
@@ -230,6 +252,29 @@ class PricingOperandTests(unittest.TestCase):
 
 
 @unittest.skipUnless(bci.yaml is not None, "pyyaml required")
+class ProviderModelsTests(unittest.TestCase):
+    def test_provider_weights_are_published_as_models_without_losing_metadata(self):
+        with tempfile.TemporaryDirectory() as td:
+            tmp = pathlib.Path(td)
+            _write_tree(tmp, {"weighted.provider.yaml": WEIGHTED_PROVIDER}, {})
+            entries = bci.build_entries(tmp)
+        provider = next(e for e in entries if e["id"] == "weighted-test")
+        self.assertEqual([row["id"] for row in provider["models"]], [
+            "weighted-test/q4-webgpu",
+            "weighted-test/q8-wasm",
+        ])
+        self.assertEqual(provider["models"][0]["revision"], "abc123")
+        self.assertEqual(provider["models"][0]["min_ram_gb"], 8)
+        self.assertEqual(provider["models"][1]["device"], "wasm")
+
+    def test_malformed_weights_fail_closed_instead_of_publishing_empty_models(self):
+        with self.assertRaisesRegex(RuntimeError, "weights must be a list"):
+            bci._provider_models({"id": "not-a-list"})
+        with self.assertRaisesRegex(RuntimeError, r"weights\[0\] must be a mapping"):
+            bci._provider_models(["not-a-row"])
+
+
+@unittest.skipUnless(bci.yaml is not None, "pyyaml required")
 class CanvasStepCountTests(unittest.TestCase):
     def test_multi_step_canvas_step_count(self):
         with tempfile.TemporaryDirectory() as td:
@@ -317,6 +362,14 @@ class ShippedCatalogTests(unittest.TestCase):
         for canvas in canvases:
             self.assertIn("step_count", canvas, canvas["id"])
             self.assertGreaterEqual(canvas["step_count"], 1, canvas["id"])
+
+    def test_on_device_provider_publishes_webgpu_and_wasm_model_rows(self):
+        entries = bci.build_entries(ROOT)
+        provider = next(e for e in entries if e["id"] == "on-device")
+        models = {row["id"]: row for row in provider["models"]}
+        self.assertEqual(models["on-device/gemma-4-e2b-it-q4"]["dtype"], "q4")
+        self.assertEqual(models["on-device/gemma-4-e2b-it-q4"]["device"], "webgpu")
+        self.assertEqual(models["on-device/qwen3-0.6b-q8-wasm"]["device"], "wasm")
 
 
 @unittest.skipUnless(bci.yaml is not None, "pyyaml required")
