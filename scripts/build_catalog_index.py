@@ -149,6 +149,26 @@ def _compact_pricing_operand(pricing: Any) -> dict[str, Any] | None:
     return {"currency": str(currency), "unit": str(unit), "amount": amount}
 
 
+def _provider_models(weights: Any) -> list[dict[str, Any]]:
+    """Project validated provider ``weights`` rows into catalog ``models``.
+
+    The provider YAML is the authoritative model catalog for in-app runtimes.
+    Keeping the row intact preserves the runtime selection fields (including
+    dtype, device, capability, limits, revision, and mirror metadata) instead
+    of maintaining a second, lossy mapping in this index builder.
+    """
+    if weights is None:
+        return []
+    if not isinstance(weights, list):
+        raise RuntimeError("provider weights must be a list")
+    models: list[dict[str, Any]] = []
+    for index, row in enumerate(weights):
+        if not isinstance(row, dict):
+            raise RuntimeError(f"provider weights[{index}] must be a mapping")
+        models.append(dict(row))
+    return models
+
+
 def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
     """Parse every catalog file and return the sorted entry list."""
     entries: list[dict[str, Any]] = []
@@ -206,6 +226,9 @@ def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
                 entry["billing"] = list(data["billing"])
             if data.get("slots"):
                 entry["slots"] = data["slots"]
+            models = _provider_models(data.get("weights"))
+            if models:
+                entry["models"] = models
             operand = _compact_pricing_operand(data.get("pricing"))
             if operand:
                 entry["pricing"] = operand
