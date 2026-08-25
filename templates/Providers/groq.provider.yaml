@@ -1,0 +1,32 @@
+# Groq. LPU-hosted inference for open models (Llama, DeepSeek, Qwen, Gemma,
+# GPT-OSS, ...) via an OpenAI-compatible endpoint. Distinct from xAI's
+# grok.provider.yaml -- Groq is the inference platform (fast hardware,
+# hosts many vendors' open models), Grok is a single vendor's own model.
+# No single model-id prefix identifies Groq's catalog, so chat.modelPrefixes
+# is intentionally omitted (see workers-ai.provider.yaml for the same
+# multi-vendor-catalog reasoning). Contract:
+# https://console.groq.com/docs/api-reference (chat/completions, OpenAI wire
+# shape). Fixes SBAI-7876 (model-manager producer PR: SBAI-7875 / #881).
+id: groq
+kind: provider
+display: Groq
+wire: openai-compat
+engine:
+  category: llm_router
+  requirement: preferred
+route: aigateway
+starter: true
+base_url: https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat
+endpoint: /chat/completions
+response:
+  text_path: choices.0.message.content
+provides: [llm-chat]
+billing: [brainbits, byok]
+models:
+  endpoint: /models
+  refresh: 24h
+chat:
+  nativeChatPath: chat/completions
+slots:
+  accepts: [text]
+  emits: [text]

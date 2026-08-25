@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-25T03:18:19Z",
+  "generated_at": "2026-08-25T04:13:11+00:00",
   "entries": [
     {
       "id": "character-bio",
@@ -725,6 +725,31 @@
           "text",
           "image",
           "video"
+        ]
+      }
+    },
+    {
+      "id": "groq",
+      "kind": "provider",
+      "name": "Groq",
+      "path": "templates/Providers/groq.provider.yaml",
+      "wire": "openai-compat",
+      "route": "aigateway",
+      "base_url": "https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat",
+      "starter": true,
+      "provides": [
+        "llm-chat"
+      ],
+      "billing": [
+        "brainbits",
+        "byok"
+      ],
+      "slots": {
+        "accepts": [
+          "text"
+        ],
+        "emits": [
+          "text"
         ]
       }
     },

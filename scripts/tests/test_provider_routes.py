@@ -53,7 +53,7 @@ class ProviderRouteContractTests(unittest.TestCase):
             data = yaml.safe_load(path.read_text(encoding="utf-8"))
             providers[data["id"]] = data
 
-        for provider_id in ("openai", "anthropic", "grok", "workers-ai"):
+        for provider_id in ("openai", "anthropic", "grok", "workers-ai", "groq"):
             with self.subTest(provider=provider_id):
                 provider = providers[provider_id]
                 self.assertEqual(provider["route"], "aigateway")
@@ -93,6 +93,43 @@ class ProviderRouteContractTests(unittest.TestCase):
             "base_url: https://gateway.ai.cloudflare.com/v1/x/y/compat\n"
         )
         self.assertTrue(any("billing [brainbits, byok]" in error for error in errors), errors)
+
+    def test_groq_and_grok_are_distinct_aigateway_slugs(self):
+        # SBAI-7876: Groq (LPU inference platform) and Grok (xAI's model) are
+        # different vendors that happen to be near-homophones -- assert they
+        # ship as two distinct catalog rows, not a collapsed/duplicated one.
+        providers = {}
+        for path in sorted((ROOT / "templates" / "Providers").glob("*.provider.yaml")):
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+            providers[data["id"]] = data
+
+        self.assertIn("groq", providers)
+        self.assertIn("grok", providers)
+        self.assertNotEqual(providers["groq"]["display"], providers["grok"]["display"])
+        for provider_id in ("groq", "grok"):
+            with self.subTest(provider=provider_id):
+                provider = providers[provider_id]
+                self.assertEqual(provider["route"], "aigateway")
+                self.assertEqual(provider["billing"], ["brainbits", "byok"])
+
+    def test_huggingface_router_reuses_existing_huggingface_slug(self):
+        # SBAI-7876: model-manager's SBAI-7875 (#881) added a distinct
+        # [cloud.huggingface-router] gateway.toml section to disambiguate
+        # from the LOCAL [huggingface] weights/cache config -- but that is a
+        # model-manager-internal split. In the templates catalog, the
+        # existing huggingface.provider.yaml already targets
+        # router.huggingface.co/v1/chat/completions (the same "Router"
+        # contract), so no second slug (e.g. huggingface-router) may exist
+        # here -- it would duplicate huggingface per the SBAI-7612 contract.
+        provider_dir = ROOT / "templates" / "Providers"
+        ids = {yaml.safe_load(p.read_text(encoding="utf-8"))["id"] for p in provider_dir.glob("*.provider.yaml")}
+        self.assertIn("huggingface", ids)
+        self.assertNotIn("huggingface-router", ids)
+
+        huggingface = yaml.safe_load((provider_dir / "huggingface.provider.yaml").read_text(encoding="utf-8"))
+        self.assertIn("router.huggingface.co", huggingface["base_url"])
+        self.assertEqual(huggingface["billing"], ["byok"])
+        self.assertNotIn("route", huggingface)
 
     def test_validator_rejects_duplicate_provider_slugs(self):
         body = "id: duplicate\nkind: provider\nwire: openai-compat\n"
