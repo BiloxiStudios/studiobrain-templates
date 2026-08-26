@@ -100,6 +100,7 @@ def publish(
     access_key: str,
     secret_key: str,
     public_base_url: str | None = None,
+    content_type: str = "application/json",
 ) -> int:
     if not local_path.is_file():
         _err(f"{local_path} not found")
@@ -111,7 +112,7 @@ def publish(
         Bucket=bucket,
         Key=key,
         Body=body,
-        ContentType="application/json",
+        ContentType=content_type,
         CacheControl="public, max-age=60",
     )
     _info(f"published (overwrite): s3://{bucket}/{key}")
@@ -129,6 +130,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--file", default="catalog-index.json")
     parser.add_argument("--key", default=DEFAULT_KEY)
+    parser.add_argument("--content-type", default="application/json",
+                        help="MIME type for the uploaded object (default: application/json)")
     parser.add_argument("--bucket", default=os.environ.get("R2_BUCKET", "sb-content"))
     parser.add_argument(
         "--public-base-url",
@@ -161,6 +164,7 @@ def main(argv: list[str] | None = None) -> int:
         access_key,
         secret_key,
         public_base_url=args.public_base_url or None,
+        content_type=args.content_type,
     )
 
 

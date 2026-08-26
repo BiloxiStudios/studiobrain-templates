@@ -1,0 +1,170 @@
+# StudioBrain desktop gateway model recipe (SBAI-8406).
+#
+# Published to R2 at catalog.studiobrain.ai/recipes/gateway-desktop.recipe.yaml
+# on every merge to main and hourly. Desktop app (gateway_bootstrap.rs) fetches
+# this at startup and merges it into gateway.toml — changing recommended models
+# here takes effect on next gateway bootstrap without a desktop binary release.
+#
+# Schema (version "1"):
+#   local_models    — product GGUF/inference models to inject on first run
+#   model_aliases   — gateway alias→id map for SB-owned product models
+#   managed_services — Docker-backed services (fail-soft if Docker is absent)
+#   migrations      — SB-owned id renames (old key → new key for upgrade path)
+#
+# NOT infrastructure config: no ports, bind addresses, auth tokens, or paths.
+# Those stay baked in the binary (gateway_bootstrap.rs compile-time consts).
+#
+# Owner notes:
+#   - local_models are injected ONLY when no [local_models.*] exists in
+#     gateway.toml (first-run). Users who curate their own models are never
+#     touched — recipe models are added alongside theirs only when at least
+#     one SB-owned model is already registered (upgrade-path companions).
+#   - managed_services are merged-if-absent regardless of local_models state.
+#   - Windows requires Docker Desktop + WSL2 for managed_services. Gateway
+#     skips Docker-backed services with a probe-miss; WASM chat stays up.
+#   - model_aliases are injected alongside product models; existing user aliases
+#     are never overwritten (keys absent in the section body only).
+version: "1"
+
+# ---------------------------------------------------------------------------
+# Product local models (GGUF, llama-server backend)
+# ---------------------------------------------------------------------------
+
+local_models:
+  # Gemma 4 E4B QAT — default always-on product LLM.
+  # ~6.2 GiB VRAM; Q4_0 + mmproj for vision. CC BY 4.0.
+  - key: gemma-4-e4b
+    source: google/gemma-4-E4B-it-qat-q4_0-gguf
+    quant: Q4_0
+    gguf_path: gemma-4-E4B_q4_0-it.gguf
+    type: llm
+    backend: bundled/llama-server
+    tier: always_on
+    vram_estimate_gb: 6.2
+    ctx_size: 8192
+    supports_vision: true
+    supports_tools: true
+    extra_args:
+      - "--mmproj"
+      - "gemma-4-E4B-it-mmproj.gguf"
+    capabilities:
+      - text-generation
+      - tool-calling
+      - image-understanding
+      - transcription
+    requires_engine: llama-server
+
+  # Gemma 4 26B MoE A4B QAT — on-demand larger model for users with VRAM.
+  # ~16 GiB VRAM; on_demand so it doesn't auto-load at startup.
+  - key: gemma-4-26b-a4b
+    source: google/gemma-4-26B-A4B-it-qat-q4_0-gguf
+    quant: Q4_0
+    gguf_path: gemma-4-26B_q4_0-it.gguf
+    type: llm
+    backend: bundled/llama-server
+    tier: on_demand
+    vram_estimate_gb: 16.0
+    ctx_size: 8192
+    supports_vision: true
+    supports_tools: true
+    extra_args:
+      - "--mmproj"
+      - "gemma-4-26B-it-mmproj.gguf"
+    capabilities:
+      - text-generation
+      - tool-calling
+      - image-understanding
+      - transcription
+    requires_engine: llama-server
+
+  # Nomic Embed Text v1.5 — fleet embedding model (768-dim, CPU, no VRAM).
+  # Provides /v1/embeddings for local RAG. gpu_layers=0 keeps it on CPU.
+  - key: nomic-embed-text-v1.5
+    source: nomic-ai/nomic-embed-text-v1.5-GGUF
+    quant: F16
+    type: embedding
+    backend: bundled/llama-server
+    tier: always_on
+    vram_estimate_gb: 0.0
+    ctx_size: 8192
+    gpu_layers: 0
+    extra_args:
+      - "--embeddings"
+      - "--pooling"
+      - "mean"
+      - "--n-gpu-layers"
+      - "0"
+    capabilities:
+      - embedding
+
+# ---------------------------------------------------------------------------
+# Model aliases — gateway alias→id routing for product models
+# ---------------------------------------------------------------------------
+
+# Injected alongside product models; never overwrites user-added aliases.
+model_aliases:
+  qwen-3.5-flash: gemma-4-e4b
+  default: gemma-4-e4b
+
+# ---------------------------------------------------------------------------
+# Managed Docker services (on_demand, fail-soft if Docker absent)
+# ---------------------------------------------------------------------------
+# Windows: requires Docker Desktop + WSL2.
+# Gateway marks service probe-miss and skips gracefully when Docker is absent.
+# on_demand means services are never auto-started; only invoked when explicitly
+# requested — no VRAM impact at startup.
+
+managed_services:
+  # LiteRT-LM Serve — Gemma 4 E2B via LiteRT in a Docker pod (MM PR #906).
+  # Port 9379. Provides vision + tool-calling via openai adapter.
+  - key: litert-lm
+    display_name: LiteRT-LM Serve
+    service_type: llm
+    runtime: docker
+    docker_image: ghcr.io/biloxistudios/studiobrain-litert-lm-pod:latest
+    container_name: litert-lm
+    host_port: 9379
+    container_port: 9379
+    adapter: openai
+    tier: on_demand
+    idle_timeout: 10m
+    sleep_strategy: stop
+    capabilities:
+      - streaming
+      - vision
+      - function-calling
+    env:
+      LITERT_LM_HF_REPO: litert-community/gemma-4-E2B-it-litert-lm
+      LITERT_LM_MODEL_FILE: gemma-4-E2B-it.litertlm
+      LITERT_LM_MODEL_ALIAS: gemma-4-e2b-it
+
+  # Pocket-TTS-LiteRT — on-device TTS via Kyutai LiteRT graphs (MM PR #906).
+  # Port 9380. WASM path is NO-GO for v1 (SBAI-8437); Docker pod is the ship path.
+  - key: pocket-tts-litert
+    display_name: Pocket-TTS-LiteRT
+    service_type: tts
+    runtime: docker
+    docker_image: ghcr.io/biloxistudios/studiobrain-pocket-tts-litert-pod:latest
+    container_name: pocket-tts-litert
+    host_port: 9380
+    container_port: 9380
+    adapter: openai
+    tier: on_demand
+    idle_timeout: 15m
+    sleep_strategy: stop
+    capabilities:
+      - text-to-speech
+    env:
+      POCKET_TTS_HF_REPO: mlboydaisuke/Pocket-TTS-LiteRT
+      POCKET_TTS_PORT: "9380"
+
+# ---------------------------------------------------------------------------
+# Model id migrations (SB-owned keys only)
+# ---------------------------------------------------------------------------
+# Applied to upgrade existing installations that have a prior SB-default.
+# Never touches user-curated model ids that don't match a "from" key.
+
+migrations:
+  - from: qwen2.5-3b-instruct
+    to: gemma-4-e4b
+    reason: "SBAI-8406: Qwen 2.5 3B retired; replaced by Gemma 4 E4B QAT"
