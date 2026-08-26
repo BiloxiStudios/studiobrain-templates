@@ -173,3 +173,17 @@ jobs:
           python3 scripts/publish_catalog_index_to_r2.py \
             --file catalog-index.json \
             --key catalog/catalog-index.json
+      - name: Publish desktop gateway recipe to R2 (SBAI-8406)
+        # Desktop app fetches this at bootstrap to get recommended model list.
+        # Changing this file lets us update recommended models without a binary release.
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_PUBLIC_BASE_URL: ${{ vars.R2_PUBLIC_BASE_URL }}
+        run: |
+          python3 scripts/publish_catalog_index_to_r2.py \
+            --file recipes/gateway-desktop.recipe.yaml \
+            --key recipes/gateway-desktop.recipe.yaml \
+            --content-type application/yaml
