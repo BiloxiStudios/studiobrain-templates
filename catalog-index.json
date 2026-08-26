@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-26T15:45:50Z",
+  "generated_at": "2026-08-26T17:46:11Z",
   "entries": [
     {
       "id": "character-bio",
@@ -1021,7 +1021,6 @@
           "max_output_tokens": 8192,
           "tools": true,
           "thinking": "optional",
-          "default": true,
           "modality": [
             "text"
           ]
@@ -1451,7 +1450,7 @@
           "modality": [
             "text"
           ],
-          "experimental": true
+          "default": true
         },
         {
           "id": "on-device/gemma-4-e4b-it-litert-web",
