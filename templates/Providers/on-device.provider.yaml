@@ -147,7 +147,6 @@ weights:
     max_output_tokens: 8192
     tools: true
     thinking: optional
-    default: true
     modality: [text]
   # SBAI-7682: the q4f16 rows above cannot execute on a WebGPU adapter that
   # does not expose the `shader-f16` feature -- ORT compiles their graphs to
@@ -597,16 +596,15 @@ weights:
   # provider now holds tiers for both engines and the executor must load the
   # engine the SELECTED row names.
   #
-  # These rows are `experimental: true` and NOT `default`. transformers.js
-  # Gemma stays the default tier until the SBAI-7729 web-lane bench measures
-  # both on our own hardware -- the decode-speed claim is Google's published
-  # number (73 tok/s on an M4 Max via WebGPU), not ours, and NOBODY HAS RUN
-  # THIS ENGINE IN A BROWSER YET. Ranking makes that safe rather than
-  # accidental: selectWeights sorts by min_ram_gb DESCENDING and then puts
-  # `default` first, so at every RAM tier these rows tie with the ONNX row of
-  # the same size and lose the stable-sort tiebreak to the row declared above
-  # them. Appending them at the END of this list is therefore load-bearing --
-  # moving them up would silently promote an unwitnessed engine to default.
+  # SBAI-8406 (2026-08-26, owner witnessed): gemma-4-e2b-it-litert-web is
+  # significantly faster than the ONNX equivalent on WebGPU hardware and is
+  # now the DEFAULT in-app chat row. `experimental: true` removed; ONNX rows
+  # become the implicit fallback (no `default` flag). E4B LiteRT stays
+  # experimental -- it is the quality tier, not yet witnessed at the bench.
+  # selectWeights sorts `default` first within each RAM tier; the E2B LiteRT
+  # row wins for 8 GB devices and the E4B ONNX row wins for 16 GB devices
+  # (the E4B LiteRT row loses the stable-sort tiebreak because it has no
+  # `default` flag and sits after the ONNX E4B row in the file).
   #
   # `file` is required and is NOT decoration: litert-community repos publish
   # several mutually incompatible .litertlm builds side by side and only the
@@ -674,7 +672,7 @@ weights:
     tools: false
     thinking: none
     modality: [text]
-    experimental: true
+    default: true
   # The quality tier. ~1.5x the download of E2B for the same 32k window.
   # min_ram_gb 16 mirrors the E4B ONNX row above: same model family, same
   # class of device. It ties with that row at every RAM tier and loses the
