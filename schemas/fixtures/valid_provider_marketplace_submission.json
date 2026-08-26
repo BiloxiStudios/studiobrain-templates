@@ -1,0 +1,15 @@
+{
+  "id": "fixture-marketplace-submission",
+  "kind": "provider",
+  "display": "Fixture Marketplace Submission",
+  "wire": "openai-compat",
+  "route": "aigateway",
+  "starter": false,
+  "base_url": "https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat",
+  "endpoint": "/chat/completions",
+  "provides": ["llm-chat"],
+  "billing": ["brainbits", "byok"],
+  "response": {
+    "text_path": "choices.0.message.content"
+  }
+}

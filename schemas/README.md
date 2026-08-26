@@ -357,6 +357,55 @@ verify → publish → public read-back via `r2.dev` → idempotent rerun
 plugin artifacts is covered by `scripts/tests/test_publish_to_r2.py` and
 will exercise for real once the first real plugin lands).
 
+## Curated provider marketplace submission (SBAI-8093, epic SBAI-8007)
+
+How a `*.provider.yaml` goes from a submitted idea to something a project can
+install, without ever bypassing review:
+
+```
+Author opens a PR adding/editing templates/Providers/<id>.provider.yaml
+        ↓
+`validate` CI job (pull_request trigger, no publish/admin secrets --
+proven by scripts/check_workflow_secret_isolation.py) runs
+scripts/validate.py --fixtures, which schema-checks every provider file
+against provider.json
+        ↓
+  FAILS SCHEMA → PR blocked, nothing merges (rejected-unreviewed submission)
+        ↓ (schema passes)
+Human review + approval (branch protection) → PR merged to main
+        ↓
+scripts/build_catalog_index.py deterministically regenerates
+catalog-index.json (push-to-main/schedule only, sorted + pinned
+generated_at -- see test_catalog_is_byte_reproducible_for_fixed_provenance)
+and commits it back
+        ↓
+scripts/publish_catalog_index_to_r2.py publishes to R2 (same push-only job;
+the `validate`/pull_request job never holds these credentials)
+        ↓
+A project adopts the curated entry by copying the exact reviewed YAML into
+its own `_Providers/<id>.provider.yaml` drop-in override -- the same
+provider.json contract governs both locations (see table above). Cloud's
+Durable-Object write path (SBAI-8091, PR #1215,
+`packages/cloudflare-worker/worker/src/models/provider-yaml.ts`) enforces
+this identically server-side: `validateProviderYaml` performs the same
+schema check before a project's own store (`project_yaml_files`) accepts a
+write, gated by `canWriteProviderCatalog()` (OWNER/ADMIN or the
+`allow_member_provider_add` tenant policy) -- there is no path that skips
+schema validation in either repo.
+```
+
+`scripts/install_provider.py` proves this last mile inside the templates
+repo (no cloud/network access): `install_provider()` validates a source
+`*.provider.yaml` against `provider.json` and only then copies it into a
+project's `_Providers/` directory; `read_back_provider()` loads and
+re-validates it. A submission that fails validation is never written and
+therefore can never be read back -- see
+`scripts/tests/test_install_provider.py` and the paired
+`schemas/fixtures/valid_provider_marketplace_submission.json` /
+`invalid_provider_unreviewed_submission.json` fixtures (exercised generically
+by `scripts/validate.py --fixtures` via `check_fixtures()`'s
+`_provider_`-prefixed filename convention).
+
 ## Plugin settings schema (`settings_schema`)
 
 A plugin's `settings_schema` is a free-form object whose keys are setting

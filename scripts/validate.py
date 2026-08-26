@@ -1442,6 +1442,20 @@ def check_compat(core_version: str | None) -> list[str]:
 FIXTURES_DIR = SCHEMAS_DIR / "fixtures"
 
 
+def _fixture_schema_name(fixture_name: str) -> str:
+    """Pick the schema a fixture validates against from its filename.
+
+    ``valid_provider_*.json`` / ``invalid_provider_*.json`` -- curated
+    provider marketplace submissions (SBAI-8093), checked against
+    ``schemas/provider.json``. Every other fixture keeps the original
+    plugin.json behavior (``valid_v1_*``/``valid_v2_*``/etc, SBAI-4649) so
+    existing fixtures are unaffected.
+    """
+    if "_provider_" in fixture_name:
+        return "provider.json"
+    return "plugin.json"
+
+
 def check_fixtures() -> list[str]:
     """Validate fixture files against their schemas.
 
@@ -1450,6 +1464,8 @@ def check_fixtures() -> list[str]:
     - invalid_v2_*.json -- should fail validation (we confirm errors are raised)
     - valid_v1_*.json -- legacy v1 manifests that should pass
     - invalid_v1_*.json -- legacy v1 manifests that should fail
+    - valid_provider_*.json / invalid_provider_*.json -- curated provider
+      marketplace submissions (SBAI-8093), checked against provider.json
     """
     errors: list[str] = []
     if not FIXTURES_DIR.exists():
@@ -1466,8 +1482,7 @@ def check_fixtures() -> list[str]:
             errors.append(f"{fixture}: JSON parse error: {exc}")
             continue
 
-        # Determine which schema to use based on manifest structure
-        schema_name = "plugin.json" if "v1_" in fixture.name or "v2_" in fixture.name else "plugin.json"
+        schema_name = _fixture_schema_name(fixture.name)
         fixture_errors = _validate_instance(data, schema_name, str(fixture))
         if fixture_errors:
             errors.append(f"{fixture}: expected VALID but got errors:")
@@ -1482,7 +1497,7 @@ def check_fixtures() -> list[str]:
             errors.append(f"{fixture}: JSON parse error: {exc}")
             continue
 
-        schema_name = "plugin.json"
+        schema_name = _fixture_schema_name(fixture.name)
         fixture_errors = _validate_instance(data, schema_name, str(fixture))
         if not fixture_errors:
             errors.append(f"{fixture}: expected INVALID but passed validation (missing error detection)")
