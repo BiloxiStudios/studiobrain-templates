@@ -1,0 +1,60 @@
+name: Merge Hold Gate
+
+# SBAI-8392: security-hold (and other hard-hold labels) must be a fail-closed,
+# GitHub-enforced merge blocker, not an advisory signal that only some bash
+# scripts happen to check. This workflow posts a required status check that
+# fails whenever a hold label is present on the PR's current label set, and
+# re-runs on label add/remove so the check reflects the live label state, not
+# just the state at PR-open time. Register the "hold-label-gate" job as a
+# required status check in branch protection with enforce_admins enabled —
+# together those make this un-bypassable by any identity, including the
+# shared admin PAT every agent authenticates as.
+#
+# Incident: BiloxiStudios/studiobrain-app#1241 carried the security-hold
+# label plus two exact-head RETAIN verdicts and was still merged, because no
+# required check inspected labels at all. Do not weaken this workflow's
+# trigger types (labeled/unlabeled) or its required-context registration
+# without re-reading SBAI-8392.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, labeled, unlabeled, ready_for_review]
+
+concurrency:
+  group: merge-hold-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  hold-label-gate:
+    name: hold-label-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Fail closed if a hold label is present
+        env:
+          LABELS_JSON: ${{ toJson(github.event.pull_request.labels) }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, re, sys
+
+          labels = json.loads(os.environ["LABELS_JSON"])
+          names = [l["name"] for l in labels]
+          # Same pattern as nopark-sweep BLOCKED_LABELS / run-jira-agent.sh's
+          # hold-label regex (PIPELINE-RULES.md #11) — keep these in sync.
+          pattern = re.compile(r'^(security|security-hold|boss-review|blocked|waiting-human)$|-hold$', re.I)
+          hits = sorted(n for n in names if pattern.match(n))
+
+          if hits:
+              print(f"BLOCKED: hold label(s) present: {hits}")
+              print("This PR is held. Remove the hold label only after the "
+                    "reviewer who applied it explicitly clears it.")
+              sys.exit(1)
+
+          print(f"OK: no hold labels present (labels: {names})")
+          PY
