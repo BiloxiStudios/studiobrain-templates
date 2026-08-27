@@ -167,8 +167,8 @@ jobs:
             # push never blocks the R2 publish steps below, which read the
             # freshly regenerated file from this run's working tree, not from
             # the pushed commit. The committed copy on main will lag until
-            # this repo's bot commits move to a PR+automerge flow (SBAI-8553).
-            git push origin HEAD:main || echo "::warning::push to protected main rejected (branch protection) — catalog-index.json on main will lag until SBAI-8553; R2 publish below is unaffected"
+            # this repo's bot commits move to a PR+automerge flow (SBAI-8599).
+            git push origin HEAD:main || echo "::warning::push to protected main rejected (branch protection) — catalog-index.json on main will lag until SBAI-8599; R2 publish below is unaffected"
           fi
       - name: Publish catalog-index.json to R2
         env:
