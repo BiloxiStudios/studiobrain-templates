@@ -160,7 +160,15 @@ jobs:
             echo "Catalog index unchanged — this commit's deterministic index is already on main (idempotent rerun confirmed)."
           else
             git commit -m "SBAI-7611: regenerate catalog index [skip ci]"
-            git push origin HEAD:main
+            # SBAI-8394 gave main required-status-check + enforce_admins branch
+            # protection; this bot push is a direct commit (no PR), so it is
+            # now rejected (GH006). Fail-soft here — same pattern as this
+            # org's other repos' version-bump bot commits — so a rejected
+            # push never blocks the R2 publish steps below, which read the
+            # freshly regenerated file from this run's working tree, not from
+            # the pushed commit. The committed copy on main will lag until
+            # this repo's bot commits move to a PR+automerge flow (SBAI-8599).
+            git push origin HEAD:main || echo "::warning::push to protected main rejected (branch protection) — catalog-index.json on main will lag until SBAI-8599; R2 publish below is unaffected"
           fi
       - name: Publish catalog-index.json to R2
         env:

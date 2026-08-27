@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/recipe.json",
+  "title": "StudioBrain Gateway Recipe",
+  "description": "Product model recipe for a desktop/app gateway (SBAI-8406/SBAI-8550). Published to R2 and fetched at gateway bootstrap to inject recommended local_models, model_aliases, managed_services, and migrations without a binary release. NOT infrastructure config -- no ports/bind-addresses/auth belong in the binary, not here (host_port/container_port on managed_services are the Docker-pod's own port map, not the gateway's).",
+  "type": "object",
+  "required": ["version"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "enum": ["1"],
+      "description": "Recipe schema version. Bump and add a new enum value when the shape changes incompatibly."
+    },
+    "local_models": {
+      "type": "array",
+      "description": "Product GGUF/inference models injected on first run when no [local_models.*] exists in gateway.toml.",
+      "items": { "$ref": "#/$defs/local_model" }
+    },
+    "model_aliases": {
+      "type": "object",
+      "description": "Gateway alias -> local_models key. Injected alongside product models; never overwrites an existing user alias.",
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "managed_services": {
+      "type": "array",
+      "description": "Docker-backed services, on_demand, fail-soft if Docker is absent.",
+      "items": { "$ref": "#/$defs/managed_service" }
+    },
+    "migrations": {
+      "type": "array",
+      "description": "SB-owned local_models key renames applied on upgrade. Never touches a user-curated id that doesn't match 'from'.",
+      "items": { "$ref": "#/$defs/migration" }
+    }
+  },
+  "$defs": {
+    "local_model": {
+      "type": "object",
+      "required": ["key", "source", "type", "backend", "tier", "capabilities"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "description": "Stable local_models key, referenced by model_aliases and migrations."
+        },
+        "source": { "type": "string", "minLength": 1 },
+        "quant": { "type": "string" },
+        "gguf_path": { "type": "string" },
+        "type": { "type": "string", "enum": ["llm", "embedding"] },
+        "backend": { "type": "string", "minLength": 1 },
+        "tier": { "type": "string", "enum": ["always_on", "on_demand"] },
+        "vram_estimate_gb": { "type": "number", "minimum": 0 },
+        "ctx_size": { "type": "integer", "minimum": 1 },
+        "gpu_layers": { "type": "integer", "minimum": 0 },
+        "supports_vision": { "type": "boolean" },
+        "supports_tools": { "type": "boolean" },
+        "extra_args": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "requires_engine": { "type": "string" }
+      }
+    },
+    "managed_service": {
+      "type": "object",
+      "required": [
+        "key", "display_name", "service_type", "runtime", "docker_image",
+        "container_name", "host_port", "container_port", "adapter", "tier",
+        "capabilities"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "display_name": { "type": "string", "minLength": 1 },
+        "service_type": { "type": "string", "minLength": 1 },
+        "runtime": { "type": "string", "enum": ["docker"] },
+        "docker_image": { "type": "string", "minLength": 1 },
+        "container_name": { "type": "string", "minLength": 1 },
+        "host_port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "container_port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "adapter": { "type": "string", "minLength": 1 },
+        "tier": { "type": "string", "enum": ["always_on", "on_demand"] },
+        "idle_timeout": { "type": "string" },
+        "sleep_strategy": { "type": "string" },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "required": ["from", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "type": "string", "minLength": 1 },
+        "to": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string" }
+      }
+    }
+  }
+}
