@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "local_models": [
+    {
+      "key": "test-model",
+      "source": "acme/test-model-gguf",
+      "type": "llm",
+      "backend": "bundled/llama-server",
+      "tier": "sometimes",
+      "capabilities": ["text-generation"]
+    }
+  ]
+}

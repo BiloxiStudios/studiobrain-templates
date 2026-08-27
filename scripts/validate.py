@@ -43,6 +43,10 @@ Runs every CI-facing check from one place:
      ``size`` -- via ``scripts/verify_mirror_manifest.py``. No network, no
      bucket -- the staging-set and ``--verify-remote`` checks are separate,
      opt-in commands run outside CI.
+ 12. Validates ``recipes/*.recipe.yaml`` against ``schemas/recipe.json``
+     (SBAI-8550): local_models / model_aliases / managed_services / migrations
+     shape, plus referential checks that model_aliases values and migration
+     'to' targets name a local_models key declared in the same file.
 
 Intended for both local development and CI:
 
@@ -72,6 +76,7 @@ TEMPLATES_DIR = ROOT / "templates"
 PLUGINS_DIR = ROOT / "plugins"
 SKILLS_DIR = ROOT / "skills"
 TAXONOMIES_DIR = ROOT / "taxonomies"
+RECIPES_DIR = ROOT / "recipes"
 
 SEMVER_RE = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
@@ -241,6 +246,52 @@ def check_packs() -> list[str]:
             errors.append(f"{pack_file}: JSON parse error: {exc}")
             continue
         errors.extend(_validate_instance(data, "pack.json", str(pack_file)))
+    return errors
+
+
+def check_recipes() -> list[str]:
+    """Validate recipes/*.recipe.yaml against schemas/recipe.json (SBAI-8550).
+
+    Schema-shape validation plus two referential checks that jsonschema
+    can't express: model_aliases values and migration 'to' targets must
+    each name a local_models key declared in the SAME recipe file.
+    """
+    errors: list[str] = []
+    if not RECIPES_DIR.is_dir():
+        return errors
+    if not HAVE_YAML:
+        _info("NOTE: pyyaml not installed -- skipping recipe validation.")
+        return errors
+    for path in sorted(RECIPES_DIR.glob("*.recipe.yaml")) + sorted(RECIPES_DIR.glob("*.recipe.yml")):
+        try:
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as exc:
+            errors.append(f"{path}: YAML parse error: {exc}")
+            continue
+        if not isinstance(data, dict):
+            errors.append(f"{path}: top-level YAML is not a mapping")
+            continue
+        errors.extend(_validate_instance(data, "recipe.json", str(path)))
+        model_keys = {
+            str(row["key"])
+            for row in (data.get("local_models") or [])
+            if isinstance(row, dict) and row.get("key")
+        }
+        for alias, target in (data.get("model_aliases") or {}).items():
+            if str(target) not in model_keys:
+                errors.append(
+                    f"{path}: model_aliases[{alias!r}] references unknown local_models "
+                    f"key {target!r}"
+                )
+        for migration in data.get("migrations") or []:
+            if not isinstance(migration, dict):
+                continue
+            to_key = migration.get("to")
+            if to_key is not None and str(to_key) not in model_keys:
+                errors.append(
+                    f"{path}: migration from {migration.get('from')!r} targets unknown "
+                    f"local_models key {to_key!r}"
+                )
     return errors
 
 
@@ -1453,6 +1504,8 @@ def _fixture_schema_name(fixture_name: str) -> str:
     """
     if "_provider_" in fixture_name:
         return "provider.json"
+    if "_recipe_" in fixture_name:
+        return "recipe.json"
     return "plugin.json"
 
 
@@ -1582,6 +1635,9 @@ def main(argv: list[str] | None = None) -> int:
 
     _info("== Validating weights mirror manifest ==")
     all_errors.extend(check_mirror_manifest())
+
+    _info("== Validating gateway recipes ==")
+    all_errors.extend(check_recipes())
 
     if not args.no_entity_yaml:
         _info("== Validating entity markdown frontmatter ==")

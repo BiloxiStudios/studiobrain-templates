@@ -339,17 +339,20 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertEqual(
             defaults,
             {
-                "llm-chat": ["on-device/gemma-4-e2b-it-q4f16-webgpu"],
+                # SBAI-8406 (2026-08-26, owner witnessed): litert-web promoted to
+                # the llm-chat default; the ONNX q4f16-webgpu row is the fallback.
+                "llm-chat": ["on-device/gemma-4-e2b-it-litert-web"],
                 "asset-tagging": ["on-device/siglip2-base-256-vision-q4f16-webgpu"],
                 "asset-caption": ["on-device/florence-2-base-ft-fp16-webgpu"],
                 "stt": ["on-device/whisper-base-q4-webgpu"],
             },
         )
-        # SBAI-7844: the litert-lm rows are a SECOND engine, and every property
-        # that keeps them from silently becoming the default tier is pinned
-        # here. selectWeights ranks by min_ram_gb DESC then `default`, so a
-        # litert row that gained `default: true` -- or that was moved above the
-        # ONNX row it ties with -- would promote an engine no browser has run.
+        # SBAI-7844, revised by SBAI-8406 (2026-08-26, owner witnessed): the
+        # litert-lm rows are a SECOND engine. gemma-4-e2b-it-litert-web is now
+        # the witnessed, production llm-chat default (no `experimental` flag);
+        # gemma-4-e4b-it-litert-web remains the unwitnessed quality tier and
+        # must stay experimental with no `default` flag -- an engine no
+        # browser has benched must never silently become a default.
         litert = [r for r in data["weights"] if r.get("runtime") == "litert-lm"]
         self.assertEqual(
             [r["id"] for r in litert],
@@ -357,8 +360,14 @@ class ShippedCatalogTests(unittest.TestCase):
         )
         ids = [r["id"] for r in data["weights"]]
         for row in litert:
-            self.assertTrue(row["experimental"], f"{row['id']} must stay experimental")
-            self.assertNotIn("default", row, f"{row['id']} must not be a default tier")
+            if row["id"] == "on-device/gemma-4-e2b-it-litert-web":
+                self.assertNotIn(
+                    "experimental", row, f"{row['id']} is the witnessed default; must not be experimental"
+                )
+                self.assertTrue(row.get("default"), f"{row['id']} must be the llm-chat default")
+            else:
+                self.assertTrue(row["experimental"], f"{row['id']} must stay experimental")
+                self.assertNotIn("default", row, f"{row['id']} must not be a default tier")
             self.assertTrue(row["file"].endswith("-web.litertlm"), row["file"])
             self.assertEqual(row["device"], "webgpu", "litert-lm is WebGPU-only")
             self.assertEqual(row["modality"], ["text"], "the litert web build is text-only")

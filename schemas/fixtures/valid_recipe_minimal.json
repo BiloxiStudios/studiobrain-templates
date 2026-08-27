@@ -1,0 +1,38 @@
+{
+  "version": "1",
+  "local_models": [
+    {
+      "key": "test-model",
+      "source": "acme/test-model-gguf",
+      "type": "llm",
+      "backend": "bundled/llama-server",
+      "tier": "always_on",
+      "capabilities": ["text-generation"]
+    }
+  ],
+  "model_aliases": {
+    "default": "test-model"
+  },
+  "managed_services": [
+    {
+      "key": "test-service",
+      "display_name": "Test Service",
+      "service_type": "llm",
+      "runtime": "docker",
+      "docker_image": "ghcr.io/example/test:latest",
+      "container_name": "test-service",
+      "host_port": 9999,
+      "container_port": 9999,
+      "adapter": "openai",
+      "tier": "on_demand",
+      "capabilities": ["streaming"]
+    }
+  ],
+  "migrations": [
+    {
+      "from": "old-model",
+      "to": "test-model",
+      "reason": "renamed"
+    }
+  ]
+}
