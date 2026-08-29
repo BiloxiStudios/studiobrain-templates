@@ -629,14 +629,13 @@ weights:
   # so a row claiming 128k would let the orchestrator fill a window the runtime
   # cannot hold. The SDK clamps to 32768 regardless; this row states the truth.
   #
-  # tools: false -- and that is a decision, not a limitation of the runtime.
+  # tools: true -- WITNESSED 2026-08-26 (desktop-owner-test-2026-08-26, SBAI-8406).
   # The engine's tool support is real and STRUCTURED (preface.tools takes
   # OpenAI-shaped function declarations, enableConstrainedDecoding exists, and
-  # calls return as message.tool_calls), and the SDK implements it. It ships
-  # off because no browser has yet closed a tool loop on this engine, and "the
-  # type declarations say tool calls come back" is not the same claim as "the
-  # tool loop closes". Flip this to true in the same change that records the
-  # witness, never before.
+  # calls return as message.tool_calls), and the SDK implements it. The gate
+  # held until the owner closed a real tool loop on gemma-4-E2B-it-web.litertlm
+  # in the StudioBrain desktop on 2026-08-26. This flip + the matching witness
+  # in ondevice-gateway.ts (SBAI-8406-gemma4-litert-nav) are the witness record.
   #
   # approx_download_mb is the real byte size from the HF API, not an estimate:
   #     gemma-4-E2B-it-web.litertlm   2,008,432,640 B
@@ -669,7 +668,7 @@ weights:
     capability: llm-chat
     context_length: 32768
     max_output_tokens: 8192
-    tools: false
+    tools: true
     thinking: none
     modality: [text]
     default: true
@@ -677,6 +676,10 @@ weights:
   # min_ram_gb 16 mirrors the E4B ONNX row above: same model family, same
   # class of device. It ties with that row at every RAM tier and loses the
   # tiebreak to it, exactly as intended.
+  # SBAI-8406 (owner lock 2026-08-26): experimental removed, tools: true.
+  # Same engine family as E2B; tool calling is structural to LiteRT-LM, not
+  # model-specific. No separate E4B witness required — owner ruling supersedes
+  # the per-row witness gate for the quality tier of the same runtime.
   - id: on-device/gemma-4-e4b-it-litert-web
     source: huggingface://litert-community/gemma-4-E4B-it-litert-lm
     file: gemma-4-E4B-it-web.litertlm
@@ -697,7 +700,6 @@ weights:
     capability: llm-chat
     context_length: 32768
     max_output_tokens: 8192
-    tools: false
+    tools: true
     thinking: none
     modality: [text]
-    experimental: true
