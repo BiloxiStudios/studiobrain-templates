@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-26T22:53:25Z",
+  "generated_at": "2026-08-29T04:24:38Z",
   "entries": [
     {
       "id": "character-bio",
@@ -1445,7 +1445,7 @@
           "capability": "llm-chat",
           "context_length": 32768,
           "max_output_tokens": 8192,
-          "tools": false,
+          "tools": true,
           "thinking": "none",
           "modality": [
             "text"
@@ -1476,12 +1476,11 @@
           "capability": "llm-chat",
           "context_length": 32768,
           "max_output_tokens": 8192,
-          "tools": false,
+          "tools": true,
           "thinking": "none",
           "modality": [
             "text"
-          ],
-          "experimental": true
+          ]
         }
       ]
     },
