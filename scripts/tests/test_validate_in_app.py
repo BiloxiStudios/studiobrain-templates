@@ -347,12 +347,9 @@ class ShippedCatalogTests(unittest.TestCase):
                 "stt": ["on-device/whisper-base-q4-webgpu"],
             },
         )
-        # SBAI-7844, revised by SBAI-8406 (2026-08-26, owner witnessed): the
-        # litert-lm rows are a SECOND engine. gemma-4-e2b-it-litert-web is now
-        # the witnessed, production llm-chat default (no `experimental` flag);
-        # gemma-4-e4b-it-litert-web remains the unwitnessed quality tier and
-        # must stay experimental with no `default` flag -- an engine no
-        # browser has benched must never silently become a default.
+        # SBAI-7844 → SBAI-8406: the litert-lm rows were promoted by owner ruling
+        # (2026-08-26). E2B is the default; E4B is the quality tier.
+        # Both are non-experimental, tools-enabled, WebGPU-only, text-only.
         litert = [r for r in data["weights"] if r.get("runtime") == "litert-lm"]
         self.assertEqual(
             [r["id"] for r in litert],
@@ -360,19 +357,15 @@ class ShippedCatalogTests(unittest.TestCase):
         )
         ids = [r["id"] for r in data["weights"]]
         for row in litert:
-            if row["id"] == "on-device/gemma-4-e2b-it-litert-web":
-                self.assertNotIn(
-                    "experimental", row, f"{row['id']} is the witnessed default; must not be experimental"
-                )
-                self.assertTrue(row.get("default"), f"{row['id']} must be the llm-chat default")
-            else:
-                self.assertTrue(row["experimental"], f"{row['id']} must stay experimental")
-                self.assertNotIn("default", row, f"{row['id']} must not be a default tier")
+            self.assertNotIn(
+                "experimental", row,
+                f"{row['id']}: experimental removed (SBAI-8406 owner lock 2026-08-26)",
+            )
+            self.assertTrue(row["tools"], f"{row['id']}: tools: true (owner lock 2026-08-26)")
             self.assertTrue(row["file"].endswith("-web.litertlm"), row["file"])
             self.assertEqual(row["device"], "webgpu", "litert-lm is WebGPU-only")
             self.assertEqual(row["modality"], ["text"], "the litert web build is text-only")
             self.assertEqual(row["context_length"], 32768, "32k is the model's ceiling")
-            self.assertFalse(row["tools"], f"{row['id']}: tools stay off until witnessed")
         # Declared LAST, after every transformers.js row: the stable-sort
         # tiebreak is what keeps the ONNX tier ahead at equal min_ram_gb.
         self.assertEqual(ids[-2:], [r["id"] for r in litert])
@@ -556,14 +549,9 @@ class ShippedCatalogTests(unittest.TestCase):
             self.assertIn("max_output_tokens", row, rid)
             # Every chat row states its tool story explicitly -- the point of
             # this assertion is that no tier ships with the question unanswered.
-            # `True` for every ONNX tier; the litert-lm rows say False, and that
-            # is the honest answer rather than a missing one: the runtime's tool
-            # support is real and structured, but no browser has closed a tool
-            # loop on it yet, so the catalog does not claim one. When the
-            # SBAI-7844 witness lands, that row flips to True in the same
-            # change and this exemption goes away (SBAI-7729/7844).
-            expected_tools = row.get("runtime") != "litert-lm"
-            self.assertIs(row.get("tools"), expected_tools, rid)
+            # SBAI-8406 (owner lock 2026-08-26): both LiteRT rows are promoted to
+            # tools: true. All chat rows must now declare tools: True.
+            self.assertIs(row.get("tools"), True, rid)
             self.assertIn(row.get("thinking"), ("none", "optional", "always"), rid)
         # Gemma 4 is a 128k-context family; the Qwen fallback is not, and must
         # not inherit Gemma's window by copy-paste.
