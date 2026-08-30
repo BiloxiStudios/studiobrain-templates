@@ -15,11 +15,19 @@ name: Merge Hold Gate
 # required check inspected labels at all. Do not weaken this workflow's
 # trigger types (labeled/unlabeled) or its required-context registration
 # without re-reading SBAI-8392.
+#
+# SBAI-8710 (app-side port of core's SBAI-8585): also fail closed on
+# reviewDecision=CHANGES_REQUESTED. Chat / AgentComms "do not merge" is
+# still NOT a signal — apply a *-hold label. pull_request_review re-runs
+# this check when a reviewer submits, edits, or dismisses, so a
+# CHANGES_REQUESTED posted after the last push still blocks.
 
 on:
   pull_request:
     branches: [main]
     types: [opened, reopened, synchronize, labeled, unlabeled, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
 
 concurrency:
   group: merge-hold-gate-${{ github.event.pull_request.number }}
@@ -45,10 +53,38 @@ jobs:
 
           labels = json.loads(os.environ["LABELS_JSON"])
           names = [l["name"] for l in labels]
-          # Same pattern as nopark-sweep BLOCKED_LABELS / run-jira-agent.sh's
-          # hold-label regex (PIPELINE-RULES.md #11) — keep these in sync.
+          # SBAI-8709: re.search, NOT re.match. re.match anchors at position 0,
+          # so the `-hold$` alternative could only fire on a label literally
+          # BEGINNING with "-hold" - the suffix rule was dead code from the
+          # start. `security-hold` appeared to work only because it is spelled
+          # out in the alternation; `merge-hold` and `review-hold`, the labels
+          # actually in use, never blocked anything. Measured 2026-08-28: 8
+          # non-draft PRs across both repos held by labels that enforced nothing.
+          #
+          # The previous comment here claimed this is the same pattern as
+          # nopark-sweep BLOCKED_LABELS / run-jira-agent.sh, "keep these in
+          # sync". That was FALSE. nopark-sweep uses an exact SET intersection
+          # (no regex) whose membership differs from this list, and
+          # run-jira-agent.sh filters JIRA ticket labels via JQL - a different
+          # domain. A change here does NOT propagate to either. See SBAI-8709.
           pattern = re.compile(r'^(security|security-hold|boss-review|blocked|waiting-human)$|-hold$', re.I)
-          hits = sorted(n for n in names if pattern.match(n))
+          hits = sorted(n for n in names if pattern.search(n))
+
+          # SBAI-8709 self-test, run on EVERY invocation. A gate that silently
+          # stops matching is worse than no gate; this is what would have caught
+          # the re.match defect on the day it shipped.
+          _MUST_BLOCK = ["merge-hold", "review-hold", "desktop-hold", "on-hold",
+                         "security", "security-hold", "boss-review", "blocked",
+                         "waiting-human", "SECURITY", "Merge-Hold"]
+          _MUST_NOT_BLOCK = ["enhancement", "bug", "hold-over", "holder",
+                             "household", "unhold", "documentation"]
+          _bad = ([f"{l!r} must BLOCK but does not" for l in _MUST_BLOCK if not pattern.search(l)]
+                  + [f"{l!r} must NOT block but does" for l in _MUST_NOT_BLOCK if pattern.search(l)])
+          if _bad:
+              print("SELF-TEST FAILED - hold pattern not behaving as specified:")
+              for _b in _bad:
+                  print(f"  {_b}")
+              sys.exit(1)
 
           if hits:
               print(f"BLOCKED: hold label(s) present: {hits}")
@@ -58,3 +94,21 @@ jobs:
 
           print(f"OK: no hold labels present (labels: {names})")
           PY
+
+      - name: Fail closed if reviewDecision is CHANGES_REQUESTED
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          # GraphQL reviewDecision (REST pull payload does not carry it).
+          decision="$(gh pr view "$PR_NUMBER" --repo "$REPO" --json reviewDecision --jq '.reviewDecision // empty')"
+          if [ "$decision" = "CHANGES_REQUESTED" ]; then
+            echo "BLOCKED: reviewDecision=CHANGES_REQUESTED (SBAI-8710)"
+            echo "A GitHub CHANGES_REQUESTED review is a durable hold. Dismiss"
+            echo "or supersede it with an APPROVED review, or apply/remove a"
+            echo "*-hold label for chat-only holds (chat itself is not a gate)."
+            exit 1
+          fi
+          echo "OK: reviewDecision=${decision:-none}"
