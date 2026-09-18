@@ -107,6 +107,12 @@ jobs:
       - name: Prove PR-controlled workflow changes cannot reach publish secrets
         # Secret-free. Fails a PR that puts secrets.* on a pull_request-reachable job.
         run: python3 scripts/check_workflow_secret_isolation.py
+      - name: Exercise merge-hold gate regression suite
+        # SBAI-10758: replays the payload-snapshot and concurrency-cancel
+        # incidents against the real .github/workflows/merge-hold-gate.yml.
+        # Run explicitly: the dot-name is deliberate (script-style suite, same
+        # as core) and does not match the 'test_*.py' unittest discovery below.
+        run: python3 scripts/tests/merge-hold-gate.test.py
       - name: Run all scripts/tests unit tests
         # Broadened from a single-file pattern (test_publish_catalog_index_to_r2.py
         # only) so every regression suite under scripts/tests -- including
