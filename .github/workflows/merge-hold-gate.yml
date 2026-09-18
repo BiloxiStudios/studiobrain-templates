@@ -29,9 +29,45 @@ on:
   pull_request_review:
     types: [submitted, edited, dismissed]
 
-concurrency:
-  group: merge-hold-gate-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+# SBAI-10758 (port of core SBAI-10544 / cloud SBAI-10538): this workflow
+# deliberately declares NO concurrency group. Do not add one back -- a
+# cancelled required check strands the PR.
+#
+# This block used to be `group: merge-hold-gate-${{ github.event.pull_request.number }}`
+# with `cancel-in-progress: true`, i.e. scoped to the PR and nothing else. GitHub
+# fires several `pull_request` events for one PR at ONE head SHA, within the same
+# second, and it also delivers the same action twice. Every one of those runs
+# landed in that single group and cancelled its sibling. Measured on
+# studiobrain-cloud 2026-09-12 (this repo carried the identical block):
+#   * cloud PR #1854 (head 16a66c43): ONE timeline event -- `labeled:
+#     manual-merge` at 23:51:25Z -- produced TWO runs at 23:51:27Z
+#     (34659604093, 34659604221). The first was cancelled. The PR carries no
+#     hold label and reports mergeable=MERGEABLE, yet mergeStateStatus=BLOCKED
+#     to this day, because its check rollup holds a CANCELLED hold-label-gate
+#     context next to a LATER SUCCESS one. GitHub does NOT treat a newer
+#     successful sibling as superseding a cancelled context of the same name.
+#   * cloud PR #1858 (head 1a550bd): force-push + ready_for_review (07:36:11Z)
+#     and `unlabeled: review-hold` (07:36:12Z) produced THREE runs at that
+#     single SHA (34681164247/279/4409); two ended non-success with zero jobs
+#     and had to be re-run by hand (attempts 2 and 3) before the PR merged at
+#     08:22:32Z.
+#
+# Both incidents are duplicate or simultaneous events at the IDENTICAL head SHA,
+# so no group key computed from the event payload -- PR number, head SHA, action,
+# event name -- can separate them; scoping the group by head SHA does not fix
+# this, and `cancel-in-progress: false` only moves the cancellation to whichever
+# run is left pending. The only shape that never strands a required check is not
+# cancelling at all.
+#
+# Nothing is lost by letting a superseded run finish. The job is capped at one
+# minute and makes two read-only API calls, and its check run is bound to the SHA
+# it ran for -- a run still alive on an old SHA cannot gate the new head. Letting
+# every duplicate run also *strengthens* the live label read below: each one
+# re-reads the live label set, so if any of them observes the hold, the PR is
+# blocked.
+#
+# scripts/tests/merge-hold-gate.test.py replays both incident sequences and fails
+# if this file regains a concurrency shape that cancels the gate.
 
 permissions:
   contents: read
@@ -45,14 +81,41 @@ jobs:
     steps:
       - name: Fail closed if a hold label is present
         env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           LABELS_JSON: ${{ toJson(github.event.pull_request.labels) }}
         run: |
           set -euo pipefail
+          # SBAI-10758 (port of core/cloud SBAI-10314): evaluate the LIVE label
+          # set, not the event payload snapshot. A re-run of a workflow run
+          # re-delivers the ORIGINAL event payload. Lineage incident (SBAI-10758,
+          # filed on studiobrain-k8s-manifests, which carried this same file):
+          # PR #397 head 04d4bee0 -- the run that fired while `review-hold` was
+          # applied recorded a failed gate, and re-running that same run AFTER
+          # the label was removed (run 35391096875, attempt 2, 20:25:47Z)
+          # failed AGAIN, because the payload still carried the label; only the
+          # fresh unlabeled-event run (35391370826) went green.
+          # bin/lead-merge.sh -- whose premise is "every run reads LIVE labels
+          # (SBAI-10314)" -- exited 5 and the PR needed a manual merge.
+          # Reading labels live at run time makes every run, re-run or not,
+          # agree on the answer.
+          # SBAI-10331 (core) / SBAI-10332 (cloud): an unavailable live label
+          # set must block the gate; the event payload may be empty even while
+          # a hold is present.
+          if live="$(gh api "repos/${REPO}/issues/${PR_NUMBER}/labels" --jq '[.[] | {name: .name}]')"; then
+            export LABELS_JSON="$live"
+            export LABELS_SOURCE="live"
+          else
+            echo "BLOCKED: live label read failed; cannot verify hold labels (SBAI-10331)"
+            exit 1
+          fi
           python3 - <<'PY'
           import json, os, re, sys
 
           labels = json.loads(os.environ["LABELS_JSON"])
           names = [l["name"] for l in labels]
+          source = os.environ.get("LABELS_SOURCE", "payload")
           # SBAI-8709: re.search, NOT re.match. re.match anchors at position 0,
           # so the `-hold$` alternative could only fire on a label literally
           # BEGINNING with "-hold" - the suffix rule was dead code from the
@@ -87,12 +150,12 @@ jobs:
               sys.exit(1)
 
           if hits:
-              print(f"BLOCKED: hold label(s) present: {hits}")
+              print(f"BLOCKED: hold label(s) present: {hits} (source: {source})")
               print("This PR is held. Remove the hold label only after the "
                     "reviewer who applied it explicitly clears it.")
               sys.exit(1)
 
-          print(f"OK: no hold labels present (labels: {names})")
+          print(f"OK: no hold labels present (labels: {names}, source: {source})")
           PY
 
       - name: Fail closed if reviewDecision is CHANGES_REQUESTED
