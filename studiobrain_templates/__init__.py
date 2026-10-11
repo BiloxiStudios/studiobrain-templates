@@ -31,7 +31,10 @@ RULES_DIR: Path = _PKG_ROOT / "rules"
 """Path to the ``rules/`` tree."""
 
 PLUGINS_DIR: Path = _PKG_ROOT / "plugins"
-"""Deprecated empty path. Official plugins live in studiobrain-plugins (SBAI-7665)."""
+"""Intentionally absent. The dangling ``plugins -> ../plugins`` symlink was removed in SBAI-12438.
+
+Official plugins live in studiobrain-plugins (SBAI-7665). Do not recreate this path.
+"""
 
 SCHEMAS_DIR: Path = _PKG_ROOT / "schemas"
 """Path to the ``schemas/`` tree (JSON Schema for entity frontmatter validation,

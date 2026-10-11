@@ -6,6 +6,8 @@ This repo is **studiobrain-templates** — **data only**. Entity templates, docu
 
 This repo is **NOT a plugin home**. Do not add plugin source, WASM, Workers, or a plugin catalog here.
 
+`schemas/plugin.json` is a retired Python-manifest schema (SBAI-12438), not the plugin SDK. There is no `plugins/` tree in this repo. Do not recreate one.
+
 | Plugin / community home | Role |
 |---|---|
 | `BiloxiStudios/studiobrain-plugins` | Official / trusted-vendor / partner plugins. WIT guests + official Workers. Signed WASM. Private. |

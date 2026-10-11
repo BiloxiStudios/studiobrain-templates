@@ -1,8 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://studiobrain.biloxistudios.com/schemas/plugin.json",
-  "title": "StudioBrain Plugin Manifest Schema v2",
-  "description": "JSON Schema for plugin.json files under plugins/<plugin-id>/. Supports v1 (legacy capabilities-based) and v2 (explicit surfaces-based) manifest contracts. V2 introduces typed surfaces (page|panel|command|settings) with per-surface artifact paths, capabilities, permissions, and placement metadata.",
+  "title": "RETIRED StudioBrain Python Plugin Manifest Schema v2",
+  "deprecated": true,
+  "$comment": "RETIRED by SBAI-12438. Historical Python plugin manifest (in-process full/frontend-only plus protocol-adapter). Not the runtime plugin SDK. Do not add plugin source, WIT, or guest crates to studiobrain-templates. Official plugins live in studiobrain-plugins.",
+  "description": "RETIRED (SBAI-12438). Historical JSON Schema for plugin.json files that used to live under plugins/<plugin-id>/ in this repo. Those plugins were removed in SBAI-7665. This file is not the runtime plugin SDK and is not a place to add WIT or guest crates. Kept so historical v1/v2 fixtures still parse. Official plugins live in studiobrain-plugins. The old contract supports v1 capabilities and v2 surfaces (page|panel|command|settings), including type=full (in-process Python: backend routes + frontend), frontend-only, and protocol-adapter.",
   "type": "object",
   "required": ["id", "name", "version", "description", "type"],
   "properties": {
@@ -23,7 +25,7 @@
     "description": {"type": "string"},
     "type": {
       "type": "string",
-      "description": "Plugin variant. 'full' = in-process Python plugin (backend routes + frontend pages/panels); 'frontend-only' = no backend routes, just frontend surfaces (uses generic plugin_data_routes for storage); 'protocol-adapter' = WASM module implementing the protocol-adapter contract.",
+      "description": "RETIRED variant discriminator. Do not author new manifests of these types in studiobrain-templates. 'full' = in-process Python plugin (backend routes + frontend pages/panels); 'frontend-only' = no backend routes, just frontend surfaces (uses generic plugin_data_routes for storage); 'protocol-adapter' = WASM module implementing the protocol-adapter contract.",
       "enum": ["full", "frontend-only", "protocol-adapter"]
     },
     "manifest_version": {

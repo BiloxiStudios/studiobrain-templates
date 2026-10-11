@@ -296,6 +296,11 @@ def check_recipes() -> list[str]:
 
 
 def check_plugins() -> list[str]:
+    """Validate leftover plugin manifests if a plugins/ tree exists.
+
+    schemas/plugin.json is a retired Python-manifest schema (SBAI-12438).
+    This repo no longer ships plugins/. A missing directory is success.
+    """
     errors: list[str] = []
     if not PLUGINS_DIR.is_dir():
         return errors
