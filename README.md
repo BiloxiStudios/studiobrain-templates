@@ -53,9 +53,8 @@ Templates are consumed by StudioBrain's type generation system:
 
 | Repo | Description |
 |------|-------------|
-| [studiobrain-app](https://github.com/BiloxiStudios/studiobrain-app) | Web application |
-| [studiobrain-ai](https://github.com/BiloxiStudios/studiobrain-ai) | AI service |
-| [studiobrain-desktop](https://github.com/BiloxiStudios/studiobrain-desktop) | Desktop + mobile apps |
+| [studiobrain-core](https://github.com/BiloxiStudios/studiobrain-core) | Open-core web app and backend (Next.js + Rust/Axum) |
+| [studiobrain-cloud](https://github.com/BiloxiStudios/studiobrain-cloud) | Commercial monorepo: desktop and mobile clients (`clients/`), AI (`crates/ai/`) |
 
 
 ## License
