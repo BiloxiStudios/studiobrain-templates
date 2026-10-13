@@ -13,6 +13,8 @@ const ROOT = __dirname;
 
 const TEMPLATES_DIR = path.join(ROOT, "templates");
 const RULES_DIR = path.join(ROOT, "rules");
+// Intentionally absent. Repo-root plugins/ was removed in SBAI-7665.
+// Do not recreate it. Official plugins live in studiobrain-plugins.
 const PLUGINS_DIR = path.join(ROOT, "plugins");
 const SCHEMAS_DIR = path.join(ROOT, "schemas");
 const SKILLS_DIR = path.join(ROOT, "skills");
@@ -29,6 +31,7 @@ const SCHEMA_FILES = Object.freeze({
   compat: "_compat.json",
   layout: "layout.json",
   pack: "pack.json",
+  // RETIRED Python manifest schema (SBAI-12438). Not the runtime plugin SDK.
   plugin: "plugin.json",
   skill: "skill.yaml.json",
   taxonomy: "taxonomy.json",

@@ -6,7 +6,7 @@ export type SchemaName =
   | "compat"
   | "layout"
   | "pack"
-  | "plugin"
+  | "plugin" // RETIRED Python manifest schema (SBAI-12438). Not the plugin SDK.
   | "skill"
   | "taxonomy"
   | "character"
@@ -43,6 +43,7 @@ export interface JsonSchema {
 export const ROOT: string;
 export const TEMPLATES_DIR: string;
 export const RULES_DIR: string;
+/** Intentionally absent path. Official plugins are not in this package (SBAI-7665, SBAI-12438). */
 export const PLUGINS_DIR: string;
 export const SCHEMAS_DIR: string;
 export const SKILLS_DIR: string;

@@ -1,10 +1,10 @@
 ---
 title: "StudioBrain JSON Schemas"
-description: "JSON Schema definitions for entity frontmatter, layouts, template packs, plugins, skills, and shared compat metadata."
+description: "JSON Schema definitions for entity frontmatter, layouts, template packs, skills, and shared compat metadata. plugin.json is a retired Python manifest schema (SBAI-12438), not the plugin SDK."
 category: "schemas"
 version: "2.0"
 created_date: "2026-04-01"
-last_updated: "2026-08-23"
+last_updated: "2026-10-11"
 ---
 
 # StudioBrain JSON Schemas
@@ -24,7 +24,7 @@ will load in StudioBrain.
 | `_compat.json` | Shared compat metadata object (semver core version requirements) | Referenced by every asset-level schema below |
 | `layout.json` | `templates/Layouts/*.layout.json` — UI layout files | frontend entity editor |
 | `pack.json` | `templates/Packs/<id>/pack.json` — template pack manifests | pack installer, marketplace |
-| `plugin.json` | `plugins/<id>/plugin.json` — plugin manifests (full / frontend-only / protocol-adapter variants) | plugin loader |
+| `plugin.json` | RETIRED (SBAI-12438). Historical Python plugin manifests (`full` / `frontend-only` / `protocol-adapter`). Not the plugin SDK. Do not add plugins here. | fixture tests only |
 | `skill.yaml.json` | `skills/Standard/*.yaml` and `skills/User/*.yaml` — AI skill frontmatter (parsed YAML mapping) | skill picker |
 | `taxonomy.json` | `taxonomies/*.yaml` — controlled vocabularies (axes of prompt-bearing terms) with a `content_hash` stamp | on-device zero-shot tagger (SBAI-7726), server tag normalisation |
 | `_engine.json` | Shared engine/framework declaration (MM v2 taxonomy) | `$ref`'d by `provider.json` and `platform.json` |
@@ -105,10 +105,18 @@ Strict mode (validator default) treats absence as an error. CI runs in
 migration mode (`--allow-missing-compat`) until SBAI-4649 backfills every
 existing asset.
 
+## Plugin manifest schema — RETIRED (SBAI-12438)
+
+`schemas/plugin.json` is a retired historical contract for the in-process
+Python plugins that used to live under `plugins/`. Those trees were removed
+in SBAI-7665. This repo is data-only. Official plugins live in
+`studiobrain-plugins`. Do not author new manifests against this schema, and
+do not add plugin source, WIT, or guest crates here. The notes below record
+the old v1/v2 shape so the fixture suite still makes sense.
+
 ## Plugin variants (`type` discriminator)
 
-StudioBrain plugins come in three flavors, distinguished by the top-level
-`type` field:
+The retired schema distinguished three flavors by the top-level `type` field:
 
 | `type` | What it is | Required keys |
 |---|---|---|
@@ -408,6 +416,8 @@ by `scripts/validate.py --fixtures` via `check_fixtures()`'s
 
 ## Plugin settings schema (`settings_schema`)
 
+Retired with `plugin.json` (SBAI-12438). This describes the old manifest field only.
+
 A plugin's `settings_schema` is a free-form object whose keys are setting
 ids and values describe the field. Allowed `type` values:
 
@@ -471,11 +481,11 @@ ids and values describe the field. Allowed `type` values:
 | `biome.json` | Biome entity schema |
 | `layout.json` | UI layout contract (templates/Layouts/*.layout.json) |
 | `pack.json` | Template pack contract (templates/Packs/<id>/pack.json) |
-| `plugin.json` | Plugin manifest contract (full / frontend-only / protocol-adapter; v1 and v2) |
+| `plugin.json` | RETIRED Python manifest contract (SBAI-12438). Historical only; not the plugin SDK. |
 | `skill.yaml.json` | AI skill frontmatter contract (skills/*.yaml) |
 | `taxonomy.json` | Controlled-vocabulary contract (taxonomies/*.yaml) |
 | `_engine.json` | Shared engine/framework fragment (MM v2 taxonomy_category) |
 | `_limits.json` | Shared execution-limits fragment |
 | `provider.json` | Provider catalog contract (`*.provider.yaml`) |
 | `platform.json` | Per-surface platform contract (`*.platform.yaml` / `platform.yaml`) |
-| `fixtures/` | Test fixtures for plugin.json v2 schema validation (valid/invalid v1 and v2 manifests) |
+| `fixtures/` | Historical plugin.json fixtures plus provider/recipe fixtures. Plugin fixtures test the retired schema only. |

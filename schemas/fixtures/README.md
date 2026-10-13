@@ -1,6 +1,8 @@
 # Plugin Manifest Fixtures
 
-Test fixtures for validating the plugin.json v2 schema and backwards-compatibility with v1 manifests.
+Historical fixtures for the **retired** `schemas/plugin.json` contract (SBAI-12438).
+
+These files keep the old v1/v2 Python plugin manifest shape honest so CI can prove the retired schema still parses. They are not a template for new plugins. Official plugins live in `studiobrain-plugins`. Do not add plugin source, WIT, or guest crates to this repo.
 
 ## Fixture Types
 
@@ -60,13 +62,13 @@ The v2 manifest introduces:
 
 5. **Backwards compatibility** - V1 manifests with `manifest_version: 1` (or omitting the field) continue to validate against the legacy `capabilities`-based schema.
 
-## Migration Path
+## Historical migration path (retired)
 
-Authors with existing v1 manifests can:
+This path is historical. Do not add new plugin manifests to this repo.
 
-1. **Continue using v1** - Legacy manifests remain valid indefinitely with `manifest_version: 1` (implicit or explicit).
+1. **Old v1 documents still parse** - `manifest_version: 1` (implicit or explicit) still validates against the retired schema. That is not permission to add plugins here.
 
-2. **Migrate to v2** - Convert `capabilities.frontend.pages/panels` into the `surfaces` array:
+2. **How old v1 documents were reshaped into v2** - Convert `capabilities.frontend.pages/panels` into the `surfaces` array:
    - V1 `pages[]` → V2 `surfaces[]` with `type: "page"`
    - V1 `panels[]` → V2 `surfaces[]` with `type: "panel"`
    - Add new surface types: `command`, `settings`, `widget`
