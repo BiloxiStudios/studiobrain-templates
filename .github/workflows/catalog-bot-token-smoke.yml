@@ -1,0 +1,171 @@
+# SBAI-8846: acceptance-evidence workflow. Proves that the catalog-bot
+# GitHub App token (see docs/ci/catalog-pr-automation-token.md) can open a
+# PR that triggers the required `hold-label-gate` status check — the
+# specific chain that GITHUB_TOKEN suppresses and that SBAI-8599's auto-
+# merge flow depends on.
+#
+# Safe to land BEFORE the App is provisioned: this workflow is
+# workflow_dispatch-only (never pull_request), and it exits with a clear
+# skip message when CATALOG_BOT_APP_ID / CATALOG_BOT_PRIVATE_KEY are
+# absent, so a dispatch against a fresh repo without the secrets does not
+# hard-fail.
+
+name: Catalog bot token smoke
+
+on:
+  workflow_dispatch: {}
+
+# Never touch main. Every step operates on a throwaway bot branch and closes
+# the PR without merging — this workflow's acceptance is "the required
+# check fired on the PR", not "the PR merged".
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-bot-token-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    environment: plugins-publish
+    timeout-minutes: 10
+    steps:
+      - name: Skip cleanly if App secrets are not provisioned yet
+        id: precheck
+        env:
+          APP_ID_PRESENT: ${{ secrets.CATALOG_BOT_APP_ID != '' }}
+          PRIVATE_KEY_PRESENT: ${{ secrets.CATALOG_BOT_PRIVATE_KEY != '' }}
+        run: |
+          set -euo pipefail
+          if [[ "$APP_ID_PRESENT" != "true" || "$PRIVATE_KEY_PRESENT" != "true" ]]; then
+            echo "::warning::CATALOG_BOT_APP_ID / CATALOG_BOT_PRIVATE_KEY are not set on the plugins-publish environment."
+            echo "::warning::Follow docs/ci/catalog-pr-automation-token.md to provision the app, then re-run this workflow."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Mint an installation token from the App credentials
+        if: steps.precheck.outputs.should_run == 'true'
+        id: app_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.CATALOG_BOT_APP_ID }}
+          private-key: ${{ secrets.CATALOG_BOT_PRIVATE_KEY }}
+
+      - name: Confirm the token identifies as the App, not GITHUB_TOKEN
+        if: steps.precheck.outputs.should_run == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        run: |
+          set -euo pipefail
+          who="$(gh api /user --jq '.login')"
+          echo "Token identifies as: $who"
+          case "$who" in
+            *"[bot]") ;;
+            *) echo "::error::Expected a *[bot] login (app installation); got '$who'."; exit 1 ;;
+          esac
+
+      - name: Check out repo with the App token so the smoke branch pushes as the App
+        if: steps.precheck.outputs.should_run == 'true'
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+          fetch-depth: 0
+
+      - name: Open a smoke PR from a throwaway bot branch
+        if: steps.precheck.outputs.should_run == 'true'
+        id: open_pr
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        run: |
+          set -euo pipefail
+          # A short-lived branch name that includes the run id so parallel dispatches don't collide.
+          branch="bot/catalog-token-smoke-${GITHUB_RUN_ID}"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+          git config user.name "studiobrain-templates-catalog-bot[bot]"
+          git config user.email "studiobrain-templates-catalog-bot[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+
+          # No-op content change against a dedicated file that lives outside
+          # any validated tree — avoids tripping schema / catalog CI while
+          # still producing a real diff so GitHub creates the PR.
+          mkdir -p .github/smoke
+          printf 'run_id=%s\ntimestamp=%s\n' "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > .github/smoke/catalog-bot-token-smoke.txt
+          git add .github/smoke/catalog-bot-token-smoke.txt
+          git commit -m "SBAI-8846: catalog-bot token smoke (run $GITHUB_RUN_ID) [skip ci]"
+          git push origin "$branch"
+
+          pr_url="$(gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "SBAI-8846: catalog-bot token smoke (run $GITHUB_RUN_ID)" \
+            --body $'Automated smoke test for SBAI-8846. This PR must NOT be merged; it exists only to prove that an App-token-created PR triggers the required `hold-label-gate` status check. The workflow closes and deletes this PR automatically.')"
+          echo "pr_url=$pr_url" >> "$GITHUB_OUTPUT"
+          pr_number="${pr_url##*/}"
+          echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
+          echo "Opened smoke PR #$pr_number: $pr_url"
+
+      - name: Wait for hold-label-gate to report on the smoke PR
+        if: steps.precheck.outputs.should_run == 'true'
+        id: wait_check
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          PR_NUMBER: ${{ steps.open_pr.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          # 18 x 10s = 3 min. hold-label-gate has a 1-minute timeout and
+          # queues in seconds under normal load; 3 minutes is generous.
+          deadline=$((SECONDS + 180))
+          state=""
+          while (( SECONDS < deadline )); do
+            head_sha="$(gh pr view "$PR_NUMBER" --json headRefOid --jq '.headRefOid')"
+            state="$(gh api "/repos/${GITHUB_REPOSITORY}/commits/${head_sha}/check-runs" \
+              --jq '.check_runs[] | select(.name == "hold-label-gate") | .conclusion // "in_progress"' \
+              | head -n 1 || true)"
+            if [[ -n "$state" ]]; then
+              echo "hold-label-gate reported: $state"
+              echo "check_state=$state" >> "$GITHUB_OUTPUT"
+              # For SBAI-8846 acceptance the only thing that matters is that
+              # the check *fired* on this token-created PR. success/failure
+              # of the gate itself is orthogonal (this PR has no hold labels
+              # so it should be success, but we don't require it).
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::hold-label-gate never reported on the smoke PR within 3 minutes."
+          echo "::error::That means the token is behaving like GITHUB_TOKEN — required workflows were suppressed on PR-open."
+          echo "::error::Re-check that CATALOG_BOT_APP_ID / CATALOG_BOT_PRIVATE_KEY point at an app installation with pull-requests:write."
+          echo "check_state=timeout" >> "$GITHUB_OUTPUT"
+          exit 1
+
+      - name: Close the smoke PR and delete the branch (always)
+        if: steps.precheck.outputs.should_run == 'true' && always() && steps.open_pr.outputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          PR_NUMBER: ${{ steps.open_pr.outputs.pr_number }}
+          BRANCH: ${{ steps.open_pr.outputs.branch }}
+        run: |
+          set -euo pipefail
+          gh pr close "$PR_NUMBER" --comment "SBAI-8846 smoke complete — closing without merge (evidence only)." --delete-branch || true
+
+      - name: Record acceptance-evidence summary
+        if: steps.precheck.outputs.should_run == 'true'
+        env:
+          PR_URL: ${{ steps.open_pr.outputs.pr_url }}
+          CHECK_STATE: ${{ steps.wait_check.outputs.check_state }}
+        run: |
+          {
+            echo "## SBAI-8846 acceptance evidence"
+            echo ""
+            echo "- Smoke PR: ${PR_URL}"
+            echo "- \`hold-label-gate\` on that PR reported: **${CHECK_STATE}**"
+            echo ""
+            echo "A non-empty conclusion above proves that a PR opened by the"
+            echo "catalog-bot App token triggers required PR workflows, which"
+            echo "unblocks SBAI-8599's auto-merge flow."
+          } >> "$GITHUB_STEP_SUMMARY"
