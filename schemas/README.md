@@ -4,23 +4,24 @@ description: "JSON Schema definitions for entity frontmatter, layouts, template 
 category: "schemas"
 version: "2.0"
 created_date: "2026-04-01"
-last_updated: "2026-10-11"
+last_updated: "2026-10-14"
 ---
 
 # StudioBrain JSON Schemas
 
 JSON Schema (Draft 2020-12) definitions for every StudioBrain asset type that
-has a structured shape. These schemas are the **single source of truth** for
-what constitutes valid frontmatter / manifest content. Third-party authors
-should treat them as a contract: anything that validates against the schema
-will load in StudioBrain.
+has a structured shape. These schemas are the pack-authoring contract for
+frontmatter and manifest content. `scripts/validate.py` enforces them in CI
+and at install time. They are not the runtime entity-instance schema:
+studiobrain-core derives that from the template when the template is saved
+or installed (see [Adding a new entity type](#adding-a-new-entity-type)).
 
 ## Schema family overview
 
 | File | Validates | Used by |
 |---|---|---|
-| `_base.json` | Shared YAML frontmatter fields required by every entity | entity-validator plugin, backend write paths |
-| `<entity_type>.json` | YAML frontmatter for a single entity type (character, location, item, faction, brand, district, job, quest, event, campaign, assembly, dialogue, timeline, universe, style_bible, biome) | entity-validator plugin |
+| `_base.json` | Shared YAML frontmatter fields required by every entity | `scripts/validate.py` (pack CI). Runtime entity writes use the schema derived in studiobrain-core, not a plugin. |
+| `<entity_type>.json` | YAML frontmatter for a single entity type (character, location, item, faction, brand, district, job, quest, event, campaign, assembly, dialogue, timeline, universe, style_bible, biome) | `scripts/validate.py` (pack CI), loaded as `schemas/<entity_type>.json`. Runtime writes use core derivation; see "Adding a new entity type". |
 | `_compat.json` | Shared compat metadata object (semver core version requirements) | Referenced by every asset-level schema below |
 | `layout.json` | `templates/Layouts/*.layout.json` — UI layout files | frontend entity editor |
 | `pack.json` | `templates/Packs/<id>/pack.json` — template pack manifests | pack installer, marketplace |
@@ -43,17 +44,21 @@ cross-checks it against the taxonomy in code instead. Regenerate with
 ## How schemas are used
 
 ```
-Import / Upload / Edit / Install
+Pack check / install-time check in this repo
         ↓
 scripts/validate.py (CI + install-time)
         ↓ loads schemas/<name>.json via $ref-aware registry
 validate parsed instance against JSON Schema
         ↓
-  VALID → store / install asset        INVALID → reject with field errors
+  VALID → accept the pack asset        INVALID → reject with field errors
 ```
 
+That diagram is only the pack-authoring check. Saving an entity instance in
+StudioBrain does not read these JSON files. Core derives `schema_json` from
+the template and validates the write with `sb_core::entity_validator`.
+
 The validator (`scripts/validate.py`) is the canonical entry point for both
-local development and CI. It accepts several flags:
+local development and CI of this repo. It accepts several flags:
 
 | Flag | Purpose |
 |---|---|
@@ -439,8 +444,17 @@ ids and values describe the field. Allowed `type` values:
 1. Add a new `<entity_type>.json` file in this directory following the same
    `allOf` + `$ref` pattern as `character.json`.
 2. Add the `entity_type` to the `enum` in `_base.json`.
-3. Add the new entity type to the `ENTITY_SCHEMAS` map in
-   `plugins/entity-validator/backend/routes.py`.
+3. Do not register the type in a plugin. `plugins/entity-validator/backend/routes.py`
+   and its `ENTITY_SCHEMAS` map were deleted with the in-process Python plugin
+   tree (SBAI-7665). This repo has no `plugins/` directory. Do not recreate one.
+
+   Nothing in core needs a hand-written type map either. Pack CI loads
+   `schemas/<entity_type>.json` by filename (`scripts/validate.py`). At runtime,
+   studiobrain-core derives `entity_templates.schema_json` from the installed
+   template (`sb_core::entity_schema::template_to_schema_json` in
+   `crates/sb-core/src/entity_schema.rs`) when that template is saved or
+   installed, and `sb_core::entity_validator` checks entity writes against the
+   derived schema. A type with no derived schema stays free-form.
 4. Add the corresponding template in `templates/Standard/` and rules file in
    `rules/`.
 5. If the entity needs a UI layout, add `templates/Layouts/<entity_type>.layout.json`
