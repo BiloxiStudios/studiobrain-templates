@@ -52,7 +52,14 @@ views:
     badges: [tree_type, status]
     card_fields: [primary_speaker, estimated_duration, node_count]
   table:
-    columns: [name, tree_type, primary_speaker, branching_complexity, node_count, status, updated]
+    columns:
+      - {key: name}
+      - {key: tree_type}
+      - {key: primary_speaker}
+      - {key: branching_complexity}
+      - {key: node_count}
+      - {key: status}
+      - {key: updated}
   sort: {default: name, options: [name, node_count, updated]}
   facets: [tree_type, branching_complexity, status]
 

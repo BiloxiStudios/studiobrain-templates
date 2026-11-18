@@ -48,19 +48,18 @@ views:
     image: primary_image
     subtitle: tagline
     badges: [rarity, item_type]
-    card_fields: [category, value, weight]
+    card_fields: [value, weight, storage_type]
   gallery: {aspect: square}
   table:
     columns:
       - {key: primary_image, display: thumbnail, width: 64}
-      - name
-      - item_type
+      - {key: name}
+      - {key: item_type}
       - {key: rarity, display: chips}
-      - category
-      - value
-      - updated
+      - {key: value}
+      - {key: updated}
   sort: {default: name, options: [name, rarity, value, updated]}
-  facets: [rarity, item_type, category, status]
+  facets: [rarity, item_type, status]
 
 status: "active"  # active, deprecated, prototype, archived, draft
 

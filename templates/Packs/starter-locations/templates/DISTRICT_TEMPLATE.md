@@ -19,7 +19,13 @@ views:
     badges: [district_type, current_status]
     card_fields: [population_count, governing_faction, crime_rate]
   table:
-    columns: [name, district_type, population_count, crime_rate, current_status, updated]
+    columns:
+      - {key: name}
+      - {key: district_type}
+      - {key: population_count}
+      - {key: crime_rate}
+      - {key: current_status}
+      - {key: updated}
   sort: {default: name, options: [name, population_count, updated]}
   facets: [district_type, current_status, crime_rate, status]
 

@@ -70,7 +70,13 @@ views:
     badges: [faction_type, influence_level]
     card_fields: [member_count, headquarters, ideology]
   table:
-    columns: [name, faction_type, influence_level, member_count, status, updated]
+    columns:
+      - {key: name}
+      - {key: faction_type}
+      - {key: influence_level}
+      - {key: member_count}
+      - {key: status}
+      - {key: updated}
   sort: {default: name, options: [name, member_count, updated]}
   facets: [faction_type, influence_level, status]
 

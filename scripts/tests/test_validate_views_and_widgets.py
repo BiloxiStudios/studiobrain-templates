@@ -43,7 +43,8 @@ views:
   roles: {image: photo, badges: [class, status], card_fields: [top_speed]}
   board: {group_by: status}
   calendar: {date_field: first_seen}
-  sort: {default: "-updated", options: [name, top_speed]}
+  table: {columns: [{key: name}, {key: top_speed, display: unit}, {key: updated}]}
+  sort: {default: updated, options: [name, top_speed]}
   facets: [class, features]
 name: "Vehicle Display Name"
 photo: ""
@@ -152,19 +153,30 @@ class ViewsSemanticsTests(unittest.TestCase):
     def test_unknown_field_references_are_flagged(self) -> None:
         views = {
             "roles": {"image": "portrait", "badges": ["faction"]},
-            "table": {"columns": ["name", {"key": "rarity"}, "updated"]},
+            "table": {"columns": [{"key": "name"}, {"key": "rarity"}, {"key": "updated"}]},
             "board": {"group_by": "stage"},
-            "sort": {"default": "-power"},
+            "sort": {"default": "power"},
             "facets": ["faction"],
         }
         errs = validate.check_views_semantics(views, {"name", "faction"}, "x", REGISTRY)
         flagged = sorted(e.split("names unknown field ")[1] for e in errs)
         self.assertEqual(flagged, ["'portrait'", "'power'", "'rarity'", "'stage'"])
 
-    def test_pseudo_keys_and_dotted_paths_are_known(self) -> None:
-        views = {"table": {"columns": ["updated", "created", "colors.primary"]},
-                 "sort": {"default": "-updated"}}
-        self.assertEqual(validate.check_views_semantics(views, {"colors"}, "x", REGISTRY), [])
+    def test_updated_is_virtual_and_meta_keys_are_not_fields(self) -> None:
+        views = {"table": {"columns": [{"key": "updated"}]}, "sort": {"default": "updated"}}
+        self.assertEqual(validate.check_views_semantics(views, set(), "x", REGISTRY), [])
+        # `category` and `version` are template metadata in core, never fields,
+        # so a view naming them would be silently dropped at runtime.
+        views = {"roles": {"card_fields": ["category"]}, "facets": ["version"]}
+        errs = validate.check_views_semantics(views, {"category", "version"}, "x", REGISTRY)
+        self.assertEqual(len(errs), 2, errs)
+
+    def test_view_shapes_core_reads(self) -> None:
+        # Core's resolver reads object columns and a plain sort key only.
+        for bad in ({"table": {"columns": ["name"]}},
+                    {"sort": {"default": "-updated"}},
+                    {"roles": {"title": "colors.primary"}}):
+            self.assertTrue(validate._validate_instance(bad, "views.json", "x"), bad)
 
     def test_cloud_and_plugin_views_are_registered_ids(self) -> None:
         views = {"default": "map", "enabled": ["map", "timeline", "cards", "plugin:x:y"]}

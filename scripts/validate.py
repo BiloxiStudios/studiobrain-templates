@@ -229,14 +229,6 @@ def _validate_instance(instance: Any, schema_name: str, label: str) -> list[str]
 
 WIDGET_IDS_FILE = SCHEMAS_DIR / "registry" / "widget-ids.json"
 
-# Keys a views block may name that are not template fields: the entity
-# timestamps and the identity/meta keys every entity carries.
-VIEW_PSEUDO_KEYS = frozenset({
-    "updated", "created", "last_updated", "created_date", "name", "id",
-    "primary_image", "entity_type", "status", "tags",
-})
-
-
 def load_widget_registry(path: pathlib.Path = WIDGET_IDS_FILE) -> dict[str, Any]:
     """Load the checked-in export of core's registered widget/block/view ids."""
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -250,6 +242,11 @@ def load_widget_registry(path: pathlib.Path = WIDGET_IDS_FILE) -> dict[str, Any]
         "views": frozenset(
             v for group in (data.get("views") or {}).values() for v in group
         ),
+        # Template keys core never derives as fields (a view cannot show them)
+        # and the virtual keys a view may name although no template declares
+        # them (``updated`` = the entity's last-modified time).
+        "meta_keys": frozenset(data.get("frontmatter_meta_keys") or []),
+        "virtual_keys": frozenset(data.get("view_virtual_keys") or []),
     }
 
 
@@ -308,11 +305,7 @@ def _views_field_refs(views: dict[str, Any]) -> list[tuple[str, str]]:
     add("calendar.date_field", calendar.get("date_field"))
     add("calendar.end_field", calendar.get("end_field"))
     sort = views.get("sort") if isinstance(views.get("sort"), dict) else {}
-    default_sort = sort.get("default")
-    if isinstance(default_sort, dict):
-        add("sort.default.key", default_sort.get("key"))
-    elif isinstance(default_sort, str):
-        add("sort.default", default_sort.lstrip("-"))
+    add("sort.default", sort.get("default"))
     for i, key in enumerate(sort.get("options") or []):
         add(f"sort.options[{i}]", key)
     for i, key in enumerate(views.get("facets") or []):
@@ -326,8 +319,9 @@ def check_views_semantics(
     """Cross-checks JSON Schema cannot express (spec section 3/4).
 
     - ``default`` must be one of ``enabled`` when both are given.
-    - Every field a view names must exist in the template (or layout), apart
-      from the entity timestamps / identity keys in VIEW_PSEUDO_KEYS.
+    - Every field a view names must be a template (or layout) field that core
+      derives -- not a frontmatter meta key such as ``category`` -- or a
+      virtual key (``updated``). Core silently drops any other reference.
     - View ids must be registered (core or cloud) or ``plugin:*``.
     """
     if not isinstance(views, dict):
@@ -342,9 +336,9 @@ def check_views_semantics(
     ):
         if isinstance(kind, str) and not kind.startswith("plugin:") and kind not in registry["views"]:
             errors.append(f"{label}: view {kind!r} is not a registered view id")
-    known = set(known_keys) | VIEW_PSEUDO_KEYS
+    known = (set(known_keys) - registry["meta_keys"]) | registry["virtual_keys"]
     for path, key in _views_field_refs(views):
-        if key.split(".", 1)[0] not in known:
+        if key not in known:
             errors.append(f"{label}: views.{path} names unknown field {key!r}")
     return errors
 
@@ -394,8 +388,9 @@ def template_errors(fm: dict[str, Any], label: str, registry: dict[str, Any]) ->
     for views_key in ("views", "list_layout"):
         if views_key in fm:
             errors.extend(check_views_semantics(fm[views_key], known, f"{label} [{views_key}]", registry))
+    known_fields = (known - registry["meta_keys"]) | registry["virtual_keys"]
     for i, key in enumerate(fm.get("grid_fields") or []):
-        if isinstance(key, str) and key.split(".", 1)[0] not in known | VIEW_PSEUDO_KEYS:
+        if isinstance(key, str) and key not in known_fields:
             errors.append(f"{label}: grid_fields[{i}] names unknown field {key!r}")
     return errors
 

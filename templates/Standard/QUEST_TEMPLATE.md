@@ -60,11 +60,15 @@ views:
     image: primary_image
     badges: [quest_type, priority_level]
     card_fields: [quest_giver, estimated_time, required_level]
-  board:
-    group_by: status
-    columns: [draft, active, archived]
+  board: {group_by: status}
   table:
-    columns: [name, quest_type, priority_level, status, required_level, updated]
+    columns:
+      - {key: name}
+      - {key: quest_type}
+      - {key: priority_level}
+      - {key: status}
+      - {key: required_level}
+      - {key: updated}
   sort: {default: name, options: [name, required_level, updated]}
   facets: [status, quest_type, priority_level, quest_category]
 

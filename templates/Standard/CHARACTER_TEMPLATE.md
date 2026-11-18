@@ -150,7 +150,13 @@ views:
     card_fields: [species, age, primary_location]
   gallery: {aspect: portrait}
   table:
-    columns: [name, faction, species, age, status, updated]
+    columns:
+      - {key: name}
+      - {key: faction}
+      - {key: species}
+      - {key: age}
+      - {key: status}
+      - {key: updated}
   sort: {default: name, options: [name, age, updated]}
   facets: [status, faction, species]
 

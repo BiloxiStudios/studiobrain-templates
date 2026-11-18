@@ -31,11 +31,11 @@
     "default": "gallery",
     "enabled": ["gallery", "cards", "table", "board", "calendar", "plugin:garage:showroom"],
     "roles": {"title": "name", "image": "photo", "badges": ["class", "status"], "card_fields": ["top_speed", "owner"]},
-    "table": {"columns": ["name", {"key": "top_speed", "display": "unit", "width": 120}, {"key": "paint", "display": "swatch"}, "updated"]},
-    "board": {"group_by": "status", "columns": ["concept", "built", "retired"]},
+    "table": {"columns": [{"key": "name"}, {"key": "top_speed", "display": "unit", "width": 120}, {"key": "paint", "display": "swatch"}, {"key": "updated", "display": "date"}]},
+    "board": {"group_by": "status"},
     "calendar": {"date_field": "first_seen"},
     "gallery": {"aspect": "landscape", "masonry": false},
-    "sort": {"default": "-updated", "options": ["name", "top_speed", "first_seen", "updated"]},
+    "sort": {"default": "updated", "options": ["name", "top_speed", "first_seen", "updated"]},
     "facets": ["class", "status", "features"],
     "plugin:garage:showroom": {"spin": true}
   }

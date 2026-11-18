@@ -20,7 +20,14 @@ views:
     badges: [industry, market_position]
     card_fields: [founded, headquarters, store_count]
   table:
-    columns: [name, industry, market_position, founded, store_count, status, updated]
+    columns:
+      - {key: name}
+      - {key: industry}
+      - {key: market_position}
+      - {key: founded}
+      - {key: store_count}
+      - {key: status}
+      - {key: updated}
   sort: {default: name, options: [name, founded, store_count, updated]}
   facets: [industry, market_position, quality_tier, status]
 

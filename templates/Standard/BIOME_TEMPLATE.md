@@ -129,7 +129,13 @@ views:
     card_fields: [climate, ecosystem_health, parent_location]
   gallery: {aspect: landscape}
   table:
-    columns: [name, biome_type, climate, threat_level, ecosystem_health, updated]
+    columns:
+      - {key: name}
+      - {key: biome_type}
+      - {key: climate}
+      - {key: threat_level}
+      - {key: ecosystem_health}
+      - {key: updated}
   sort: {default: name, options: [name, updated]}
   facets: [biome_type, threat_level, ecosystem_health, status]
 

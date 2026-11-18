@@ -75,7 +75,13 @@ views:
     card_fields: [district, faction_control, threat_level]
   gallery: {aspect: landscape}
   table:
-    columns: [name, location_type, district, threat_level, status, updated]
+    columns:
+      - {key: name}
+      - {key: location_type}
+      - {key: district}
+      - {key: threat_level}
+      - {key: status}
+      - {key: updated}
   sort: {default: name, options: [name, updated]}
   facets: [location_type, status, threat_level]
 
