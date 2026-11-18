@@ -202,10 +202,17 @@ class RegistryExportTests(unittest.TestCase):
         data = json.loads((ROOT / "schemas" / "registry" / "widget-ids.json").read_text())
         widgets = set(data["widgets"])
         self.assertEqual(len(widgets), len(data["widgets"]), "duplicate widget id")
-        renderable = widgets | set(data["renderer_only"])
         for alias, target in data["aliases"].items():
             self.assertNotIn(alias, widgets, f"alias {alias!r} shadows a registered id")
-            self.assertIn(target, renderable, f"alias {alias!r} -> unregistered {target!r}")
+            # Core's normalizeWidgetId resolves one hop, and lint_widget_id
+            # tells authors to use the target: it must be a canonical
+            # registered widget, never another alias or a renderer-only id.
+            self.assertIn(target, widgets, f"alias {alias!r} -> non-canonical {target!r}")
+            self.assertNotIn(target, data["aliases"], f"alias {alias!r} chains to alias {target!r}")
+        self.assertFalse(
+            set(data["renderer_only"]) & set(data["aliases"]),
+            "an id core aliases is not renderer-only",
+        )
         views_schema = json.loads((ROOT / "schemas" / "views.json").read_text())
         schema_kinds = set(views_schema["$defs"]["viewKind"]["anyOf"][0]["enum"])
         exported = set(data["views"]["core"]) | set(data["views"]["cloud"])

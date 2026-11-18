@@ -1,5 +1,5 @@
 {
-  "$comment": "Registered widget, component-block and view ids in studiobrain-core. Data only, NOT a JSON Schema. scripts/validate.py lints every shipped layout and TEMPLATE.md against it. KEEP IN SYNC WITH CORE: widgets = BUILTIN_WIDGETS in packages/sdk/src/templates/widget-registry.ts; aliases = WIDGET_ALIASES in frontend/src/lib/field-widget-resolve.ts (SBAI-15043 lane L1); renderer_only = ids EntityFieldBuilder renders that the SDK does not register (valid alias targets, not for new data); component_blocks = frontend/src/lib/component-block-registry.ts; views = spec SBAI-15043 section 3/5 (core registers the generic views, cloud registers map and timeline); frontmatter_meta_keys = FRONTMATTER_META_KEYS in crates/sb-core/src/entity_schema.rs (= SDK FRONTMATTER_META_KEYS): template keys that never derive as fields, so a view must not name them; view_virtual_keys = UPDATED_KEY in packages/sdk/src/views/infer.ts. Regenerate by copying those lists; a core-side parity test should read this file.",
+  "$comment": "Registered widget, component-block and view ids in studiobrain-core. Data only, NOT a JSON Schema. scripts/validate.py lints every shipped layout and TEMPLATE.md against it. KEEP IN SYNC WITH CORE: widgets = BUILTIN_WIDGETS in packages/sdk/src/templates/widget-registry.ts; aliases = WIDGET_ALIASES in packages/sdk/src/schemas/field-types.ts (the frontend's field-widget-resolve.ts normalises through it); renderer_only = ids EntityFieldBuilder renders that the SDK does not register (valid alias targets, not for new data); component_blocks = frontend/src/lib/component-block-registry.ts; views = spec SBAI-15043 section 3/5 (core registers the generic views, cloud registers map and timeline); frontmatter_meta_keys = FRONTMATTER_META_KEYS in crates/sb-core/src/entity_schema.rs (= SDK FRONTMATTER_META_KEYS): template keys that never derive as fields, so a view must not name them; view_virtual_keys = UPDATED_KEY in packages/sdk/src/views/infer.ts. Regenerate by copying those lists; a core-side parity test should read this file.",
   "version": 1,
   "source": {
     "repo": "studiobrain-core",
@@ -60,14 +60,9 @@
     "smart-cross-ref"
   ],
   "aliases": {
-    "entity-multi-selector": "entity-multiselect",
-    "read-only-text": "read-only",
-    "rich-text-editor": "rich-text",
-    "collapsible-section": "nested_section",
-    "nested-form": "nested-object",
-    "outline-item": "ordered-list",
     "dropdown": "select",
     "tag-list": "tag-input",
+    "tags": "tag-input",
     "color": "color-picker",
     "color-select": "color-picker",
     "skin-tone-palette": "color-palette",
@@ -75,11 +70,20 @@
     "boolean": "checkbox",
     "reference": "entity-selector",
     "references": "entity-multiselect",
+    "entity-multi-selector": "entity-multiselect",
+    "read-only-text": "read-only",
+    "rich-text-editor": "rich-text",
+    "markdown": "rich-text",
+    "collapsible-section": "nested-section",
+    "nested_section": "nested-section",
+    "nested-form": "nested-object",
+    "outline-item": "ordered-list",
     "date-picker": "date",
-    "slider": "range"
+    "slider": "range",
+    "image": "image-ref",
+    "image-picker": "image-ref"
   },
   "renderer_only": [
-    "nested_section",
     "recipe-ingredients",
     "music-key"
   ],
