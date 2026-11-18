@@ -1,12 +1,48 @@
 ---
 # METADATA
 template_version: "2.0"
+template_category: "entity"
 ui_icon: "Users"
 ui_color: "#6366f1"
 id: "[snake_case_name]"
 entity_type: "character"
 created_date: "[YYYY-MM-DD]"
 last_updated: "[YYYY-MM-DD]"
+
+# FIELD WIDGET CONFIGURATION
+field_config:
+  age:
+    type: integer
+    widget: number
+    min: 0
+  birth_year:
+    type: integer
+    widget: year
+  death_year:
+    type: integer
+    widget: year
+
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: cards
+  enabled: [cards, gallery, list, table]
+  roles:
+    image: primary_image
+    subtitle: nickname
+    badges: [faction, status]
+    card_fields: [species, age, primary_location]
+  gallery: {aspect: portrait}
+  table:
+    columns:
+      - {key: name}
+      - {key: faction}
+      - {key: species}
+      - {key: age}
+      - {key: status}
+      - {key: updated}
+  sort: {default: name, options: [name, age, updated]}
+  facets: [status, faction, species]
+
 status: "active"
 
 # PRODUCTION STATUS TRACKING
@@ -22,7 +58,7 @@ primary_image: ""           # Path to primary image (set via EntityAssets compon
 # BASIC IDENTITY
 name: "[Generate Full Name]"
 nickname: "[Generate Nickname]"
-age: "18" # Should be 18 - 85 unless specified otherwise
+age: 18 # Should be 18 - 85 unless specified otherwise
 gender: "[male/female/non-binary]"
 species: "human"
 

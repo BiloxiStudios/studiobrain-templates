@@ -1,0 +1,8 @@
+{
+  "template_category": "entity",
+  "entity_type": "vehicle",
+  "views": {
+    "default": "spreadsheet",
+    "roles": {"badges": ["a", "b", "c", "d"]}
+  }
+}

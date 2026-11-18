@@ -20,6 +20,12 @@ const SCHEMAS_DIR = path.join(ROOT, "schemas");
 const SKILLS_DIR = path.join(ROOT, "skills");
 const TAXONOMIES_DIR = path.join(ROOT, "taxonomies");
 const LAYOUTS_DIR = path.join(TEMPLATES_DIR, "Layouts");
+/**
+ * Export of studiobrain-core's registered widget / component-block / view ids
+ * (SBAI-15043). Data, not a JSON Schema. scripts/validate.py lints shipped
+ * layouts and templates against it; keep it in sync with core.
+ */
+const WIDGET_IDS_FILE = path.join(SCHEMAS_DIR, "registry", "widget-ids.json");
 const PACKS_DIR = path.join(TEMPLATES_DIR, "Packs");
 
 /**
@@ -30,6 +36,8 @@ const SCHEMA_FILES = Object.freeze({
   base: "_base.json",
   compat: "_compat.json",
   layout: "layout.json",
+  views: "views.json",
+  template: "template.json",
   pack: "pack.json",
   // RETIRED Python manifest schema (SBAI-12438). Not the runtime plugin SDK.
   plugin: "plugin.json",
@@ -65,6 +73,16 @@ function loadSchema(name) {
   return require(path.join(SCHEMAS_DIR, filename));
 }
 
+/**
+ * Load the widget-id export (widgets, aliases, component_blocks, views).
+ *
+ * @returns {object}
+ */
+function loadWidgetIds() {
+  // eslint-disable-next-line global-require
+  return require(WIDGET_IDS_FILE);
+}
+
 module.exports = {
   ROOT,
   TEMPLATES_DIR,
@@ -75,6 +93,8 @@ module.exports = {
   TAXONOMIES_DIR,
   LAYOUTS_DIR,
   PACKS_DIR,
+  WIDGET_IDS_FILE,
   SCHEMA_FILES,
   loadSchema,
+  loadWidgetIds,
 };

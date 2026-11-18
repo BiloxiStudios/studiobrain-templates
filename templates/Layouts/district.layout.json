@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "District ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "auto_generate_from": "name",
           "required": true,
           "placeholder": "auto-generated from name",
@@ -161,7 +161,7 @@
         {
           "key": "governing_faction",
           "label": "Governing Faction",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "description": "The primary faction that controls or governs this district.",
           "reference_type": "faction",
@@ -179,7 +179,7 @@
         {
           "key": "district_council",
           "label": "District Council",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "description": "Key leadership positions and personnel in the district administration.",
           "reference_type": "character",
@@ -295,7 +295,7 @@
         {
           "key": "major_businesses",
           "label": "Major Businesses & Brands",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "description": "Significant businesses, corporations, or brands with presence in this district.",
           "reference_type": "brand",
@@ -325,7 +325,7 @@
         {
           "key": "key_locations",
           "label": "Key Locations",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "description": "Important buildings, landmarks, and facilities within this district.",
           "reference_type": "location",
@@ -809,5 +809,8 @@
       "editor_component": null,
       "viewer_component": null
     }
-  ]
+  ],
+  "view_config": {
+    "layout_driven": true
+  }
 }

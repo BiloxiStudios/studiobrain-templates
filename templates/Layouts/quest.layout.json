@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Quest ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "auto_generate_from": "name",
           "help": "Auto-generated: lowercase, spaces replaced with underscores"
         },
@@ -191,7 +191,7 @@
         {
           "key": "key_npcs",
           "label": "Key NPCs",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "max_selections": 20,
           "placeholder": "Search for key NPCs..."
@@ -199,7 +199,7 @@
         {
           "key": "target_characters",
           "label": "Target Characters",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "max_selections": 10,
           "placeholder": "Search for targets..."
@@ -207,7 +207,7 @@
         {
           "key": "involved_factions",
           "label": "Involved Factions",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "faction",
           "max_selections": 10,
           "placeholder": "Search for factions..."
@@ -234,7 +234,7 @@
         {
           "key": "quest_locations",
           "label": "Quest Locations",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "location",
           "max_selections": 20,
           "placeholder": "Search for quest locations..."

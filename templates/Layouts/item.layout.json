@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Item ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "auto_generate_from": "name",
           "help": "Auto-generated: lowercase, spaces replaced with underscores",
           "column_span": 1
@@ -110,7 +110,7 @@
         {
           "key": "brand_id",
           "label": "Brand",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "brand",
           "max_selections": 1,
           "show_relationship_selector": false,
@@ -135,7 +135,7 @@
         {
           "key": "spawn_locations",
           "label": "Spawn Locations",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "location",
           "max_selections": 10,
           "show_relationship_selector": true,
@@ -151,7 +151,7 @@
         {
           "key": "vendors",
           "label": "Vendors",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "max_selections": 15,
           "show_relationship_selector": true,
@@ -234,5 +234,8 @@
       "editor_component": null,
       "viewer_component": null
     }
-  ]
+  ],
+  "view_config": {
+    "layout_driven": true
+  }
 }

@@ -4,7 +4,13 @@
 Runs every CI-facing check from one place:
 
   1. Confirms every schema file in ``schemas/`` is a valid JSON Schema (Draft 2020-12).
-  2. Validates every ``*.layout.json`` against ``schemas/layout.json``.
+  2. Validates every ``*.layout.json`` against ``schemas/layout.json`` and
+     every ``*_TEMPLATE.md`` frontmatter against ``schemas/template.json``
+     (SBAI-15043): entity_type is any slug, template_category is one of five,
+     ``views`` match ``schemas/views.json`` and name real fields, and every
+     widget / component-block id is a canonical id from
+     ``schemas/registry/widget-ids.json`` (the export of core's registry --
+     keep it in sync with core).
   3. Validates every ``pack.json`` against ``schemas/pack.json``.
   4. Validates leftover ``plugin.json`` files if a ``plugins/`` tree exists
      (official plugins no longer live in this repo — SBAI-7665).
@@ -219,11 +225,251 @@ def _validate_instance(instance: Any, schema_name: str, label: str) -> list[str]
     ]
 
 
-def check_layouts() -> list[str]:
+# ----- Widget-id lint + browse views (SBAI-15043) --------------------------------
+
+WIDGET_IDS_FILE = SCHEMAS_DIR / "registry" / "widget-ids.json"
+
+def load_widget_registry(path: pathlib.Path = WIDGET_IDS_FILE) -> dict[str, Any]:
+    """Load the checked-in export of core's registered widget/block/view ids."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        "widgets": frozenset(data.get("widgets") or []),
+        "aliases": {str(k).lower(): str(v) for k, v in (data.get("aliases") or {}).items()},
+        "renderer_only": frozenset(data.get("renderer_only") or []),
+        "plugin_widget_re": re.compile(data["plugin_widget_pattern"]),
+        "component_blocks": frozenset(data.get("component_blocks") or []),
+        "plugin_component_re": re.compile(data["plugin_component_pattern"]),
+        "views": frozenset(
+            v for group in (data.get("views") or {}).values() for v in group
+        ),
+        # Template keys core never derives as fields (a view cannot show them)
+        # and the virtual keys a view may name although no template declares
+        # them (``updated`` = the entity's last-modified time).
+        "meta_keys": frozenset(data.get("frontmatter_meta_keys") or []),
+        "virtual_keys": frozenset(data.get("view_virtual_keys") or []),
+    }
+
+
+def lint_widget_id(widget: Any, registry: dict[str, Any], label: str) -> list[str]:
+    """A shipped widget id must be a canonical registered id or plugin:<p>:<w>.
+
+    Aliases resolve at runtime, but shipped data uses the canonical id so the
+    layout designer, the server and every client agree on one spelling.
+    """
+    if not isinstance(widget, str) or not widget.strip():
+        return [f"{label}: empty widget id"]
+    if widget in registry["widgets"] or registry["plugin_widget_re"].match(widget):
+        return []
+    alias = registry["aliases"].get(widget.lower())
+    if alias is not None:
+        return [f"{label}: widget {widget!r} is an alias; use the canonical id {alias!r}"]
+    return [
+        f"{label}: unknown widget id {widget!r} (not in schemas/registry/widget-ids.json; "
+        "if core registers it now, add it there)"
+    ]
+
+
+def lint_component_id(component: Any, registry: dict[str, Any], label: str) -> list[str]:
+    if component is None:
+        return []
+    if not isinstance(component, str) or not component:
+        return [f"{label}: empty component id"]
+    if component in registry["component_blocks"] or registry["plugin_component_re"].match(component):
+        return []
+    return [
+        f"{label}: unknown component block {component!r} (not in "
+        "schemas/registry/widget-ids.json component_blocks)"
+    ]
+
+
+def _views_field_refs(views: dict[str, Any]) -> list[tuple[str, str]]:
+    """Every (json-path, field key) a views block names."""
+    refs: list[tuple[str, str]] = []
+
+    def add(path: str, value: Any) -> None:
+        if isinstance(value, str) and value:
+            refs.append((path, value))
+
+    roles = views.get("roles") if isinstance(views.get("roles"), dict) else {}
+    for role in ("title", "subtitle", "image"):
+        add(f"roles.{role}", roles.get(role))
+    for role in ("badges", "card_fields"):
+        for i, key in enumerate(roles.get(role) or []):
+            add(f"roles.{role}[{i}]", key)
+    table = views.get("table") if isinstance(views.get("table"), dict) else {}
+    for i, col in enumerate(table.get("columns") or []):
+        add(f"table.columns[{i}]", col.get("key") if isinstance(col, dict) else col)
+    board = views.get("board") if isinstance(views.get("board"), dict) else {}
+    add("board.group_by", board.get("group_by"))
+    calendar = views.get("calendar") if isinstance(views.get("calendar"), dict) else {}
+    add("calendar.date_field", calendar.get("date_field"))
+    add("calendar.end_field", calendar.get("end_field"))
+    sort = views.get("sort") if isinstance(views.get("sort"), dict) else {}
+    add("sort.default", sort.get("default"))
+    for i, key in enumerate(sort.get("options") or []):
+        add(f"sort.options[{i}]", key)
+    for i, key in enumerate(views.get("facets") or []):
+        add(f"facets[{i}]", key)
+    return refs
+
+
+def check_views_semantics(
+    views: Any, known_keys: Iterable[str], label: str, registry: dict[str, Any]
+) -> list[str]:
+    """Cross-checks JSON Schema cannot express (spec section 3/4).
+
+    - ``default`` must be one of ``enabled`` when both are given.
+    - Every field a view names must be a template (or layout) field that core
+      derives -- not a frontmatter meta key such as ``category`` -- or a
+      virtual key (``updated``). Core silently drops any other reference.
+    - View ids must be registered (core or cloud) or ``plugin:*``.
+    """
+    if not isinstance(views, dict):
+        return []
+    errors: list[str] = []
+    enabled = views.get("enabled")
+    default = views.get("default")
+    if isinstance(enabled, list) and isinstance(default, str) and default not in enabled:
+        errors.append(f"{label}: views.default {default!r} is not in views.enabled {enabled!r}")
+    for kind in ([default] if isinstance(default, str) else []) + (
+        enabled if isinstance(enabled, list) else []
+    ):
+        if isinstance(kind, str) and not kind.startswith("plugin:") and kind not in registry["views"]:
+            errors.append(f"{label}: view {kind!r} is not a registered view id")
+    known = (set(known_keys) - registry["meta_keys"]) | registry["virtual_keys"]
+    for path, key in _views_field_refs(views):
+        if key not in known:
+            errors.append(f"{label}: views.{path} names unknown field {key!r}")
+    return errors
+
+
+def _frontmatter(path: pathlib.Path) -> tuple[dict[str, Any] | None, str | None]:
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---"):
+        return None, "missing YAML frontmatter delimiter"
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return None, "malformed frontmatter (no closing ---)"
+    try:
+        data = yaml.safe_load(parts[1])
+    except yaml.YAMLError as exc:
+        return None, f"YAML parse error: {exc}"
+    if not isinstance(data, dict):
+        return None, "frontmatter is not a YAML mapping"
+    return data, None
+
+
+def _template_field_keys(fm: dict[str, Any]) -> set[str]:
+    keys = {str(k) for k in fm.keys()}
+    field_config = fm.get("field_config")
+    if isinstance(field_config, dict):
+        keys |= {str(k) for k in field_config.keys()}
+    return keys
+
+
+def template_errors(fm: dict[str, Any], label: str, registry: dict[str, Any]) -> list[str]:
+    """Every check one TEMPLATE.md frontmatter must pass.
+
+    Works on any template, including a user-defined type with no layout and
+    no per-type schema: the type id only has to be a slug.
+    """
+    errors = _validate_instance(fm, "template.json", label)
+    field_config = fm.get("field_config")
+    if isinstance(field_config, dict):
+        for key, cfg in field_config.items():
+            if not isinstance(cfg, dict):
+                continue
+            for widget_key in ("widget", "ui_component"):
+                if widget_key in cfg:
+                    errors.extend(lint_widget_id(
+                        cfg[widget_key], registry, f"{label}: field_config.{key}.{widget_key}"
+                    ))
+    known = _template_field_keys(fm)
+    for views_key in ("views", "list_layout"):
+        if views_key in fm:
+            errors.extend(check_views_semantics(fm[views_key], known, f"{label} [{views_key}]", registry))
+    known_fields = (known - registry["meta_keys"]) | registry["virtual_keys"]
+    for i, key in enumerate(fm.get("grid_fields") or []):
+        if isinstance(key, str) and key not in known_fields:
+            errors.append(f"{label}: grid_fields[{i}] names unknown field {key!r}")
+    return errors
+
+
+def _iter_template_files() -> Iterable[pathlib.Path]:
+    return sorted(TEMPLATES_DIR.rglob("*_TEMPLATE.md"))
+
+
+def _template_keys_by_type() -> dict[str, set[str]]:
+    """entity_type -> union of field keys across shipped templates of that type."""
+    by_type: dict[str, set[str]] = {}
+    if not HAVE_YAML:
+        return by_type
+    for md in _iter_template_files():
+        fm, problem = _frontmatter(md)
+        if problem or not fm or not isinstance(fm.get("entity_type"), str):
+            continue
+        by_type.setdefault(fm["entity_type"], set()).update(_template_field_keys(fm))
+    return by_type
+
+
+def check_templates(registry: dict[str, Any] | None = None) -> list[str]:
+    """Validate TEMPLATE.md metadata: schema, widget ids and views (SBAI-15043)."""
+    if not HAVE_YAML:
+        _info("NOTE: pyyaml not installed -- skipping TEMPLATE.md metadata validation.")
+        return []
+    registry = registry or load_widget_registry()
+    errors: list[str] = []
+    for md in _iter_template_files():
+        fm, problem = _frontmatter(md)
+        if problem:
+            errors.append(f"{md}: {problem}")
+            continue
+        errors.extend(template_errors(fm, str(md), registry))
+    return errors
+
+
+def layout_errors(
+    data: dict[str, Any],
+    label: str,
+    registry: dict[str, Any],
+    template_keys: Iterable[str] = (),
+) -> list[str]:
+    """Widget/component lint and views cross-checks for one layout."""
+    errors: list[str] = []
+    layout_keys: set[str] = set()
+    for s_idx, section in enumerate(data.get("sections") or []):
+        if not isinstance(section, dict):
+            continue
+        sec_label = f"{label}: sections[{s_idx}]({section.get('id')})"
+        errors.extend(lint_component_id(section.get("component"), registry, f"{sec_label}.component"))
+        for f_idx, field in enumerate(section.get("fields") or []):
+            if not isinstance(field, dict):
+                continue
+            if isinstance(field.get("key"), str):
+                layout_keys.add(field["key"].split(".", 1)[0])
+            f_label = f"{sec_label}.fields[{f_idx}]({field.get('key')})"
+            if "ui_component" in field:
+                errors.extend(lint_widget_id(field["ui_component"], registry, f"{f_label}.ui_component"))
+            for sf_idx, sub in enumerate(field.get("sub_fields") or []):
+                if isinstance(sub, dict) and sub.get("ui_component") is not None:
+                    errors.extend(lint_widget_id(
+                        sub["ui_component"], registry,
+                        f"{f_label}.sub_fields[{sf_idx}]({sub.get('key')}).ui_component",
+                    ))
+    if "views" in data:
+        errors.extend(check_views_semantics(
+            data["views"], layout_keys | set(template_keys), label, registry
+        ))
+    return errors
+
+
+def check_layouts(registry: dict[str, Any] | None = None) -> list[str]:
     errors: list[str] = []
     layout_dir = TEMPLATES_DIR / "Layouts"
     if not layout_dir.exists():
         return errors
+    registry = registry or load_widget_registry()
+    keys_by_type = _template_keys_by_type()
     for layout_file in sorted(layout_dir.glob("*.layout.json")):
         try:
             data = json.loads(layout_file.read_text(encoding="utf-8"))
@@ -231,6 +477,11 @@ def check_layouts() -> list[str]:
             errors.append(f"{layout_file}: JSON parse error: {exc}")
             continue
         errors.extend(_validate_instance(data, "layout.json", str(layout_file)))
+        if isinstance(data, dict):
+            errors.extend(layout_errors(
+                data, str(layout_file), registry,
+                keys_by_type.get(str(data.get("entity_type")), set()),
+            ))
     return errors
 
 
@@ -1511,6 +1762,12 @@ def _fixture_schema_name(fixture_name: str) -> str:
         return "provider.json"
     if "_recipe_" in fixture_name:
         return "recipe.json"
+    if "_template_" in fixture_name:
+        return "template.json"
+    if "_layout_" in fixture_name:
+        return "layout.json"
+    if "_views_" in fixture_name:
+        return "views.json"
     return "plugin.json"
 
 
@@ -1605,8 +1862,11 @@ def main(argv: list[str] | None = None) -> int:
     _info("== Checking schemas themselves ==")
     all_errors.extend(check_schemas_are_valid())
 
-    _info("== Validating layouts ==")
+    _info("== Validating layouts (schema, widget ids, views) ==")
     all_errors.extend(check_layouts())
+
+    _info("== Validating TEMPLATE.md metadata (schema, widget ids, views) ==")
+    all_errors.extend(check_templates())
 
     _info("== Validating packs ==")
     all_errors.extend(check_packs())

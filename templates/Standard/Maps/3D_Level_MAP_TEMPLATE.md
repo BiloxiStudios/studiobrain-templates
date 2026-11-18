@@ -1,6 +1,6 @@
 ---
 template_category: map
-entity_type: 3d_level
+entity_type: level_3d
 ui_icon: "Box"
 ui_color: "#0891b2"
 template_name: 3D Level Preview

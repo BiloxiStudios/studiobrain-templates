@@ -23,7 +23,10 @@ or installed (see [Adding a new entity type](#adding-a-new-entity-type)).
 | `_base.json` | Shared YAML frontmatter fields required by every entity | `scripts/validate.py` (pack CI). Runtime entity writes use the schema derived in studiobrain-core, not a plugin. |
 | `<entity_type>.json` | YAML frontmatter for a single entity type (character, location, item, faction, brand, district, job, quest, event, campaign, assembly, dialogue, timeline, universe, style_bible, biome) | `scripts/validate.py` (pack CI), loaded as `schemas/<entity_type>.json`. Runtime writes use core derivation; see "Adding a new entity type". |
 | `_compat.json` | Shared compat metadata object (semver core version requirements) | Referenced by every asset-level schema below |
-| `layout.json` | `templates/Layouts/*.layout.json` — UI layout files | frontend entity editor |
+| `layout.json` | `templates/Layouts/*.layout.json` — UI layout files, including optional browse `views` | frontend entity editor |
+| `template.json` | `*_TEMPLATE.md` frontmatter metadata: `entity_type` (any slug), `template_category` (entity, document, map, rule, skill), `ui_icon`, `ui_color`, `field_config`, `views` (SBAI-15043) | `scripts/validate.py`; a user-defined type validates with no layout and no per-type schema |
+| `views.json` | Browse views (`default`, `enabled`, `roles`, `table`, `board`, `calendar`, `gallery`, `sort`, `facets`, `plugin:*`), `$ref`'d from `layout.json`, `template.json` and `_base.json` | browse page (cards/list/table/gallery/carousel/board/calendar; cloud adds map/timeline) |
+| `registry/widget-ids.json` | Not a schema: the export of core's registered widget, component-block and view ids plus the alias table. Keep in sync with studiobrain-core | `scripts/validate.py` widget lint, `loadWidgetIds()` |
 | `pack.json` | `templates/Packs/<id>/pack.json` — template pack manifests | pack installer, marketplace |
 | `plugin.json` | RETIRED (SBAI-12438). Historical Python plugin manifests (`full` / `frontend-only` / `protocol-adapter`). Not the plugin SDK. Do not add plugins here. | fixture tests only |
 | `skill.yaml.json` | `skills/Standard/*.yaml` and `skills/User/*.yaml` — AI skill frontmatter (parsed YAML mapping) | skill picker |
@@ -441,9 +444,17 @@ ids and values describe the field. Allowed `type` values:
 
 ## Adding a new entity type
 
-1. Add a new `<entity_type>.json` file in this directory following the same
-   `allOf` + `$ref` pattern as `character.json`.
-2. Add the `entity_type` to the `enum` in `_base.json`.
+Users create their own types in the app with no change here: `entity_type` is
+any slug matching `^[a-z][a-z0-9_]*$` (SBAI-15043), and core generates the
+form, detail page and browse views from the template alone. The steps below
+are only for a type this repo ships.
+
+1. Optionally add a `<entity_type>.json` file in this directory following the
+   same `allOf` + `$ref` pattern as `character.json`, to check example
+   entities of that type. `_base.json` no longer lists types.
+2. Use canonical widget ids from `registry/widget-ids.json` in `field_config`
+   and in the layout; `scripts/validate.py` rejects aliases and unknown ids.
+   Optionally add tuned `views` to the template frontmatter.
 3. Do not register the type in a plugin. `plugins/entity-validator/backend/routes.py`
    and its `ENTITY_SCHEMAS` map were deleted with the in-process Python plugin
    tree (SBAI-7665). This repo has no `plugins/` directory. Do not recreate one.

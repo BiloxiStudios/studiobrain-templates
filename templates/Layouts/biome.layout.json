@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Biome ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "required": true,
           "auto_generate_from": "name",
           "placeholder": "auto-generated from name",
@@ -345,17 +345,17 @@
         {
           "key": "color_palette.primary",
           "label": "Primary Color",
-          "ui_component": "color"
+          "ui_component": "color-picker"
         },
         {
           "key": "color_palette.secondary",
           "label": "Secondary Color",
-          "ui_component": "color"
+          "ui_component": "color-picker"
         },
         {
           "key": "color_palette.accent",
           "label": "Accent Color",
-          "ui_component": "color"
+          "ui_component": "color-picker"
         },
         {
           "key": "time_of_day_variation",
@@ -377,7 +377,7 @@
         {
           "key": "locations",
           "label": "Locations in This Biome",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "location",
           "relationship_types": [
             {"value": "contains", "label": "Contains"},
@@ -391,7 +391,7 @@
         {
           "key": "adjacent_biomes",
           "label": "Adjacent Biomes",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "biome",
           "relationship_types": [
             {"value": "borders", "label": "Borders"},
@@ -405,7 +405,7 @@
         {
           "key": "faction_presence",
           "label": "Faction Presence",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "faction",
           "relationship_types": [
             {"value": "controls", "label": "Controls"},

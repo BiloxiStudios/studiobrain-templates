@@ -1,0 +1,42 @@
+{
+  "template_version": "1.0",
+  "template_category": "entity",
+  "entity_type": "vehicle",
+  "ui_icon": "Car",
+  "ui_color": "#0ea5e9",
+  "id": "[snake_case_name]",
+  "name": "Vehicle Display Name",
+  "field_config": {
+    "photo": {"type": "image"},
+    "top_speed": {"type": "number", "unit": "km/h", "min": 0, "max": 500},
+    "class": {"type": "enum", "options": ["car", "truck", "bike"]},
+    "status": {"type": "enum", "options": ["concept", "built", "retired"]},
+    "features": {"type": "tags", "allow_custom": true},
+    "owner": {"type": "reference", "reference_type": "character"},
+    "first_seen": {"type": "date"},
+    "paint": {"type": "color", "widget": "color-picker"},
+    "rating": {"type": "rating", "max": 5},
+    "specs": {"type": "json"}
+  },
+  "photo": "",
+  "top_speed": 0,
+  "class": "car",
+  "features": [],
+  "owner": "",
+  "first_seen": "",
+  "paint": "",
+  "rating": 0,
+  "specs": {},
+  "views": {
+    "default": "gallery",
+    "enabled": ["gallery", "cards", "table", "board", "calendar", "plugin:garage:showroom"],
+    "roles": {"title": "name", "image": "photo", "badges": ["class", "status"], "card_fields": ["top_speed", "owner"]},
+    "table": {"columns": [{"key": "name"}, {"key": "top_speed", "display": "unit", "width": 120}, {"key": "paint", "display": "swatch"}, {"key": "updated", "display": "date"}]},
+    "board": {"group_by": "status"},
+    "calendar": {"date_field": "first_seen"},
+    "gallery": {"aspect": "landscape", "masonry": false},
+    "sort": {"default": "updated", "options": ["name", "top_speed", "first_seen", "updated"]},
+    "facets": ["class", "status", "features"],
+    "plugin:garage:showroom": {"spin": true}
+  }
+}

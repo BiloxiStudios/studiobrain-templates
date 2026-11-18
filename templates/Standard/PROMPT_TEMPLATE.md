@@ -1,7 +1,7 @@
 ---
 # METADATA
 template_version: "1.0"
-template_category: "system"
+template_category: "entity"
 ui_icon: "Sparkles"
 ui_color: "#d946ef"
 generation_instructions: |

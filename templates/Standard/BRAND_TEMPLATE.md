@@ -71,6 +71,27 @@ field_config:
       - { value: "founder", label: "Founder" }
       - { value: "board_member", label: "Board Member" }
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: cards
+  enabled: [cards, list, table, gallery]
+  roles:
+    image: primary_image
+    subtitle: tagline
+    badges: [industry, market_position]
+    card_fields: [founded, headquarters, store_count]
+  table:
+    columns:
+      - {key: name}
+      - {key: industry}
+      - {key: market_position}
+      - {key: founded}
+      - {key: store_count}
+      - {key: status}
+      - {key: updated}
+  sort: {default: name, options: [name, founded, store_count, updated]}
+  facets: [industry, market_position, quality_tier, status]
+
 status: "active"  # active, defunct, merged, archived, draft
 
 # PRODUCTION STATUS TRACKING

@@ -23,13 +23,13 @@ associated_skills: []
 # FIELD WIDGET CONFIGURATION
 field_config:
   lore_type:
-    widget: dropdown
+    widget: select
     options: ["Historical", "Mythological", "Scientific", "Fantasy", "Sci-Fi", "Mixed"]
   organization_method:
-    widget: dropdown
+    widget: select
     options: ["Chronological", "Thematic", "Geographical", "Entity-based", "Mixed"]
   discovery_method:
-    widget: dropdown
+    widget: select
     options: ["Direct", "Environmental", "Collectible", "Unlockable", "Progressive"]
 
 status: "active"  # active, development, archived
