@@ -23,12 +23,12 @@ associated_skills: []
 # FIELD WIDGET CONFIGURATION
 field_config:
   target_platform:
-    widget: dropdown
+    widget: select
     options: ["PC", "Console", "Mobile", "Web", "Cross-platform"]
   target_audience:
     widget: text
   genre:
-    widget: dropdown
+    widget: select
     options: ["Action", "Adventure", "RPG", "Strategy", "Simulation", "Puzzle", "Horror", "Sports", "Racing", "Other"]
 
 status: "active"  # active, development, archived

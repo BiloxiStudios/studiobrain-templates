@@ -1,7 +1,7 @@
 ---
 # METADATA (REQUIRED)
 template_version: "1.0"
-template_category: "core"
+template_category: "entity"
 ui_icon: "Clock"
 ui_color: "#64748b"
 editable: false

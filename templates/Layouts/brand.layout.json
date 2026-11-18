@@ -11,7 +11,7 @@
         {
           "key": "id",
           "label": "Brand ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "required": true,
           "auto_generate_from": "name",
           "placeholder": "auto-generated from name",
@@ -233,7 +233,7 @@
         {
           "key": "parent_company",
           "label": "Parent Company",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "brand",
           "max_selections": 1,
           "show_relationship_selector": false,
@@ -243,7 +243,7 @@
         {
           "key": "headquarters",
           "label": "Headquarters",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "location",
           "max_selections": 1,
           "show_relationship_selector": false,
@@ -253,7 +253,7 @@
         {
           "key": "subsidiaries",
           "label": "Subsidiaries",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "brand",
           "show_relationship_selector": false,
           "placeholder": "Select subsidiary brands...",
@@ -279,7 +279,7 @@
         {
           "key": "job_positions",
           "label": "Job Positions",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "job",
           "show_relationship_selector": false,
           "placeholder": "Select available job positions...",
@@ -288,7 +288,7 @@
         {
           "key": "key_personnel",
           "label": "Key Personnel",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "show_relationship_selector": false,
           "placeholder": "Select key personnel...",
@@ -451,5 +451,8 @@
       "editor_component": null,
       "viewer_component": null
     }
-  ]
+  ],
+  "view_config": {
+    "layout_driven": true
+  }
 }

@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Campaign ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "auto_generate_from": "name",
           "help": "Auto-generated: lowercase, spaces replaced with underscores"
         },
@@ -144,7 +144,7 @@
         {
           "key": "protagonist_characters",
           "label": "Protagonists",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "max_selections": 10,
           "placeholder": "Search for protagonists..."
@@ -152,7 +152,7 @@
         {
           "key": "supporting_characters",
           "label": "Supporting Characters",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "max_selections": 20,
           "placeholder": "Search for supporting characters..."
@@ -160,7 +160,7 @@
         {
           "key": "antagonist_characters",
           "label": "Antagonists",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "max_selections": 10,
           "placeholder": "Search for antagonists..."
@@ -168,7 +168,7 @@
         {
           "key": "involved_factions",
           "label": "Involved Factions",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "faction",
           "max_selections": 10,
           "placeholder": "Search for factions..."
@@ -195,7 +195,7 @@
         {
           "key": "primary_locations",
           "label": "Primary Locations",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "location",
           "max_selections": 20,
           "placeholder": "Search for primary locations..."
@@ -203,7 +203,7 @@
         {
           "key": "secondary_locations",
           "label": "Secondary Locations",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "location",
           "max_selections": 20,
           "placeholder": "Search for secondary locations..."

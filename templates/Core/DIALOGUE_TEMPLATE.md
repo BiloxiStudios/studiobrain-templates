@@ -1,7 +1,7 @@
 ---
 # METADATA (REQUIRED)
 template_version: "1.0"
-template_category: "core"
+template_category: "entity"
 ui_icon: "MessageSquare"
 ui_color: "#3b82f6"
 editable: false

@@ -4,6 +4,7 @@ name: "Location Display Name"  # Display name shown to users
 
 # METADATA (REQUIRED)
 template_version: "1.0"
+template_category: "entity"
 ui_icon: "MapPin"
 ui_color: "#f59e0b"
 entity_type: "location"

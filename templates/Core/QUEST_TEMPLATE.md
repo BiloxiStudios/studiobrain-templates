@@ -1,7 +1,7 @@
 ---
 # METADATA (REQUIRED)
 template_version: "1.0"
-template_category: "core"
+template_category: "entity"
 ui_icon: "Compass"
 ui_color: "#eab308"
 editable: false

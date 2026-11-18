@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Job ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "auto_generate_from": "name",
           "help": "Auto-generated: lowercase, spaces replaced with underscores"
         },
@@ -130,7 +130,7 @@
         {
           "key": "associated_brands",
           "label": "Associated Brands",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "brand",
           "help": "Other brands that may offer similar positions.",
           "placeholder": "Add associated brands..."
@@ -149,7 +149,7 @@
         {
           "key": "work_locations",
           "label": "Work Locations",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "location",
           "placeholder": "Add work locations..."
         }
@@ -166,7 +166,7 @@
         {
           "key": "entry_positions",
           "label": "Entry Positions",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "job",
           "help": "Jobs that typically lead to this position.",
           "placeholder": "Add entry positions..."
@@ -174,7 +174,7 @@
         {
           "key": "advancement_paths",
           "label": "Advancement Paths",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "job",
           "help": "Positions this job can lead to with experience.",
           "placeholder": "Add advancement paths..."
@@ -182,7 +182,7 @@
         {
           "key": "lateral_moves",
           "label": "Lateral Moves",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "job",
           "help": "Similar-level positions that require similar skills.",
           "placeholder": "Add lateral moves..."
@@ -198,7 +198,7 @@
         {
           "key": "reports_to",
           "label": "Reports To",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "job",
           "help": "Superior positions this job reports to.",
           "placeholder": "Add supervisor positions..."
@@ -206,7 +206,7 @@
         {
           "key": "manages",
           "label": "Manages",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "job",
           "help": "Subordinate positions this job manages.",
           "placeholder": "Add managed positions..."
@@ -214,7 +214,7 @@
         {
           "key": "collaborates_with",
           "label": "Collaborates With",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "job",
           "help": "Peer positions this job works closely with.",
           "placeholder": "Add collaborative positions..."

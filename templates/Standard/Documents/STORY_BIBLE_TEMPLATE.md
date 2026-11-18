@@ -23,13 +23,13 @@ associated_skills: []
 # FIELD WIDGET CONFIGURATION
 field_config:
   narrative_type:
-    widget: dropdown
+    widget: select
     options: ["Linear", "Branching", "Episodic", "Environmental", "Non-linear"]
   tonal_quality:
-    widget: dropdown
+    widget: select
     options: ["Dark", "Light", "Horror", "Comedic", "Dramatic", "Whimsical", "Grim", "Hopeful"]
   target_audience_age:
-    widget: dropdown
+    widget: select
     options: ["Everyone", "Teen", "Mature 17+", "Adult 18+"]
 
 status: "active"  # active, development, archived

@@ -124,11 +124,17 @@ field_config:
       - { value: "owner", label: "Owner" }
       - { value: "sponsor", label: "Sponsor" }
       - { value: "ambassador", label: "Ambassador" }
+  age:
+    type: integer
+    widget: number
+    min: 0
   birth_year:
+    type: integer
     widget: year
     min: 1900
     max: 1998
   death_year:
+    type: integer
     widget: year
     min: 1900
     max: 1998
@@ -167,7 +173,7 @@ primary_image: ""           # Path to primary image (set via EntityAssets compon
 # BASIC IDENTITY
 name: "[Generate Full Name]"
 nickname: "[Generate Nickname]"
-age: "18" # Should be 18 - 85 unless specified otherwise
+age: 18 # Should be 18 - 85 unless specified otherwise
 gender: "[male/female/non-binary]"
 species: "human"
 

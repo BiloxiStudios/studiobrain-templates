@@ -65,7 +65,7 @@ field_config:
       - { value: "contained_within", label: "Contained Within" }
       - { value: "overlaps", label: "Overlaps" }
   flora:
-    widget: tag-list
+    widget: tag-input
     allow_custom: true
     suggestions:
       - "deciduous trees"
@@ -79,7 +79,7 @@ field_config:
       - "vines"
       - "ferns"
   fauna:
-    widget: tag-list
+    widget: tag-input
     allow_custom: true
     suggestions:
       - "mammals"
@@ -91,7 +91,7 @@ field_config:
       - "crustaceans"
       - "mollusks"
   natural_resources:
-    widget: tag-list
+    widget: tag-input
     allow_custom: true
     suggestions:
       - "timber"
@@ -105,7 +105,7 @@ field_config:
       - "clay"
       - "peat"
   hazards:
-    widget: tag-list
+    widget: tag-input
     allow_custom: true
     suggestions:
       - "flooding"
