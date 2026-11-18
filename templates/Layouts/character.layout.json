@@ -276,14 +276,12 @@
         {
           "key": "eye_color",
           "label": "Eye Color",
-          "ui_component": "color-picker",
-          "palette_name": "eye_colors"
+          "ui_component": "color-palette"
         },
         {
           "key": "hair_color",
           "label": "Hair Color",
-          "ui_component": "color-picker",
-          "palette_name": "hair_colors"
+          "ui_component": "color-palette"
         },
         {
           "key": "nail_color",

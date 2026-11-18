@@ -242,10 +242,13 @@ def load_widget_registry(path: pathlib.Path = WIDGET_IDS_FILE) -> dict[str, Any]
         "views": frozenset(
             v for group in (data.get("views") or {}).values() for v in group
         ),
-        # Template keys core never derives as fields (a view cannot show them)
-        # and the virtual keys a view may name although no template declares
-        # them (``updated`` = the entity's last-modified time).
-        "meta_keys": frozenset(data.get("frontmatter_meta_keys") or []),
+        # Template keys core never derives as fields (a view cannot show them):
+        # FRONTMATTER_META_KEYS plus TEMPLATE_METADATA_FIELDS, both of which
+        # core skips when it walks the top-level frontmatter keys. Also the
+        # virtual keys a view may name although no template declares them
+        # (``updated`` = the entity's last-modified time).
+        "meta_keys": frozenset(data.get("frontmatter_meta_keys") or [])
+        | frozenset(data.get("template_metadata_fields") or []),
         "virtual_keys": frozenset(data.get("view_virtual_keys") or []),
     }
 
@@ -343,15 +346,37 @@ def check_views_semantics(
     return errors
 
 
+_FRONTMATTER_CLOSE_RE = re.compile(r"^---[ \t]*$", re.MULTILINE)
+
+
+def split_frontmatter(text: str) -> tuple[str, str] | None:
+    """Split ``---``-delimited frontmatter from the body, the way core does.
+
+    The closing delimiter is a line that is ``---`` (core's
+    ``split_frontmatter`` closes on ``"\n---"``), never a ``---`` inside a
+    value such as ``description: "Fast---very fast"``. Returns None when the
+    text has no opening or no closing delimiter.
+    """
+    if not text.startswith("---"):
+        return None
+    first_nl = text.find("\n")
+    if first_nl < 0:
+        return None
+    close = _FRONTMATTER_CLOSE_RE.search(text, first_nl + 1)
+    if close is None:
+        return None
+    return text[first_nl + 1:close.start()], text[close.end():]
+
+
 def _frontmatter(path: pathlib.Path) -> tuple[dict[str, Any] | None, str | None]:
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---"):
         return None, "missing YAML frontmatter delimiter"
-    parts = text.split("---", 2)
-    if len(parts) < 3:
+    parts = split_frontmatter(text)
+    if parts is None:
         return None, "malformed frontmatter (no closing ---)"
     try:
-        data = yaml.safe_load(parts[1])
+        data = yaml.safe_load(parts[0])
     except yaml.YAMLError as exc:
         return None, f"YAML parse error: {exc}"
     if not isinstance(data, dict):
@@ -360,11 +385,15 @@ def _frontmatter(path: pathlib.Path) -> tuple[dict[str, Any] | None, str | None]
 
 
 def _template_field_keys(fm: dict[str, Any]) -> set[str]:
-    keys = {str(k) for k in fm.keys()}
-    field_config = fm.get("field_config")
-    if isinstance(field_config, dict):
-        keys |= {str(k) for k in field_config.keys()}
-    return keys
+    """Candidate field keys: the top-level frontmatter keys only.
+
+    Core derives fields from the top-level keys (SDK ``templateToEntitySchema``
+    walks ``Object.entries(fm)``; Rust ``template_to_schema_def`` walks the
+    frontmatter map). A key that exists only under ``field_config`` is not a
+    field, so a view naming it is silently dropped. Callers subtract the meta
+    keys (``registry["meta_keys"]``).
+    """
+    return {str(k) for k in fm.keys()}
 
 
 def template_errors(fm: dict[str, Any], label: str, registry: dict[str, Any]) -> list[str]:
@@ -668,12 +697,12 @@ def check_entity_frontmatter() -> list[str]:
         if not text.startswith("---"):
             errors.append(f"{md}: missing YAML frontmatter delimiter")
             continue
-        parts = text.split("---", 2)
-        if len(parts) < 3:
+        parts = split_frontmatter(text)
+        if parts is None:
             errors.append(f"{md}: malformed frontmatter (no closing ---)")
             continue
         try:
-            data = yaml.safe_load(parts[1])
+            data = yaml.safe_load(parts[0])
         except yaml.YAMLError as exc:
             errors.append(f"{md}: YAML parse error: {exc}")
             continue

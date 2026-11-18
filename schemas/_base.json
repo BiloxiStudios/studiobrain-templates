@@ -162,8 +162,8 @@
   "$defs": {
     "entityTypeSlug": {
       "type": "string",
-      "description": "Entity type id: lowercase letter first, then lowercase letters, digits and underscores (e.g. character, vehicle, star_system).",
-      "pattern": "^[a-z][a-z0-9_]*$"
+      "description": "Entity type id: a lowercase letter or digit first, then lowercase letters, digits and underscores (e.g. character, vehicle, star_system, 3d_level). A leading digit is allowed because the shipped 3D Level map type is 3d_level and existing maps store that id as their entity_type and template_id; renaming it would orphan them.",
+      "pattern": "^[a-z0-9][a-z0-9_]*$"
     },
     "templateCategory": {
       "type": "string",

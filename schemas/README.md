@@ -445,7 +445,7 @@ ids and values describe the field. Allowed `type` values:
 ## Adding a new entity type
 
 Users create their own types in the app with no change here: `entity_type` is
-any slug matching `^[a-z][a-z0-9_]*$` (SBAI-15043), and core generates the
+any slug matching `^[a-z0-9][a-z0-9_]*$` (SBAI-15043; a leading digit is allowed for the shipped `3d_level`), and core generates the
 form, detail page and browse views from the template alone. The steps below
 are only for a type this repo ships.
 

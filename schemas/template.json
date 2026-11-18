@@ -4,13 +4,14 @@
   "title": "StudioBrain Template Metadata Schema",
   "description": "Template-level metadata in the YAML frontmatter of a *_TEMPLATE.md file (SBAI-15043): the type id, category, icon/colour, per-field configuration and browse views. Entity field values in a template are placeholders and are not checked here; per-type schemas (<entity_type>.json) check real entity instances. A user-defined type (any slug) validates against this schema with no layout and no per-type schema.",
   "type": "object",
-  "required": ["entity_type", "template_category"],
+  "required": ["entity_type"],
   "properties": {
     "entity_type": {
       "$ref": "./_base.json#/$defs/entityTypeSlug"
     },
     "template_category": {
-      "$ref": "./_base.json#/$defs/templateCategory"
+      "$ref": "./_base.json#/$defs/templateCategory",
+      "description": "Optional: core treats a missing category as entity (Rust from_str_lossy, SDK templateToEntitySchema), so user, community and legacy templates without it still load."
     },
     "template_version": {
       "type": "string",

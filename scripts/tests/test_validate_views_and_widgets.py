@@ -69,10 +69,12 @@ class CustomTemplateTests(unittest.TestCase):
         self.assertEqual(validate.template_errors(_fm(CUSTOM_VEHICLE), "vehicle", REGISTRY), [])
 
     def test_slug_rules(self) -> None:
-        for good in ("vehicle", "star_system", "level_3d", "npc2"):
+        # A leading digit is allowed: the shipped 3D Level map type is
+        # `3d_level`, and existing maps store that id (review fix).
+        for good in ("vehicle", "star_system", "level_3d", "npc2", "3d_level"):
             fm = {"entity_type": good, "template_category": "entity"}
             self.assertEqual(validate.template_errors(fm, good, REGISTRY), [], good)
-        for bad in ("Vehicle", "star-system", "3d_level", "_x", ""):
+        for bad in ("Vehicle", "star-system", "3D_level", "_x", ""):
             fm = {"entity_type": bad, "template_category": "entity"}
             self.assertTrue(validate.template_errors(fm, bad, REGISTRY), bad)
 
@@ -83,6 +85,15 @@ class CustomTemplateTests(unittest.TestCase):
         for bad in ("core", "system", "docs"):
             fm = {"entity_type": "x", "template_category": bad}
             self.assertTrue(validate.template_errors(fm, bad, REGISTRY), bad)
+
+    def test_template_category_is_optional(self) -> None:
+        # Core defaults a missing category to `entity`; user, community and
+        # legacy templates without the key must validate.
+        self.assertEqual(validate.template_errors({"entity_type": "vehicle"}, "x", REGISTRY), [])
+
+    def test_template_fixture_passes_the_views_lint(self) -> None:
+        fm = json.loads((ROOT / "schemas" / "fixtures" / "valid_template_custom_vehicle.json").read_text())
+        self.assertEqual(validate.template_errors(fm, "fixture", REGISTRY), [])
 
     def test_unknown_field_type_is_open(self) -> None:
         fm = {"entity_type": "x", "template_category": "entity",
@@ -189,6 +200,28 @@ class ViewsSemanticsTests(unittest.TestCase):
         self.assertTrue(validate.layout_errors(layout, "x", REGISTRY))
         self.assertEqual(validate.layout_errors(layout, "x", REGISTRY, {"rarity"}), [])
 
+    def test_field_config_only_keys_are_not_fields(self) -> None:
+        # Core derives fields from top-level frontmatter keys only; a key that
+        # exists only under field_config is dropped from every view.
+        fm = {"entity_type": "x", "name": "", "status": "a",
+              "field_config": {"phase": {"type": "enum", "options": ["a", "b"]}},
+              "views": {"board": {"group_by": "phase"}, "facets": ["status"]}}
+        errs = validate.template_errors(fm, "x", REGISTRY)
+        self.assertEqual(len(errs), 1, errs)
+        self.assertIn("'phase'", errs[0])
+
+    def test_template_metadata_fields_are_not_fields(self) -> None:
+        # TEMPLATE_METADATA_FIELDS (created_date, last_updated, ...) are
+        # skipped by core even though they are top-level keys.
+        fm = {"entity_type": "x", "name": "", "created_date": "", "last_updated": "",
+              "ui_color": "#000",
+              "views": {"enabled": ["calendar"], "calendar": {"date_field": "created_date"},
+                        "sort": {"default": "last_updated"},
+                        "roles": {"card_fields": ["ui_color"]}}}
+        errs = validate.template_errors(fm, "x", REGISTRY)
+        flagged = sorted(e.split("names unknown field ")[1] for e in errs)
+        self.assertEqual(flagged, ["'created_date'", "'last_updated'", "'ui_color'"])
+
     def test_grid_fields_must_name_fields(self) -> None:
         fm = {"entity_type": "x", "template_category": "entity", "power": 1,
               "grid_fields": ["power", "speed"]}
@@ -197,7 +230,34 @@ class ViewsSemanticsTests(unittest.TestCase):
         self.assertIn("'speed'", errs[0])
 
 
+class FrontmatterSplitTests(unittest.TestCase):
+    def test_closes_only_on_a_delimiter_line(self) -> None:
+        text = '---\nentity_type: x\ndescription: "Fast---very fast"\nrule: |\n  a --- b\n---\n# Body ---\n'
+        fm, body = validate.split_frontmatter(text)
+        data = yaml.safe_load(fm)
+        self.assertEqual(data["description"], "Fast---very fast")
+        self.assertEqual(data["rule"], "a --- b\n")
+        self.assertIn("# Body ---", body)
+
+    def test_missing_closing_delimiter(self) -> None:
+        self.assertIsNone(validate.split_frontmatter("---\nentity_type: x\nnote: a---b\n"))
+        self.assertIsNone(validate.split_frontmatter("entity_type: x\n"))
+
+
 class RegistryExportTests(unittest.TestCase):
+    def test_typescript_interface_lists_every_export_key(self) -> None:
+        data = json.loads((ROOT / "schemas" / "registry" / "widget-ids.json").read_text())
+        dts = (ROOT / "index.d.ts").read_text()
+        body = dts[dts.index("export interface WidgetIds {"):]
+        body = body[:body.index("\n}")]
+        for key in data:
+            if not key.startswith("$") and key != "source":
+                self.assertIn(f"  {key}:", body, key)
+
+    def test_template_metadata_fields_are_meta_keys(self) -> None:
+        for key in ("created_date", "last_updated", "ui_icon", "generation_instructions"):
+            self.assertIn(key, REGISTRY["meta_keys"], key)
+
     def test_export_is_internally_consistent(self) -> None:
         data = json.loads((ROOT / "schemas" / "registry" / "widget-ids.json").read_text())
         widgets = set(data["widgets"])
@@ -231,6 +291,32 @@ class ShippedDataTests(unittest.TestCase):
             data = json.loads((ROOT / "templates" / "Layouts" / f"{name}.layout.json").read_text())
             self.assertIs(data.get("view_config", {}).get("layout_driven"), True, name)
 
+    def test_layout_driven_layouts_keep_the_hero_and_assets(self) -> None:
+        # A layout_driven detail page renders only the layout's sections, so
+        # one without these blocks loses the hero image and asset gallery the
+        # auto-layout gave it. These five turned layout_driven in SBAI-15043.
+        for name in ("brand", "district", "faction", "item", "location"):
+            data = json.loads((ROOT / "templates" / "Layouts" / f"{name}.layout.json").read_text())
+            components = [s.get("component") for s in data["sections"]]
+            self.assertIn("primary-image", components, name)
+            self.assertIn("entity-assets", components, name)
+
+    def test_character_colour_widgets_hold_name_hex_objects(self) -> None:
+        # eye_color / hair_color store {name, hex}; the layout widget wins over
+        # field_config, so it must be the palette widget, not color-picker.
+        layout = json.loads((ROOT / "templates" / "Layouts" / "character.layout.json").read_text())
+        widgets = {f["key"]: f.get("ui_component")
+                   for s in layout["sections"] for f in s.get("fields") or []}
+        fm = _fm((ROOT / "templates" / "Standard" / "CHARACTER_TEMPLATE.md").read_text())
+        for key in ("eye_color", "hair_color"):
+            self.assertEqual(widgets[key], "color-palette", key)
+            self.assertEqual(fm["field_config"][key]["widget"], "color-palette", key)
+            self.assertIsInstance(fm[key], dict, key)
+
+    def test_3d_level_map_keeps_its_entity_type(self) -> None:
+        fm = _fm((ROOT / "templates" / "Standard" / "Maps" / "3D_Level_MAP_TEMPLATE.md").read_text())
+        self.assertEqual(fm["entity_type"], "3d_level")
+
     def test_standard_templates_ship_the_tuned_views(self) -> None:
         def views(name: str) -> dict:
             return _fm((ROOT / "templates" / "Standard" / f"{name}_TEMPLATE.md").read_text())["views"]
@@ -255,13 +341,18 @@ class ShippedDataTests(unittest.TestCase):
             self.assertEqual(views(name)["default"], "cards", name)
         self.assertEqual(views("DIALOGUE")["default"], "list")
 
-    def test_character_age_and_birth_year_are_integers(self) -> None:
+    def test_character_year_fields_keep_their_existing_shape(self) -> None:
+        # Existing characters store age as a string ("18", "mid-30s") and the
+        # years as null. Core honours field_config.<k>.type and validates on
+        # write without coercion, so declaring integer here 422s every save of
+        # an untouched existing character. Keep them undeclared until a
+        # migration or coercion ships.
         for rel in ("templates/Standard/CHARACTER_TEMPLATE.md",
                     "templates/Packs/starter-characters/templates/CHARACTER_TEMPLATE.md"):
             fm = _fm((ROOT / rel).read_text())
-            self.assertIsInstance(fm["age"], int, rel)
-            for key in ("age", "birth_year"):
-                self.assertEqual(fm["field_config"][key]["type"], "integer", f"{rel} {key}")
+            self.assertIsInstance(fm["age"], str, rel)
+            for key in ("age", "birth_year", "death_year"):
+                self.assertNotIn("type", (fm.get("field_config") or {}).get(key) or {}, f"{rel} {key}")
 
 
 if __name__ == "__main__":

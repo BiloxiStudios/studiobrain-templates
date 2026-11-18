@@ -65,6 +65,12 @@ export interface WidgetIds {
   component_blocks: string[];
   plugin_component_pattern: string;
   views: { core: string[]; cloud: string[] };
+  /** Core FRONTMATTER_META_KEYS: template keys that never derive as fields. */
+  frontmatter_meta_keys: string[];
+  /** Core TEMPLATE_METADATA_FIELDS: also skipped when core derives fields. */
+  template_metadata_fields: string[];
+  /** Keys a view may name although no template declares them (`updated`). */
+  view_virtual_keys: string[];
 }
 
 export const SCHEMA_FILES: Readonly<Record<SchemaName, string>>;
