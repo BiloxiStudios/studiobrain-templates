@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/views.json",
+  "title": "StudioBrain Browse Views Schema",
+  "description": "Browse-page view configuration for an entity type (SBAI-15043). Accepted as `views` in a *.layout.json file and in TEMPLATE.md frontmatter. Every key is optional: core infers whatever is absent (spec section 3). Precedence is per key: layout `views`, then template `views`, then legacy `grid_fields` / `list_layout`, then the category default, then inferred. Field keys are not checked against the template here; scripts/validate.py cross-checks shipped data.",
+  "type": "object",
+  "properties": {
+    "default": {
+      "$ref": "#/$defs/viewKind",
+      "description": "View the browse page opens on. When it names a view that is not registered in the running edition (e.g. `map` in core), core falls back to the category default."
+    },
+    "enabled": {
+      "type": "array",
+      "description": "Views offered in the view toggle, in order. Unregistered ids are dropped by core at runtime. Absent: the category default plus conditional views (board/calendar/gallery/carousel) the fields allow.",
+      "items": {"$ref": "#/$defs/viewKind"},
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "roles": {
+      "type": "object",
+      "description": "Which fields fill the card/list slots.",
+      "properties": {
+        "title": {"$ref": "#/$defs/fieldKey", "description": "Card title. Default: `name`, else the first string field."},
+        "subtitle": {"$ref": "#/$defs/fieldKey", "description": "Second line. Default: the next short string field."},
+        "image": {"$ref": "#/$defs/fieldKey", "description": "Card/gallery image. Default: `primary_image`, else the first image field."},
+        "badges": {
+          "type": "array",
+          "description": "Enum-like fields rendered as badges (at most 3).",
+          "items": {"$ref": "#/$defs/fieldKey"},
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "card_fields": {
+          "type": "array",
+          "description": "Scalar fields shown on the card body (at most 6).",
+          "items": {"$ref": "#/$defs/fieldKey"},
+          "maxItems": 6,
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "table": {
+      "type": "object",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "description": "Table columns in order. A bare string is shorthand for {key}.",
+          "items": {
+            "oneOf": [
+              {"$ref": "#/$defs/fieldKey"},
+              {
+                "type": "object",
+                "required": ["key"],
+                "properties": {
+                  "key": {"$ref": "#/$defs/fieldKey"},
+                  "label": {"type": "string"},
+                  "width": {"type": "integer", "minimum": 1},
+                  "display": {"$ref": "#/$defs/displayKind"}
+                },
+                "additionalProperties": false
+              }
+            ]
+          },
+          "minItems": 1
+        },
+        "compact": {"type": "boolean", "description": "Dense rows (the rule/skill default)."}
+      },
+      "additionalProperties": false
+    },
+    "board": {
+      "type": "object",
+      "properties": {
+        "group_by": {"$ref": "#/$defs/fieldKey", "description": "Enum field whose values are the board columns. Default: `status`, else the first enum."},
+        "columns": {
+          "type": "array",
+          "description": "Optional column order (values of group_by). Values not listed follow in option order.",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "calendar": {
+      "type": "object",
+      "properties": {
+        "date_field": {"$ref": "#/$defs/fieldKey"},
+        "end_field": {"$ref": "#/$defs/fieldKey"}
+      },
+      "additionalProperties": false
+    },
+    "gallery": {
+      "type": "object",
+      "properties": {
+        "aspect": {"enum": ["square", "portrait", "landscape"]},
+        "masonry": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "sort": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "description": "Initial sort. A string is a field key, `-key` sorts descending.",
+          "oneOf": [
+            {"type": "string", "pattern": "^-?[A-Za-z_][A-Za-z0-9_.-]*$"},
+            {
+              "type": "object",
+              "required": ["key"],
+              "properties": {
+                "key": {"$ref": "#/$defs/fieldKey"},
+                "direction": {"enum": ["asc", "desc"]}
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "options": {
+          "type": "array",
+          "description": "Sortable field keys offered in the sort menu.",
+          "items": {"$ref": "#/$defs/fieldKey"},
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "facets": {
+      "type": "array",
+      "description": "Filter facets (enum, boolean and tags fields).",
+      "items": {"$ref": "#/$defs/fieldKey"},
+      "uniqueItems": true
+    }
+  },
+  "patternProperties": {
+    "^plugin:[a-z0-9][a-z0-9_-]*(?::[a-z0-9][a-z0-9_-]*)?$": {
+      "type": "object",
+      "description": "Configuration for a plugin-provided view, keyed by its view id.",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "viewKind": {
+      "description": "Browse view id. Core registers cards, list, table, gallery, carousel, board and calendar; cloud registers map and timeline; `plugin:<plugin>[:<view>]` is reserved for plugin views.",
+      "anyOf": [
+        {"enum": ["cards", "list", "table", "gallery", "carousel", "board", "calendar", "map", "timeline"]},
+        {"type": "string", "pattern": "^plugin:[a-z0-9][a-z0-9_-]*(?::[a-z0-9][a-z0-9_-]*)?$"}
+      ]
+    },
+    "displayKind": {
+      "description": "How a table cell renders its value.",
+      "enum": ["text", "swatch", "stars", "chips", "thumbnail", "unit", "date", "link"]
+    },
+    "fieldKey": {
+      "type": "string",
+      "description": "A frontmatter field key (dotted paths reach nested values). `updated` and `created` name the entity timestamps.",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z0-9_-]+)*$"
+    }
+  }
+}
