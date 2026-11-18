@@ -4,11 +4,32 @@ name: "Faction Display Name"
 
 # METADATA (REQUIRED)
 template_version: "1.0"
+template_category: "entity"
 ui_icon: "Shield"
 ui_color: "#ef4444"
 entity_type: "faction"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: cards
+  enabled: [cards, list, table, gallery]
+  roles:
+    image: primary_image
+    subtitle: motto
+    badges: [faction_type, influence_level]
+    card_fields: [member_count, headquarters, ideology]
+  table:
+    columns:
+      - {key: name}
+      - {key: faction_type}
+      - {key: influence_level}
+      - {key: member_count}
+      - {key: status}
+      - {key: updated}
+  sort: {default: name, options: [name, member_count, updated]}
+  facets: [faction_type, influence_level, status]
+
 status: "active"  # active, disbanded, underground, archived, draft
 
 # PRODUCTION STATUS TRACKING

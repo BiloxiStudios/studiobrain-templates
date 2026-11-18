@@ -19,26 +19,8 @@
       "pattern": "^[a-z0-9][a-z0-9_]*$"
     },
     "entity_type": {
-      "type": "string",
-      "description": "Entity type discriminator.",
-      "enum": [
-        "character",
-        "location",
-        "item",
-        "faction",
-        "brand",
-        "district",
-        "job",
-        "quest",
-        "event",
-        "campaign",
-        "assembly",
-        "dialogue",
-        "timeline",
-        "universe",
-        "style_bible",
-        "biome"
-      ]
+      "$ref": "#/$defs/entityTypeSlug",
+      "description": "Entity type discriminator: a lowercase slug. Users define their own types (SBAI-15043), so this is open; per-type schemas pin it with const."
     },
     "template_version": {
       "type": "string",
@@ -46,13 +28,7 @@
       "pattern": "^\\d+\\.\\d+$"
     },
     "template_category": {
-      "type": "string",
-      "description": "Broad category of the template.",
-      "enum": [
-        "entity",
-        "document",
-        "core"
-      ]
+      "$ref": "#/$defs/templateCategory"
     },
     "created_date": {
       "type": "string",
@@ -165,7 +141,40 @@
         "string",
         "null"
       ]
+    },
+    "views": {
+      "$ref": "./views.json",
+      "description": "Template-level browse views, shared with teammates through template sync (SBAI-15043). Reserved meta key: never derived as an entity field."
+    },
+    "grid_fields": {
+      "type": "array",
+      "description": "Legacy card fields. Read as views.roles.card_fields. Reserved meta key.",
+      "items": {
+        "$ref": "./views.json#/$defs/fieldKey"
+      }
+    },
+    "list_layout": {
+      "$ref": "./views.json",
+      "description": "Legacy name for views; read as views. Reserved meta key."
     }
   },
-  "additionalProperties": true
+  "additionalProperties": true,
+  "$defs": {
+    "entityTypeSlug": {
+      "type": "string",
+      "description": "Entity type id: a lowercase letter or digit first, then lowercase letters, digits and underscores (e.g. character, vehicle, star_system, 3d_level). A leading digit is allowed because the shipped 3D Level map type is 3d_level and existing maps store that id as their entity_type and template_id; renaming it would orphan them.",
+      "pattern": "^[a-z0-9][a-z0-9_]*$"
+    },
+    "templateCategory": {
+      "type": "string",
+      "description": "Template category: decides rendering (form, rich editor, map renderer, rule, skill) and the default browse views.",
+      "enum": [
+        "entity",
+        "document",
+        "map",
+        "rule",
+        "skill"
+      ]
+    }
+  }
 }

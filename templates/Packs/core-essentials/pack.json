@@ -17,7 +17,8 @@
   "layouts": [
     "../../Layouts/character.layout.json",
     "../../Layouts/location.layout.json",
-    "../../Layouts/item.layout.json"
+    "../../Layouts/item.layout.json",
+    "../../Layouts/biome.layout.json"
   ],
   "examples": [],
   "plugins": ["entity-notes", "entity-snapshots", "content-stats"],

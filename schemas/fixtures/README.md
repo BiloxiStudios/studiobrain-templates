@@ -21,6 +21,22 @@ These files keep the old v1/v2 Python plugin manifest shape honest so CI can pro
 | `valid_v1_legacy.json` | Legacy v1 manifest using capabilities-based contract with `manifest_version: 1` | ✅ PASS |
 | `invalid_v1_missing_capabilities.json` | Legacy v1 manifest missing required `capabilities` field | ❌ FAIL |
 
+## Template, layout and views fixtures (SBAI-15043)
+
+Routed by filename: `*_template_*` → `template.json`, `*_layout_*` → `layout.json`, `*_views_*` → `views.json`.
+
+| Fixture | Purpose | Should Validate |
+|---------|---------|-----------------|
+| `valid_template_custom_vehicle.json` | User-defined `vehicle` type with section-2 field types and every views key | ✅ PASS |
+| `invalid_template_bad_slug.json` | `entity_type` is not a slug | ❌ FAIL |
+| `invalid_template_retired_category.json` | `template_category: core` (retired) | ❌ FAIL |
+| `invalid_template_bad_views.json` | Unknown view id and four badges | ❌ FAIL |
+| `valid_layout_custom_type_views.json` | Layout for a custom type with tabs, sub_fields and views | ✅ PASS |
+| `invalid_layout_unknown_view_kind.json` | `kanban` is not a view id | ❌ FAIL |
+| `invalid_layout_unknown_view_key.json` | Unknown key inside `views` | ❌ FAIL |
+| `valid_views_category_default.json` | Compact table/list views (rule/skill default) | ✅ PASS |
+| `invalid_views_bad_display.json` | Unknown table `display` kind | ❌ FAIL |
+
 ## Running Fixture Tests
 
 ```bash

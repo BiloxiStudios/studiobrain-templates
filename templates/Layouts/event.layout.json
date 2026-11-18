@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Event ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "auto_generate_from": "name",
           "help": "Auto-generated: lowercase, spaces replaced with underscores"
         },
@@ -165,7 +165,7 @@
         {
           "key": "affected_locations",
           "label": "Affected Locations",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "location",
           "max_selections": 20,
           "placeholder": "Search for affected locations..."
@@ -173,7 +173,7 @@
         {
           "key": "affected_characters",
           "label": "Affected Characters",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "max_selections": 20,
           "placeholder": "Search for affected characters..."
@@ -181,7 +181,7 @@
         {
           "key": "affected_factions",
           "label": "Affected Factions",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "faction",
           "max_selections": 10,
           "placeholder": "Search for affected factions..."
@@ -189,7 +189,7 @@
         {
           "key": "related_campaigns",
           "label": "Related Campaigns",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "campaign",
           "max_selections": 5,
           "placeholder": "Search for related campaigns..."
@@ -197,7 +197,7 @@
         {
           "key": "related_quests",
           "label": "Related Quests",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "quest",
           "max_selections": 20,
           "placeholder": "Search for related quests..."

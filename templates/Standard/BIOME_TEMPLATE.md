@@ -65,7 +65,7 @@ field_config:
       - { value: "contained_within", label: "Contained Within" }
       - { value: "overlaps", label: "Overlaps" }
   flora:
-    widget: tag-list
+    widget: tag-input
     allow_custom: true
     suggestions:
       - "deciduous trees"
@@ -79,7 +79,7 @@ field_config:
       - "vines"
       - "ferns"
   fauna:
-    widget: tag-list
+    widget: tag-input
     allow_custom: true
     suggestions:
       - "mammals"
@@ -91,7 +91,7 @@ field_config:
       - "crustaceans"
       - "mollusks"
   natural_resources:
-    widget: tag-list
+    widget: tag-input
     allow_custom: true
     suggestions:
       - "timber"
@@ -105,7 +105,7 @@ field_config:
       - "clay"
       - "peat"
   hazards:
-    widget: tag-list
+    widget: tag-input
     allow_custom: true
     suggestions:
       - "flooding"
@@ -118,6 +118,26 @@ field_config:
       - "extreme heat"
       - "volcanic eruption"
       - "landslide"
+
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: gallery
+  enabled: [gallery, cards, map, table, list]
+  roles:
+    image: primary_image
+    badges: [biome_type, threat_level]
+    card_fields: [climate, ecosystem_health, parent_location]
+  gallery: {aspect: landscape}
+  table:
+    columns:
+      - {key: name}
+      - {key: biome_type}
+      - {key: climate}
+      - {key: threat_level}
+      - {key: ecosystem_health}
+      - {key: updated}
+  sort: {default: name, options: [name, updated]}
+  facets: [biome_type, threat_level, ecosystem_health, status]
 
 status: "active"  # active, archived, draft, deprecated
 

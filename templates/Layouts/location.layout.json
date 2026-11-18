@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Location ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "auto_generate_from": "name",
           "required": true,
           "help": "Auto-generated: lowercase, spaces replaced with underscores",
@@ -79,6 +79,18 @@
           ]
         }
       ],
+      "editor_component": null,
+      "viewer_component": null
+    },
+    {
+      "id": "block_primary_image",
+      "title": "Primary Image",
+      "icon": "ImageIcon",
+      "component": "primary-image",
+      "component_config": {"object_fit": "cover"},
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false,
       "editor_component": null,
       "viewer_component": null
     },
@@ -172,7 +184,7 @@
         {
           "key": "primary_npcs",
           "label": "Primary NPCs",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "reference_type": "character",
           "help": "Key characters who live, work, or are frequently found at this location.",
@@ -254,7 +266,7 @@
         {
           "key": "faction_control",
           "label": "Faction Control",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "reference_type": "faction",
           "relationship_types": [
@@ -281,7 +293,7 @@
         {
           "key": "associated_brands",
           "label": "Associated Brands",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "reference_type": "brand",
           "help": "Brands that operate, are sold, or have presence at this location.",
@@ -300,7 +312,7 @@
         {
           "key": "available_jobs",
           "label": "Available Jobs",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "reference_type": "job",
           "help": "Job positions typically available at this location.",
@@ -351,7 +363,7 @@
         {
           "key": "primary_brand",
           "label": "Primary Brand",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "brand",
           "help": "The main brand this location represents or operates under.",
           "relationship_types": [
@@ -391,7 +403,7 @@
         {
           "key": "available_items",
           "label": "Available Items",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "reference_type": "item",
           "help": "Items that can be found, purchased, or are commonly available at this location.",
@@ -574,17 +586,17 @@
         {
           "key": "color_palette.primary",
           "label": "Primary Color",
-          "ui_component": "color"
+          "ui_component": "color-picker"
         },
         {
           "key": "color_palette.secondary",
           "label": "Secondary Color",
-          "ui_component": "color"
+          "ui_component": "color-picker"
         },
         {
           "key": "color_palette.accent",
           "label": "Accent Color",
-          "ui_component": "color"
+          "ui_component": "color-picker"
         }
       ],
       "editor_component": null,
@@ -775,6 +787,19 @@
       "component": "entity-workflow-trigger",
       "editor_component": null,
       "viewer_component": null
+    },
+    {
+      "id": "block_assets",
+      "title": "Asset Browser",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin",
+      "editor_component": null,
+      "viewer_component": null
     }
-  ]
+  ],
+  "view_config": {
+    "layout_driven": true
+  }
 }

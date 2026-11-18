@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Character ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "required": true,
           "auto_generate_from": "name",
           "placeholder": "auto-generated from name",
@@ -269,21 +269,19 @@
         {
           "key": "skin_tone",
           "label": "Skin Tone Palette",
-          "ui_component": "skin-tone-palette",
+          "ui_component": "color-palette",
           "column_span": 2,
           "required": true
         },
         {
           "key": "eye_color",
           "label": "Eye Color",
-          "ui_component": "color-select",
-          "palette_name": "eye_colors"
+          "ui_component": "color-palette"
         },
         {
           "key": "hair_color",
           "label": "Hair Color",
-          "ui_component": "color-select",
-          "palette_name": "hair_colors"
+          "ui_component": "color-palette"
         },
         {
           "key": "nail_color",
@@ -413,7 +411,7 @@
         {
           "key": "associated_brands",
           "label": "Employer",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "description": "The brand/company this character works for.",
           "reference_type": "brand",
           "relationship_types": [
@@ -458,7 +456,7 @@
         {
           "key": "family",
           "label": "Family Members",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "relationship_types": [
             {
@@ -505,7 +503,7 @@
         {
           "key": "friends",
           "label": "Friends & Allies",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "relationship_types": [
             {
@@ -540,7 +538,7 @@
         {
           "key": "enemies",
           "label": "Enemies & Rivals",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "relationship_types": [
             {
@@ -571,7 +569,7 @@
         {
           "key": "romantic",
           "label": "Romantic Relationships",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "relationship_types": [
             {

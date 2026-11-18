@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Faction ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "auto_generate_from": "name",
           "required": true,
           "placeholder": "e.g., crimson_raiders",
@@ -99,6 +99,18 @@
       "viewer_component": null
     },
     {
+      "id": "block_primary_image",
+      "title": "Primary Image",
+      "icon": "ImageIcon",
+      "component": "primary-image",
+      "component_config": {"object_fit": "cover"},
+      "component_source": "builtin",
+      "surface": "base",
+      "collapsed_default": false,
+      "editor_component": null,
+      "viewer_component": null
+    },
+    {
       "id": "leadership",
       "title": "Leadership & Hierarchy",
       "icon": "Crown",
@@ -108,7 +120,7 @@
         {
           "key": "leader",
           "label": "Faction Leader",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 1,
           "description": "The primary leader or commander of this faction.",
           "reference_type": "character",
@@ -126,7 +138,7 @@
         {
           "key": "key_members",
           "label": "Key Members",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 1,
           "description": "Important members, officers, and lieutenants of the faction.",
           "reference_type": "character",
@@ -156,7 +168,7 @@
         {
           "key": "headquarters",
           "label": "Headquarters",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 1,
           "description": "Primary base of operations for this faction.",
           "reference_type": "location",
@@ -173,7 +185,7 @@
         {
           "key": "controlled_territories",
           "label": "Controlled Territories",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 1,
           "description": "Locations under this faction's control or influence.",
           "reference_type": "location",
@@ -203,7 +215,7 @@
         {
           "key": "allies",
           "label": "Allied Factions",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 1,
           "description": "Factions that are allies, partners, or have positive relationships.",
           "reference_type": "faction",
@@ -221,7 +233,7 @@
         {
           "key": "enemies",
           "label": "Enemy Factions",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 1,
           "description": "Factions that are enemies, rivals, or in active conflict.",
           "reference_type": "faction",
@@ -251,7 +263,7 @@
         {
           "key": "associated_brands",
           "label": "Associated Brands",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "column_span": 2,
           "description": "Companies, brands, or organizations affiliated with this faction.",
           "reference_type": "brand",
@@ -449,6 +461,19 @@
       ],
       "editor_component": null,
       "viewer_component": null
+    },
+    {
+      "id": "block_assets",
+      "title": "Asset Browser",
+      "icon": "Image",
+      "component": "entity-assets",
+      "component_config": {},
+      "component_source": "builtin",
+      "editor_component": null,
+      "viewer_component": null
     }
-  ]
+  ],
+  "view_config": {
+    "layout_driven": true
+  }
 }

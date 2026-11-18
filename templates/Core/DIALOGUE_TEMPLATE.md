@@ -1,7 +1,7 @@
 ---
 # METADATA (REQUIRED)
 template_version: "1.0"
-template_category: "core"
+template_category: "entity"
 ui_icon: "MessageSquare"
 ui_color: "#3b82f6"
 editable: false
@@ -16,6 +16,25 @@ asset_subfolders:
   - video
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: list
+  enabled: [list, table, cards]
+  roles:
+    badges: [tree_type, status]
+    card_fields: [primary_speaker, estimated_duration, node_count]
+  table:
+    columns:
+      - {key: name}
+      - {key: tree_type}
+      - {key: primary_speaker}
+      - {key: branching_complexity}
+      - {key: node_count}
+      - {key: status}
+      - {key: updated}
+  sort: {default: name, options: [name, node_count, updated]}
+  facets: [tree_type, branching_complexity, status]
+
 status: "draft"  # draft, active, archived
 
 # PRIMARY IMAGE

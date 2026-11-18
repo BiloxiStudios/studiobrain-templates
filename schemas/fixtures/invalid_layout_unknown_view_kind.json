@@ -1,0 +1,6 @@
+{
+  "entity_type": "star_system",
+  "version": "1.0",
+  "sections": [{"id": "basic", "fields": [{"key": "name", "ui_component": "text"}]}],
+  "views": {"enabled": ["cards", "kanban"]}
+}

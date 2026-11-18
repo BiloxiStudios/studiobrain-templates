@@ -55,6 +55,25 @@ field_config:
     min: 1900
     max: 1998
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: calendar
+  enabled: [calendar, timeline, list, table]
+  roles:
+    subtitle: game_date
+    badges: [entry_type, importance_level]
+    card_fields: [timestamp, characters_involved, locations_involved]
+  calendar: {date_field: timestamp}
+  table:
+    columns:
+      - {key: name}
+      - {key: timestamp, display: date}
+      - {key: entry_type}
+      - {key: importance_level}
+      - {key: timeline_category}
+  sort: {default: timestamp, options: [timestamp, sequence_order, name, updated]}
+  facets: [entry_type, importance_level, timeline_category]
+
 status: "active"
 
 # PRODUCTION STATUS TRACKING

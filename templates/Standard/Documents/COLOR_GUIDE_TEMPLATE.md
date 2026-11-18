@@ -23,13 +23,13 @@ associated_skills: []
 # FIELD WIDGET CONFIGURATION
 field_config:
   color_model:
-    widget: dropdown
+    widget: select
     options: ["RGB", "CMYK", "HSL", "PANTONE", "RAL"]
   color_purpose:
-    widget: dropdown
+    widget: select
     options: ["UI Design", "Character Design", "Environment", "Branding", "Multi-purpose"]
   accessibility_standard:
-    widget: dropdown
+    widget: select
     options: ["WCAG 2.1 AA", "WCAG 2.1 AAA", "Custom"]
 
 status: "active"  # active, development, archived

@@ -40,6 +40,27 @@ field_config:
     reference_type: character
     max_selections: 20
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: gallery
+  enabled: [gallery, table, cards, list]
+  roles:
+    image: primary_image
+    subtitle: tagline
+    badges: [rarity, item_type]
+    card_fields: [value, weight, storage_type]
+  gallery: {aspect: square}
+  table:
+    columns:
+      - {key: primary_image, display: thumbnail, width: 64}
+      - {key: name}
+      - {key: item_type}
+      - {key: rarity, display: chips}
+      - {key: value}
+      - {key: updated}
+  sort: {default: name, options: [name, rarity, value, updated]}
+  facets: [rarity, item_type, status]
+
 status: "active"  # active, deprecated, prototype, archived, draft
 
 # PRODUCTION STATUS TRACKING

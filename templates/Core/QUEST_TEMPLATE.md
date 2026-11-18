@@ -1,7 +1,7 @@
 ---
 # METADATA (REQUIRED)
 template_version: "1.0"
-template_category: "core"
+template_category: "entity"
 ui_icon: "Compass"
 ui_color: "#eab308"
 editable: false
@@ -16,6 +16,26 @@ asset_subfolders:
   - video
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: board
+  enabled: [board, cards, list, table]
+  roles:
+    image: primary_image
+    badges: [quest_type, priority_level]
+    card_fields: [quest_giver, estimated_time, required_level]
+  board: {group_by: status}
+  table:
+    columns:
+      - {key: name}
+      - {key: quest_type}
+      - {key: priority_level}
+      - {key: status}
+      - {key: required_level}
+      - {key: updated}
+  sort: {default: name, options: [name, required_level, updated]}
+  facets: [status, quest_type, priority_level, quest_category]
+
 status: "active"  # active, disabled, completed, archived, draft
 
 # PRODUCTION STATUS TRACKING

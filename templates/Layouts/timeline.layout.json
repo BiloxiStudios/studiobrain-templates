@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Timeline Entry ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "auto_generate_from": "name",
           "help": "Auto-generated: lowercase, spaces replaced with underscores"
         },
@@ -178,7 +178,7 @@
         {
           "key": "characters_involved",
           "label": "Characters Involved",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "character",
           "max_selections": 20,
           "placeholder": "Search for characters..."
@@ -186,7 +186,7 @@
         {
           "key": "locations_involved",
           "label": "Locations Involved",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "location",
           "max_selections": 20,
           "placeholder": "Search for locations..."
@@ -194,7 +194,7 @@
         {
           "key": "factions_involved",
           "label": "Factions Involved",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "faction",
           "max_selections": 10,
           "placeholder": "Search for factions..."
@@ -202,7 +202,7 @@
         {
           "key": "brands_involved",
           "label": "Brands Involved",
-          "ui_component": "entity-multi-selector",
+          "ui_component": "entity-multiselect",
           "reference_type": "brand",
           "max_selections": 10,
           "placeholder": "Search for brands..."

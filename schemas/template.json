@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/template.json",
+  "title": "StudioBrain Template Metadata Schema",
+  "description": "Template-level metadata in the YAML frontmatter of a *_TEMPLATE.md file (SBAI-15043): the type id, category, icon/colour, per-field configuration and browse views. Entity field values in a template are placeholders and are not checked here; per-type schemas (<entity_type>.json) check real entity instances. A user-defined type (any slug) validates against this schema with no layout and no per-type schema.",
+  "type": "object",
+  "required": ["entity_type"],
+  "properties": {
+    "entity_type": {
+      "$ref": "./_base.json#/$defs/entityTypeSlug"
+    },
+    "template_category": {
+      "$ref": "./_base.json#/$defs/templateCategory",
+      "description": "Optional: core treats a missing category as entity (Rust from_str_lossy, SDK templateToEntitySchema), so user, community and legacy templates without it still load."
+    },
+    "template_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(?:\\.\\d+)?$"
+    },
+    "ui_icon": {
+      "type": "string",
+      "description": "Lucide icon name shown in the sidebar and type pickers.",
+      "pattern": "^[A-Z][A-Za-z0-9]*$"
+    },
+    "ui_color": {
+      "type": "string",
+      "description": "Accent colour as #RGB or #RRGGBB.",
+      "pattern": "^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$"
+    },
+    "folder_name": {"type": "string", "minLength": 1},
+    "file_prefix": {"type": "string"},
+    "field_config": {
+      "type": ["object", "null"],
+      "description": "Per-field configuration keyed by field name. `type` is the semantic data type (spec section 2); `widget` names the editor widget and is linted against schemas/registry/widget-ids.json.",
+      "additionalProperties": {"$ref": "#/$defs/fieldConfig"}
+    },
+    "views": {"$ref": "./views.json"},
+    "grid_fields": {"$ref": "./_base.json#/properties/grid_fields"},
+    "list_layout": {"$ref": "./views.json"}
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "fieldConfig": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Semantic field type. Known: string, text, integer, number, float, boolean, date, datetime, image, gallery, tags, reference, references, url, email, color, markdown, rating, json, enum, array, object. Open: unknown types pass and fall back to the sample value.",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "widget": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Editor widget id (canonical id from schemas/registry/widget-ids.json, or plugin:<plugin>:<widget>)."
+        },
+        "ui_component": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Synonym of widget."
+        },
+        "label": {"type": "string"},
+        "help": {"type": "string"},
+        "required": {"type": "boolean"},
+        "unit": {"type": "string", "description": "Display unit for numbers, e.g. km/h."},
+        "min": {"type": "number"},
+        "max": {"type": "number"},
+        "step": {"type": "number"},
+        "options": {
+          "type": "array",
+          "description": "Allowed values: plain strings or {value, label} objects.",
+          "items": {
+            "oneOf": [
+              {"type": ["string", "number", "boolean"]},
+              {
+                "type": "object",
+                "description": "{value, label}, or a palette entry such as {label, hex}.",
+                "properties": {
+                  "value": {"type": ["string", "number", "boolean"]},
+                  "label": {"type": "string"}
+                },
+                "additionalProperties": true
+              }
+            ]
+          }
+        },
+        "reference_type": {
+          "type": "string",
+          "description": "Entity type slug (or comma-separated slugs) a reference field points at."
+        },
+        "max_selections": {"type": "integer", "minimum": 1},
+        "allow_custom": {"type": "boolean"},
+        "suggestions": {"type": "array", "items": {"type": "string"}},
+        "relationship_types": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["value", "label"],
+            "properties": {
+              "value": {"type": "string"},
+              "label": {"type": "string"}
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

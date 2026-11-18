@@ -4,11 +4,31 @@ name: "District Display Name"  # Display name shown to users
 
 # METADATA (REQUIRED)
 template_version: "1.0"
+template_category: "entity"
 ui_icon: "Map"
 ui_color: "#f97316"
 entity_type: "district"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: cards
+  enabled: [cards, list, table, gallery]
+  roles:
+    image: primary_image
+    badges: [district_type, current_status]
+    card_fields: [population_count, governing_faction, crime_rate]
+  table:
+    columns:
+      - {key: name}
+      - {key: district_type}
+      - {key: population_count}
+      - {key: crime_rate}
+      - {key: current_status}
+      - {key: updated}
+  sort: {default: name, options: [name, population_count, updated]}
+  facets: [district_type, current_status, crime_rate, status]
+
 status: "active"  # active, quarantined, destroyed, archived, draft
 
 # PRODUCTION STATUS TRACKING

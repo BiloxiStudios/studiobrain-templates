@@ -7,26 +7,8 @@
   "required": ["entity_type", "version", "sections"],
   "properties": {
     "entity_type": {
-      "type": "string",
-      "description": "Entity type this layout renders. Must match an entity_type in schemas/_base.json.",
-      "enum": [
-        "character",
-        "location",
-        "item",
-        "faction",
-        "brand",
-        "district",
-        "job",
-        "quest",
-        "event",
-        "campaign",
-        "assembly",
-        "dialogue",
-        "timeline",
-        "universe",
-        "style_bible",
-        "biome"
-      ]
+      "$ref": "./_base.json#/$defs/entityTypeSlug",
+      "description": "Entity type this layout renders: a lowercase slug. Any user-defined type is valid (SBAI-15043), not only the Standard types."
     },
     "version": {
       "type": "string",
@@ -87,15 +69,33 @@
             "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
           },
           "editor_component": {"type": ["string", "null"]},
-          "viewer_component": {"type": ["string", "null"]}
+          "viewer_component": {"type": ["string", "null"]},
+          "description": {"type": ["string", "null"]},
+          "surface": {
+            "type": ["string", "null"],
+            "description": "Surface token for the section background (base, elevated, overlay, primary, ...)."
+          }
         },
         "additionalProperties": true
       }
     },
     "view_config": {
       "type": ["object", "null"],
-      "description": "Optional view-layer configuration (e.g. {layout_driven: true}).",
+      "description": "Detail-page configuration. `layout_driven: true` renders the detail page from these sections; when it is absent core renders the auto-layout (never a blank page). `tabs` adds a tab shell to view mode.",
+      "properties": {
+        "layout_driven": {"type": ["boolean", "null"]},
+        "view_only_sections": {"type": ["array", "null"], "items": {"type": "object"}},
+        "tabs": {"$ref": "#/$defs/tabs"}
+      },
       "additionalProperties": true
+    },
+    "views": {
+      "$ref": "./views.json",
+      "description": "Browse-page views (cards, list, table, gallery, carousel, board, calendar, ...). Same shape as template frontmatter `views`; a layout's views win per key. See schemas/views.json."
+    },
+    "tabs": {
+      "$ref": "#/$defs/tabs",
+      "description": "Edit/view page tabs (SBAI-1840)."
     },
     "updated_at": {
       "type": ["string", "null"],
@@ -123,7 +123,49 @@
         },
         "ui_component": {
           "type": "string",
-          "description": "Widget registry identifier (text, textarea, number, select, multi_select, toggle, read-only-text, image-upload, color-picker, markdown, entity-reference, ...). 'plugin:<plugin>:<widget>' is reserved for plugin-provided widgets."
+          "minLength": 1,
+          "description": "Widget id from the core widget registry, exported to schemas/registry/widget-ids.json and linted by scripts/validate.py: text, textarea, number, select, multi-select, checkbox, toggle, read-only, date, tag-input, color-picker, color-palette, color-group, entity-selector, entity-multiselect, object-array, nested-object, rich-text, asset-ref, image-ref, ... Aliases such as dropdown or entity-multi-selector still resolve at runtime, but shipped data uses the canonical id. 'plugin:<plugin>:<widget>' is reserved for plugin-provided widgets."
+        },
+        "column_span": {
+          "type": ["integer", "null"],
+          "description": "Grid columns this field spans within its section.",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "reference_type": {
+          "type": ["string", "null"],
+          "description": "For entity-selector / entity-multiselect: the entity type slug (or comma-separated slugs) the field may reference."
+        },
+        "reference_type_field": {
+          "type": ["string", "null"],
+          "description": "Sibling field whose value supplies reference_type at runtime."
+        },
+        "max_selections": {
+          "type": ["integer", "null"],
+          "description": "For multi-value widgets: the maximum number of selections.",
+          "minimum": 1
+        },
+        "relationship_types": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "required": ["value", "label"],
+            "properties": {
+              "value": {"type": "string"},
+              "label": {"type": "string"}
+            },
+            "additionalProperties": true
+          }
+        },
+        "show_relationship_selector": {"type": ["boolean", "null"]},
+        "group": {"type": ["string", "null"]},
+        "palette_name": {"type": ["string", "null"]},
+        "read_only": {"type": ["boolean", "null"]},
+        "description": {"type": ["string", "null"]},
+        "sub_fields": {
+          "type": ["array", "null"],
+          "description": "For object-array / nested-object widgets: the fields of each entry.",
+          "items": {"$ref": "#/$defs/subField"}
         },
         "required": {
           "type": ["boolean", "null"],
@@ -185,6 +227,53 @@
         }
       },
       "additionalProperties": true
+    },
+    "subField": {
+      "type": "object",
+      "required": ["key"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "label": {"type": ["string", "null"]},
+        "ui_component": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "description": "Widget id (see field.ui_component). Defaults to text when omitted."
+        },
+        "placeholder": {"type": ["string", "null"]},
+        "options": {"$ref": "#/$defs/field/properties/options"}
+      },
+      "additionalProperties": true
+    },
+    "tabs": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "label": {"type": "string"},
+          "title": {"type": "string", "description": "Alias of label."},
+          "icon": {"type": "string"},
+          "source": {"type": "string"},
+          "plugin_id": {"type": "string"},
+          "content": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {"enum": ["section_group", "component_block", "plugin_panel"]},
+              "section_ids": {"type": "array", "items": {"type": "string"}},
+              "block_id": {"type": "string"},
+              "config": {"type": "object"},
+              "plugin_panel_id": {"type": "string"}
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
     }
   }
 }

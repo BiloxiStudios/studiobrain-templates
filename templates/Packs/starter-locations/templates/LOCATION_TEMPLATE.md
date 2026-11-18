@@ -4,11 +4,32 @@ name: "Location Display Name"  # Display name shown to users
 
 # METADATA (REQUIRED)
 template_version: "1.0"
+template_category: "entity"
 ui_icon: "MapPin"
 ui_color: "#f59e0b"
 entity_type: "location"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: gallery
+  enabled: [gallery, cards, map, table, list]
+  roles:
+    image: primary_image
+    badges: [location_type, status]
+    card_fields: [district, faction_control, threat_level]
+  gallery: {aspect: landscape}
+  table:
+    columns:
+      - {key: name}
+      - {key: location_type}
+      - {key: district}
+      - {key: threat_level}
+      - {key: status}
+      - {key: updated}
+  sort: {default: name, options: [name, updated]}
+  facets: [location_type, status, threat_level]
+
 status: "active"  # active, destroyed, quarantined, archived, draft
 
 # PRODUCTION STATUS TRACKING

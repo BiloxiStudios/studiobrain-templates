@@ -1,0 +1,5 @@
+{
+  "enabled": ["table", "list"],
+  "table": {"compact": true, "columns": [{"key": "name"}, {"key": "updated", "display": "date"}]},
+  "sort": {"default": "name"}
+}

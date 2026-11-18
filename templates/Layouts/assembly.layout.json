@@ -12,7 +12,7 @@
         {
           "key": "id",
           "label": "Assembly ID",
-          "ui_component": "read-only-text",
+          "ui_component": "read-only",
           "required": true,
           "auto_generate_from": "name",
           "placeholder": "auto-generated from name",

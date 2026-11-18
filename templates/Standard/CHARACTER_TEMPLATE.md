@@ -133,6 +133,27 @@ field_config:
     min: 1900
     max: 1998
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: cards
+  enabled: [cards, gallery, list, table]
+  roles:
+    image: primary_image
+    subtitle: nickname
+    badges: [faction, status]
+    card_fields: [species, age, primary_location]
+  gallery: {aspect: portrait}
+  table:
+    columns:
+      - {key: name}
+      - {key: faction}
+      - {key: species}
+      - {key: age}
+      - {key: status}
+      - {key: updated}
+  sort: {default: name, options: [name, updated]}  # age stays free text (existing data has "18", "mid-30s")
+  facets: [status, faction, species]
+
 status: "active"
 
 # PRODUCTION STATUS TRACKING
