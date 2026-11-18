@@ -1,0 +1,19 @@
+{
+  "entity_type": "star_system",
+  "version": "1.0",
+  "sections": [
+    {
+      "id": "basic",
+      "title": "Basic",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Name", "ui_component": "text", "column_span": 2},
+        {"key": "planets", "label": "Planets", "ui_component": "entity-multiselect", "reference_type": "planet", "max_selections": 12},
+        {"key": "stars", "label": "Stars", "ui_component": "object-array", "sub_fields": [{"key": "class", "label": "Class"}, {"key": "mass", "label": "Mass", "ui_component": "number"}]}
+      ]
+    },
+    {"id": "assets", "title": null, "component": "entity-assets", "fields": null}
+  ],
+  "view_config": {"layout_driven": true, "tabs": [{"id": "visual", "label": "Visual"}]},
+  "views": {"default": "map", "enabled": ["map", "cards", "table"], "roles": {"title": "name"}}
+}
