@@ -212,6 +212,30 @@ class ShippedDataTests(unittest.TestCase):
             data = json.loads((ROOT / "templates" / "Layouts" / f"{name}.layout.json").read_text())
             self.assertIs(data.get("view_config", {}).get("layout_driven"), True, name)
 
+    def test_standard_templates_ship_the_tuned_views(self) -> None:
+        def views(name: str) -> dict:
+            return _fm((ROOT / "templates" / "Standard" / f"{name}_TEMPLATE.md").read_text())["views"]
+
+        character = views("CHARACTER")
+        self.assertEqual(character["default"], "cards")
+        self.assertEqual(character["roles"]["badges"], ["faction", "status"])
+        item = views("ITEM")
+        self.assertEqual(item["default"], "gallery")
+        self.assertIn("table", item["enabled"])
+        self.assertEqual(set(item["roles"]["badges"]), {"rarity", "item_type"})
+        for name in ("LOCATION", "BIOME"):
+            self.assertEqual(views(name)["default"], "gallery", name)
+            self.assertIn("map", views(name)["enabled"], name)
+        quest = views("QUEST")
+        self.assertEqual((quest["default"], quest["board"]["group_by"]), ("board", "status"))
+        timeline = views("TIMELINE")
+        self.assertEqual(timeline["default"], "calendar")
+        self.assertIn("timeline", timeline["enabled"])
+        self.assertTrue(timeline["calendar"]["date_field"])
+        for name in ("FACTION", "BRAND", "DISTRICT"):
+            self.assertEqual(views(name)["default"], "cards", name)
+        self.assertEqual(views("DIALOGUE")["default"], "list")
+
     def test_character_age_and_birth_year_are_integers(self) -> None:
         for rel in ("templates/Standard/CHARACTER_TEMPLATE.md",
                     "templates/Packs/starter-characters/templates/CHARACTER_TEMPLATE.md"):

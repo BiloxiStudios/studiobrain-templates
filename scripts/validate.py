@@ -328,7 +328,7 @@ def check_views_semantics(
     - ``default`` must be one of ``enabled`` when both are given.
     - Every field a view names must exist in the template (or layout), apart
       from the entity timestamps / identity keys in VIEW_PSEUDO_KEYS.
-    - ``board.group_by`` must be a field that declares options (an enum).
+    - View ids must be registered (core or cloud) or ``plugin:*``.
     """
     if not isinstance(views, dict):
         return []

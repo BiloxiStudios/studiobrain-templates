@@ -65,6 +65,20 @@ field_config:
     reference_type: brand
     max_selections: 10
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: gallery
+  enabled: [gallery, cards, map, table, list]
+  roles:
+    image: primary_image
+    badges: [location_type, status]
+    card_fields: [district, faction_control, threat_level]
+  gallery: {aspect: landscape}
+  table:
+    columns: [name, location_type, district, threat_level, status, updated]
+  sort: {default: name, options: [name, updated]}
+  facets: [location_type, status, threat_level]
+
 status: "active"  # active, destroyed, quarantined, archived, draft
 
 # PRODUCTION STATUS TRACKING

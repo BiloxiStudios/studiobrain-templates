@@ -44,6 +44,18 @@ field_config:
     reference_type: character
     max_selections: 1
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: list
+  enabled: [list, table, cards]
+  roles:
+    badges: [tree_type, status]
+    card_fields: [primary_speaker, estimated_duration, node_count]
+  table:
+    columns: [name, tree_type, primary_speaker, branching_complexity, node_count, status, updated]
+  sort: {default: name, options: [name, node_count, updated]}
+  facets: [tree_type, branching_complexity, status]
+
 status: "draft"
 
 # PRODUCTION STATUS TRACKING

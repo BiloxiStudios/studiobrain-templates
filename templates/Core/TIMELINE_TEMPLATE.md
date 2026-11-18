@@ -16,6 +16,21 @@ asset_subfolders:
   - video
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: calendar
+  enabled: [calendar, timeline, list, table]
+  roles:
+    subtitle: game_date
+    badges: [entry_type, importance_level]
+    card_fields: [timestamp, characters_involved, locations_involved]
+  calendar:
+    date_field: timestamp
+  table:
+    columns: [name, {key: timestamp, display: date}, entry_type, importance_level, timeline_category]
+  sort: {default: timestamp, options: [timestamp, sequence_order, name, updated]}
+  facets: [entry_type, importance_level, timeline_category]
+
 status: "active"  # active, draft, archived
 
 # PRIMARY IMAGE

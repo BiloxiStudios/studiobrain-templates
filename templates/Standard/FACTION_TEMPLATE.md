@@ -60,6 +60,20 @@ field_config:
     reference_type: faction
     max_selections: 10
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: cards
+  enabled: [cards, list, table, gallery]
+  roles:
+    image: primary_image
+    subtitle: motto
+    badges: [faction_type, influence_level]
+    card_fields: [member_count, headquarters, ideology]
+  table:
+    columns: [name, faction_type, influence_level, member_count, status, updated]
+  sort: {default: name, options: [name, member_count, updated]}
+  facets: [faction_type, influence_level, status]
+
 status: "active"  # active, disbanded, underground, archived, draft
 
 # PRODUCTION STATUS TRACKING

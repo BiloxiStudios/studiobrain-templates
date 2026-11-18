@@ -119,6 +119,20 @@ field_config:
       - "volcanic eruption"
       - "landslide"
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: gallery
+  enabled: [gallery, cards, map, table, list]
+  roles:
+    image: primary_image
+    badges: [biome_type, threat_level]
+    card_fields: [climate, ecosystem_health, parent_location]
+  gallery: {aspect: landscape}
+  table:
+    columns: [name, biome_type, climate, threat_level, ecosystem_health, updated]
+  sort: {default: name, options: [name, updated]}
+  facets: [biome_type, threat_level, ecosystem_health, status]
+
 status: "active"  # active, archived, draft, deprecated
 
 # PRODUCTION STATUS TRACKING

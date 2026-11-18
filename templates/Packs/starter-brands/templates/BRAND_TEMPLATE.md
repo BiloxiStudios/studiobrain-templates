@@ -10,6 +10,20 @@ ui_color: "#8b5cf6"
 entity_type: "brand"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: cards
+  enabled: [cards, list, table, gallery]
+  roles:
+    image: primary_image
+    subtitle: tagline
+    badges: [industry, market_position]
+    card_fields: [founded, headquarters, store_count]
+  table:
+    columns: [name, industry, market_position, founded, store_count, status, updated]
+  sort: {default: name, options: [name, founded, store_count, updated]}
+  facets: [industry, market_position, quality_tier, status]
+
 status: "active"  # active, defunct, merged, archived, draft
 
 # PRODUCTION STATUS TRACKING

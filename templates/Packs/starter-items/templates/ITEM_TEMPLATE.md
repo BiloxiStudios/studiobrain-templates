@@ -10,6 +10,28 @@ ui_color: "#10b981"
 entity_type: "item"
 created_date: "YYYY-MM-DD"
 last_updated: "YYYY-MM-DD"
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: gallery
+  enabled: [gallery, table, cards, list]
+  roles:
+    image: primary_image
+    subtitle: tagline
+    badges: [rarity, item_type]
+    card_fields: [category, value, weight]
+  gallery: {aspect: square}
+  table:
+    columns:
+      - {key: primary_image, display: thumbnail, width: 64}
+      - name
+      - item_type
+      - {key: rarity, display: chips}
+      - category
+      - value
+      - updated
+  sort: {default: name, options: [name, rarity, value, updated]}
+  facets: [rarity, item_type, category, status]
+
 status: "active"  # active, deprecated, prototype, archived, draft
 
 # PRODUCTION STATUS TRACKING

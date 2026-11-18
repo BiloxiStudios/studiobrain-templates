@@ -39,6 +39,19 @@ field_config:
       - { value: "security_chief", label: "Security Chief" }
       - { value: "council_member", label: "Council Member" }
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: cards
+  enabled: [cards, list, table, gallery]
+  roles:
+    image: primary_image
+    badges: [district_type, current_status]
+    card_fields: [population_count, governing_faction, crime_rate]
+  table:
+    columns: [name, district_type, population_count, crime_rate, current_status, updated]
+  sort: {default: name, options: [name, population_count, updated]}
+  facets: [district_type, current_status, crime_rate, status]
+
 status: "active"  # active, quarantined, destroyed, archived, draft
 
 # PRODUCTION STATUS TRACKING

@@ -22,6 +22,21 @@ field_config:
     type: integer
     widget: year
 
+# BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
+views:
+  default: cards
+  enabled: [cards, gallery, list, table]
+  roles:
+    image: primary_image
+    subtitle: nickname
+    badges: [faction, status]
+    card_fields: [species, age, primary_location]
+  gallery: {aspect: portrait}
+  table:
+    columns: [name, faction, species, age, status, updated]
+  sort: {default: name, options: [name, age, updated]}
+  facets: [status, faction, species]
+
 status: "active"
 
 # PRODUCTION STATUS TRACKING
