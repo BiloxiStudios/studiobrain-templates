@@ -106,13 +106,13 @@
           "key": "game_year",
           "label": "Game Year",
           "ui_component": "number",
-          "placeholder": "1998"
+          "placeholder": "the project's present year"
         },
         {
           "key": "game_date",
           "label": "Game Date",
           "ui_component": "text",
-          "placeholder": "June 15, 1998"
+          "placeholder": "a date in the project"
         },
         {
           "key": "sequence_order",

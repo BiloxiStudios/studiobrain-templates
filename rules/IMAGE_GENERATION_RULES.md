@@ -1,7 +1,5 @@
 ---
-system_prompt: Generate image prompts for the City of Brains universe with low-poly
-  luxe aesthetic, 1990s retro-futuristic style, dramatic lighting with neon accents,
-  and synthwave color palette. Use deep purples, electric yellows, and toxic greens.
+system_prompt: "Generate image prompts for this project. Match the art style, lighting, and palette the project records. For characters, include front, three-quarter left, and three-quarter right portraits when the template asks for them."
 global: false
 priority: medium
 entity_type: image
@@ -9,21 +7,21 @@ rules:
 - id: img_001
   category: style
   priority: high
-  rule: All images must use low-poly luxe aesthetic with 1990s retro-futuristic style
+  rule: "Images must match the art style this project records."
   validation_type: warning
   applies_to:
   - image
 - id: img_002
   category: lighting
   priority: high
-  rule: Use dramatic, cinematic lighting with neon accents
+  rule: "Lighting must match the lighting this project records."
   validation_type: warning
   applies_to:
   - image
 - id: img_003
   category: colors
   priority: high
-  rule: 'Color palette: deep purples, electric yellows, toxic greens'
+  rule: "Colors must match the palette this project records."
   validation_type: warning
   applies_to:
   - image
@@ -40,34 +38,10 @@ last_updated: '2025-01-11'
 version: '1.0'
 ---
 
-# Image Generation Guidelines
+# Image guidance
 
-## ComfyUI Workflows
-- Character portraits: Use workflow_portrait_v2.json
-- Environment concepts: Use workflow_environment_v1.json
-- Brand logos: Use workflow_logo_clean.json
+Match the art style, lighting, and palette recorded on this project. Do not apply a style the project has not chosen.
 
-## Stable Diffusion Settings
-- Model: SDXL 1.0 or custom City of Brains checkpoint
-- Steps: 30-50 for quality
-- CFG Scale: 7-9
-- Sampler: DPM++ 2M Karras
+When the request is a character, produce the angles the template asks for: front, three-quarter left, and three-quarter right. Full-body and action views follow the same style guide.
 
-## DALL-E 3 Format
-```
-[Style: Low-poly luxe, 1990s retro-futuristic]
-[Lighting: Dramatic, cinematic with neon accents]
-[Colors: Deep purples, electric yellows, toxic greens]
-[Subject description]
-```
-
-## Midjourney Format
-```
-[Subject] --style raw --ar 16:9 --v 6
-synthwave aesthetic, 1990s retro futuristic, low poly luxe
-```
-
-## Required Angles for Characters
-- Portrait: Front facing, 3/4 left, 3/4 right
-- Full body: Front, back, left profile, right profile
-- Action poses: Combat ready, idle, interaction
+Name the subject's existing details. Do not invent a costume, a skyline, or a color grade from another world.

@@ -515,14 +515,14 @@ version_history:
 # EXAMPLES
 examples:
   concept_to_published:
-    character_id: "ch_rusty_mcdaniels"
+    character_id: "ch_example_mechanic"
     stages:
       - stage: "concept"
         days: 1
-        notes: "Initial idea - mechanic with rusty aesthetic"
+        notes: "Initial idea - a mechanic"
       - stage: "draft"
         days: 3
-        notes: "Added skills: Mechanical Repair, Automotive Knowledge; faction: Krakens"
+        notes: "Added skills: Mechanical Repair, Automotive Knowledge; faction: the faction this project gives them"
       - stage: "development"
         days: 5
         notes: "Added backstory, personality, dialogue samples"
@@ -534,7 +534,7 @@ examples:
         notes: "Producer approval granted, lore approved"
       - stage: "published"
         days: 0
-        notes: "Deployed to Rusty's Auto Repair location"
+        notes: "Deployed to the character's workplace"
 
   repeated_development:
     character_id: "ch_mysterious_stranger"

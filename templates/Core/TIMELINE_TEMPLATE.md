@@ -46,8 +46,8 @@ entry_type: "event"  # event, quest_start, quest_end, dialogue, world_change, ca
 timestamp: "YYYY-MM-DDTHH:MM:SSZ"  # ISO 8601 format
 
 # TEMPORAL DETAILS
-game_year: 1998  # Year in the game narrative (1998-1999 for City of Brains)
-game_date: null  # Optional: Specific date like "June 15, 1998"
+game_year: null  # Present year of this project. Leave blank until the project sets it.
+game_date: null  # Optional specific date in the project's calendar
 duration: "30 minutes"  # How long this event/action lasts
 timeline_category: "main"  # main, character, location, campaign, faction
 

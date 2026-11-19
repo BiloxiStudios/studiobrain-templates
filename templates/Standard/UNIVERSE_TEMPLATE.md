@@ -8,7 +8,7 @@ generation_instructions: |
   Generate a universe that defines the top-level setting for a creative project. Establish genre, target audience, time period, technology level, and core themes. Define the primary color palette and tone. A good universe document provides the foundational rules and aesthetic that all other entities within it must respect.
 editable: true
 marketplace_eligible: true
-id: "[snake_case_name]"  # e.g., city_of_brains
+id: "[snake_case_name]"  # e.g., project_name
 entity_type: "universe"
 folder_name: "Universes"
 file_prefix: "UNIV_"
@@ -27,16 +27,16 @@ field_config:
   primary_colors:
     widget: color-group
     swatches:
-      - key: synth_pink
-        label: "Synth Pink"
-      - key: vapor_teal
-        label: "Vapor Teal"
-      - key: moon_white
-        label: "Moon White"
-      - key: static_purple
-        label: "Static Purple"
-      - key: grime_grey
-        label: "Grime Grey"
+      - key: accent_1
+        label: "Accent 1"
+      - key: accent_2
+        label: "Accent 2"
+      - key: accent_3
+        label: "Accent 3"
+      - key: accent_4
+        label: "Accent 4"
+      - key: accent_5
+        label: "Accent 5"
 
 status: "active"  # active, development, archived
 
@@ -46,197 +46,104 @@ primary_image: ""           # Path to primary image (set via EntityAssets compon
 # BASIC INFORMATION (REQUIRED)
 name: "Universe Display Name"
 ip_owner: "Company/Individual Name"
-genre: "horror_comedy"  # horror, comedy, sci-fi, fantasy, etc.
-target_audience: "teen_mature"  # kids, teen, mature, adult
+genre: ""  # horror, comedy, sci-fi, fantasy, or whatever this project is
+target_audience: ""  # kids, teen, mature, adult
 version: "1.0"
 
 # TEMPORAL SETTING
-era: "alternate_1990s"  # modern, historical, future, alternate_timeline
-time_period: "1990-1999"
-technology_level: "selective_advancement"  # primitive, modern, advanced, mixed
-key_tech_rules:
-  - "No cell phones exist"
-  - "Physical media dominates"
-  - "Advanced industrial alongside retro consumer"
+era: ""  # modern, historical, future, alternate_timeline, or blank until the project decides
+time_period: ""
+technology_level: ""  # primitive, modern, advanced, mixed
+key_tech_rules: []  # Devices and practices this project allows or refuses
 
 # GEOGRAPHIC SETTING
-world_type: "earth_alternate"  # earth, alternate_earth, fantasy_world, space
-primary_locations:
-  - location: "The Town"
-    description: "Suburban America setting"
-  - location: "City of Brains"
-    description: "Neon-lit metropolis"
-scope: "regional"  # local, regional, global, galactic
+world_type: ""  # earth, alternate_earth, fantasy_world, space
+primary_locations: []  # Places that exist in this project
+scope: ""  # local, regional, global, galactic
 
 # CORE THEMES
-primary_themes:
-  - "Environmental neglect"
-  - "Corporate corruption"
-  - "Dark comedy"
-secondary_themes:
-  - "Youth vs system"
-  - "Nostalgia"
-  - "Survival"
-tone: "dark_comedy_horror"  # serious, comedic, dark, lighthearted, mixed
-content_rating: "T"  # E, E10+, T, M, AO
+primary_themes: []
+secondary_themes: []
+tone: ""
+content_rating: ""
 
 # VISUAL STYLE
-art_style: "low_poly_luxe"  # realistic, stylized, cartoon, pixel, low_poly
-primary_colors:
-  synth_pink: "#FF66C4"
-  vapor_teal: "#00F5D4"
-  moon_white: "#D6D6FF"
-  static_purple: "#8C1EFF"
-  grime_grey: "#2B2B2B"
-lighting_style: "cinematic_dramatic"
-atmospheric_elements:
-  - "Neon lighting"
-  - "Fog and haze"
-  - "VHS grain effects"
+art_style: ""
+primary_colors: {}
+lighting_style: ""
+atmospheric_elements: []
 
 # AUDIO DIRECTION
-music_genre: "synthwave"  # orchestral, electronic, rock, ambient, etc.
-sound_design: "retro_futuristic"
-signature_tracks:
-  - track: "Main Theme"
-    description: "Primary musical identity"
-  - track: "Combat Music"
-    description: "Action sequences"
-voice_direction: "naturalistic_90s"
+music_genre: ""
+sound_design: ""
+signature_tracks: []
+voice_direction: ""
 
 # NARRATIVE RULES
-narrative_style: "environmental_storytelling"  # linear, branching, emergent
-perspective: "third_person"  # first, second, third, mixed
-storytelling_principles:
-  - "Show don't tell"
-  - "Layered meaning"
-  - "Player agency matters"
+narrative_style: ""
+perspective: ""
+storytelling_principles: []
 
 # LORE FOUNDATIONS
-origin_story: null  # Brief universe origin
-key_events:
-  - event: "The Eclipse"
-    description: "Catalyzing event"
-    date: "Timeline marker"
-power_systems:
-  - system: "Technology"
-    description: "Chemical/industrial"
-factions_overview:
-  - "Survivors"
-  - "Military"
-  - "Corporations"
+origin_story: null
+key_events: []
+power_systems: []
+factions_overview: []
 
 # ECONOMY SYSTEMS
-primary_currency: "gold"
-secondary_currency: "BrainBucks"
-trade_systems:
-  - "Vendor shops"
-  - "Barter system"
-economic_principles:
-  - "Scarcity drives value"
-  - "Risk vs reward"
+primary_currency: ""
+secondary_currency: ""
+trade_systems: []
+economic_principles: []
 
 # TECHNOLOGY SYSTEMS
-communication:
-  - system: "BOL Network"
-    description: "Dial-up internet parody"
-  - system: "Payphones"
-    description: "Primary voice communication"
-transportation:
-  - "Personal vehicles"
-  - "Public buses"
-  - "Walking"
-weapons_tech: "conventional_modified"  # primitive, conventional, energy, mixed
-special_tech:
-  - tech: "Chemical compounds"
-    description: "Advanced chemistry"
+communication: []
+transportation: []
+weapons_tech: ""
+special_tech: []
 
 # CHARACTER GUIDELINES
-naming_conventions:
-  - "American English names"
-  - "Nickname culture"
-  - "Occupation-based surnames"
-speech_patterns:
-  - "90s slang"
-  - "Regional accents"
-  - "Dark humor undertones"
-species_available:
-  - "Human"
-  - "Infected/Zombie"
-  - "Mutated"
+naming_conventions: []
+speech_patterns: []
+species_available: []
 
 # BRAND GUIDELINES
-brand_era: "1990s_commercial"
-advertising_style: "aggressive_youth_marketing"
-product_categories:
-  - "Food and beverage"
-  - "Retail chains"
-  - "Services"
-corporate_culture: "profit_over_safety"
+brand_era: ""
+advertising_style: ""
+product_categories: []
+corporate_culture: ""
 
 # LOCATION GUIDELINES
-architectural_styles:
-  - "Suburban American"
-  - "Industrial decay"
-  - "Neon commercial"
-biome_types:
-  - "Urban"
-  - "Suburban"
-  - "Industrial"
-environmental_hazards:
-  - "Chemical contamination"
-  - "Structural decay"
-  - "Infection zones"
+architectural_styles: []
+biome_types: []
+environmental_hazards: []
 
 # GAMEPLAY SYSTEMS
-core_mechanics:
-  - "Survival"
-  - "Resource management"
-  - "Social interaction"
-progression_systems:
-  - "Skill trees"
-  - "Faction reputation"
-  - "Equipment upgrades"
-difficulty_options:
-  - "Story"
-  - "Normal"
-  - "Hardcore"
+core_mechanics: []
+progression_systems: []
+difficulty_options: []
 
 # CONTENT RESTRICTIONS
-prohibited_content:
-  - "Explicit sexual content"
-  - "Graphic realistic violence"
-  - "Real-world politics"
-allowed_mature_content:
-  - "Innuendo and implication"
-  - "Cartoon violence"
-  - "Dark themes"
+prohibited_content: []
+allowed_mature_content: []
 
 # EXPANSION RULES
 canon_requirements:
-  - "Must not contradict established lore"
-  - "Must fit time period"
-  - "Must maintain tone"
+  - "Must not contradict lore this project has recorded"
+  - "Must fit the time period this project records"
+  - "Must match the tone this project records"
 new_content_process:
-  - "Document all additions"
-  - "Version control canon"
-  - "Community feedback integration"
+  - "Document additions on the project's own entities"
 
 # CROSS-MEDIA RIGHTS
-game_rights: "Primary medium"
-film_rights: "Reserved"
-merchandise_rights: "Active"
-literary_rights: "Reserved"
+game_rights: ""
+film_rights: ""
+merchandise_rights: ""
+literary_rights: ""
 
 # REFERENCE MATERIALS
-style_guides:
-  - "Visual Style Bible"
-  - "Audio Direction Guide"
-  - "Writing Style Guide"
-inspiration_sources:
-  - "VHS horror covers"
-  - "90s mall culture"
-  - "Synthwave aesthetics"
+style_guides: []
+inspiration_sources: []
 
 # CONTENT FIELDS
 universe_overview: null  # Will be in markdown below

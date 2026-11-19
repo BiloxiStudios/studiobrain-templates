@@ -1,8 +1,8 @@
 # RULES INDEX
-## City of Brains Universe - Master Rules Directory
+## Master rules directory
 
 ### 🎯 Purpose
-This directory contains ALL generation and validation rules for the City of Brains universe. These rules are:
+This directory contains the generation and validation rules shipped with a starter pack. These rules are:
 - **Machine-readable** for API/application settings
 - **Human-readable** for designers and writers
 - **LLM-compatible** for AI generation
@@ -51,7 +51,7 @@ rules_config:
     
   image_generation:
     rules_file: "IMAGE_GENERATION_RULES.md"
-    style_preset: "city_of_brains_v2"
+    style_preset: ""  # Fill from this project
     
   validation:
     on_create: true
@@ -127,7 +127,7 @@ When updating rules:
 
 ## Integration Examples
 
-### City of Brains Studio Settings Page
+### Studio settings page
 ```javascript
 // Load available rules
 const ruleCategories = loadRulesIndex('_Rules/RULES_INDEX.md');

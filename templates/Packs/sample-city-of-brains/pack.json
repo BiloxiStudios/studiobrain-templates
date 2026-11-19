@@ -1,0 +1,22 @@
+{
+  "id": "sample-city-of-brains",
+  "name": "Sample: City of Brains",
+  "version": "1.0.0",
+  "description": "Optional sample content for the City of Brains setting: one character, one workplace, and one brand. Not a default. A new project does not receive this pack unless someone chooses it. Full Starter does not include it.",
+  "author": "StudioBrain",
+  "is_default": false,
+  "auto_install": false,
+  "is_meta_pack": false,
+  "includes": [],
+  "entity_types": ["character", "location", "brand"],
+  "categories": ["sample"],
+  "tags": ["sample", "city-of-brains", "optional"],
+  "icon": null,
+  "templates": [],
+  "rules": [],
+  "examples": [
+    "../../ExampleImplementation/CH_rusty_mcdaniels.md",
+    "../../ExampleImplementation/LOC_rustys_auto_repair.md",
+    "../../ExampleImplementation/BR_gear_head_tools.md"
+  ]
+}

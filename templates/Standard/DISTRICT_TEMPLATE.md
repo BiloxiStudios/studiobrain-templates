@@ -174,15 +174,15 @@ landmark_locations:
   - "megamart_headquarters"
 
 # POST-OUTBREAK STATUS
-outbreak_impact: "severe"  # minimal, moderate, severe, catastrophic
+outbreak_impact: "none"  # none, minimal, moderate, severe, catastrophic. Set only if this project records a disruption.
 current_status: "partially controlled"  # safe, contested, dangerous, lost
 survivor_population: 12000
-zombie_density: "moderate"  # none, low, moderate, high, extreme
+zombie_density: "none"  # none, low, moderate, high, extreme. Set only if this project uses that threat.
 
 # STORY INTEGRATION
 narrative_importance: "major"  # minor, moderate, major, central
 key_events:
-  - event: "first_outbreak"
+  - event: "recorded_event"
     date: "2024-01-15"
     impact: "catastrophic"
   - event: "faction_takeover"

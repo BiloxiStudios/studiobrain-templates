@@ -74,7 +74,7 @@ core_beliefs:
   - "Sacrifice for the greater good"
 goals:
   - "Establish total control"
-  - "Eliminate zombie threat"
+  - "Protect the people this faction claims"
   - "Rebuild civilization"
 values:
   - "discipline"
@@ -219,7 +219,7 @@ primary_operations:
   - "territory patrol"
   - "resource scavenging"
   - "refugee processing"
-  - "zombie elimination"
+  - "a recorded goal"
 secret_operations:
   - "spy network"
   - "assassination program"
@@ -233,7 +233,7 @@ daily_routine:
 narrative_role: "major_antagonist"  # protagonist, antagonist, neutral, variable
 story_significance: "primary opposition force"
 key_events:
-  - "formation after outbreak"
+  - "formation during a recorded event"
   - "battle for downtown"
   - "betrayal of allies"
 faction_arc: "rise to power through brutality"

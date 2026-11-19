@@ -1,8 +1,8 @@
 {
   "id": "starter-assemblies",
-  "name": "Starter Assemblies",
+  "name": "Sample: City of Brains Assemblies",
   "version": "1.0.0",
-  "description": "Starter assembly pack demonstrating the full Template→Profile→Variant→Zombie inheritance hierarchy for a character assembly. Includes slot definitions, export profiles, z-index ordering, and slot locking examples.",
+  "description": "Optional sample. Not a default and not part of Full Starter. Demonstrates the Template, Profile, Variant, and transformation-tier assembly hierarchy using City of Brains characters. Install it only when you want that sample.",
   "author": "BiloxiStudios",
   "entity_types": ["assembly"],
   "templates": [

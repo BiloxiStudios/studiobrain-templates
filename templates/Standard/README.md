@@ -1,4 +1,4 @@
-# City of Brains - Standardized Templates
+# Standardized templates
 
 ## ✅ THESE ARE THE OFFICIAL TEMPLATES
 

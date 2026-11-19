@@ -185,7 +185,7 @@
           "label": "Birth Year",
           "ui_component": "number",
           "placeholder": "e.g., 1965",
-          "help": "Game is set in 1998-1999"
+          "help": "Use the present year this project records"
         },
         {
           "key": "death_year",
@@ -197,7 +197,7 @@
           "key": "current_age_reference_year",
           "label": "Age Reference Year",
           "ui_component": "number",
-          "placeholder": "1998",
+          "placeholder": "the project's present year",
           "help": "Year the age field is accurate for"
         },
         {

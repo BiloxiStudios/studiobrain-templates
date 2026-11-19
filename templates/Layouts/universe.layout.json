@@ -21,7 +21,7 @@
           "label": "Universe Name",
           "ui_component": "text",
           "required": true,
-          "placeholder": "City of Brains"
+          "placeholder": "Project name"
         },
         {
           "key": "ip_owner",
@@ -33,7 +33,7 @@
           "key": "genre",
           "label": "Genre",
           "ui_component": "text",
-          "placeholder": "horror_comedy"
+          "placeholder": "the project's genre"
         },
         {
           "key": "target_audience",
@@ -108,13 +108,13 @@
           "key": "era",
           "label": "Era",
           "ui_component": "text",
-          "placeholder": "alternate_1990s"
+          "placeholder": "the project's era"
         },
         {
           "key": "time_period",
           "label": "Time Period",
           "ui_component": "text",
-          "placeholder": "1990-1999"
+          "placeholder": "the project's years"
         },
         {
           "key": "technology_level",
@@ -174,7 +174,7 @@
           "key": "tone",
           "label": "Tone",
           "ui_component": "text",
-          "placeholder": "dark_comedy_horror"
+          "placeholder": "the project's tone"
         }
       ],
       "editor_component": null,
@@ -191,7 +191,7 @@
           "key": "art_style",
           "label": "Art Style",
           "ui_component": "text",
-          "placeholder": "low_poly_luxe"
+          "placeholder": "the project's art style"
         },
         {
           "key": "lighting_style",
@@ -204,11 +204,11 @@
           "label": "Primary Colors",
           "ui_component": "color-group",
           "swatches": [
-            {"key": "synth_pink", "label": "Synth Pink"},
-            {"key": "vapor_teal", "label": "Vapor Teal"},
-            {"key": "moon_white", "label": "Moon White"},
-            {"key": "static_purple", "label": "Static Purple"},
-            {"key": "grime_grey", "label": "Grime Grey"}
+            {"key": "accent_1", "label": "Accent 1"},
+            {"key": "accent_2", "label": "Accent 2"},
+            {"key": "accent_3", "label": "Accent 3"},
+            {"key": "accent_4", "label": "Accent 4"},
+            {"key": "accent_5", "label": "Accent 5"}
           ]
         },
         {
@@ -232,7 +232,7 @@
           "key": "music_genre",
           "label": "Music Genre",
           "ui_component": "text",
-          "placeholder": "synthwave"
+          "placeholder": "the project's music"
         },
         {
           "key": "sound_design",
@@ -245,7 +245,7 @@
           "label": "Voice Direction",
           "ui_component": "text",
           "column_span": 2,
-          "placeholder": "naturalistic_90s"
+          "placeholder": "the project's voice"
         }
       ],
       "editor_component": null,

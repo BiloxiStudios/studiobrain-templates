@@ -53,7 +53,7 @@ field_config:
   game_year:
     widget: year
     min: 1900
-    max: 1998
+    max: 9999
 
 # BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
 views:
@@ -93,8 +93,8 @@ entry_type: "event"
 # TIMING
 timestamp: "YYYY-MM-DD"
 duration: "1 hour"
-game_year: 1998
-game_date: "June 15, 1998"
+game_year: null
+game_date: null
 
 # CONTEXT REFERENCES
 campaign_id: null

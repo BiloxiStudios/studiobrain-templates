@@ -8,7 +8,7 @@ generation_instructions: |
   Generate an event that represents a significant occurrence in the world. Define event type, trigger conditions, duration, and affected entities (locations, characters, factions). Describe consequences, escalation stages, and resolution conditions. A good event creates narrative momentum and has meaningful ripple effects across the world.
 editable: true
 marketplace_eligible: true
-id: "[snake_case_name]"  # Must match folder name (e.g., zombie_horde_attack)
+id: "[snake_case_name]"  # Must match folder name (e.g., district_gathering)
 entity_type: "event"
 folder_name: "Events"
 file_prefix: "EVENT_"
@@ -97,7 +97,7 @@ event_phases:
   - phase: 2
     name: "Main Attack"
     duration: "2 hours"
-    description: "Zombie hordes spawn and attack"
+    description: "Opposing forces arrive"
   - phase: 3
     name: "Aftermath"
     duration: "30 minutes"
@@ -130,7 +130,7 @@ related_quests:
 
 # WORLD STATE CHANGES
 world_state_changes:
-  - change: "zombie_density"
+  - change: "threat_level"
     value: "increased_50%"
     duration: "permanent"
   - change: "resource_scarcity"
@@ -184,13 +184,13 @@ audio_changes:
     add: ["sirens", "distant_screams"]
 environmental_changes:
   - change: "spawn_rates"
-    enemy_type: "zombie"
+    enemy_type: "opposing_force"
     multiplier: 3
   - change: "loot_quality"
     modifier: "reduced"
 
 # NOTIFICATIONS AND UI
-notification_text: "WARNING: Massive zombie horde detected approaching the district!"
+notification_text: "An event is underway in the district."
 ui_changes:
   - element: "minimap"
     change: "show_horde_markers"
@@ -204,14 +204,14 @@ hud_indicators:
 
 # SPAWNING AND ENEMIES
 enemy_spawns:
-  - enemy_type: "common_zombie"
+  - enemy_type: "opposing_force"
     count: 100
     spawn_points: ["north_gate", "south_bridge"]
-  - enemy_type: "special_infected"
+  - enemy_type: "specialist"
     count: 10
     spawn_points: ["random"]
 special_spawns:
-  - spawn: "boss_zombie"
+  - spawn: "leader"
     probability: "10%"
     location: "district_center"
 

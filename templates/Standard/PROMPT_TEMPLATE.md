@@ -53,7 +53,7 @@ domain: "universal"   # universal | character | location | item | dialogue | que
 #
 # Examples:
 #   "Write a scene where $character.name visits $location.name."
-#   "Describe $character:rusty_mcdaniels.name working at $location:rustys_auto_repair.name."
+#   "Describe $character:example_person.name working at $location:example_place.name."
 #   "Generate flavor text for $item.name worth $item.stats.value gold."
 #   "Create a recipe using $ingredient.name with $technique.method."
 template_body: |
@@ -134,14 +134,14 @@ $location.name     → resolves to the name field of the active location
 ### Explicit Cross-Entity (pinned entity ID)
 
 ```
-$character:rusty_mcdaniels.name    → "Russell 'Rusty' McDaniels"
-$location:rustys_auto_repair.name  → "Rusty's Auto Repair"
+$character:example_person.name    → "The character's name"
+$location:example_place.name  → "The place's name"
 ```
 
 ### Nested Dot-Path
 
 ```
-$character:rusty_mcdaniels.appearance.hair_color.name  → "gray_brown"
+$character:example_person.appearance.hair_color.name  → "the recorded hair color"
 $item.stats.damage.base                                → traverses stats → damage → base
 ```
 
