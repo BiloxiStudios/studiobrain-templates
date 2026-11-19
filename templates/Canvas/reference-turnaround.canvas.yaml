@@ -1,0 +1,40 @@
+id: reference-turnaround
+kind: canvas
+name: Character turnaround candidate
+label: Draft reference turnaround
+description: Use an approved headshot and the character's selected traits to draft a full-body turnaround.
+domains: [movie, tv, game, animation]
+entity_types: [character]
+
+slots:
+  character_name:
+    modality: text
+    ref: entity.character[0].name
+  eye_colour:
+    modality: text
+    ref: entity.character[0].eye_color.name
+  hairstyle:
+    modality: text
+  other_traits:
+    modality: text
+    optional: true
+  approved_headshot:
+    modality: image
+  turnaround_brief:
+    modality: text
+  turnaround_candidate:
+    modality: image
+    out: slot.turnaround_candidate
+
+steps:
+  - id: draft-turnaround
+    provides: image-gen
+    in:
+      prompt: turnaround_brief
+      character: character_name
+      eye_colour: eye_colour
+      hairstyle: hairstyle
+      traits: other_traits
+      image: approved_headshot
+    out:
+      image: turnaround_candidate
