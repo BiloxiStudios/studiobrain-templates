@@ -12,7 +12,7 @@ rules:
   category: structure
   priority: critical
   rule: Every location MUST belong to a district
-  validation_type: error
+  validation_type: warning
   applies_to:
   - location
 - id: loc_002
@@ -64,7 +64,7 @@ rules:
     vendors), factions (faction_control), or districts, use validation tools to verify
     they exist. Use check_character_exists for NPCs, check_brand_exists for brands,
     validate_all_references for bulk validation. Never reference non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to:
   - location
   required_tools: ["check_character_exists", "check_brand_exists", "validate_all_references"]

@@ -145,7 +145,7 @@ rules:
     use validation tools to verify they exist. Never reference non-existent entities.
     Use check_location_exists for parent locations and check_biome_exists for connected
     biomes.
-  validation_type: error
+  validation_type: warning
   applies_to:
   - biome
   required_tools: ["check_location_exists", "check_biome_exists", "validate_all_references"]

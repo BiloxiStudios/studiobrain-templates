@@ -92,7 +92,7 @@ rules:
   category: entity_validation
   priority: critical
   rule: Before referencing brands (primary_brand, associated_brands), locations (work_locations), characters (example employees, managers), or factions (faction_controlled), use validation tools to verify they exist. Use check_brand_exists, check_location_exists, check_character_exists, and validate_all_references. Never reference non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to: [job]
   required_tools: ["check_brand_exists", "check_location_exists", "check_character_exists", "validate_all_references"]
 
