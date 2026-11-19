@@ -226,6 +226,8 @@ def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
                 entry["billing"] = list(data["billing"])
             if data.get("slots"):
                 entry["slots"] = data["slots"]
+            if data.get("model_metadata"):
+                entry["model_metadata"] = data["model_metadata"]
             models = _provider_models(data.get("weights"))
             if models:
                 entry["models"] = models

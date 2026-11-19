@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-08-29T04:24:38Z",
+  "generated_at": "2026-11-19T22:51:18Z",
   "entries": [
     {
       "id": "character-bio",
@@ -669,6 +669,21 @@
         "emits": [
           "text"
         ]
+      },
+      "model_metadata": {
+        "claude-sonnet-4-5-20250929": {
+          "capabilities": [
+            "structured-output",
+            "tools",
+            "image-input"
+          ],
+          "verified_for": [
+            "fusion",
+            "import"
+          ],
+          "context_tokens": 200000,
+          "max_output_tokens": 64000
+        }
       }
     },
     {
@@ -872,6 +887,37 @@
           "audio",
           "video"
         ]
+      }
+    },
+    {
+      "id": "google-ai-studio",
+      "kind": "provider",
+      "name": "Google Gemini",
+      "path": "templates/Providers/google-ai-studio.provider.yaml",
+      "wire": "openai-compat",
+      "route": "aigateway",
+      "base_url": "https://gateway.ai.cloudflare.com/v1/{{account_id}}/{{gateway_name}}/compat",
+      "provides": [
+        "llm-chat"
+      ],
+      "billing": [
+        "brainbits",
+        "byok"
+      ],
+      "model_metadata": {
+        "gemini-2.5-pro": {
+          "capabilities": [
+            "structured-output",
+            "tools",
+            "image-input",
+            "audio-input"
+          ],
+          "verified_for": [
+            "fusion",
+            "import"
+          ],
+          "max_output_tokens": 65536
+        }
       }
     },
     {
@@ -1687,7 +1733,27 @@
       "billing": [
         "brainbits",
         "byok"
-      ]
+      ],
+      "model_metadata": {
+        "gpt-5": {
+          "capabilities": [
+            "structured-output",
+            "tools",
+            "image-input"
+          ],
+          "verified_for": [
+            "fusion",
+            "import"
+          ],
+          "context_tokens": 400000,
+          "max_output_tokens": 128000
+        },
+        "gpt-4o-mini-tts": {
+          "capabilities": [
+            "text-to-speech"
+          ]
+        }
+      }
     },
     {
       "id": "openai-direct",
