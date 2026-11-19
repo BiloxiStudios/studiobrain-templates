@@ -30,6 +30,25 @@ class SettingNeutralTests(unittest.TestCase):
             setting_names.DEFAULT_RELATIVE_ROOTS,
         )
 
+    def test_listed_packs_have_installable_members(self):
+        # Cloud's applyPacksToProject installs only templates, rules, a
+        # templates/ dir, or included packs; it never reads "examples".
+        # A listed pack with none of these fails to install (SBAI-15061).
+        import json
+
+        index = json.loads((ROOT / "templates/Packs/index.json").read_text(encoding="utf-8"))
+        for entry in index:
+            pack_dir = ROOT / entry["path"]
+            pack = json.loads((pack_dir / "pack.json").read_text(encoding="utf-8"))
+            tdir = pack_dir / "templates"
+            has_members = bool(
+                pack.get("templates")
+                or pack.get("rules")
+                or pack.get("includes")
+                or (tdir.is_dir() and any(tdir.iterdir()))
+            )
+            self.assertTrue(has_members, f"{entry['id']}: listed in index.json but has nothing to install")
+
 
 if __name__ == "__main__":
     unittest.main()
