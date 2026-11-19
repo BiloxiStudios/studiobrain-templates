@@ -363,6 +363,22 @@ class ShippedCatalogTests(unittest.TestCase):
             self.assertIn("step_count", canvas, canvas["id"])
             self.assertGreaterEqual(canvas["step_count"], 1, canvas["id"])
 
+    def test_publishes_model_specific_fusion_and_import_attestations(self):
+        providers = {e['id']: e for e in bci.build_entries(ROOT) if e['kind'] == 'provider'}
+        for provider, model in {
+            'openai': 'gpt-5', 'anthropic': 'claude-sonnet-4-5-20250929',
+            'google-ai-studio': 'gemini-2.5-pro',
+        }.items():
+            entry = providers[provider]
+            self.assertNotIn('verified_for', entry)
+            attestation = entry['model_metadata'][model]
+            self.assertEqual(attestation['verified_for'], ['fusion', 'import'])
+            self.assertIn('structured-output', attestation['capabilities'])
+            self.assertGreater(attestation['max_output_tokens'], 0)
+        self.assertEqual(providers['openai']['model_metadata']['gpt-5']['context_tokens'], 400000)
+        self.assertNotIn('context_tokens', providers['google-ai-studio']['model_metadata']['gemini-2.5-pro'])
+        self.assertNotIn('verified_for', providers['openai']['model_metadata']['gpt-4o-mini-tts'])
+
     def test_on_device_provider_publishes_webgpu_and_wasm_model_rows(self):
         entries = bci.build_entries(ROOT)
         provider = next(e for e in entries if e["id"] == "on-device")

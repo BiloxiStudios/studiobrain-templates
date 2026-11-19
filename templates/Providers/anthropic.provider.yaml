@@ -23,3 +23,11 @@ chat:
 slots:
   accepts: [text, image]
   emits: [text]
+model_metadata:
+  # https://platform.claude.com/docs/en/build-with-claude/context-windows
+  # https://platform.claude.com/docs/en/build-with-claude/extended-thinking
+  claude-sonnet-4-5-20250929:
+    capabilities: [structured-output, tools, image-input]
+    verified_for: [fusion, import]
+    context_tokens: 200000
+    max_output_tokens: 64000
