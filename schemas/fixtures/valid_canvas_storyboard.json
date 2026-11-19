@@ -5,6 +5,7 @@
   "slots": {},
   "steps": [],
   "storyboard": {
+    "video_input_shot_id": "wide",
     "shots": [
       {
         "id": "wide",

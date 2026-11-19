@@ -219,10 +219,42 @@ def _validate_instance(instance: Any, schema_name: str, label: str) -> list[str]
     if validator is None:
         return []
     errs = sorted(validator.iter_errors(instance), key=lambda e: list(e.path))
-    return [
+    errors = [
         f"{label}: {err.message} (at /{'/'.join(str(p) for p in err.path) or '<root>'})"
         for err in errs
     ]
+    if not errors and schema_name == "canvas.json":
+        errors.extend(_check_canvas_editor_consistency(instance, label))
+    return errors
+
+
+def _check_canvas_editor_consistency(canvas: dict[str, Any], label: str) -> list[str]:
+    """Check ID relationships JSON Schema cannot express."""
+    errors: list[str] = []
+    if "storyboard" in canvas:
+        storyboard = canvas["storyboard"]
+        shot_ids: set[str] = set()
+        for index, shot in enumerate(storyboard["shots"]):
+            shot_id = shot["id"]
+            if shot_id in shot_ids:
+                errors.append(f"{label}: duplicate storyboard shot ID {shot_id!r} (at /storyboard/shots/{index}/id)")
+            shot_ids.add(shot_id)
+        if "video_input_shot_id" in storyboard and storyboard["video_input_shot_id"] not in shot_ids:
+            errors.append(f"{label}: video input must reference a saved shot (at /storyboard/video_input_shot_id)")
+
+    if "episode" in canvas:
+        entries: list[tuple[str, str]] = []
+        for sequence_index, sequence in enumerate(canvas["episode"]["sequences"]):
+            sequence_path = f"/episode/sequences/{sequence_index}"
+            entries.append((sequence["id"], f"{sequence_path}/id"))
+            for clip_index, clip in enumerate(sequence["clips"]):
+                entries.append((clip["id"], f"{sequence_path}/clips/{clip_index}/id"))
+        episode_ids: set[str] = set()
+        for entry_id, path in entries:
+            if entry_id in episode_ids:
+                errors.append(f"{label}: duplicate episode item ID {entry_id!r} (at {path})")
+            episode_ids.add(entry_id)
+    return errors
 
 
 # ----- Widget-id lint + browse views (SBAI-15043) --------------------------------

@@ -1,6 +1,7 @@
 {
   "id": "episode-pilot",
   "kind": "canvas",
+  "name": "Pilot",
   "entity_types": [],
   "slots": {},
   "steps": [],

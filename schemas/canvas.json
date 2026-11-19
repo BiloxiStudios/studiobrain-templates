@@ -8,6 +8,15 @@
   "additionalProperties": true,
   "if": { "not": { "anyOf": [{ "required": ["storyboard"] }, { "required": ["episode"] }] } },
   "then": { "properties": { "entity_types": { "minItems": 1 }, "steps": { "minItems": 1 } } },
+  "allOf": [
+    {
+      "if": { "required": ["episode"] },
+      "then": {
+        "required": ["name"],
+        "properties": { "kind": { "const": "canvas" }, "name": { "$ref": "#/$defs/nonBlankString" } }
+      }
+    }
+  ],
   "properties": {
     "id": {
       "type": "string",
@@ -55,7 +64,11 @@
       "type": "object",
       "required": ["shots"],
       "properties": {
-        "shots": { "type": "array", "items": { "$ref": "#/$defs/shot" } }
+        "shots": { "type": "array", "items": { "$ref": "#/$defs/shot" } },
+        "video_input_shot_id": {
+          "$ref": "#/$defs/nonBlankString",
+          "description": "ID of a saved shot in this storyboard. A draft shot can be selected before media approval."
+        }
       }
     },
     "episode": {
@@ -99,19 +112,19 @@
     }
   },
   "$defs": {
-    "idString": { "type": "string", "minLength": 1 },
+    "nonBlankString": { "type": "string", "pattern": "\\S" },
     "shot": {
       "type": "object",
       "required": ["id", "direction"],
       "properties": {
-        "id": { "$ref": "#/$defs/idString" },
+        "id": { "$ref": "#/$defs/nonBlankString" },
         "direction": { "type": "string" },
         "approved_media": {
           "type": "object",
           "required": ["kind", "asset_id"],
           "properties": {
             "kind": { "enum": ["frame", "clip"] },
-            "asset_id": { "$ref": "#/$defs/idString" }
+            "asset_id": { "$ref": "#/$defs/nonBlankString" }
           }
         },
         "references": {
@@ -120,8 +133,8 @@
             "type": "object",
             "required": ["entity_type", "entity_id"],
             "properties": {
-              "entity_type": { "$ref": "#/$defs/idString" },
-              "entity_id": { "$ref": "#/$defs/idString" },
+              "entity_type": { "$ref": "#/$defs/nonBlankString" },
+              "entity_id": { "$ref": "#/$defs/nonBlankString" },
               "field_ref": { "type": "string" }
             }
           }
@@ -132,22 +145,27 @@
       "type": "object",
       "required": ["id", "name", "clips"],
       "properties": {
-        "id": { "$ref": "#/$defs/idString" },
-        "name": { "type": "string" },
+        "id": { "$ref": "#/$defs/nonBlankString" },
+        "name": { "$ref": "#/$defs/nonBlankString" },
         "clips": {
           "type": "array",
           "items": {
             "type": "object",
             "required": ["id", "asset_id"],
             "properties": {
-              "id": { "$ref": "#/$defs/idString" },
-              "asset_id": { "$ref": "#/$defs/idString" },
+              "id": { "$ref": "#/$defs/nonBlankString" },
+              "asset_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "not": { "pattern": "[^A-Za-z0-9_-]" }
+              },
               "source": {
                 "type": "object",
                 "required": ["canvas_id", "shot_id"],
                 "properties": {
-                  "canvas_id": { "$ref": "#/$defs/idString" },
-                  "shot_id": { "$ref": "#/$defs/idString" }
+                  "canvas_id": { "$ref": "#/properties/id" },
+                  "shot_id": { "$ref": "#/$defs/nonBlankString" }
                 }
               }
             }
