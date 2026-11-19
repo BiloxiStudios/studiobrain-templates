@@ -12,28 +12,28 @@ rules:
   category: identity
   priority: critical
   rule: Assembly IDs must use lowercase_with_underscores format (e.g. "hero_base_template")
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_id_002
   category: identity
   priority: critical
   rule: "assembly_type must be one of: character, prop, building"
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_id_003
   category: identity
   priority: high
   rule: "Every assembly must declare a hierarchy_level: template | profile | variant | zombie_variant | transformation_variant"
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_id_004
   category: identity
   priority: high
   rule: Non-template assemblies (profile/variant/zombie_variant) must supply a valid parent_assembly_id
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 # ─── INHERITANCE HIERARCHY ────────────────────────────────────────────────────
@@ -41,7 +41,7 @@ rules:
   category: inheritance
   priority: critical
   rule: "Hierarchy is strictly Template → Profile → Variant → Zombie. A Profile must have a Template parent. A Variant must have a Profile parent. A zombie_variant must have a Variant or Profile parent."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
   hierarchy_chain:
     - template        # root; no parent required
@@ -53,14 +53,14 @@ rules:
   category: inheritance
   priority: high
   rule: "inheritance_mode must be one of: full | selective | none. 'full' copies all unfilled slots from parent. 'selective' copies only explicitly listed slots. 'none' is a standalone assembly."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_inh_003
   category: inheritance
   priority: high
-  rule: "Max inheritance chain depth is 4 (Template=1, Profile=2, Variant=3, Zombie=4). Assemblies exceeding depth 4 are rejected."
-  validation_type: error
+  rule: "Max inheritance chain depth is 4 (Template=1, Profile=2, Variant=3, Zombie=4). A deeper chain is a warning and does not block the write."
+  validation_type: warning
   applies_to: [assembly]
   max_depth: 4
 
@@ -68,29 +68,29 @@ rules:
   category: inheritance
   priority: medium
   rule: Children may only override slots that are not listed in the parent's locked_slots array
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_inh_005
   category: inheritance
   priority: medium
   rule: "inheritance_mode: metadata_only is not permitted — assemblies must always inherit at minimum their slot structure from their parent template"
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 # ─── SLOT SYSTEM ─────────────────────────────────────────────────────────────
 - id: asm_slot_001
   category: slots
   priority: critical
-  rule: Every slot must belong to a named slot_group. Loose slots outside a group are rejected.
-  validation_type: error
+  rule: Every slot must belong to a named slot_group. A loose slot is a warning and does not block the write.
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_slot_002
   category: slots
   priority: critical
   rule: "Each required slot (required: true) must be filled before an assembly can be marked status: complete or exported"
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_slot_003
@@ -104,14 +104,14 @@ rules:
   category: slots
   priority: high
   rule: "accepted_types must be a non-empty list. Allowed values: png, webp, glb, fbx, jpg, svg"
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_slot_005
   category: slots
   priority: high
   rule: "overlay_modes must be a non-empty list. Allowed values: replace, overlay, blend, multiply, screen, add"
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_slot_006
@@ -132,14 +132,14 @@ rules:
   category: slots
   priority: medium
   rule: "If a slot declares variant_keys, each key must be a non-empty string with no spaces (use underscores)"
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_slot_009
   category: slots
   priority: medium
   rule: "A slot that declares mirror_of must also declare mirror_strategy (flip_x | flip_y | rotate_180)"
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 # ─── Z-INDEX ORDERING ────────────────────────────────────────────────────────
@@ -178,22 +178,22 @@ rules:
 - id: asm_lock_001
   category: locking
   priority: high
-  rule: "locked_slots entries must reference existing slot_group.slot_name paths (e.g. 'head.head_base'). Invalid references are flagged as errors."
-  validation_type: error
+  rule: "locked_slots entries must reference existing slot_group.slot_name paths (e.g. 'head.head_base'). An unresolved path is a warning and does not block the write."
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_lock_002
   category: locking
   priority: high
   rule: A child assembly must not assign an asset to any slot path listed in any ancestor's locked_slots
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_lock_003
   category: locking
   priority: medium
   rule: "Locking is additive down the chain: if Template locks 'head.head_base' and Profile locks 'body.torso_base', a Variant inherits both locks."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 # ─── AUTO-SLOT DETECTION ─────────────────────────────────────────────────────
@@ -232,21 +232,21 @@ rules:
   category: export
   priority: high
   rule: "export_profile_files entries must reference files that exist under templates/Standard/ExportProfiles/. Missing profile files block export."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_exp_003
   category: export
   priority: medium
   rule: "Export is only allowed when all required slots (required: true) are filled. Partial exports for optional slots are allowed but must be flagged in the export manifest."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_exp_004
   category: export
   priority: medium
   rule: "color_variants list must contain at least 'default'. Additional variant names must be non-empty strings."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_exp_005
@@ -261,27 +261,27 @@ rules:
   category: zombie_system
   priority: critical
   rule: "When an assembly declares palette_restriction, overlay assets must use only those hues. The starter declares no palette."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 - id: asm_zomb_002
   category: zombie_system
   priority: high
   rule: "Infection stages 0–3 are OVERLAY-BASED (additive overlays on the base character). Stage 4 (full zombie) requires a dedicated zombie_variant assembly with full slot replacement."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_zomb_003
   category: zombie_system
   priority: high
   rule: A zombie_variant assembly must either (a) override all required base slots, or (b) declare zombie_mode "overlay_only" to treat it as a maxed-out stage-3 composite
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_zomb_004
   category: zombie_system
   priority: medium
   rule: "Overlay content must match the content rating this project records. Do not assume a gore style."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 # ─── PRODUCTION STATUS ───────────────────────────────────────────────────────
@@ -289,14 +289,14 @@ rules:
   category: production
   priority: medium
   rule: "production_status.general must be one of: concept, in_progress, needs_work, art_done, complete"
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 - id: asm_prod_002
   category: production
   priority: low
   rule: "An assembly may only transition to production_status.general: complete when all required slots are filled and no validation errors remain."
-  validation_type: error
+  validation_type: warning
   applies_to: [assembly]
 
 defaults:

@@ -16,7 +16,7 @@ rules:
     description: Every location must belong to a parent area (district, region, continent,
       or equivalent). Locations without spatial context cannot be placed on maps, referenced
       in travel, or connected to other locations. Use the parent_location field.
-    severity: error
+    severity: warning
     applies_to: [location]
 
   - id: locgen_002

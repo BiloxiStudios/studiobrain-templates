@@ -25,7 +25,7 @@ rules:
     description: Item stats must be proportional to rarity and acquisition difficulty.
       Common items are weak but accessible. Legendary items are powerful but require
       significant effort to obtain. No item should trivialize the challenges of its tier.
-    severity: error
+    severity: warning
     applies_to: [item]
 
   - id: itemgen_003
@@ -42,7 +42,7 @@ rules:
       provides defense. Consumables are used up. Tools enable actions. Cosmetics alter
       appearance. An item that crosses categories should use its primary function as
       its type with secondary functions noted in description.
-    severity: error
+    severity: warning
     applies_to: [item]
 
   - id: itemgen_005

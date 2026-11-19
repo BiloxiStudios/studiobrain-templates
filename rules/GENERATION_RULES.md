@@ -88,7 +88,7 @@ rules:
     in generated content, use entity validation tools to verify it exists in the database.
     Use check_character_exists, check_location_exists, check_brand_exists, check_item_exists,
     or validate_all_references to prevent hallucinating non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to:
   - all
   required_tools: ["check_character_exists", "check_location_exists", "check_brand_exists",

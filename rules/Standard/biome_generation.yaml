@@ -17,7 +17,7 @@ rules:
       range, humidity, and precipitation before assigning plant species. Tropical plants
       die in tundra. Cacti die in swamps. If unusual flora exists, provide an in-world
       explanation.
-    severity: error
+    severity: warning
     applies_to: [biome]
 
   - id: biomegen_002
@@ -25,7 +25,7 @@ rules:
     description: Fauna must have a viable food chain within the biome. Predator counts
       must be lower than prey counts. Herbivores require sufficient vegetation. Aquatic
       species require water features. Each animal must have a plausible ecological niche.
-    severity: error
+    severity: warning
     applies_to: [biome]
 
   - id: biomegen_003
@@ -34,7 +34,7 @@ rules:
       biomes have altitude-based temperature gradients. Coastal biomes have maritime
       weather moderation. Interior biomes have continental extremes. Anomalous weather
       requires in-world justification.
-    severity: error
+    severity: warning
     applies_to: [biome]
 
   - id: biomegen_004

@@ -29,8 +29,8 @@ rules:
       (2) $type.field — cross-entity implicit (nearest entity of that type);
       (3) $type:entity_id.field — cross-entity explicit (pinned entity ID);
       (4) $type:entity_id.path.to.nested.field — explicit with arbitrary-depth
-      nested dot-path traversal. Any other token form is a syntax error.
-    validation_type: error
+      nested dot-path traversal. Any other token form is a warning and does not block the write.
+    validation_type: warning
     applies_to: [prompt]
 
   - id: pe_002
@@ -39,9 +39,9 @@ rules:
     rule: >
       The `type` portion of a cross-entity token MUST be a recognised entity-type
       token: character, location, item, brand, faction, district, quest, dialogue,
-      event, campaign, timeline, assembly, job, or universe. Unknown type tokens
-      must be rejected with a parse error before resolution begins.
-    validation_type: error
+      event, campaign, timeline, assembly, job, or universe. An unknown type
+      token is a warning and does not block the write. Leave it unresolved.
+    validation_type: warning
     applies_to: [prompt]
 
   - id: pe_003
@@ -51,7 +51,7 @@ rules:
       `entity_id` in an explicit token ($type:entity_id.field) MUST be a valid
       lowercase_with_underscores identifier matching the target entity's `id`
       field. Numeric IDs and UUIDs are also accepted.
-    validation_type: error
+    validation_type: warning
     applies_to: [prompt]
 
   - id: pe_004
@@ -61,7 +61,7 @@ rules:
       Nested dot-path segments must each be non-empty strings containing only
       alphanumeric characters, hyphens, or underscores. Array index access via
       bracket notation (e.g. items[0]) is not supported in this version.
-    validation_type: error
+    validation_type: warning
     applies_to: [prompt]
 
   # ── Resolution ────────────────────────────────────────────────────────────
@@ -73,8 +73,8 @@ rules:
       Before substituting any cross-entity variable, the resolver MUST verify
       that the target entity exists in the database using the entity validation
       tools (check_character_exists, check_location_exists, etc.). Resolution of
-      a variable that points to a non-existent entity is a resolution error.
-    validation_type: error
+      a variable that points to a non-existent entity is a warning and does not block the write. Leave the token unresolved.
+    validation_type: warning
     applies_to: [prompt]
     required_tools:
       - check_character_exists
@@ -92,7 +92,7 @@ rules:
       currently open in the UI, or—if no entity is active—the first entity of
       that type returned by the knowledge-base search given the prompt's domain
       context. When no entity of the requested type exists, treat as unresolvable.
-    validation_type: error
+    validation_type: warning
     applies_to: [prompt]
 
   - id: pe_012
@@ -103,18 +103,18 @@ rules:
       level by level. If any intermediate key is absent or null, the resolver
       must stop and treat the entire variable as unresolvable rather than
       returning a partial path or raising a JavaScript-style TypeError.
-    validation_type: error
+    validation_type: warning
     applies_to: [prompt]
 
   - id: pe_013
     category: resolution
     priority: high
     rule: >
-      When `strict_mode: true` is set on the prompt template, every unresolvable
-      variable (required or optional) MUST cause the resolution to fail with a
-      descriptive error message listing each unresolved token. Generation must not
-      proceed until all variables are resolved or the prompt is fixed.
-    validation_type: error
+      strict_mode is off in the starter template, so an unresolved token does not
+      block the write or generation. When a prompt opts in with `strict_mode: true`,
+      every unresolvable variable fails resolution with a message that lists each
+      unresolved token, and generation does not proceed until they are resolved.
+    validation_type: warning
     applies_to: [prompt]
 
   - id: pe_014

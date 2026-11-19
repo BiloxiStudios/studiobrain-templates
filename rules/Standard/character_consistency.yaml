@@ -15,14 +15,14 @@ rules:
     category: consistency
     priority: critical
     rule: "Character must have a primary_location assigned"
-    validation_type: error
+    validation_type: warning
     applies_to: [character]
 
   - id: char_002
     category: formatting
     priority: high
     rule: "Character ID must use lowercase_with_underscores format"
-    validation_type: error
+    validation_type: warning
     applies_to: [character]
 
   - id: char_003
@@ -36,7 +36,7 @@ rules:
     category: lore
     priority: critical
     rule: "Character content must not contain anachronistic or setting-inappropriate references"
-    validation_type: error
+    validation_type: warning
     forbidden:
       - "smartphone"
       - "internet"

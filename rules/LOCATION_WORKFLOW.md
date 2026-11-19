@@ -628,19 +628,19 @@ validation_rules:
   - id: "loc_wf_001"
     category: "core_identity"
     rule: "Location ID must remain consistent across all stages"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["concept", "drafting", "layout", "narrative", "atmosphere", "asset_integration", "review", "approval", "published", "active", "deprecated", "archived", "deleted", "rejected"]
 
   - id: "loc_wf_002"
     category: "district_placement"
     rule: "District assignment requires district metadata file to exist"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["drafting", "layout", "narrative", "atmosphere", "asset_integration", "review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "loc_wf_003"
     category: "faction_control"
     rule: "Faction control assignment requires faction metadata file to exist"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["narrative", "atmosphere", "asset_integration", "review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "loc_wf_004"
@@ -652,13 +652,13 @@ validation_rules:
   - id: "loc_wf_005"
     category: "interior_zones"
     rule: "At least one interior zone must be defined before asset integration"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "loc_wf_006"
     category: "navigation"
     rule: "All interior zones must have connection points defined"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["layout", "narrative", "atmosphere", "asset_integration", "review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "loc_wf_007"
@@ -670,19 +670,19 @@ validation_rules:
   - id: "loc_wf_008"
     category: "lore_approval"
     rule: "Lore master approval required before published stage for major locations"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["approval", "published", "active", "deprecated", "archived"]
 
   - id: "loc_wf_009"
     category: "identifier_consistency"
     rule: "Location ID must match folder name exactly"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["drafting", "layout", "narrative", "atmosphere", "asset_integration", "review", "approval", "published", "active", "deprecated", "archived", "deleted", "rejected"]
 
   - id: "loc_wf_010"
     category: "interactive_elements"
     rule: "Interactive elements must reference valid objects or locations"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["asset_integration", "review", "approval", "published", "active", "deprecated", "archived"]
 
 # META-FIELDS for workflow tracking

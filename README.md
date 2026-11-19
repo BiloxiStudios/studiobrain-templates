@@ -47,7 +47,8 @@ Templates are consumed by StudioBrain's type generation system:
 
 1. Create `templates/Standard/MYTYPE_TEMPLATE.md`
 2. Define YAML frontmatter with fields
-3. Types auto-generate on next build
+3. Add `rules/MYTYPE_RULES.md`. A new rule defaults to `validation_type: warning` (or `severity: warning` on a generation file). Use `error` only when accepting the write would store unsafe or corrupt data. Unresolved references, missing optional links, and prose or style checks are warnings. They are recorded and do not block.
+4. Types auto-generate on next build
 
 ## Related Repositories
 

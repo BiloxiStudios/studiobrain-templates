@@ -8,7 +8,7 @@ rules:
   category: quality
   priority: critical
   rule: Voice samples must be 44.1kHz, 16-bit WAV format
-  validation_type: error
+  validation_type: warning
   applies_to:
   - voice
   - character

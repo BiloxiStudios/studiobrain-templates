@@ -24,7 +24,7 @@ rules:
     category: compatibility
     priority: high
     rule: "Asset variants must be tagged with their compatible body types to prevent mismatched compositions"
-    validation_type: error
+    validation_type: warning
     applies_to: [character, item]
 
   - id: asm_003
@@ -52,36 +52,36 @@ rules:
   - id: asm_slot_001
     category: slots
     priority: critical
-    rule: "Every slot must belong to a named slot_group. Slots defined outside a group are rejected."
-    validation_type: error
+    rule: "Every slot must belong to a named slot_group. A slot outside a group is a warning and does not block the write."
+    validation_type: warning
     applies_to: [assembly]
 
   - id: asm_slot_002
     category: slots
     priority: critical
     rule: "Required slots (required: true) must all be filled before an assembly can be exported or marked complete."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   - id: asm_slot_003
     category: slots
     priority: high
     rule: "overlay_modes must be a non-empty list. Allowed values: replace, overlay, blend, multiply, screen, add"
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   - id: asm_slot_004
     category: slots
     priority: high
     rule: "accepted_types must be a non-empty list. Allowed values: png, webp, glb, fbx, jpg, svg"
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   - id: asm_slot_005
     category: slots
     priority: medium
     rule: "If a slot declares mirror_of, it must also declare mirror_strategy (flip_x | flip_y | rotate_180)."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   # ── Inheritance hierarchy ────────────────────────────────────────────────
@@ -89,7 +89,7 @@ rules:
     category: inheritance
     priority: critical
     rule: "Hierarchy order is Template → Profile → Variant → Zombie. Each tier must have a parent of the correct preceding tier."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
     hierarchy_chain:
       - template
@@ -100,8 +100,8 @@ rules:
   - id: asm_inh_002
     category: inheritance
     priority: high
-    rule: "Max inheritance depth is 4. Assemblies exceeding depth 4 are rejected."
-    validation_type: error
+    rule: "Max inheritance depth is 4. A deeper chain is a warning and does not block the write."
+    validation_type: warning
     applies_to: [assembly]
     max_depth: 4
 
@@ -109,14 +109,14 @@ rules:
     category: inheritance
     priority: high
     rule: "Non-template assemblies (profile, variant, zombie_variant) must supply a non-empty parent_assembly_id."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   - id: asm_inh_004
     category: inheritance
     priority: high
     rule: "inheritance_mode must be one of: full | selective | none."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   # ── Z-index ordering ─────────────────────────────────────────────────────
@@ -149,21 +149,21 @@ rules:
     category: locking
     priority: high
     rule: "locked_slots entries must reference valid slot_group.slot_name paths in the assembly's own slot_definitions."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   - id: asm_lock_002
     category: locking
     priority: high
     rule: "A child assembly must not assign an asset to any slot path listed in any ancestor's locked_slots."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   - id: asm_lock_003
     category: locking
     priority: medium
     rule: "Slot locks are additive down the inheritance chain: a child inherits all ancestor locks."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   # ── Export profiles ───────────────────────────────────────────────────────
@@ -171,14 +171,14 @@ rules:
     category: export
     priority: high
     rule: "export_profile_files entries must reference YAML files that exist under templates/Standard/ExportProfiles/."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
   - id: asm_exp_002
     category: export
     priority: medium
     rule: "Export is blocked until all required slots are filled. Partial exports flag missing required slots in the manifest."
-    validation_type: error
+    validation_type: warning
     applies_to: [assembly]
 
 defaults:

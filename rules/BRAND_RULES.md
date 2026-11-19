@@ -10,14 +10,14 @@ rules:
   category: marketing
   priority: critical
   rule: "A brand must have a slogan or short line in the voice this project records for it."
-  validation_type: error
+  validation_type: warning
   applies_to: [brand]
 
 - id: brand_002
   category: timeline
   priority: critical
   rule: "Marketing must use the era and media this project records. forbidden_elements and required_elements are empty in the starter so the project can fill them."
-  validation_type: error
+  validation_type: warning
   applies_to: [brand]
   forbidden_elements: []
   required_elements: []
@@ -95,7 +95,7 @@ rules:
   category: timeline_validation
   priority: critical
   rule: "founding_year, key_milestones, and product launch dates must be in chronological order and inside the years this project uses."
-  validation_type: error
+  validation_type: warning
   applies_to: [brand]
   required_tools: ["check_temporal_conflicts", "calculate_duration"]
 
@@ -106,7 +106,7 @@ rules:
     founder, ceo, employees), items (brand_items, product_lines), or factions, use
     validation tools to verify they exist. Use check_location_exists, check_character_exists,
     check_item_exists, and validate_all_references. Never reference non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to: [brand]
   required_tools: ["check_location_exists", "check_character_exists", "check_item_exists",
     "validate_all_references"]

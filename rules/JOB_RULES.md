@@ -10,7 +10,7 @@ rules:
   category: era_consistency
   priority: critical
   rule: "A job's tools and duties must match the technology this project records. forbidden_elements and required_elements are empty in the starter so the project can fill them. Do not ban a role the project has not banned."
-  validation_type: error
+  validation_type: warning
   applies_to: [job]
   forbidden_elements: []
   required_elements: []
@@ -18,7 +18,7 @@ rules:
   category: brand_association
   priority: high
   rule: "A job that names a brand or a faction must name one that exists in this project, and the duties must match that brand or faction as recorded."
-  validation_type: error
+  validation_type: warning
   applies_to: [job]
 
 - id: job_003
@@ -84,7 +84,7 @@ rules:
   category: timeline_validation
   priority: critical
   rule: "Availability dates and career steps must be in chronological order and inside the years this project uses."
-  validation_type: error
+  validation_type: warning
   applies_to: [job]
   required_tools: ["check_temporal_conflicts", "calculate_duration"]
 
@@ -92,7 +92,7 @@ rules:
   category: entity_validation
   priority: critical
   rule: Before referencing brands (primary_brand, associated_brands), locations (work_locations), characters (example employees, managers), or factions (faction_controlled), use validation tools to verify they exist. Use check_brand_exists, check_location_exists, check_character_exists, and validate_all_references. Never reference non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to: [job]
   required_tools: ["check_brand_exists", "check_location_exists", "check_character_exists", "validate_all_references"]
 

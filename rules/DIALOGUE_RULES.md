@@ -10,14 +10,14 @@ rules:
   category: structure
   priority: critical
   rule: All dialogue must follow the format - [emotion] "spoken text" *action/gesture*
-  validation_type: error
+  validation_type: warning
   applies_to: [dialogue, character]
 
 - id: dial_002
   category: timeline
   priority: critical
   rule: "Dialogue must use the speech and technology this project allows. forbidden_phrases and allowed_phrases are empty in the starter so the project can fill them. Do not ban a phrase the project has not banned."
-  validation_type: error
+  validation_type: warning
   applies_to: [dialogue]
   forbidden_phrases: []
   allowed_phrases: []

@@ -14,14 +14,14 @@ rules:
     category: structure
     priority: high
     rule: "Dialogue exchanges must have clear speaker attribution for each line"
-    validation_type: error
+    validation_type: warning
     applies_to: [character]
 
   - id: dial_002
     category: consistency
     priority: critical
     rule: "Dialogue must not contain anachronistic phrases or modern speech patterns"
-    validation_type: error
+    validation_type: warning
     forbidden_phrases:
       - "no worries"
       - "literally"

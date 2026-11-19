@@ -12,13 +12,13 @@ rules:
     category: inheritance
     priority: critical
     rule: "The hierarchy chain for any assembly in this pack must not exceed depth 4 (Template → Profile → Variant → Zombie)."
-    validation_type: error
+    validation_type: warning
 
   - id: pack_asm_002
     category: slots
     priority: high
     rule: "All required slots must be filled before the assembly can be exported via any profile."
-    validation_type: error
+    validation_type: warning
 
   - id: pack_asm_003
     category: z_index
@@ -30,7 +30,7 @@ rules:
     category: zombie_system
     priority: critical
     rule: "Zombie overlay assets must only use green, purple, or black. No red blood."
-    validation_type: error
+    validation_type: warning
 
 defaults:
   hierarchy_level: "template"

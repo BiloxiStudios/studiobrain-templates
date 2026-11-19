@@ -34,15 +34,15 @@ This directory contains the generation and validation rules shipped with a start
 ```yaml
 # Example application settings.yaml
 rules_config:
-  enforce_strict: true
+  enforce_strict: false  # only validation_type error blocks a write
   rules_directory: "_Rules/"
   
   character_generation:
     rules_file: "CHARACTER_RULES.md"
     enforce:
-      - "char_001"  # Must have location
-      - "char_002"  # ID format
-      - "char_003"  # Nickname usage
+      - "char_001"  # primary location; warning, does not block
+      - "char_002"  # ID format; warning, does not block
+      - "char_003"  # Nickname usage; warning, does not block
     
   dialogue_generation:
     rules_file: "DIALOGUE_RULES.md"
@@ -69,7 +69,8 @@ Every rules file follows this structure:
 rules:
   - id: "unique_id"
     category: "subcategory"
-    priority: "critical|high|medium|low"
+    priority: "critical|high|medium|low"   # importance only; does not block
+    validation_type: "warning"             # default. error only if the write would store unsafe or corrupt data
     rule: "The actual rule"
     implementation: "How to implement"
 
@@ -88,7 +89,9 @@ validation:
 #### For LLMs/AI:
 ```
 Load rules from _Rules/CHARACTER_RULES.md
-Apply mandatory rules with priority: critical
+Block a write only when validation_type is error
+Record warning, info, and suggestion; they do not block
+New rules default to validation_type warning
 Use generation defaults for missing fields
 Validate output against checklist
 ```
@@ -116,12 +119,18 @@ When updating rules:
 3. Test with existing content for conflicts
 4. Update application settings if needed
 
-### ⚠️ Priority Levels
+### ⚠️ Rule level
 
-- **CRITICAL**: System will reject if not followed
-- **HIGH**: Warning issued, should fix
-- **MEDIUM**: Suggestion, recommended
-- **LOW**: Nice to have, optional
+`validation_type` is the level. Generation files that use `severity` mean the same thing.
+
+- **error**: Blocks the write. Use it only when accepting the write would store unsafe or corrupt data.
+- **warning**: Recorded on the row. Does not block. This is the default for a new rule.
+- **info**: Recorded. Does not block.
+- **suggestion**: Recorded. Does not block.
+
+Unresolved references, missing optional links, and prose or style checks are `warning`. Do not ship those as `error`.
+
+`priority` (`critical`, `high`, `medium`, `low`) is importance for generation and review. It does not block a write. A `critical` priority with `validation_type: warning` is recorded and the write succeeds.
 
 ---
 
@@ -156,7 +165,7 @@ story_rules = load_rules([
 generated_content = ai_generate(
     prompt=user_prompt,
     rules=story_rules,
-    enforce_critical=True
+    block_on="error",  # warning, info, and suggestion are recorded and do not block
 )
 ```
 

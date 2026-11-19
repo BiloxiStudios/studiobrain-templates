@@ -10,14 +10,14 @@ rules:
   category: identity
   priority: critical
   rule: Every character MUST have a primary_location or they will be flagged as homeless
-  validation_type: error
+  validation_type: warning
   applies_to: [character]
 
 - id: char_002
   category: naming
   priority: critical
   rule: Character IDs must use lowercase_with_underscores format
-  validation_type: error
+  validation_type: warning
   applies_to: [character]
 
 - id: char_003
@@ -31,7 +31,7 @@ rules:
   category: timeline
   priority: critical
   rule: "Technology named on a character must match the limits this project has recorded. forbidden_tech and allowed_tech are empty in the starter so the project can fill them. Do not invent a ban the project has not recorded."
-  validation_type: error
+  validation_type: warning
   applies_to: [character]
   forbidden_tech: []
   allowed_tech: []
@@ -81,7 +81,7 @@ rules:
   category: timeline_validation
   priority: critical
   rule: "birth_year must agree with age against the present year this project records. key_dates must be in order. death_year, when set, must fall after birth. Temporal data must be internally consistent."
-  validation_type: error
+  validation_type: warning
   applies_to: [character]
   required_tools: ["validate_character_age", "check_temporal_conflicts", "calculate_duration"]
 
@@ -93,7 +93,7 @@ rules:
     validation tools to verify they exist. Use check_location_exists for locations,
     check_brand_exists for brands, check_character_exists for character relationships.
     Never reference non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to: [character]
   required_tools: ["check_location_exists", "check_brand_exists", "check_character_exists",
     "validate_all_references"]

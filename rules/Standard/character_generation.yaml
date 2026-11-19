@@ -24,7 +24,7 @@ rules:
     description: Physical appearance must be consistent with stated age. A 25-year-old
       should not have deep wrinkles. A 70-year-old should not be described as youthful
       without explanation. Growth, aging, and wear affect build, posture, skin, and hair.
-    severity: error
+    severity: warning
     applies_to: [character]
 
   - id: chargen_003
@@ -74,7 +74,7 @@ rules:
       frontmatter says age 30, the backstory must not describe decades of career
       experience. If personality_traits lists "shy," dialogue samples must not show
       a gregarious extrovert.
-    severity: error
+    severity: warning
     applies_to: [character]
 
 defaults:

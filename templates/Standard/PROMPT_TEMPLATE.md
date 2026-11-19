@@ -67,7 +67,7 @@ variables:
     syntax: "$[type].[field]"          # one of the four syntax forms
     entity_type: "[entity_type]"       # resolved entity type
     field_path: "[field]"              # dot-separated path within the entity
-    required: true                     # if true, resolution fails on missing value
+    required: false                    # default does not block. true fails resolution when this value is missing
     default: null                      # fallback value when required: false
     description: "[What this variable represents]"
 
@@ -75,7 +75,7 @@ variables:
 # Controls how the resolver fetches cross-entity values at generation time.
 resolution_context:
   cache_ttl_seconds: 300              # how long resolved values are cached (0 = no cache)
-  strict_mode: true                   # true = error on unresolved variable; false = leave placeholder
+  strict_mode: false                  # default does not block. true fails resolution on an unresolved variable
   fallback_strategy: "empty_string"   # empty_string | placeholder | skip | error
 
 # OUTPUT CONFIGURATION

@@ -12,14 +12,14 @@ rules:
   category: structure
   priority: critical
   rule: Every location MUST belong to a district
-  validation_type: error
+  validation_type: warning
   applies_to:
   - location
 - id: loc_002
   category: atmosphere
   priority: critical
   rule: "A location's atmosphere must match the atmosphere recorded for its district and for this project. Do not add a decay, era, or mood the project has not recorded."
-  validation_type: error
+  validation_type: warning
   applies_to:
   - location
 - id: loc_003
@@ -52,7 +52,7 @@ rules:
   category: timeline_validation
   priority: critical
   rule: "founded_year and key_events must be in chronological order. A destruction date, when set, must fall after founding. Dates must sit inside the years this project uses."
-  validation_type: error
+  validation_type: warning
   applies_to:
   - location
   required_tools: ["check_temporal_conflicts", "calculate_duration"]
@@ -64,7 +64,7 @@ rules:
     vendors), factions (faction_control), or districts, use validation tools to verify
     they exist. Use check_character_exists for NPCs, check_brand_exists for brands,
     validate_all_references for bulk validation. Never reference non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to:
   - location
   required_tools: ["check_character_exists", "check_brand_exists", "validate_all_references"]

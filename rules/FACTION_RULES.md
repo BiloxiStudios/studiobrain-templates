@@ -74,7 +74,7 @@ rules:
   category: timeline_validation
   priority: critical
   rule: "formation_date, key_events, and history milestones must be in chronological order and inside the years this project uses."
-  validation_type: error
+  validation_type: warning
   applies_to:
   - faction
   required_tools: ["check_temporal_conflicts", "calculate_duration"]
@@ -87,7 +87,7 @@ rules:
     or districts, use validation tools to verify they exist. Use check_location_exists,
     check_character_exists, check_brand_exists, and validate_all_references. Never
     reference non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to:
   - faction
   required_tools: ["check_location_exists", "check_character_exists", "check_brand_exists",

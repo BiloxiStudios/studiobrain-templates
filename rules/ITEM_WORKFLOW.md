@@ -467,13 +467,13 @@ validation_rules:
   - id: "item_wf_001"
     category: "core_identity"
     rule: "Item ID must remain consistent across all stages"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["concept", "draft", "testing", "balancing", "review", "approval", "published", "active", "deprecated", "archived", "deleted", "rejected"]
 
   - id: "item_wf_002"
     category: "item_type_consistency"
     rule: "Item type must be valid enum value (weapon, consumable, key_item, material, collectible, cosmetic, currency)"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["draft", "testing", "balancing", "review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "item_wf_003"
@@ -485,25 +485,25 @@ validation_rules:
   - id: "item_wf_004"
     category: "fallback_required"
     rule: "Weapons must have fallback damage value defined before active"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "item_wf_005"
     category: "consumable_balance"
     rule: "Consumables must have duration and cooldown defined before active"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "item_wf_006"
     category: "key_item_uniqueness"
     rule: "Key items must not be tradeable or storable"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["draft", "testing", "balancing", "review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "item_wf_007"
     category: "base_price_validation"
     rule: "Base price must be positive integer before active"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "item_wf_008"
@@ -515,19 +515,19 @@ validation_rules:
   - id: "item_wf_009"
     category: "spawn_location_valid"
     rule: "Spawn locations must reference existing location entities"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["active", "deprecated", "archived"]
 
   - id: "item_wf_010"
     category: "identifier_consistency"
     rule: "Item ID must match folder name exactly"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["draft", "testing", "balancing", "review", "approval", "published", "active", "deprecated", "archived", "deleted", "rejected"]
 
   - id: "item_wf_011"
     category: "crafting_valid"
     rule: "Crafting recipe must reference valid item IDs"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["testing", "balancing", "review", "approval", "published", "active", "deprecated", "archived"]
 
 # META-FIELDS for workflow tracking

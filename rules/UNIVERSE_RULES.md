@@ -22,26 +22,26 @@ rules:
     category: "technology"
     priority: "critical"
     rule: "Technology references must stay inside the limits recorded on this project. forbidden_tech and allowed_tech are empty in the starter so the project can fill them. Do not invent a device ban the project has not recorded."
-    validation_type: "error"
+    validation_type: "warning"
     forbidden_tech: []
     allowed_tech: []
   - id: "universe_002"
     category: "timeline"
     priority: "critical"
     rule: "Cultural and technology references must match the era this project records. Do not import a later era's devices, slang, or institutions."
-    validation_type: "error"
+    validation_type: "warning"
     
   - id: "universe_003"
     category: "narrative"
     priority: "critical"
     rule: "Narrative events must stay consistent with the history this project records. Do not invent a central catastrophe the project has not established."
-    validation_type: "error"
+    validation_type: "warning"
     
   - id: "universe_004"
     category: "geography"
     priority: "critical"
     rule: "A place named in content must be an entity this project already has, or be added as its own entity before anything else names it."
-    validation_type: "error"
+    validation_type: "warning"
     
   - id: "universe_005"
     category: "tone"

@@ -12,7 +12,7 @@ rules:
   category: naming
   priority: critical
   rule: Biome IDs must use lowercase_with_underscores format
-  validation_type: error
+  validation_type: warning
   applies_to:
   - biome
 
@@ -20,7 +20,7 @@ rules:
   category: naming
   priority: critical
   rule: Biome files must use BIO_ prefix (e.g., BIO_frozen_tundra.md)
-  validation_type: error
+  validation_type: warning
   applies_to:
   - biome
 
@@ -31,7 +31,7 @@ rules:
     Cacti do not grow in tundra. Tropical ferns do not thrive in deserts. Coniferous
     forests do not appear in volcanic wastelands. If a biome has unusual flora, provide
     an in-world explanation (magical influence, artificial cultivation, mutation).
-  validation_type: error
+  validation_type: warning
   applies_to:
   - biome
 
@@ -42,7 +42,7 @@ rules:
     food chain. Predator populations must be smaller than prey populations. Aquatic
     species require water features. Large herbivores require sufficient vegetation.
     Desert fauna must have adaptations for heat and water scarcity.
-  validation_type: error
+  validation_type: warning
   applies_to:
   - biome
 
@@ -53,7 +53,7 @@ rules:
     position. Tropical biomes have monsoons, not blizzards. Tundra has permafrost,
     not droughts. Precipitation, humidity, and temperature range must align. If a biome
     has anomalous weather, provide an in-world explanation.
-  validation_type: error
+  validation_type: warning
   applies_to:
   - biome
 
@@ -145,7 +145,7 @@ rules:
     use validation tools to verify they exist. Never reference non-existent entities.
     Use check_location_exists for parent locations and check_biome_exists for connected
     biomes.
-  validation_type: error
+  validation_type: warning
   applies_to:
   - biome
   required_tools: ["check_location_exists", "check_biome_exists", "validate_all_references"]

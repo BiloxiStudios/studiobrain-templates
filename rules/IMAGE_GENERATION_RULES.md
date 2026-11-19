@@ -29,7 +29,7 @@ rules:
   category: character
   priority: critical
   rule: 'Characters require: front facing, 3/4 left, 3/4 right portraits'
-  validation_type: error
+  validation_type: warning
   applies_to:
   - character
   - image

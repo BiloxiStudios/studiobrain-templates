@@ -4,7 +4,7 @@ rules:
   category: naming
   priority: critical
   rule: Item IDs must use lowercase_with_underscores format
-  validation_type: error
+  validation_type: warning
   applies_to:
   - inventory
 
@@ -12,7 +12,7 @@ rules:
   category: naming
   priority: critical
   rule: Item files must use ITEM_ prefix (e.g., ITEM_neural_sword.md)
-  validation_type: error
+  validation_type: warning
   applies_to:
   - inventory
 
@@ -20,7 +20,7 @@ rules:
   category: verse_integration
   priority: high
   rule: Verse game_id must be within correct ranges - Currency (1-999), Weapons (1000-1999), Consumables (2000-2999), Cosmetics (3000-3999)
-  validation_type: error
+  validation_type: warning
   applies_to:
   - inventory
 
@@ -36,7 +36,7 @@ rules:
   category: categorization
   priority: medium
   rule: Items with damage > 0 must have item_type as weapon
-  validation_type: error
+  validation_type: warning
   applies_to:
   - inventory
 
@@ -44,7 +44,7 @@ rules:
   category: categorization
   priority: medium
   rule: Items with defense > 0 must have appropriate item_type (armor, clothing, etc.)
-  validation_type: error
+  validation_type: warning
   applies_to:
   - inventory
 
@@ -92,7 +92,7 @@ rules:
   category: world_consistency
   priority: high
   rule: "An item's technology must match the technology this project records. Do not assume a decade."
-  validation_type: error
+  validation_type: warning
   applies_to:
   - inventory
 
@@ -108,7 +108,7 @@ rules:
   category: quest_items
   priority: critical
   rule: Quest items should have quest_item set to true and reference required_quests
-  validation_type: error
+  validation_type: warning
   applies_to:
   - inventory
 
@@ -156,7 +156,7 @@ rules:
   category: metadata
   priority: critical
   rule: All items must have template_version, created_date, and status defined
-  validation_type: error
+  validation_type: warning
   applies_to:
   - inventory
 
@@ -196,7 +196,7 @@ rules:
   category: ammo_consistency
   priority: high
   rule: Weapons with ammo_type must have damage > 0 and be ranged weapons
-  validation_type: error
+  validation_type: warning
   applies_to:
   - inventory
 
@@ -233,9 +233,11 @@ These rules check item structure, ranges, and references for this project. They 
 
 ## Validation Levels
 
-- **Error**: Must be fixed before approval
-- **Warning**: Should be addressed but won't block
-- **Info**: Helpful suggestions for improvement
+A rule blocks a write only when `validation_type` is `error`. Warning, info, and suggestion are recorded and do not block. A new rule defaults to `warning`. Use `error` only when accepting the write would store unsafe or corrupt data. Unresolved references, missing optional links, and prose or style checks are warnings.
+
+- **Error**: Blocks the write. Reserved for unsafe or corrupt stored data.
+- **Warning**: Recorded. Does not block. This is the default.
+- **Info**: Recorded. Does not block.
 
 ## Usage
 
@@ -245,15 +247,16 @@ These rules are automatically applied when:
 - Running validation checks on existing items
 - Generating item documentation
 
-Items failing critical rules will be rejected. Items with warnings will be flagged for review but can still be processed.
+An item write is blocked only by an error-level rule. Warning, info, and suggestion findings are recorded and the item is still saved. Priority does not block.
 
 ## Rule Updates
 
 When adding new rules:
 1. Assign unique ID with `inv_` prefix
 2. Choose appropriate category and priority
-3. Specify clear validation criteria
-4. Test against existing items
-5. Update documentation
+3. Set `validation_type` to `warning` unless accepting the write would store unsafe or corrupt data
+4. Specify clear validation criteria
+5. Test against existing items
+6. Update documentation
 
 Rules should be backward compatible when possible to avoid breaking existing items.

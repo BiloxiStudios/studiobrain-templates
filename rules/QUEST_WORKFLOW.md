@@ -497,31 +497,31 @@ validation_rules:
   - id: "quest_wf_001"
     category: "core_identity"
     rule: "Quest ID must remain consistent across all stages"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["concept", "scripting", "balancing", "qa", "final_review", "approval", "published", "active", "deprecated", "archived", "deleted", "rejected"]
 
   - id: "quest_wf_002"
     category: "quest_type_valid"
     rule: "Quest type must be valid enum (side, main, daily, weekly, event, tutorial)"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["scripting", "balancing", "qa", "final_review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "quest_wf_003"
     category: "quest_giver_exists"
     rule: "Quest giver must reference existing character ID"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["scripting", "balancing", "qa", "final_review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "quest_wf_004"
     category: "primary_objectives_required"
     rule: "At least one primary objective must be defined before QA"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["balancing", "qa", "final_review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "quest_wf_005"
     category: "dialogue_valid"
     rule: "Dialogue trees must reference valid dialogue IDs"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["scripting", "balancing", "qa", "final_review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "quest_wf_006"
@@ -533,31 +533,31 @@ validation_rules:
   - id: "quest_wf_007"
     category: "reputation_changes"
     rule: "All factions in reputation_changes must exist"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["balancing", "qa", "final_review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "quest_wf_008"
     category: "trace_locations_valid"
     rule: "Trace locations must reference existing location IDs"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["active", "deprecated", "archived"]
 
   - id: "quest_wf_009"
     category: "level_scaling"
     rule: "Required level must be positive integer before active"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["qa", "final_review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "quest_wf_010"
     category: "identifier_consistency"
     rule: "Quest ID must match folder name exactly"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["scripting", "balancing", "qa", "final_review", "approval", "published", "active", "deprecated", "archived", "deleted", "rejected"]
 
   - id: "quest_wf_011"
     category: "prerequisites_valid"
     rule: "All prerequisite quests must exist"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["scripting", "balancing", "qa", "final_review", "approval", "published", "active", "deprecated", "archived"]
 
   - id: "quest_wf_012"

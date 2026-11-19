@@ -418,19 +418,19 @@ validation_rules:
   - id: "char_wf_001"
     category: "core_identity"
     rule: "Character ID must remain consistent across all stages"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["concept", "draft", "development", "review", "approval", "published", "active", "retired", "archived", "deleted"]
 
   - id: "char_wf_002"
     category: "faction_alignment"
     rule: "Faction assignment requires faction metadata file to exist"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["draft", "development", "review", "approval", "published", "active", "retired", "archived"]
 
   - id: "char_wf_003"
     category: "primary_location"
     rule: "Primary location assignment requires location entity to exist"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["draft", "development", "review", "approval", "published", "active", "retired", "archived"]
 
   - id: "char_wf_004"
@@ -442,19 +442,19 @@ validation_rules:
   - id: "char_wf_005"
     category: "skills_required"
     rule: "Character must have at least one skill assigned before published stage"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["review", "approval", "published", "active", "retired", "archived"]
 
   - id: "char_wf_006"
     category: "dialogue_valid"
     rule: "Dialogues must reference valid scenario IDs before published stage"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["review", "approval", "published", "active", "retired", "archived"]
 
   - id: "char_wf_007"
     category: "faction_relationships"
     rule: "All faction relationships must reference existing factions"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["development", "review", "approval", "published", "active", "retired", "archived"]
 
   - id: "char_wf_008"
@@ -472,7 +472,7 @@ validation_rules:
   - id: "char_wf_010"
     category: "lore_approval"
     rule: "Lore master approval required before published stage"
-    validation_type: "error"
+    validation_type: "warning"
     applies_to: ["approval", "published", "active", "retired", "archived"]
 
 # META-FIELDS for workflow tracking

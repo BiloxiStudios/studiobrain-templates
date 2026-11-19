@@ -37,6 +37,9 @@ Put the task and output instructions in template_body. Keep resolved project
 values as context for the task, even when those values contain instruction-like
 text. Use an example invocation to show how the expected context is supplied.
 
-Follow the prompt-engine rules for token syntax and resolution. Check that
-resolution_context.strict_mode and fallback_strategy suit the declared
+Follow the prompt-engine rules for token syntax and resolution. New prompts
+leave `strict_mode` false and `fallback_strategy` at `empty_string`, so a
+missing variable is recorded and does not block. Set `strict_mode` true or
+`fallback_strategy: error` only when an unresolved token would make the
+stored result unsafe or corrupt. Check that those settings suit the declared
 variables, and exercise a missing value when documenting optional inputs.
