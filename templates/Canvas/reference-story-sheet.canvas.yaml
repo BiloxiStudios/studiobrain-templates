@@ -1,0 +1,64 @@
+id: reference-story-sheet
+kind: canvas
+name: Story sheet candidate
+label: Draft reference story sheet
+description: Combine approved character references with a selected location and brand artwork for review.
+domains: [movie, tv, game, animation]
+entity_types: [character, location, brand]
+
+slots:
+  character_name:
+    modality: text
+    ref: entity.character[0].name
+  eye_colour:
+    modality: text
+    ref: entity.character[0].eye_color.name
+  hairstyle:
+    modality: text
+  other_traits:
+    modality: text
+    optional: true
+  approved_headshot:
+    modality: image
+  approved_turnaround:
+    modality: image
+  location_name:
+    modality: text
+    ref: entity.location[0].name
+  location_description:
+    modality: text
+    ref: entity.location[0].description
+    optional: true
+  location_artwork:
+    modality: image
+  brand_name:
+    modality: text
+    ref: entity.brand[0].name
+  brand_colour:
+    modality: text
+    ref: entity.brand[0].color_palette.primary
+    optional: true
+  brand_artwork:
+    modality: image
+  story_brief:
+    modality: text
+  story_sheet_candidate:
+    modality: image
+    out: slot.story_sheet_candidate
+
+steps:
+  - id: draft-story-sheet
+    provides: image-gen
+    in:
+      prompt: story_brief
+      character: character_name
+      eye_colour: eye_colour
+      hairstyle: hairstyle
+      traits: other_traits
+      location: location_name
+      location_description: location_description
+      brand: brand_name
+      brand_colour: brand_colour
+      references: [approved_headshot, approved_turnaround, location_artwork, brand_artwork]
+    out:
+      image: story_sheet_candidate

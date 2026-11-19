@@ -1,0 +1,37 @@
+id: reference-headshot
+kind: canvas
+name: Character headshot candidate
+label: Draft reference headshot
+description: Draft a headshot from selected character traits for review before use as a reference.
+domains: [movie, tv, game, animation]
+entity_types: [character]
+
+slots:
+  character_name:
+    modality: text
+    ref: entity.character[0].name
+  eye_colour:
+    modality: text
+    ref: entity.character[0].eye_color.name
+  hairstyle:
+    modality: text
+  other_traits:
+    modality: text
+    optional: true
+  portrait_brief:
+    modality: text
+  headshot_candidate:
+    modality: image
+    out: slot.headshot_candidate
+
+steps:
+  - id: draft-headshot
+    provides: image-gen
+    in:
+      prompt: portrait_brief
+      character: character_name
+      eye_colour: eye_colour
+      hairstyle: hairstyle
+      traits: other_traits
+    out:
+      image: headshot_candidate

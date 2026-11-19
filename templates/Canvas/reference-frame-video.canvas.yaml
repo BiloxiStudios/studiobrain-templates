@@ -1,0 +1,29 @@
+id: reference-frame-video
+kind: canvas
+name: Video from an approved frame
+label: Draft video from frame
+description: Pass one approved story-sheet frame and a motion brief to a video step.
+domains: [movie, tv, video, animation]
+entity_types: [location]
+
+slots:
+  location_name:
+    modality: text
+    ref: entity.location[0].name
+  approved_frame:
+    modality: image
+  motion_brief:
+    modality: text
+  video_candidate:
+    modality: video
+    out: slot.video_candidate
+
+steps:
+  - id: draft-video
+    provides: video-gen
+    in:
+      prompt: motion_brief
+      location: location_name
+      image: approved_frame
+    out:
+      video: video_candidate

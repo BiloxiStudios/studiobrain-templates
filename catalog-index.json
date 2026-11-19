@@ -323,6 +323,182 @@
       "step_count": 2
     },
     {
+      "id": "reference-frame-video",
+      "kind": "canvas",
+      "name": "Video from an approved frame",
+      "description": "Pass one approved story-sheet frame and a motion brief to a video step.",
+      "path": "templates/Canvas/reference-frame-video.canvas.yaml",
+      "slots": {
+        "approved_frame": {
+          "modality": "image"
+        },
+        "location_name": {
+          "modality": "text"
+        },
+        "motion_brief": {
+          "modality": "text"
+        },
+        "video_candidate": {
+          "modality": "video"
+        }
+      },
+      "domains": [
+        "movie",
+        "tv",
+        "video",
+        "animation"
+      ],
+      "entity_types": [
+        "location"
+      ],
+      "step_count": 1
+    },
+    {
+      "id": "reference-headshot",
+      "kind": "canvas",
+      "name": "Character headshot candidate",
+      "description": "Draft a headshot from selected character traits for review before use as a reference.",
+      "path": "templates/Canvas/reference-headshot.canvas.yaml",
+      "slots": {
+        "character_name": {
+          "modality": "text"
+        },
+        "eye_colour": {
+          "modality": "text"
+        },
+        "hairstyle": {
+          "modality": "text"
+        },
+        "headshot_candidate": {
+          "modality": "image"
+        },
+        "other_traits": {
+          "modality": "text",
+          "optional": true
+        },
+        "portrait_brief": {
+          "modality": "text"
+        }
+      },
+      "domains": [
+        "movie",
+        "tv",
+        "game",
+        "animation"
+      ],
+      "entity_types": [
+        "character"
+      ],
+      "step_count": 1
+    },
+    {
+      "id": "reference-story-sheet",
+      "kind": "canvas",
+      "name": "Story sheet candidate",
+      "description": "Combine approved character references with a selected location and brand artwork for review.",
+      "path": "templates/Canvas/reference-story-sheet.canvas.yaml",
+      "slots": {
+        "approved_headshot": {
+          "modality": "image"
+        },
+        "approved_turnaround": {
+          "modality": "image"
+        },
+        "brand_artwork": {
+          "modality": "image"
+        },
+        "brand_colour": {
+          "modality": "text",
+          "optional": true
+        },
+        "brand_name": {
+          "modality": "text"
+        },
+        "character_name": {
+          "modality": "text"
+        },
+        "eye_colour": {
+          "modality": "text"
+        },
+        "hairstyle": {
+          "modality": "text"
+        },
+        "location_artwork": {
+          "modality": "image"
+        },
+        "location_description": {
+          "modality": "text",
+          "optional": true
+        },
+        "location_name": {
+          "modality": "text"
+        },
+        "other_traits": {
+          "modality": "text",
+          "optional": true
+        },
+        "story_brief": {
+          "modality": "text"
+        },
+        "story_sheet_candidate": {
+          "modality": "image"
+        }
+      },
+      "domains": [
+        "movie",
+        "tv",
+        "game",
+        "animation"
+      ],
+      "entity_types": [
+        "character",
+        "location",
+        "brand"
+      ],
+      "step_count": 1
+    },
+    {
+      "id": "reference-turnaround",
+      "kind": "canvas",
+      "name": "Character turnaround candidate",
+      "description": "Use an approved headshot and the character's selected traits to draft a full-body turnaround.",
+      "path": "templates/Canvas/reference-turnaround.canvas.yaml",
+      "slots": {
+        "approved_headshot": {
+          "modality": "image"
+        },
+        "character_name": {
+          "modality": "text"
+        },
+        "eye_colour": {
+          "modality": "text"
+        },
+        "hairstyle": {
+          "modality": "text"
+        },
+        "other_traits": {
+          "modality": "text",
+          "optional": true
+        },
+        "turnaround_brief": {
+          "modality": "text"
+        },
+        "turnaround_candidate": {
+          "modality": "image"
+        }
+      },
+      "domains": [
+        "movie",
+        "tv",
+        "game",
+        "animation"
+      ],
+      "entity_types": [
+        "character"
+      ],
+      "step_count": 1
+    },
+    {
       "id": "scene-with-two-leads",
       "kind": "canvas",
       "name": "Location still, two leads, then video",
