@@ -176,7 +176,7 @@ rules:
       is forwarded to any AI provider. Resolved values must be HTML-escaped and
       truncated to a maximum of 1 000 characters per variable substitution to
       prevent prompt injection via entity field content.
-    validation_type: error
+    validation_type: warning
     applies_to: [prompt]
 
   - id: pe_031
@@ -186,7 +186,7 @@ rules:
       The resolver must only access entity fields that the requesting user has
       read permission for. Attempting to resolve a field the user cannot read
       must return an "access denied" resolution error, not an empty string.
-    validation_type: error
+    validation_type: warning
     applies_to: [prompt]
 
   # ── Universality ──────────────────────────────────────────────────────────

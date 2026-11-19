@@ -105,7 +105,7 @@ There is no application build step. This is a data-only package. CI regenerates 
 - **Apache 2.0 license.** This repo is public. Do not add proprietary code or credentials.
 - **Template packs** in `templates/Packs/` must include a `pack.json` manifest with metadata. A pack may list official plugin ids (resolved from the plugins repo / R2), but must not embed plugin trees.
 - When adding a new entity type, add both the template file (in `templates/Standard/`) and a corresponding rules file (in `rules/`).
-- New templates and new rules default to a non-blocking level. Set `validation_type` (or `severity`) to `warning` unless accepting the write would store unsafe or corrupt data. `error` is the only level that blocks a write. Unresolved references, missing optional links, and prose or style checks are warnings.
+- New templates and new rules default to a non-blocking level. Set `validation_type` (or `severity`) to `warning`. `error` is the only level that blocks a write. A starter pack keeps one `error` example, a case a new user would expect to be refused. Do not add another, and do not invent a check so a pack has one. Unresolved references, missing optional links, and prose or style checks stay warnings.
 
 
 ## Cloudflare Worker Convention (`packages/cloudflare-worker/`)

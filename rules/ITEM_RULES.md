@@ -4,7 +4,7 @@ rules:
   category: naming
   priority: critical
   rule: Item IDs must use lowercase_with_underscores format
-  validation_type: warning
+  validation_type: error
   applies_to:
   - inventory
 
@@ -233,9 +233,9 @@ These rules check item structure, ranges, and references for this project. They 
 
 ## Validation Levels
 
-A rule blocks a write only when `validation_type` is `error`. Warning, info, and suggestion are recorded and do not block. A new rule defaults to `warning`. Use `error` only when accepting the write would store unsafe or corrupt data. Unresolved references, missing optional links, and prose or style checks are warnings.
+A rule blocks a write only when `validation_type` is `error`. Warning, info, and suggestion are recorded and do not block. A new rule defaults to `warning`. A starter pack keeps one `error` example, a refusal a new user would expect. `inv_001` is that example for items. Unresolved references, missing optional links, and prose or style checks are warnings.
 
-- **Error**: Blocks the write. Reserved for unsafe or corrupt stored data.
+- **Error**: Blocks the write. One example per starter pack.
 - **Warning**: Recorded. Does not block. This is the default.
 - **Info**: Recorded. Does not block.
 
@@ -254,7 +254,7 @@ An item write is blocked only by an error-level rule. Warning, info, and suggest
 When adding new rules:
 1. Assign unique ID with `inv_` prefix
 2. Choose appropriate category and priority
-3. Set `validation_type` to `warning` unless accepting the write would store unsafe or corrupt data
+3. Set `validation_type` to `warning`. This pack's one `error` example is `inv_001`
 4. Specify clear validation criteria
 5. Test against existing items
 6. Update documentation

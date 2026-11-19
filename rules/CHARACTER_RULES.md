@@ -17,7 +17,7 @@ rules:
   category: naming
   priority: critical
   rule: Character IDs must use lowercase_with_underscores format
-  validation_type: warning
+  validation_type: error
   applies_to: [character]
 
 - id: char_003

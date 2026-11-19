@@ -70,7 +70,7 @@ rules:
   - id: "unique_id"
     category: "subcategory"
     priority: "critical|high|medium|low"   # importance only; does not block
-    validation_type: "warning"             # default. error only if the write would store unsafe or corrupt data
+    validation_type: "warning"             # default. a starter pack keeps one error example
     rule: "The actual rule"
     implementation: "How to implement"
 
@@ -123,7 +123,7 @@ When updating rules:
 
 `validation_type` is the level. Generation files that use `severity` mean the same thing.
 
-- **error**: Blocks the write. Use it only when accepting the write would store unsafe or corrupt data.
+- **error**: Blocks the write. A starter pack keeps one example, a case a new user would expect to be refused. Do not add a second.
 - **warning**: Recorded on the row. Does not block. This is the default for a new rule.
 - **info**: Recorded. Does not block.
 - **suggestion**: Recorded. Does not block.
