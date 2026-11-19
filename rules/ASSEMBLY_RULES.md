@@ -59,7 +59,7 @@ rules:
 - id: asm_inh_003
   category: inheritance
   priority: high
-  rule: "Max inheritance chain depth is 4 (Template=1, Profile=2, Variant=3, Zombie=4). A deeper chain is a warning and does not block the write."
+  rule: "Max inheritance chain depth is 4 (Template=1, Profile=2, Variant=3, Zombie=4). Assemblies exceeding depth 4 are rejected."
   validation_type: warning
   applies_to: [assembly]
   max_depth: 4
@@ -82,14 +82,14 @@ rules:
 - id: asm_slot_001
   category: slots
   priority: critical
-  rule: Every slot must belong to a named slot_group. A loose slot is a warning and does not block the write.
+  rule: Every slot must belong to a named slot_group. Loose slots outside a group are rejected.
   validation_type: warning
   applies_to: [assembly]
 
 - id: asm_slot_002
   category: slots
   priority: critical
-  rule: "Each required slot (required: true) must be filled before an assembly can be marked status: complete or exported"
+  rule: "Required slots (required: true) are filled when an assembly is marked status: complete or exported."
   validation_type: warning
   applies_to: [assembly]
 
@@ -178,7 +178,7 @@ rules:
 - id: asm_lock_001
   category: locking
   priority: high
-  rule: "locked_slots entries must reference existing slot_group.slot_name paths (e.g. 'head.head_base'). An unresolved path is a warning and does not block the write."
+  rule: "locked_slots entries must reference existing slot_group.slot_name paths (e.g. 'head.head_base'). Invalid references are flagged as errors."
   validation_type: warning
   applies_to: [assembly]
 
@@ -231,7 +231,7 @@ rules:
 - id: asm_exp_002
   category: export
   priority: high
-  rule: "export_profile_files entries must reference files that exist under templates/Standard/ExportProfiles/. Missing profile files block export."
+  rule: "export_profile_files entries must reference files that exist under templates/Standard/ExportProfiles/. A missing profile file is named when export runs."
   validation_type: warning
   applies_to: [assembly]
 
@@ -373,8 +373,8 @@ overriding them. Locks are inherited additively down the chain.
 
 Export profiles translate slot assets into pipeline-specific folder structures and filenames.
 Profiles are defined as YAML files under `templates/Standard/ExportProfiles/`. An assembly
-references one or more profiles via `export_profile_files`. Export is blocked until all
-`required: true` slots are filled.
+references one or more profiles via `export_profile_files`. Export includes every
+slot marked `required: true`. A partial export lists the ones still empty.
 
 ## Zombie / Infection System
 

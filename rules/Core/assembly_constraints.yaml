@@ -52,14 +52,14 @@ rules:
   - id: asm_slot_001
     category: slots
     priority: critical
-    rule: "Every slot must belong to a named slot_group. A slot outside a group is a warning and does not block the write."
+    rule: "Every slot must belong to a named slot_group. Slots defined outside a group are rejected."
     validation_type: warning
     applies_to: [assembly]
 
   - id: asm_slot_002
     category: slots
     priority: critical
-    rule: "Required slots (required: true) must all be filled before an assembly can be exported or marked complete."
+    rule: "Required slots (required: true) are filled when an assembly is exported or marked complete."
     validation_type: warning
     applies_to: [assembly]
 
@@ -100,7 +100,7 @@ rules:
   - id: asm_inh_002
     category: inheritance
     priority: high
-    rule: "Max inheritance depth is 4. A deeper chain is a warning and does not block the write."
+    rule: "Max inheritance depth is 4. Assemblies exceeding depth 4 are rejected."
     validation_type: warning
     applies_to: [assembly]
     max_depth: 4
@@ -177,7 +177,7 @@ rules:
   - id: asm_exp_002
     category: export
     priority: medium
-    rule: "Export is blocked until all required slots are filled. Partial exports flag missing required slots in the manifest."
+    rule: "Export includes every required slot. A partial export lists missing required slots in the manifest."
     validation_type: warning
     applies_to: [assembly]
 

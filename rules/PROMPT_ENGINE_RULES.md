@@ -29,7 +29,7 @@ rules:
       (2) $type.field — cross-entity implicit (nearest entity of that type);
       (3) $type:entity_id.field — cross-entity explicit (pinned entity ID);
       (4) $type:entity_id.path.to.nested.field — explicit with arbitrary-depth
-      nested dot-path traversal. Any other token form is a warning and does not block the write.
+      nested dot-path traversal. Any other token form is a syntax error.
     validation_type: warning
     applies_to: [prompt]
 
@@ -39,8 +39,8 @@ rules:
     rule: >
       The `type` portion of a cross-entity token MUST be a recognised entity-type
       token: character, location, item, brand, faction, district, quest, dialogue,
-      event, campaign, timeline, assembly, job, or universe. An unknown type
-      token is a warning and does not block the write. Leave it unresolved.
+      event, campaign, timeline, assembly, job, or universe. Unknown type tokens
+      must be rejected with a parse error before resolution begins.
     validation_type: warning
     applies_to: [prompt]
 
@@ -73,7 +73,7 @@ rules:
       Before substituting any cross-entity variable, the resolver MUST verify
       that the target entity exists in the database using the entity validation
       tools (check_character_exists, check_location_exists, etc.). Resolution of
-      a variable that points to a non-existent entity is a warning and does not block the write. Leave the token unresolved.
+      a variable that points to a non-existent entity is a resolution error.
     validation_type: warning
     applies_to: [prompt]
     required_tools:
@@ -110,10 +110,10 @@ rules:
     category: resolution
     priority: high
     rule: >
-      strict_mode is off in the starter template, so an unresolved token does not
-      block the write or generation. When a prompt opts in with `strict_mode: true`,
-      every unresolvable variable fails resolution with a message that lists each
-      unresolved token, and generation does not proceed until they are resolved.
+      When `strict_mode: true` is set on the prompt template, every unresolvable
+      variable (required or optional) MUST cause the resolution to fail with a
+      descriptive error message listing each unresolved token. Generation must not
+      proceed until all variables are resolved or the prompt is fixed.
     validation_type: warning
     applies_to: [prompt]
 
