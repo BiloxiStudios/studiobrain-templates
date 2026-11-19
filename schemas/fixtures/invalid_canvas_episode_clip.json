@@ -1,0 +1,11 @@
+{
+  "id": "pilot",
+  "kind": "canvas",
+  "entity_types": ["episode"],
+  "slots": {},
+  "steps": [{"id": "narrate", "provides": "tts"}],
+  "episode": {
+    "version": 1,
+    "sequences": [{"id": "opening", "name": "Opening", "clips": [{"id": "intro"}]}]
+  }
+}

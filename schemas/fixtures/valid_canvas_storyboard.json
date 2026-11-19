@@ -1,0 +1,25 @@
+{
+  "id": "station-scene",
+  "kind": "canvas",
+  "entity_types": ["character", "location", "brand"],
+  "slots": {},
+  "steps": [],
+  "storyboard": {
+    "shots": [
+      {
+        "id": "wide",
+        "direction": "Open on the station with the brand sign in frame",
+        "approved_media": { "kind": "frame", "asset_id": "station-frame" },
+        "references": [
+          { "entity_type": "location", "entity_id": "station" },
+          { "entity_type": "brand", "entity_id": "transit", "field_ref": "entity.brand[0].primary_image" }
+        ]
+      },
+      {
+        "id": "close",
+        "direction": "Cut to the returning character",
+        "approved_media": { "kind": "clip", "asset_id": "platform-clip" }
+      }
+    ]
+  }
+}

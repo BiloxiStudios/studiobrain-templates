@@ -6,6 +6,8 @@
   "type": "object",
   "required": ["id", "kind", "entity_types", "slots", "steps"],
   "additionalProperties": true,
+  "if": { "not": { "anyOf": [{ "required": ["storyboard"] }, { "required": ["episode"] }] } },
+  "then": { "properties": { "entity_types": { "minItems": 1 }, "steps": { "minItems": 1 } } },
   "properties": {
     "id": {
       "type": "string",
@@ -28,7 +30,6 @@
     },
     "entity_types": {
       "type": "array",
-      "minItems": 1,
       "items": { "type": "string" }
     },
     "requires": {
@@ -48,8 +49,22 @@
     },
     "steps": {
       "type": "array",
-      "minItems": 1,
       "items": { "$ref": "#/$defs/step" }
+    },
+    "storyboard": {
+      "type": "object",
+      "required": ["shots"],
+      "properties": {
+        "shots": { "type": "array", "items": { "$ref": "#/$defs/shot" } }
+      }
+    },
+    "episode": {
+      "type": "object",
+      "required": ["version", "sequences"],
+      "properties": {
+        "version": { "const": 1 },
+        "sequences": { "type": "array", "items": { "$ref": "#/$defs/sequence" } }
+      }
     },
     "canvas": {
       "type": "object",
@@ -84,6 +99,62 @@
     }
   },
   "$defs": {
+    "idString": { "type": "string", "minLength": 1 },
+    "shot": {
+      "type": "object",
+      "required": ["id", "direction"],
+      "properties": {
+        "id": { "$ref": "#/$defs/idString" },
+        "direction": { "type": "string" },
+        "approved_media": {
+          "type": "object",
+          "required": ["kind", "asset_id"],
+          "properties": {
+            "kind": { "enum": ["frame", "clip"] },
+            "asset_id": { "$ref": "#/$defs/idString" }
+          }
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["entity_type", "entity_id"],
+            "properties": {
+              "entity_type": { "$ref": "#/$defs/idString" },
+              "entity_id": { "$ref": "#/$defs/idString" },
+              "field_ref": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "sequence": {
+      "type": "object",
+      "required": ["id", "name", "clips"],
+      "properties": {
+        "id": { "$ref": "#/$defs/idString" },
+        "name": { "type": "string" },
+        "clips": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "asset_id"],
+            "properties": {
+              "id": { "$ref": "#/$defs/idString" },
+              "asset_id": { "$ref": "#/$defs/idString" },
+              "source": {
+                "type": "object",
+                "required": ["canvas_id", "shot_id"],
+                "properties": {
+                  "canvas_id": { "$ref": "#/$defs/idString" },
+                  "shot_id": { "$ref": "#/$defs/idString" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "modality": {
       "type": "string",
       "enum": ["text", "image", "audio", "video", "3d", "json", "tool"]

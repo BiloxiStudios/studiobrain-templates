@@ -1787,6 +1787,8 @@ def _fixture_schema_name(fixture_name: str) -> str:
     plugin.json behavior (``valid_v1_*``/``valid_v2_*``/etc, SBAI-4649) so
     existing fixtures are unaffected.
     """
+    if "_canvas_" in fixture_name:
+        return "canvas.json"
     if "_provider_" in fixture_name:
         return "provider.json"
     if "_recipe_" in fixture_name:
