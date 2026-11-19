@@ -1,0 +1,25 @@
+{
+  "id": "episode-pilot",
+  "kind": "canvas",
+  "name": "Pilot",
+  "entity_types": [],
+  "slots": {},
+  "steps": [],
+  "episode": {
+    "version": 1,
+    "sequences": [
+      {
+        "id": "opening",
+        "name": "Opening",
+        "clips": [
+          {
+            "id": "intro",
+            "asset_id": "platform-clip",
+            "source": { "canvas_id": "station-scene", "shot_id": "close" }
+          },
+          { "id": "reprise", "asset_id": "platform-clip" }
+        ]
+      }
+    ]
+  }
+}

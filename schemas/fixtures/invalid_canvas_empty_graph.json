@@ -1,0 +1,7 @@
+{
+  "id": "empty",
+  "kind": "canvas",
+  "entity_types": ["character"],
+  "slots": {},
+  "steps": []
+}
