@@ -91,7 +91,7 @@ rules:
 - id: inv_012
   category: world_consistency
   priority: high
-  rule: No modern technology references beyond alternate 1990s tech level
+  rule: "An item's technology must match the technology this project records. Do not assume a decade."
   validation_type: error
   applies_to:
   - inventory
@@ -204,7 +204,7 @@ rules:
 
 # Inventory Rules Documentation
 
-This file defines validation rules for inventory items in the City of Brains universe. These rules ensure consistency, balance, and proper integration across all systems.
+These rules check item structure, ranges, and references for this project. They do not name a setting. Technology on an item must match the technology the project records.
 
 ## Rule Categories
 

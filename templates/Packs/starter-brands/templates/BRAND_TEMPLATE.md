@@ -1,5 +1,5 @@
 ---
-id: "unique_lowercase_id"  # Must match folder name (e.g., double_dip_dog_sauce) - snake_case
+id: "unique_lowercase_id"  # Must match folder name (e.g., example_brand) - snake_case
 name: "Brand Display Name"  # Display name shown to users
 
 # METADATA (REQUIRED)
@@ -52,8 +52,8 @@ market_position: "market_leader"  # market_leader, competitor, niche, startup
 # TEMPORAL INFORMATION (Optional)
 defunct_year: null        # Year brand ceased operations (if applicable)
 major_milestones:         # Important dates in brand history
-  # - year: 1998
-  #   event: "IPO and stock market debut"
+  # - year: 2001
+  #   event: "A recorded milestone"
   # - year: 2005
   #   event: "Expanded to national market"
 
@@ -151,26 +151,24 @@ consumer_loyalty: "moderate"  # low, moderate, high, fanatic
 narrative_role: "major_antagonist"  # background, minor, moderate, major, central
 story_significance: "infection vector"
 dark_secrets:
-  - "uses chemical plant runoff"
+  - "uses a local material"
   - "executives knew about side effects"
   - "planned obsolescence in products"
 conspiracy_connections:
-  - "chemical plant experiments"
+  - "a recorded experiment"
   - "government contracts"
-  - "eclipse research funding"
+  - "a recorded research contract"
 
 # MARKETING CAMPAIGNS
 active_campaigns:
-  - campaign_id: "double_dip_promo"
-    type: "social media"
-    message: "Double the dip, double the fun!"
+  - campaign_id: "example_campaign"
+    type: "the media this project uses"
+    message: "A line in this brand's voice"
   - campaign_id: "family_values"
     type: "television"
     message: "Bringing families together"
 slogans:
-  - "Double dip, double dip, go ahead and double dip!"
-  - "The sauce that makes everything better"
-  - "Lighting up your taste buds"
+  - "A slogan in this brand's voice"
 
 # LOCATIONS & FACILITIES
 retail_locations:
@@ -211,7 +209,7 @@ ai_marketing_summary: "[Brief brand positioning for AI marketing content]"
 
 ## Brand Overview
 
-[Comprehensive description of what the brand is, what it stands for, and its place in the City of Brains universe]
+[Comprehensive description of what the brand is, what it stands for, and its place in this project]
 
 ## Corporate History
 
@@ -231,15 +229,15 @@ ai_marketing_summary: "[Brief brand positioning for AI marketing content]"
 
 ## Dark Secrets and Conspiracies
 
-[Hidden information about the brand that players might discover, connections to the outbreak, unethical practices]
+[Hidden information this project records about the brand, including practices others in the project might uncover]
 
 ## The Infection Connection
 
-[For brands connected to the zombie outbreak, explain their role in detail]
+[If this project connects the brand to a recorded crisis, explain that role. Otherwise leave this blank.]
 
 ## Notable Marketing Campaigns
 
-### "Double Dip" Campaign
+### Campaign name
 [Description of the campaign, when it ran, impact on sales and culture]
 
 ### "Family Values" Campaign

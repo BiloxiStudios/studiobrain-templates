@@ -53,7 +53,6 @@ field_config:
       - { label: "Honey", hex: "#B8860B" }
       - { label: "Blue", hex: "#4A90D9" }
       - { label: "Green", hex: "#2E8B57" }
-      - { label: "Zombie", hex: "#A8B820" }
   skin_tone:
     widget: color-palette
     multi_swatch: true
@@ -127,11 +126,11 @@ field_config:
   birth_year:
     widget: year
     min: 1900
-    max: 1998
+    max: 9999
   death_year:
     widget: year
     min: 1900
-    max: 1998
+    max: 9999
 
 # BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
 views:
@@ -197,10 +196,10 @@ birth_year: null          # Absolute year of birth (e.g., 1985)
 death_year: null          # If character is deceased
 key_dates:                # Important dates in character history
   # - year: 1985
-  #   event: "Got job at chemical plant"
+  #   event: "Took the work that defines them"
   # - year: 1991
-  #   event: "Moved to City of Brains"
-current_age_reference_year: 1998  # Year the age field is accurate for (game present)
+  #   event: "Moved to the place they live now"
+current_age_reference_year: null  # Year the age field is accurate for. Use the year this project calls the present.
 
 # PHYSICAL DESCRIPTION
 height: "[Height in feet/inches]"
@@ -313,7 +312,7 @@ markdown_skeleton: |
 
 ## Background
 
-[2-3 paragraphs describing the character's life before the outbreak, how they ended up in their current situation, and what shaped their personality. Include specific details about their work, family relationships, and connection to the local community.]
+[2-3 paragraphs describing the character's life before the present of this project, how they ended up in their current situation, and what shaped their personality. Include specific details about their work, family relationships, and connection to the community this project records.]
 
 ## Personality
 
@@ -353,4 +352,4 @@ markdown_skeleton: |
 
 ## Story Role
 
-[1 paragraph explaining their function in the City of Brains narrative, what they contribute to the player's experience, and how they fit into the larger outbreak storyline.]
+[1 paragraph explaining their function in this project's story, what they contribute, and how they fit the events the project has recorded.]

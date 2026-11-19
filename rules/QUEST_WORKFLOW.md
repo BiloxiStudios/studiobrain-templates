@@ -634,7 +634,7 @@ examples:
         notes: "Fully integrated with quest giver and trace locations"
 
   major_quest_revision:
-    quest_id: "quest_double_dip_origin"
+    quest_id: "quest_example_origin"
     stages:
       - stage: "concept"
         days: 2

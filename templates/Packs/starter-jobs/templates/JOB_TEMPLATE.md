@@ -96,7 +96,7 @@ safety_equipment: []  # Required protective gear
 cultural_status: "respectable"  # prestigious, respectable, neutral, stigmatized
 job_availability: "common"  # rare, uncommon, common, abundant
 automation_risk: "low"  # low, moderate, high (how likely to be replaced by AI/robots)
-outbreak_impact: "essential"  # obsolete, reduced, normal, essential (post-outbreak relevance)
+outbreak_impact: "normal"  # obsolete, reduced, normal, essential. How a recorded disruption changes this job. Use normal when the project records none.
 
 # NARRATIVE ELEMENTS
 job_stereotypes: []  # Common perceptions about this job
@@ -146,7 +146,7 @@ quest_opportunities: []  # Quests available to characters with this job
 - **Day-to-Day Responsibilities**: What does someone in this role actually do?
 - **Skills and Expertise**: What knowledge and abilities are required?
 - **Work Environment**: Where and how is this work performed?
-- **Cultural Context**: How is this job viewed in the City of Brains universe?
+- **Cultural Context**: How is this job viewed in this project?
 
 ## Career Path
 

@@ -302,7 +302,7 @@
           "ui_component": "tag-input",
           "column_span": 2,
           "description": "Largest employers providing jobs in this district.",
-          "placeholder": "e.g., MegaMart, Chemical Plant, City Government"
+          "placeholder": "a place this project records"
         },
         {
           "key": "major_businesses",

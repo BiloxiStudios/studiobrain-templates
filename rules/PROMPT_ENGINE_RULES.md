@@ -255,8 +255,8 @@ references across all StudioBrain domains.
 |------|---------|-------------|
 | Local field | `$name` | Current entity's `name` field |
 | Cross-entity implicit | `$character.name` | `name` of the nearest character in context |
-| Cross-entity explicit | `$character:rusty_mcdaniels.name` | `name` of the entity with `id: rusty_mcdaniels` |
-| Nested dot-path | `$character:rusty_mcdaniels.appearance.hair_color.hex` | Deep field traversal |
+| Cross-entity explicit | `$character:example_person.name` | `name` of the entity with `id: example_person` |
+| Nested dot-path | `$character:example_person.appearance.hair_color.hex` | Deep field traversal |
 
 ### Resolution Pipeline
 
@@ -305,7 +305,7 @@ Resolved prompt string  →  AI provider  OR  document renderer
 **Game / Narrative**
 ```
 Write a scene where $character.name visits $location.name.
-Describe $character:rusty_mcdaniels.name working at $location:rustys_auto_repair.name.
+Describe $character:example_person.name working at $location:example_place.name.
 ```
 
 **Film / TV**

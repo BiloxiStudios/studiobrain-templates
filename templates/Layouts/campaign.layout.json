@@ -21,7 +21,7 @@
           "label": "Campaign Name",
           "ui_component": "text",
           "required": true,
-          "placeholder": "City of Brains: Main Story"
+          "placeholder": "Main story"
         },
         {
           "key": "campaign_type",

@@ -98,7 +98,7 @@ color_palette:
   secondary: "#000000"
   accent: "#FFFFFF"
 ambient_sounds:
-  - "distant moaning"
+  - "room tone"
   - "dripping water"
   - "creaking metal"
 weather_effects:
@@ -163,7 +163,7 @@ primary_brand: "brand_id"  # Main brand if applicable
 associated_brands:
   - brand_id: "megamart"
     presence: "signage"
-  - brand_id: "double_dip_dog_sauce"
+  - brand_id: "example_brand"
     presence: "products"
 advertising_presence:
   - "neon signs"
@@ -173,14 +173,14 @@ advertising_presence:
 # SAFETY & HAZARDS
 threat_level: "moderate"  # safe, low, moderate, high, extreme
 hazards:
-  - type: "zombies"
+  - type: "environmental"
     frequency: "occasional"
     severity: "moderate"
   - type: "structural"
     frequency: "constant"
     severity: "low"
-zombie_risk: "medium"  # none, low, medium, high, extreme
-infection_status: "contaminated"  # clean, contaminated, infected, quarantined
+zombie_risk: "none"  # none, low, medium, high, extreme. Set only if this project uses that threat.
+infection_status: "clean"  # clean, contaminated, infected, quarantined. Set from this project.
 
 # CONTENT FIELDS
 description: null  # Brief description (also in markdown below for details)
@@ -207,7 +207,7 @@ ai_ambient_summary: "[Key environmental elements for AI context]"
 
 ## Historical Context
 
-[What was this place before the outbreak? What happened here? Any significant events?]
+[What was this place before the present of this project? What happened here? Any significant events the project records?]
 
 ## Layout
 

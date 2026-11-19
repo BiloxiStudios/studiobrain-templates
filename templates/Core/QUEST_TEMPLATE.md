@@ -140,7 +140,7 @@ social_challenges:
 
 # COMBAT AND CHALLENGES
 combat_encounters:
-  - encounter_id: "lab_zombies"
+  - encounter_id: "lab_encounter"
     enemy_type: "infected_scientist"
     count: 10
     difficulty: "medium"

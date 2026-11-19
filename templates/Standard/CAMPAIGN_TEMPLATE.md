@@ -157,7 +157,7 @@ optional_quests:
   - "side_quest_001"
   - "side_quest_002"
 related_events:
-  - "outbreak_anniversary"
+  - "a_remembered_date"
   - "faction_war"
 
 # ASSETS AND MEDIA

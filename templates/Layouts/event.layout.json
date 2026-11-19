@@ -21,7 +21,7 @@
           "label": "Event Name",
           "ui_component": "text",
           "required": true,
-          "placeholder": "Zombie Horde Attack"
+          "placeholder": "A recorded event"
         },
         {
           "key": "event_type",
@@ -257,7 +257,7 @@
           "label": "Notification Text",
           "ui_component": "textarea",
           "rows": 2,
-          "placeholder": "WARNING: Massive zombie horde detected..."
+          "placeholder": "An event is underway."
         }
       ],
       "editor_component": null,

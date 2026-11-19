@@ -260,17 +260,9 @@ rules:
 - id: asm_zomb_001
   category: zombie_system
   priority: critical
-  rule: "Zombie overlay assets must only use green, purple/black color palettes. NO red blood anywhere. Fluids must be green or dark purple/black."
+  rule: "When an assembly declares palette_restriction, overlay assets must use only those hues. The starter declares no palette."
   validation_type: error
   applies_to: [assembly]
-  palette_restriction:
-    allowed_hues:
-      green: [80, 160]
-      purple: [260, 320]
-    allowed_values:
-      black_max_v: 20
-    max_saturation_exception: 15
-
 - id: asm_zomb_002
   category: zombie_system
   priority: high
@@ -288,7 +280,7 @@ rules:
 - id: asm_zomb_004
   category: zombie_system
   priority: medium
-  rule: Gore in zombie overlays must be stylized, not photorealistic. Photorealistic gore is rejected by the content validator.
+  rule: "Overlay content must match the content rating this project records. Do not assume a gore style."
   validation_type: error
   applies_to: [assembly]
 
@@ -389,5 +381,4 @@ references one or more profiles via `export_profile_files`. Export is blocked un
 Stages 0–3 are overlay-based (add infection overlays to the base character).
 Stage 4 (full zombie) requires a dedicated `zombie_variant` assembly.
 
-**Palette restriction:** All zombie/infection overlay assets must use **only green, purple, and black**.
-No red blood. Gore must be stylized, not photorealistic.
+A transformation overlay uses only the palette the assembly or the project records. The starter records none. Match the project's content rating. Do not assume a gore style.

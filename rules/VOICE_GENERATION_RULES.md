@@ -1,7 +1,5 @@
 ---
-system_prompt: Generate voice samples and dialogue for City of Brains characters.
-  Ensure voice matches character personality, age, and background. Include emotional
-  variations and character catchphrases.
+system_prompt: "Generate voice samples and dialogue for characters in this project. Match the character's personality, age, and background as recorded. Include more than one emotional state, and any catchphrase the character already has."
 global: false
 priority: medium
 entity_type: voice
@@ -34,34 +32,8 @@ last_updated: '2025-01-11'
 version: '1.0'
 ---
 
-# Voice Generation Guidelines
+# Voice guidance
 
-## ElevenLabs Settings
-- Model: Eleven Multilingual v2
-- Stability: 0.5-0.7 (natural variation)
-- Similarity Boost: 0.75
-- Style: 0.2-0.3 (for character emotion)
+Voice samples are 44.1 kHz, 16-bit WAV, with several minutes of clean audio and more than one emotional state.
 
-## Pronunciation Guide Format
-```yaml
-pronunciations:
-  - word: "BOL"
-    phonetic: "bowl"
-    ipa: "/boʊl/"
-  - word: "NeuroNuggets"
-    phonetic: "NEW-row-NUG-ets"
-    emphasis: "first syllable"
-```
-
-## Voice Sample Requirements
-- 3-5 minutes of clean audio
-- Multiple emotional states (neutral, happy, angry, scared)
-- Include character catchphrases
-- 44.1kHz, 16-bit WAV format
-
-## Dialogue Tags
-- `[pause]` - 0.5 second pause
-- `[emphasis]` - Stress next word
-- `[whisper]` - Lower volume/intensity
-- `[shout]` - Increase volume/intensity
-- `[sarcastic]` - Tonal shift
+Match the character as this project records them: age, background, and any catchphrase they already use. Pronounce names the way the project spells them. Do not import another setting's jargon into the sample script.

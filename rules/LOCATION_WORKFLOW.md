@@ -725,7 +725,7 @@ version_history:
 # EXAMPLES
 examples:
   standard_location:
-    location_id: "loc_rusty_auto_repair"
+    location_id: "loc_example_workplace"
     stages:
       - stage: "concept"
         days: 1

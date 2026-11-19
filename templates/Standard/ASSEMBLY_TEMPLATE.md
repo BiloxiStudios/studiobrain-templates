@@ -706,7 +706,7 @@ markdown_skeleton: |
 
 ## Overview
 
-[Brief description of this assembly, its intended use, and its role in the City of Brains project.]
+[Brief description of this assembly, its intended use, and its role in this project.]
 
 ## Assembly Type
 

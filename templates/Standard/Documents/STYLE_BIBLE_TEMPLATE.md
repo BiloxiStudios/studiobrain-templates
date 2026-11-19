@@ -40,43 +40,22 @@ version: "1.0"
 primary_medium: "video_game"  # video_game, film, animation, mixed
 
 # VISUAL IDENTITY
-art_direction: "low_poly_stylized"  # realistic, stylized, abstract, mixed
-visual_influences:
-  - "VHS box art"
-  - "Synthwave album covers"
-  - "PS1-era graphics"
+art_direction: ""  # realistic, stylized, abstract, mixed. Fill from this project.
+visual_influences: []  # Fill from this project
 rendering_style: "real_time_3d"  # 2d, 3d, mixed_media
 target_platform: "cross_platform"  # mobile, console, pc, cross_platform
 
 # COLOR PALETTE
-primary_colors:
-  - name: "Synth Pink"
-    hex: "#FF66C4"
-    rgb: [255, 102, 196]
-    usage: "Accent, titles, key elements"
-  - name: "Vapor Teal"
-    hex: "#00F5D4"
-    rgb: [0, 245, 212]
-    usage: "UI elements, lighting"
-secondary_colors:
-  - name: "Moon White"
-    hex: "#D6D6FF"
-    rgb: [214, 214, 255]
-    usage: "Highlights, fog"
-atmospheric_colors:
-  - name: "Grime Grey"
-    hex: "#2B2B2B"
-    rgb: [43, 43, 43]
-    usage: "Shadows, background"
-forbidden_colors:
-  - "Pure black #000000 (use Grime Grey instead)"
-  - "Pure white #FFFFFF (use Moon White instead)"
+primary_colors: []  # name, hex, usage from this project
+secondary_colors: []
+atmospheric_colors: []
+forbidden_colors: []  # Colors this project refuses, if any
 
 # LIGHTING DESIGN
 lighting_philosophy: "Cinematic with dramatic contrasts"
-key_light_color: "#FBE5C8"  # Warm
-fill_light_color: "#00F5D4"  # Cool
-rim_light_color: "#FF66C4"  # Accent
+key_light_color: ""  # Fill from this project
+fill_light_color: ""
+rim_light_color: ""
 shadow_density: 0.7  # 0-1 scale
 ambient_occlusion: true
 global_illumination: "baked"  # realtime, baked, mixed
@@ -89,12 +68,12 @@ fog_settings:
 weather_effects:
   - "Light rain"
   - "Heavy fog"
-  - "Chemical haze"
+  - "Haze"
 time_of_day_presets:
   - preset: "Golden Hour"
     sun_angle: 15
     color_temp: "warm"
-  - preset: "Midnight Neon"
+  - preset: "Night"
     sun_angle: -90
     color_temp: "cool"
 post_processing:
@@ -119,18 +98,18 @@ texture_style: "stylized_painterly"
 normal_map_intensity: 0.5
 
 # CHARACTER DESIGN
-character_style: "low_poly_stylized"
+character_style: ""  # Fill from this project
 polygon_budget: 5000  # tris per character
 proportion_guide: "slightly_exaggerated"
 face_detail_level: "simplified"  # realistic, simplified, abstract
-clothing_era: "1990s"
+clothing_era: ""  # Fill from this project
 signature_elements:
   - "Bold silhouettes"
   - "Chunky shapes"
   - "Memorable colors"
 
 # ENVIRONMENT DESIGN
-architectural_style: "retrofuturistic_decay"
+architectural_style: ""  # Fill from this project
 detail_density: "medium"  # low, medium, high
 prop_distribution: "purposeful"  # sparse, balanced, dense, purposeful
 landmark_visibility: "always_visible"
@@ -138,46 +117,37 @@ vista_design: "layered_depth"
 environmental_storytelling: "heavy"
 
 # UI/UX DESIGN
-ui_style: "retro_tech"
+ui_style: ""  # Fill from this project
 font_families:
-  primary: "Orbitron"
-  secondary: "VT323"
-  body: "Roboto"
-ui_colors:
-  background: "#2B2B2B"
-  primary: "#00F5D4"
-  secondary: "#FF66C4"
-  warning: "#FFD700"
-  error: "#FF0000"
-button_style: "neon_outline"
+  primary: ""
+  secondary: ""
+  body: ""
+ui_colors: {}  # Fill from this project
+button_style: ""  # Fill from this project
 animation_style: "snappy"  # smooth, snappy, bouncy
 
 # ICONOGRAPHY
 icon_style: "line_art"
 icon_weight: 2  # pixels
 icon_color_scheme: "monochrome"  # monochrome, dual_tone, full_color
-signature_icons:
-  - "Brain symbol"
-  - "Hot dog"
-  - "Chemical barrel"
-  - "Payphone"
+signature_icons: []  # Fill from this project
 
 # TYPOGRAPHY
 display_font:
-  family: "Orbitron"
-  weight: "Bold"
-  size_range: "48-72pt"
+  family: ""
+  weight: ""
+  size_range: ""
 heading_font:
-  family: "Orbitron"
-  weight: "Medium"
-  size_range: "24-36pt"
+  family: ""
+  weight: ""
+  size_range: ""
 body_font:
-  family: "Roboto"
-  weight: "Regular"
-  size_range: "12-16pt"
+  family: ""
+  weight: ""
+  size_range: ""
 special_font:
-  family: "VT323"
-  usage: "Terminal displays, retro UI"
+  family: ""
+  usage: ""
 
 # ANIMATION PRINCIPLES
 animation_approach: "snappy_responsive"
@@ -215,17 +185,8 @@ depth_of_field: "selective_focus"
 motion_blur: "per_object"
 
 # SIGNATURE VISUAL ELEMENTS
-recurring_motifs:
-  - "Neon signs"
-  - "VHS static"
-  - "Chemical drips"
-  - "Fog layers"
-  - "Moon prominence"
-iconic_props:
-  - "Red balloon"
-  - "Hot dog cart"
-  - "Payphone booth"
-  - "Chemical barrels"
+recurring_motifs: []  # Fill from this project
+iconic_props: []  # Fill from this project
 environmental_details:
   - "Graffiti"
   - "Worn posters"

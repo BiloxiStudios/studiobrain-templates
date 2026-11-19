@@ -3,8 +3,7 @@ rules:
 - id: gen_000
   category: generation
   priority: high
-  rule: Always maintain consistency with established City of Brains universe lore
-    and tone
+  rule: "Stay consistent with the entities, history, and tone this project has already recorded."
   validation_type: warning
   applies_to:
   - all
@@ -53,7 +52,7 @@ rules:
 - id: gen_007
   category: generation
   priority: high
-  rule: Ensure all content supports the 90's area retro-futurism timeline
+  rule: "Era, technology, and institutions must match the timeline this project records."
   validation_type: warning
   applies_to:
   - all
@@ -123,92 +122,15 @@ created_by: System
 last_updated: '2025-11-14'
 version: '1.2'
 scope: global
-system_prompt: |
-  You are generating content for the City of Brains universe. Follow all established
-  rules and maintain consistency with universe lore. Use entity cross-references to
-  build cohesive narratives. Balance professional tone with subtle humor and human touches.
-
-  TOOL USAGE REQUIREMENTS:
-
-  1. VALIDATION TOOLS (Critical - Prevent Hallucination):
-     - BEFORE referencing ANY entity, verify it exists using validation tools
-     - Use check_character_exists, check_location_exists, check_brand_exists, check_item_exists
-     - For bulk validation, use validate_all_references to scan entire content
-     - NEVER create cross-references to entities that don't exist in the database
-
-  2. TIMELINE TOOLS (High Priority - Ensure Temporal Consistency):
-     - When working with ages, birth years, founding dates, or key events, use timeline tools
-     - Use validate_character_age to verify age matches birth_year (current year: 1998)
-     - Use check_temporal_conflicts to validate entire timeline and detect anachronisms
-     - Use calculate_duration for relationship durations, employment periods, event spans
-     - Verify events occur in logical order and respect the 1998 game year cutoff
-
-  3. KNOWLEDGE BASE TOOLS (High Priority - Rich Context):
-     - BEFORE generating new content, gather context using knowledge base search
-     - Use search_knowledge_base for semantic search of relevant lore, characters, locations
-     - Use get_entity to retrieve complete details about specific entities
-     - Use search_entities to find entities of a specific type
-     - Use find_similar_entities to discover related entities and build connections
-     - Rich context produces better, more integrated, more consistent content
-
-  4. MARKDOWN EDITING TOOLS (When Editing):
-     - When editing markdown files, use tools to make changes directly
-     - STEP 1: Call read_temp_file_section to see current content
-     - STEP 2: Call edit_temp_file_section to apply changes
-     - Do NOT just describe changes in responses - EXECUTE them using tools
-     - Use list_temp_file_sections if unsure which sections exist
-
-  WORKFLOW: Validate references → Check timelines → Gather context → Generate/Edit → Verify
+system_prompt: "You are generating content for this project. Follow these rules and stay consistent with entities this project has already recorded. Do not import another setting. Before you name any entity, verify it exists. Check ages and dates against the project's present year. Read related entities before you write. When editing, change the file with the editing tools instead of only describing the change."
 global: true
 priority: high
 ---
 
-# Generation Rules
+# Generation guidance
 
-## Universal Content Generation Guidelines
+These rules apply to every entity type in this project. They do not name a setting.
 
-These rules apply to ALL content generation across the City of Brains universe, regardless of entity type or AI provider.
+Stay inside entities, dates, and tone the project has recorded. Cross-references must point at entities that exist. Check ages and dates against the project's present year before finishing. Read related entities before writing new ones. When editing, change the file with the editing tools instead of only describing the change.
 
-### Core Universe Principles
-
-- **Retro-Futurism Setting**: Blend high-tech with urban decay, corporate power with street-level humanity
-- **Consistent Tone**: Professional yet accessible, with subtle humor and human touches
-- **Interconnected World**: Every entity exists within and contributes to the larger narrative ecosystem
-- **Authentic Details**: Use specific, believable details that enhance immersion
-
-### Content Structure Requirements
-
-- **Markdown Formatting**: Use proper markdown syntax for all generated content
-- **YAML Frontmatter**: Include structured metadata when generating entity files
-- **Cross-References**: Link to related entities using established ID patterns
-- **Hierarchical Organization**: Follow the established folder and naming conventions
-
-### Quality Standards
-
-- **Consistency Check**: Ensure new content aligns with existing entity relationships
-- **Completeness**: Fill all required fields for the specific entity type
-- **Originality**: Create unique content while respecting established lore
-- **Coherence**: Maintain logical flow and clear narrative structure
-
-### Technical Guidelines
-
-- **Token Efficiency**: Balance detail with token usage for cost-effective generation
-- **Context Awareness**: Leverage provided context to create relevant, connected content
-- **Validation Ready**: Generate content that passes template validation rules
-- **Future-Proof**: Structure content to support future expansion and modifications
-
-## Entity-Specific Considerations
-
-Each entity type has additional specific rules in their respective RULES files:
-- Characters: See CHARACTER_RULES.md
-- Locations: See LOCATION_RULES.md  
-- Brands: See BRAND_RULES.md
-- And so forth...
-
-## Multi-Provider Guidelines
-
-When using multiple AI providers:
-- Maintain consistent voice and tone across all providers
-- Use the same context and rules for all generations
-- Respect each provider's strengths for appropriate tasks
-- Ensure final merged content maintains narrative coherence
+Match the era the project records. Do not import another decade's devices or institutions. Use the type's own rules file for anything that type adds.

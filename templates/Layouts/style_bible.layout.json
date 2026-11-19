@@ -21,7 +21,7 @@
           "label": "Display Name",
           "ui_component": "text",
           "required": true,
-          "placeholder": "City of Brains Visual Style Bible"
+          "placeholder": "Project visual style"
         },
         {
           "key": "version",
@@ -91,7 +91,7 @@
           "key": "art_direction",
           "label": "Art Direction",
           "ui_component": "text",
-          "placeholder": "low_poly_stylized"
+          "placeholder": "the project's character style"
         },
         {
           "key": "rendering_style",
