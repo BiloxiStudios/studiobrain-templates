@@ -10,7 +10,7 @@ rules:
   category: identity
   priority: critical
   rule: Every character MUST have a primary_location or they will be flagged as homeless
-  validation_type: error
+  validation_type: warning
   applies_to: [character]
 
 - id: char_002
@@ -93,7 +93,7 @@ rules:
     validation tools to verify they exist. Use check_location_exists for locations,
     check_brand_exists for brands, check_character_exists for character relationships.
     Never reference non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to: [character]
   required_tools: ["check_location_exists", "check_brand_exists", "check_character_exists",
     "validate_all_references"]

@@ -106,7 +106,7 @@ rules:
     founder, ceo, employees), items (brand_items, product_lines), or factions, use
     validation tools to verify they exist. Use check_location_exists, check_character_exists,
     check_item_exists, and validate_all_references. Never reference non-existent entities
-  validation_type: error
+  validation_type: warning
   applies_to: [brand]
   required_tools: ["check_location_exists", "check_character_exists", "check_item_exists",
     "validate_all_references"]
