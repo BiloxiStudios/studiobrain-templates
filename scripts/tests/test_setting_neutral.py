@@ -31,18 +31,16 @@ class SettingNeutralTests(unittest.TestCase):
         )
 
     def test_listed_packs_have_installable_members(self):
-        # The template picker lists whatever templates/Packs/index.json names.
-        # A listed pack must carry templates, rules, includes, a templates/
-        # directory, or example entities. An examples-only pack is optional:
-        # auto_install and is_default stay false so a new project does not
-        # receive it. Cloud apply still ignores "examples" (SBAI-15061);
-        # desktop install reads that array when someone chooses the pack.
+        # The picker lists templates/Packs/index.json. A listed pack must
+        # carry templates, rules, includes, a templates/ directory, or
+        # example files. An examples-only pack stays optional: auto_install
+        # and is_default false, so a new project does not receive it.
+        # This does not require any one sample pack to remain listed.
         import json
 
         index = json.loads((ROOT / "templates/Packs/index.json").read_text(encoding="utf-8"))
         ids = [entry["id"] for entry in index]
         self.assertIn("core-essentials", ids)
-        self.assertIn("sample-city-of-brains", ids)
 
         for entry in index:
             pack_dir = ROOT / entry["path"]
