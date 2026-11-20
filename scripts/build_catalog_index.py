@@ -226,6 +226,11 @@ def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
                 entry["billing"] = list(data["billing"])
             if data.get("slots"):
                 entry["slots"] = data["slots"]
+            chat = data.get("chat")
+            if isinstance(chat, dict):
+                default_model = chat.get("defaultModel")
+                if isinstance(default_model, str) and default_model.strip():
+                    entry["chat_default_model"] = default_model.strip()
             if data.get("model_metadata"):
                 entry["model_metadata"] = data["model_metadata"]
             models = _provider_models(data.get("weights"))
