@@ -2038,6 +2038,7 @@
           "image"
         ]
       },
+      "chat_default_model": "@cf/google/gemma-4-26b-a4b-it",
       "model_metadata": {
         "@cf/google/gemma-4-26b-a4b-it": {
           "modalities": [

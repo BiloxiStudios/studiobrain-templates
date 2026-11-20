@@ -379,6 +379,7 @@ class ShippedCatalogTests(unittest.TestCase):
 
     def test_workers_ai_function_calling_is_declared_for_the_exact_chat_model(self):
         provider = next(e for e in bci.build_entries(ROOT) if e["id"] == "workers-ai")
+        self.assertEqual(provider["chat_default_model"], "@cf/google/gemma-4-26b-a4b-it")
         self.assertEqual(
             provider["model_metadata"]["@cf/google/gemma-4-26b-a4b-it"],
             {"modalities": ["text"], "capabilities": ["tools", "image-input"], "context_tokens": 256000},
@@ -387,6 +388,20 @@ class ShippedCatalogTests(unittest.TestCase):
             provider["model_metadata"]["@cf/meta/llama-3.3-70b-instruct-fp8-fast"],
             {"modalities": ["text"], "capabilities": ["tools"]},
         )
+
+    def test_only_explicit_nonempty_chat_model_ids_are_indexed(self):
+        for chat, expected in [
+            ("{}", None), ("false", None), ("{defaultModel: 42}", None),
+            ("{defaultModel: '   '}", None), ("{defaultModel: 'vendor/model-it'}", "vendor/model-it"),
+        ]:
+            with self.subTest(chat=chat), tempfile.TemporaryDirectory() as td:
+                tmp = pathlib.Path(td)
+                _write_tree(tmp, {"test.provider.yaml": UNPRICED_PROVIDER + f"chat: {chat}\n"}, {})
+                provider, = bci.build_entries(tmp)
+                if expected is None:
+                    self.assertNotIn("chat_default_model", provider)
+                else:
+                    self.assertEqual(provider["chat_default_model"], expected)
 
     def test_publishes_model_specific_fusion_and_import_attestations(self):
         providers = {e['id']: e for e in bci.build_entries(ROOT) if e['kind'] == 'provider'}
