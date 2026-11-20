@@ -377,6 +377,13 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertIn("fusion", chat["verified_for"])
         self.assertNotIn("modalities", chat)
 
+    def test_workers_ai_function_calling_is_declared_for_the_exact_chat_model(self):
+        provider = next(e for e in bci.build_entries(ROOT) if e["id"] == "workers-ai")
+        self.assertEqual(
+            provider["model_metadata"]["@cf/meta/llama-3.3-70b-instruct-fp8-fast"],
+            {"modalities": ["text"], "capabilities": ["tools"]},
+        )
+
     def test_publishes_model_specific_fusion_and_import_attestations(self):
         providers = {e['id']: e for e in bci.build_entries(ROOT) if e['kind'] == 'provider'}
         for provider, model in {

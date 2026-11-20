@@ -2039,6 +2039,14 @@
         ]
       },
       "model_metadata": {
+        "@cf/meta/llama-3.3-70b-instruct-fp8-fast": {
+          "modalities": [
+            "text"
+          ],
+          "capabilities": [
+            "tools"
+          ]
+        },
         "@cf/qwen/qwen3-embedding-0.6b": {
           "modalities": [
             "embed"
