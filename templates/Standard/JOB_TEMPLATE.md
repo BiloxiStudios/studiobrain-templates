@@ -125,7 +125,7 @@ safety_equipment: []  # Required protective gear
 cultural_status: "respectable"  # prestigious, respectable, neutral, stigmatized
 job_availability: "common"  # rare, uncommon, common, abundant
 automation_risk: "low"  # low, moderate, high (how likely to be replaced by AI/robots)
-outbreak_impact: "normal"  # obsolete, reduced, normal, essential. How a recorded disruption changes this job. Use normal when the project records none.
+disruption_impact: "normal"  # obsolete, reduced, normal, essential. How a recorded disruption changes this job. Use normal when the project records none.
 
 # NARRATIVE ELEMENTS
 job_stereotypes: []  # Common perceptions about this job
@@ -231,12 +231,12 @@ markdown_skeleton: |
 
 [How this job fits into the larger narrative]
 
-### Pre-Outbreak Role
+### Day-to-Day Role
 - Economic importance
 - Social dynamics
 - Daily challenges
 
-### Post-Outbreak Adaptation
+### Changes During a Disruption
 - How the job changes during crisis
 - New responsibilities or priorities
 - Survival relevance

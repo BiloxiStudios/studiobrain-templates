@@ -6,7 +6,7 @@ ui_icon: "Compass"
 ui_color: "#eab308"
 editable: false
 marketplace_eligible: false
-id: "[snake_case_name]"  # Must match folder name (e.g., find_the_cure)
+id: "[snake_case_name]"  # Must match folder name (e.g., recover_the_records)
 entity_type: "quest"
 folder_name: "Quests"
 file_prefix: "QUEST_"
@@ -85,9 +85,9 @@ primary_objectives:
     completed: false
 secondary_objectives:
   - objective_id: "sec_001"
-    description: "Save trapped survivors"
+    description: "Rescue the stranded group"
     type: "rescue"
-    target: "survivor_group"
+    target: "stranded_group"
     optional: true
     completed: false
 failure_conditions:
@@ -104,7 +104,7 @@ key_npcs:
   - "scientist_jones"
   - "guard_captain"
 target_characters:
-  - "infected_researcher"
+  - "missing_researcher"
   - "rogue_soldier"
 involved_factions:
   - faction_id: "scientists_guild"
@@ -141,7 +141,7 @@ social_challenges:
 # COMBAT AND CHALLENGES
 combat_encounters:
   - encounter_id: "lab_encounter"
-    enemy_type: "infected_scientist"
+    enemy_type: "lab_guard"
     count: 10
     difficulty: "medium"
   - encounter_id: "boss_fight"
@@ -165,7 +165,7 @@ environmental_hazards:
 experience_reward: 5000
 currency_reward: 1000
 item_rewards:
-  - item_id: "cure_sample"
+  - item_id: "research_sample"
     quantity: 1
     rarity: "legendary"
   - item_id: "lab_keycard"
@@ -185,15 +185,15 @@ story_consequences:
 # BRANCHING AND CHOICES
 player_choices:
   - choice_id: "save_or_data"
-    description: "Save survivors or retrieve data"
+    description: "Rescue the group or retrieve the data"
     options:
-      - "save_survivors"
+      - "rescue_group"
       - "get_data"
 choice_consequences:
-  - choice: "save_survivors"
+  - choice: "rescue_group"
     result: "gain ally, lose research"
   - choice: "get_data"
-    result: "gain cure progress, survivors die"
+    result: "recover the data, lose the alliance"
 alternative_solutions:
   - solution: "stealth"
     description: "Sneak past all enemies"

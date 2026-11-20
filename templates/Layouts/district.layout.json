@@ -567,14 +567,9 @@
               "placeholder": "70%"
             },
             {
-              "key": "infected",
-              "label": "Infected (%)",
-              "placeholder": "25%"
-            },
-            {
               "key": "other",
               "label": "Other (%)",
-              "placeholder": "5%"
+              "placeholder": "30%"
             }
           ]
         },
@@ -585,18 +580,6 @@
           "column_span": 2,
           "description": "Different cultural or social groups present in the district.",
           "placeholder": "e.g., locals, refugees, corporate workers"
-        },
-        {
-          "key": "outbreak_impact",
-          "label": "Outbreak Impact",
-          "ui_component": "select",
-          "column_span": 1,
-          "options": [
-            { "value": "minimal", "label": "Minimal" },
-            { "value": "moderate", "label": "Moderate" },
-            { "value": "severe", "label": "Severe" },
-            { "value": "catastrophic", "label": "Catastrophic" }
-          ]
         },
         {
           "key": "current_status",
@@ -610,26 +593,6 @@
             { "value": "lost", "label": "Lost" },
             { "value": "partially_controlled", "label": "Partially Controlled" }
           ]
-        },
-        {
-          "key": "zombie_density",
-          "label": "Zombie Density",
-          "ui_component": "select",
-          "column_span": 1,
-          "options": [
-            { "value": "none", "label": "None" },
-            { "value": "low", "label": "Low" },
-            { "value": "moderate", "label": "Moderate" },
-            { "value": "high", "label": "High" },
-            { "value": "extreme", "label": "Extreme" }
-          ]
-        },
-        {
-          "key": "survivor_population",
-          "label": "Survivor Population",
-          "ui_component": "number",
-          "column_span": 1,
-          "placeholder": "12000"
         }
       ],
       "editor_component": null,

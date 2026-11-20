@@ -247,7 +247,7 @@
           "group": "npc_population_details",
           "help": "General types of NPCs found in the background (not specific characters).",
           "sub_fields": [
-            {"key": "type", "label": "Type", "ui_component": "text", "placeholder": "Type (e.g., survivor, worker)"},
+            {"key": "type", "label": "Type", "ui_component": "text", "placeholder": "Type (e.g., resident, worker)"},
             {"key": "count", "label": "Count", "ui_component": "number", "placeholder": "1"},
             {
               "key": "behavior",
@@ -689,36 +689,13 @@
           ]
         },
         {
-          "key": "zombie_risk",
-          "label": "Zombie Risk",
-          "ui_component": "select",
-          "options": [
-            {"value": "none", "label": "None"},
-            {"value": "low", "label": "Low"},
-            {"value": "medium", "label": "Medium"},
-            {"value": "high", "label": "High"},
-            {"value": "extreme", "label": "Extreme"}
-          ]
-        },
-        {
-          "key": "infection_status",
-          "label": "Infection Status",
-          "ui_component": "select",
-          "options": [
-            {"value": "clean", "label": "Clean"},
-            {"value": "contaminated", "label": "Contaminated"},
-            {"value": "infected", "label": "Infected"},
-            {"value": "quarantined", "label": "Quarantined"}
-          ]
-        },
-        {
           "key": "hazards",
           "label": "Hazards",
           "ui_component": "object-array",
           "column_span": 2,
           "help": "Specific dangers and risks present at this location.",
           "sub_fields": [
-            {"key": "type", "label": "Type", "ui_component": "text", "placeholder": "Type (e.g., zombies, structural)"},
+            {"key": "type", "label": "Type", "ui_component": "text", "placeholder": "Type (e.g., flooding, structural)"},
             {
               "key": "frequency",
               "label": "Frequency",

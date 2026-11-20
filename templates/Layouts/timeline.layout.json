@@ -21,7 +21,7 @@
           "label": "Entry Name",
           "ui_component": "text",
           "required": true,
-          "placeholder": "The Outbreak Begins"
+          "placeholder": "The Project Begins"
         },
         {
           "key": "entry_type",

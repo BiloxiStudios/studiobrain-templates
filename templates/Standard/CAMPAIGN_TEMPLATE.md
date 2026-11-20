@@ -79,9 +79,9 @@ prerequisites:
 # STORY INFORMATION
 narrative_summary: "Brief summary of the campaign story"
 main_objectives:
-  - "Find the source of the infection"
-  - "Unite the survivor factions"
-  - "Discover the cure"
+  - "Locate the missing research"
+  - "Bring the groups together"
+  - "Recover the missing records"
 themes:
   - "survival"
   - "redemption"
@@ -97,9 +97,9 @@ supporting_characters:
   - "sarah_techie"
 antagonist_characters:
   - "general_steel"
-  - "infected_scientist"
+  - "rival_scientist"
 involved_factions:
-  - faction_id: "survivors_alliance"
+  - faction_id: "community_alliance"
     role: "allied"
   - faction_id: "military_remnants"
     role: "antagonist"
@@ -139,7 +139,7 @@ item_rewards:
   - item_id: "unique_armor"
     quantity: 1
 skill_unlocks:
-  - "master_survivor"
+  - "campaign_veteran"
   - "faction_leader"
 
 # SCHEDULING AND AVAILABILITY

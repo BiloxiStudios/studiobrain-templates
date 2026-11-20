@@ -47,10 +47,6 @@
               "label": "Human"
             },
             {
-              "value": "zombie",
-              "label": "Zombie"
-            },
-            {
               "value": "animal",
               "label": "Animal"
             },
@@ -95,10 +91,6 @@
             {
               "value": "deceased",
               "label": "Deceased"
-            },
-            {
-              "value": "infected",
-              "label": "Infected"
             },
             {
               "value": "unknown",

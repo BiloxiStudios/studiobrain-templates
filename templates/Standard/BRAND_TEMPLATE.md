@@ -210,7 +210,7 @@ consumer_loyalty: "moderate"  # low, moderate, high, fanatic
 
 # STORY INTEGRATION
 narrative_role: "major_antagonist"  # background, minor, moderate, major, central
-story_significance: "infection vector"
+story_significance: ""
 dark_secrets:
   - "uses a local material"
   - "executives knew about side effects"
@@ -300,10 +300,6 @@ markdown_skeleton: |
 ## Dark Secrets and Conspiracies
 
 [Hidden information this project records about the brand, including practices others in the project might uncover]
-
-## The Infection Connection
-
-[If this project connects the brand to a recorded crisis, explain that role. Otherwise leave this blank.]
 
 ## Notable Marketing Campaigns
 
