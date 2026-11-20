@@ -31,23 +31,43 @@ class SettingNeutralTests(unittest.TestCase):
         )
 
     def test_listed_packs_have_installable_members(self):
-        # Cloud's applyPacksToProject installs only templates, rules, a
-        # templates/ dir, or included packs; it never reads "examples".
-        # A listed pack with none of these fails to install (SBAI-15061).
+        # The picker lists templates/Packs/index.json. A listed pack must
+        # carry templates, rules, includes, a templates/ directory, or
+        # example files. An examples-only pack stays optional: auto_install
+        # and is_default false, so a new project does not receive it.
+        # This does not require any one sample pack to remain listed.
         import json
 
         index = json.loads((ROOT / "templates/Packs/index.json").read_text(encoding="utf-8"))
+        ids = [entry["id"] for entry in index]
+        self.assertIn("core-essentials", ids)
+
         for entry in index:
             pack_dir = ROOT / entry["path"]
             pack = json.loads((pack_dir / "pack.json").read_text(encoding="utf-8"))
             tdir = pack_dir / "templates"
-            has_members = bool(
+            cloud_members = bool(
                 pack.get("templates")
                 or pack.get("rules")
                 or pack.get("includes")
                 or (tdir.is_dir() and any(tdir.iterdir()))
             )
-            self.assertTrue(has_members, f"{entry['id']}: listed in index.json but has nothing to install")
+            examples = [rel for rel in (pack.get("examples") or []) if isinstance(rel, str) and rel]
+            self.assertTrue(
+                cloud_members or examples,
+                f"{entry['id']}: listed in index.json but has nothing to install",
+            )
+            if examples and not cloud_members:
+                self.assertIs(pack.get("auto_install"), False, entry["id"])
+                self.assertIs(pack.get("is_default"), False, entry["id"])
+                for rel in examples:
+                    self.assertTrue((pack_dir / rel).is_file(), f"{entry['id']}: missing {rel}")
+
+        core = json.loads(
+            (ROOT / "templates/Packs/core-essentials/pack.json").read_text(encoding="utf-8")
+        )
+        self.assertIs(core.get("auto_install"), True)
+        self.assertIs(core.get("is_default"), True)
 
 
 if __name__ == "__main__":
