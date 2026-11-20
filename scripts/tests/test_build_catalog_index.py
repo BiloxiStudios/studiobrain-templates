@@ -363,6 +363,20 @@ class ShippedCatalogTests(unittest.TestCase):
             self.assertIn("step_count", canvas, canvas["id"])
             self.assertGreaterEqual(canvas["step_count"], 1, canvas["id"])
 
+    def test_publishes_exact_embedding_and_image_model_output_lanes(self):
+        providers = {e["id"]: e for e in bci.build_entries(ROOT) if e["kind"] == "provider"}
+        qwen = providers["workers-ai"]["model_metadata"]["@cf/qwen/qwen3-embedding-0.6b"]
+        gemini = providers["google-ai-studio"]["model_metadata"]["gemini-2.5-flash-image"]
+        self.assertEqual(qwen, {"modalities": ["embed"], "capabilities": ["embeddings"]})
+        self.assertEqual(gemini, {
+            "modalities": ["text", "image"], "capabilities": ["image-gen", "image-input"],
+        })
+        # Existing multimodal chat remains eligible through its own metadata.
+        chat = providers["google-ai-studio"]["model_metadata"]["gemini-2.5-pro"]
+        self.assertIn("image-input", chat["capabilities"])
+        self.assertIn("fusion", chat["verified_for"])
+        self.assertNotIn("modalities", chat)
+
     def test_publishes_model_specific_fusion_and_import_attestations(self):
         providers = {e['id']: e for e in bci.build_entries(ROOT) if e['kind'] == 'provider'}
         for provider, model in {

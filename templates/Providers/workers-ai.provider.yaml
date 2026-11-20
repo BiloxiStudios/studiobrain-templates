@@ -35,3 +35,9 @@ billing: [brainbits, byok]
 chat:
   nativeChatPath: v1/chat/completions
   defaultModel: '@cf/google/gemma-4-26b-a4b-it'
+model_metadata:
+  # The binding accepts text and returns embedding vectors.
+  # https://developers.cloudflare.com/workers-ai/models/qwen3-embedding-0.6b/
+  '@cf/qwen/qwen3-embedding-0.6b':
+    modalities: [embed]
+    capabilities: [embeddings]

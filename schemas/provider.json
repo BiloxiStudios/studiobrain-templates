@@ -48,6 +48,13 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "modalities": {
+            "description": "Output lanes this exact model supports in the unified catalog. A model may receive additional input modalities. Omit when unknown.",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "enum": ["text", "image", "video", "audio", "embed", "3d"] }
+          },
           "capabilities": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" } },
           "verified_for": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" } },
           "context_tokens": { "type": "integer", "minimum": 1 },
