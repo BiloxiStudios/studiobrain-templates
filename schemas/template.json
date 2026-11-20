@@ -29,6 +29,12 @@
     },
     "folder_name": {"type": "string", "minLength": 1},
     "file_prefix": {"type": "string"},
+    "layout_preset": {
+      "type": "string",
+      "enum": ["form", "sidebar", "tabbed", "document"],
+      "default": "form",
+      "description": "Arrangement for the automatically generated entity layout. Templates that omit this field use the form layout."
+    },
     "field_config": {
       "type": ["object", "null"],
       "description": "Per-field configuration keyed by field name. `type` is the semantic data type (spec section 2); `widget` names the editor widget and is linted against schemas/registry/widget-ids.json.",
