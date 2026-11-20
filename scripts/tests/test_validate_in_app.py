@@ -310,14 +310,14 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertEqual(
             sorted(rows),
             [
-                "on-device/florence-2-base-ft-fp16-webgpu",
-                "on-device/florence-2-base-ft-q8-wasm",
+                "on-device/embeddinggemma-2-q4-webgpu",
+                "on-device/embeddinggemma-2-q8-wasm",
+                "on-device/embeddinggemma-2-text-litert-gpu",
                 "on-device/gemma-4-e2b-it-litert-web",
                 "on-device/gemma-4-e2b-it-q4",
                 "on-device/gemma-4-e2b-it-q4f16-webgpu",
                 "on-device/gemma-4-e4b-it-litert-web",
                 "on-device/gemma-4-e4b-it-q4f16-webgpu",
-                "on-device/nomic-embed-text-v1.5-q8-any",
                 "on-device/qwen3-0.6b-q4-any",
                 "on-device/qwen3-0.6b-q8-wasm",
                 "on-device/siglip2-base-256-vision-q4-webgpu",
@@ -343,14 +343,18 @@ class ShippedCatalogTests(unittest.TestCase):
                 # the llm-chat default; the ONNX q4f16-webgpu row is the fallback.
                 "llm-chat": ["on-device/gemma-4-e2b-it-litert-web"],
                 "asset-tagging": ["on-device/siglip2-base-256-vision-q4f16-webgpu"],
-                "asset-caption": ["on-device/florence-2-base-ft-fp16-webgpu"],
+                # SBAI-LAUNCH: EmbeddingGemma 2 is the only embedder.
+                "embeddings": ["on-device/embeddinggemma-2-q4-webgpu"],
                 "stt": ["on-device/whisper-base-q4-webgpu"],
             },
         )
         # SBAI-7844 → SBAI-8406: the litert-lm rows were promoted by owner ruling
         # (2026-08-26). E2B is the default; E4B is the quality tier.
         # Both are non-experimental, tools-enabled, WebGPU-only, text-only.
-        litert = [r for r in data["weights"] if r.get("runtime") == "litert-lm"]
+        litert = [
+            r for r in data["weights"]
+            if r.get("runtime") == "litert-lm" and r.get("capability", "llm-chat") == "llm-chat"
+        ]
         self.assertEqual(
             [r["id"] for r in litert],
             ["on-device/gemma-4-e2b-it-litert-web", "on-device/gemma-4-e4b-it-litert-web"],
@@ -382,9 +386,12 @@ class ShippedCatalogTests(unittest.TestCase):
         # Qwen is the labelled reduced-capability fallback, never a Gemma tier.
         self.assertTrue(rows["on-device/qwen3-0.6b-q4-any"]["fallback"])
         self.assertNotIn("gemma", rows["on-device/qwen3-0.6b-q4-any"]["source"].lower())
-        self.assertEqual(
-            rows["on-device/nomic-embed-text-v1.5-q8-any"]["capability"], "embeddings"
-        )
+        for rid in (
+            "on-device/embeddinggemma-2-q4-webgpu",
+            "on-device/embeddinggemma-2-q8-wasm",
+            "on-device/embeddinggemma-2-text-litert-gpu",
+        ):
+            self.assertEqual(rows[rid]["capability"], "embeddings")
 
     def test_no_gemma_wasm_row(self):
         """SBAI-7682: the Gemma WASM tier is falsified, not merely untested.
@@ -402,8 +409,12 @@ class ShippedCatalogTests(unittest.TestCase):
         gemma_wasm = [
             r["id"]
             for r in data["weights"]
-            if "gemma" in r["source"].lower() and r.get("device") in ("wasm", "any")
+            if "gemma" in r["source"].lower()
+            and r.get("capability", "llm-chat") == "llm-chat"
+            and r.get("device") in ("wasm", "any")
         ]
+        # EmbeddingGemma 2 (q8, 850 MB) is far under the wasm32 ceiling that
+        # falsified the chat tier, so its wasm row is not covered by this rule.
         self.assertEqual(gemma_wasm, [], "no Gemma row may be reachable on WASM")
 
     def _stt_rows(self) -> dict:
@@ -565,11 +576,16 @@ class ShippedCatalogTests(unittest.TestCase):
         for rid in ("on-device/qwen3-0.6b-q4-any", "on-device/qwen3-0.6b-q8-wasm"):
             self.assertEqual(rows[rid]["context_length"], 32768, rid)
             self.assertEqual(rows[rid]["max_output_tokens"], 4096, rid)
-        # The embeddings row has a window but no chat-only capability keys.
-        nomic = rows["on-device/nomic-embed-text-v1.5-q8-any"]
-        self.assertEqual(nomic["context_length"], 8192)
-        self.assertNotIn("tools", nomic)
-        self.assertNotIn("thinking", nomic)
+        # The embeddings rows are EmbeddingGemma 2 only, and carry a window but
+        # no chat-only capability keys.
+        embeddings = [r for r in rows.values() if r.get("capability") == "embeddings"]
+        self.assertTrue(embeddings)
+        for row in embeddings:
+            self.assertIn("embeddinggemma-2", row["source"], row["id"])
+            self.assertIn(row["context_length"], (8192, 2048), row["id"])
+            self.assertNotIn("tools", row)
+            self.assertNotIn("thinking", row)
+            self.assertEqual(row.get("provenance"), "pending", row["id"])
 
 
 @unittest.skipUnless(validate.HAVE_YAML, "pyyaml required")
@@ -591,7 +607,7 @@ class AssetIntelligenceRowTests(unittest.TestCase):
         }
 
     def test_provider_declares_the_new_capabilities(self):
-        for tag in ("asset-tagging", "asset-caption"):
+        for tag in ("asset-tagging",):
             self.assertIn(tag, self.data["provides"])
             self.assertIn(tag, validate._KNOWN_PROVIDES, f"{tag} must not WARN as unknown")
         # It scores images now, so the slot contract has to say so or no canvas
@@ -651,26 +667,11 @@ class AssetIntelligenceRowTests(unittest.TestCase):
         ]
         self.assertTrue(wasm, "asset-tagging has no WASM-runnable (non-q4, non-f16) row")
 
-    def test_caption_rows_declare_their_per_module_dtypes(self):
-        """Florence-2 is four graphs. A scalar dtype cannot express the mix, and
-        q4 on the conv-heavy vision encoder buys nothing (it is fp32-sized)."""
-        caption = self.rows_for("asset-caption")
-        self.assertTrue(caption, "no asset-caption rows")
-        for rid, row in caption.items():
-            self.assertIn("dtype_map", row, rid)
-            self.assertEqual(
-                sorted(row["dtype_map"]),
-                ["decoder_model_merged", "embed_tokens", "encoder_model", "vision_encoder"],
-                rid,
-            )
-            self.assertNotEqual(row["dtype_map"]["vision_encoder"], "q4", rid)
-            self.assertEqual(row.get("modality"), ["text", "image"], rid)
-        wasm = [r for r in caption.values() if r.get("device") == "wasm"]
-        self.assertTrue(wasm, "asset-caption has no WASM row")
-        for row in wasm:
-            self.assertNotIn(row["dtype"], ("q4", "q4f16", "fp16"), row["id"])
-            for module, dt in row["dtype_map"].items():
-                self.assertNotIn(dt, ("q4", "q4f16", "fp16"), f"{row['id']}:{module}")
+    def test_no_caption_rows(self):
+        """SBAI-LAUNCH (2026-11-20): Florence-2 was removed. Nothing selected
+        the asset-caption rows; the deep tier is Gemma 4."""
+        self.assertEqual(self.rows_for("asset-caption"), {})
+        self.assertNotIn("asset-caption", self.data["provides"])
 
     def test_no_naflex_row(self):
         """siglip2-*-naflex-ONNX declares model_type 'siglip2', which has no

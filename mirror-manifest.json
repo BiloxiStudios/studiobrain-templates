@@ -1,70 +1,108 @@
 {
   "manifest_schema_version": 1,
-  "generated_at": "2026-08-23T18:03:30Z",
+  "generated_at": "2026-11-20T21:26:22Z",
   "objects": [
     {
-      "id": "on-device/florence-2-base-ft-fp16-webgpu",
+      "id": "on-device/embeddinggemma-2-q4-webgpu",
       "provider": "on-device",
       "provider_path": "templates/Providers/on-device.provider.yaml",
-      "source": "huggingface://onnx-community/Florence-2-base-ft",
-      "revision": "e88a44eaf3791a35eae0c5a47b3dbcd36e67eb6f",
-      "mirror_path": "on-device/onnx-community__Florence-2-base-ft/e88a44eaf3791a35eae0c5a47b3dbcd36e67eb6f/",
-      "license": "mit",
-      "license_artifact": "licenses/mit.txt",
-      "size": 344960507,
+      "source": "huggingface://onnx-community/embeddinggemma-2-ONNX",
+      "revision": "daa72c51243991dfcaf9f9137d2c573d8f7790c0",
+      "mirror_path": "on-device/onnx-community__embeddinggemma-2-ONNX/daa72c51243991dfcaf9f9137d2c573d8f7790c0/",
+      "license": "apache-2.0",
+      "license_artifact": "licenses/apache-2.0.txt",
+      "size": 472958149,
       "files": [
         {
-          "name": "embed_tokens_fp16.onnx",
-          "sha256": "da2607930eea5e21e4a2bd5fd069de550f1acc30316a4e8f824551a95232ba39",
-          "size": 78780290
+          "name": "model_q4.onnx",
+          "sha256": "f9eeba97acddf139b8ee2ddf04bc30dceafa88de93fadf74d7644e0d61a477a9",
+          "size": 490742
         },
         {
-          "name": "vision_encoder_fp16.onnx",
-          "sha256": "a7abcd77199c5d0089cf985ede4dd8089acd84f30fb3fb1462d5930345c688b3",
-          "size": 183930536
+          "name": "model_q4.onnx_data",
+          "sha256": "c3975f2d1ab7a1878ae31a7d7a9b7804a827aff3800b60dfceafce21cac3df49",
+          "size": 174028800
         },
         {
-          "name": "encoder_model_q4f16.onnx",
-          "sha256": "1550d697836639b0fec53023dac96253342c2ec1e7fa682595fda80d157e9f64",
-          "size": 25705965
+          "name": "vision_encoder_q4.onnx",
+          "sha256": "7ea284226d4938f0ad921ab091f1d80a9ca699aa802984ef5cd5eec4f4761d96",
+          "size": 159400
         },
         {
-          "name": "decoder_model_merged_q4f16.onnx",
-          "sha256": "db32b0b1fd501e1929e28b96eaacee0dfccdd9573ef0237b1efb4b7a40a016b1",
-          "size": 56543716
+          "name": "vision_encoder_q4.onnx_data",
+          "sha256": "0a9d6c927334f152a33dd90874f65d6ea5228999abe6a450d3f7813677fa704c",
+          "size": 108957696
+        },
+        {
+          "name": "audio_encoder_q4.onnx",
+          "sha256": "c4cce3370e72262280d00293cac038896050a03a8e9a27e10b061ca97510296e",
+          "size": 245543
+        },
+        {
+          "name": "audio_encoder_q4.onnx_data",
+          "sha256": "ba9328e6341360974083085b44b2bba265003bda564740f7c4c23ed9928f17e2",
+          "size": 189075968
         }
       ]
     },
     {
-      "id": "on-device/florence-2-base-ft-q8-wasm",
+      "id": "on-device/embeddinggemma-2-q8-wasm",
       "provider": "on-device",
       "provider_path": "templates/Providers/on-device.provider.yaml",
-      "source": "huggingface://onnx-community/Florence-2-base-ft",
-      "revision": "e88a44eaf3791a35eae0c5a47b3dbcd36e67eb6f",
-      "mirror_path": "on-device/onnx-community__Florence-2-base-ft/e88a44eaf3791a35eae0c5a47b3dbcd36e67eb6f/",
-      "license": "mit",
-      "license_artifact": "licenses/mit.txt",
-      "size": 274966163,
+      "source": "huggingface://onnx-community/embeddinggemma-2-ONNX",
+      "revision": "daa72c51243991dfcaf9f9137d2c573d8f7790c0",
+      "mirror_path": "on-device/onnx-community__embeddinggemma-2-ONNX/daa72c51243991dfcaf9f9137d2c573d8f7790c0/",
+      "license": "apache-2.0",
+      "license_artifact": "licenses/apache-2.0.txt",
+      "size": 849919214,
       "files": [
         {
-          "name": "embed_tokens_quantized.onnx",
-          "sha256": "6b2258db1c8ee9b160576ccde3cd3814d83a2edaed0dd1c6ca9ff3c38fa62214",
-          "size": 39390433
+          "name": "model_quantized.onnx",
+          "sha256": "d06edd601f851c633a2519304cbeb8dc6170d7ceb61b436625c17fb9b6e74953",
+          "size": 495165
+        },
+        {
+          "name": "model_quantized.onnx_data",
+          "sha256": "278a7ff1248c3618e4bd11a607fc54f7bdc7778854230f3956d3f86bd9db4f3b",
+          "size": 313724928
         },
         {
           "name": "vision_encoder_quantized.onnx",
-          "sha256": "3b79d54f23f666f731549db23cb070c35a979ce19cbd9720e90e67a78dc9768c",
-          "size": 93746540
+          "sha256": "bb0de2df53a2448a32dc7908a187c168c8afd514d4d6f674f7f46024875fa4e3",
+          "size": 162495
         },
         {
-          "name": "encoder_model_quantized.onnx",
-          "sha256": "f4ad7a68f1fb875d3bcf735ea14a7021b7ba7e83baf7cf10289881b4ed6d9b85",
-          "size": 43651493
+          "name": "vision_encoder_quantized.onnx_data",
+          "sha256": "3dabd69c0a36e9a8771ad82030dde74daa5a0e02b7047a5d3f3382b1137bab89",
+          "size": 195228672
         },
         {
-          "name": "decoder_model_merged_quantized.onnx",
-          "sha256": "f22f52f980c33df0efa15932c2f3db6d9d3595ce6387eca938b8cfe23dc4c641",
-          "size": 98177697
+          "name": "audio_encoder_quantized.onnx",
+          "sha256": "04a9a9094ba76fb169e4c69be45a4b621580188654d6be59eab860eadcd42d3c",
+          "size": 249330
+        },
+        {
+          "name": "audio_encoder_quantized.onnx_data",
+          "sha256": "aa6361d898e1f1d6303f8dd2b5fabf4fd3629e15fd709e9cb06ac5cb9416a030",
+          "size": 340058624
+        }
+      ]
+    },
+    {
+      "id": "on-device/embeddinggemma-2-text-litert-gpu",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://litert-community/embeddinggemma-2-text-270m-litert-lm",
+      "revision": "9be6e8b90982095dc05c2bd162e4b954ee4dbac7",
+      "mirror_path": "on-device/litert-community__embeddinggemma-2-text-270m-litert-lm/9be6e8b90982095dc05c2bd162e4b954ee4dbac7/",
+      "license": "apache-2.0",
+      "license_artifact": "licenses/apache-2.0.txt",
+      "size": 164626432,
+      "files": [
+        {
+          "name": "embeddinggemma-2-text-270m.litertlm",
+          "sha256": "2d079ee2f6f066b1f368e8d7c819f55214eaef1d0513b312321901f30ab286fb",
+          "size": 164626432
         }
       ]
     },
@@ -205,24 +243,6 @@
           "name": "decoder_model_merged_q4f16.onnx_data_1",
           "sha256": "84e1c5f09ba88a5351959e4f73f62bce46f92dc19a7d7c82376ef36771c26a30",
           "size": 812318720
-        }
-      ]
-    },
-    {
-      "id": "on-device/nomic-embed-text-v1.5-q8-any",
-      "provider": "on-device",
-      "provider_path": "templates/Providers/on-device.provider.yaml",
-      "source": "huggingface://nomic-ai/nomic-embed-text-v1.5",
-      "revision": "e9b6763023c676ca8431644204f50c2b100d9aab",
-      "mirror_path": "on-device/nomic-ai__nomic-embed-text-v1.5/e9b6763023c676ca8431644204f50c2b100d9aab/",
-      "license": "apache-2.0",
-      "license_artifact": "licenses/apache-2.0.txt",
-      "size": 137296292,
-      "files": [
-        {
-          "name": "model_quantized.onnx",
-          "sha256": "b4342336debaea79de872370664b0aaeb67dea4605513d00ee236ea871a81f27",
-          "size": 137296292
         }
       ]
     },
