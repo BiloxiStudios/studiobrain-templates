@@ -34,5 +34,27 @@ model_metadata:
     verified_for: [fusion, import]
     context_tokens: 400000
     max_output_tokens: 128000
+  # SBAI-15092: the current models the owner confirmed for Fusion, import and
+  # entity generation (2026-11-20). Limits and capabilities are what the
+  # Cloudflare AI model page of each model states (read 2026-11-20). Nothing a
+  # page does not state is claimed, with one exception: `structured-output`
+  # is owner-confirmed 2026-11-20 where the page lists no structured-output
+  # parameter. A limit the page does not give as a number is left out.
+  # https://developers.cloudflare.com/ai/models/openai/gpt-6.2-sol/
+  # Page: context window 1,050,000 tokens. Chat Completions parameters list
+  # `tools` and `response_format`. No maximum output and no image or audio
+  # input is stated.
+  gpt-6.2-sol:
+    capabilities: [structured-output, tools]
+    verified_for: [fusion, import, entity-generation]
+    context_tokens: 1050000
+  # https://developers.cloudflare.com/ai/models/openai/gpt-6.2-astra/
+  # Page: context window 1,050,000 tokens. Chat Completions parameters list
+  # `tools` and `response_format`. No maximum output and no image or audio
+  # input is stated.
+  gpt-6.2-astra:
+    capabilities: [structured-output, tools]
+    verified_for: [fusion, import, entity-generation]
+    context_tokens: 1050000
   gpt-4o-mini-tts:
     capabilities: [text-to-speech]

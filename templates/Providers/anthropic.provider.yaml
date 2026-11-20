@@ -31,3 +31,40 @@ model_metadata:
     verified_for: [fusion, import]
     context_tokens: 200000
     max_output_tokens: 64000
+  # SBAI-15092: the current models the owner confirmed for Fusion, import and
+  # entity generation (2026-11-20). Limits and capabilities are what the
+  # Cloudflare AI model page of each model states (read 2026-11-20). Nothing a
+  # page does not state is claimed, with one exception: `structured-output`
+  # is owner-confirmed 2026-11-20 where the page lists no structured-output
+  # parameter. A limit the page does not give as a number is left out.
+  # Each model is listed under both of its ids: Anthropic's own name (the id
+  # the AI Gateway chat route and Anthropic's API take) and the Cloudflare
+  # catalog id, which has a dot where Anthropic has a hyphen.
+  #
+  # https://developers.cloudflare.com/ai/models/anthropic/claude-sonnet-5.5/
+  # Page: context window 1,000,000 tokens, "tool use" in the description. No
+  # maximum output and no image input is stated. The page lists no
+  # structured-output parameter: structured-output is owner-confirmed 2026-11-20.
+  claude-sonnet-5-5:
+    capabilities: [structured-output, tools]
+    verified_for: [fusion, import, entity-generation]
+    context_tokens: 1000000
+  claude-sonnet-5.5:
+    capabilities: [structured-output, tools]
+    verified_for: [fusion, import, entity-generation]
+    context_tokens: 1000000
+  # https://developers.cloudflare.com/ai/models/anthropic/claude-opus-5.5/
+  # Page: context window 1,000,000 tokens, "a 128K token maximum output",
+  # parameters list `tools`. No image input is stated. The page lists no
+  # structured-output parameter by that name: structured-output is
+  # owner-confirmed 2026-11-20.
+  claude-opus-5-5:
+    capabilities: [structured-output, tools]
+    verified_for: [fusion, import, entity-generation]
+    context_tokens: 1000000
+    max_output_tokens: 128000
+  claude-opus-5.5:
+    capabilities: [structured-output, tools]
+    verified_for: [fusion, import, entity-generation]
+    context_tokens: 1000000
+    max_output_tokens: 128000
