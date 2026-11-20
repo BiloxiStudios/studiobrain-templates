@@ -25,13 +25,10 @@ defaults:
     weight: on-device/gemma-4-e2b-it-q4f16-webgpu
   - capability: embeddings
     provider: on-device
-    weight: on-device/nomic-embed-text-v1.5-q8-any
+    weight: on-device/embeddinggemma-2-q4-webgpu
   - capability: asset-tagging
     provider: on-device
     weight: on-device/siglip2-base-256-vision-q4f16-webgpu
-  - capability: asset-caption
-    provider: on-device
-    weight: on-device/florence-2-base-ft-fp16-webgpu
   - capability: stt
     provider: on-device
     weight: on-device/whisper-base-q4-webgpu
