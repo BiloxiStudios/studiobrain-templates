@@ -26,3 +26,18 @@ chat:
 slots:
   accepts: [text, image]
   emits: [text, image, video]
+model_metadata:
+  # SBAI-15092: the current models the owner confirmed for Fusion, import and
+  # entity generation (2026-11-20). Limits and capabilities are what the
+  # Cloudflare AI model page of each model states (read 2026-11-20). Nothing a
+  # page does not state is claimed, with one exception: `structured-output`
+  # is owner-confirmed 2026-11-20 where the page lists no structured-output
+  # parameter. A limit the page does not give as a number is left out.
+  # https://developers.cloudflare.com/ai/models/xai/grok-4.7/
+  # Page: context window 500,000 tokens, "Accepts text and image inputs, and
+  # supports function calling, structured outputs". No maximum output is
+  # stated.
+  grok-4.7:
+    capabilities: [structured-output, tools, image-input]
+    verified_for: [fusion, import, entity-generation]
+    context_tokens: 500000

@@ -379,6 +379,38 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertNotIn('context_tokens', providers['google-ai-studio']['model_metadata']['gemini-2.5-pro'])
         self.assertNotIn('verified_for', providers['openai']['model_metadata']['gpt-4o-mini-tts'])
 
+    def test_publishes_the_owner_confirmed_current_models(self):
+        # SBAI-15092: the models the owner confirmed on 2026-11-20, with the
+        # limits the Cloudflare model pages state.
+        providers = {e['id']: e for e in bci.build_entries(ROOT) if e['kind'] == 'provider'}
+        expected = {
+            ('openai', 'gpt-6.2-sol'): {'context_tokens': 1050000},
+            ('openai', 'gpt-6.2-astra'): {'context_tokens': 1050000},
+            ('anthropic', 'claude-sonnet-5-5'): {'context_tokens': 1000000},
+            ('anthropic', 'claude-sonnet-5.5'): {'context_tokens': 1000000},
+            ('anthropic', 'claude-opus-5-5'): {'context_tokens': 1000000, 'max_output_tokens': 128000},
+            ('anthropic', 'claude-opus-5.5'): {'context_tokens': 1000000, 'max_output_tokens': 128000},
+            ('google-ai-studio', 'gemini-4-carbon'): {'context_tokens': 1048576},
+            ('google-ai-studio', 'gemini-4-argon'): {'context_tokens': 1048576},
+            ('grok', 'grok-4.7'): {'context_tokens': 500000},
+        }
+        for (provider, model), limits in expected.items():
+            attestation = providers[provider]['model_metadata'][model]
+            self.assertEqual(attestation['verified_for'], ['fusion', 'import', 'entity-generation'], model)
+            self.assertIn('structured-output', attestation['capabilities'], model)
+            self.assertIn('tools', attestation['capabilities'], model)
+            # A limit the page does not state as a number is absent, not guessed.
+            self.assertEqual(
+                {k: v for k, v in attestation.items() if k in ('context_tokens', 'max_output_tokens')}, limits, model)
+        # Only Grok 4.7's page states image input.
+        self.assertIn('image-input', providers['grok']['model_metadata']['grok-4.7']['capabilities'])
+        for provider, model in (('openai', 'gpt-6.2-sol'), ('anthropic', 'claude-sonnet-5-5'), ('google-ai-studio', 'gemini-4-carbon')):
+            self.assertNotIn('image-input', providers[provider]['model_metadata'][model]['capabilities'])
+        # Both spellings of an Anthropic model carry the same attestation.
+        anthropic = providers['anthropic']['model_metadata']
+        self.assertEqual(anthropic['claude-sonnet-5-5'], anthropic['claude-sonnet-5.5'])
+        self.assertEqual(anthropic['claude-opus-5-5'], anthropic['claude-opus-5.5'])
+
     def test_on_device_provider_publishes_webgpu_and_wasm_model_rows(self):
         entries = bci.build_entries(ROOT)
         provider = next(e for e in entries if e["id"] == "on-device")

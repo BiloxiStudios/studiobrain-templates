@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-11-19T22:51:18Z",
+  "generated_at": "2026-11-20T12:00:00Z",
   "entries": [
     {
       "id": "character-bio",
@@ -683,6 +683,56 @@
           ],
           "context_tokens": 200000,
           "max_output_tokens": 64000
+        },
+        "claude-sonnet-5-5": {
+          "capabilities": [
+            "structured-output",
+            "tools"
+          ],
+          "verified_for": [
+            "fusion",
+            "import",
+            "entity-generation"
+          ],
+          "context_tokens": 1000000
+        },
+        "claude-sonnet-5.5": {
+          "capabilities": [
+            "structured-output",
+            "tools"
+          ],
+          "verified_for": [
+            "fusion",
+            "import",
+            "entity-generation"
+          ],
+          "context_tokens": 1000000
+        },
+        "claude-opus-5-5": {
+          "capabilities": [
+            "structured-output",
+            "tools"
+          ],
+          "verified_for": [
+            "fusion",
+            "import",
+            "entity-generation"
+          ],
+          "context_tokens": 1000000,
+          "max_output_tokens": 128000
+        },
+        "claude-opus-5.5": {
+          "capabilities": [
+            "structured-output",
+            "tools"
+          ],
+          "verified_for": [
+            "fusion",
+            "import",
+            "entity-generation"
+          ],
+          "context_tokens": 1000000,
+          "max_output_tokens": 128000
         }
       }
     },
@@ -917,6 +967,30 @@
             "import"
           ],
           "max_output_tokens": 65536
+        },
+        "gemini-4-carbon": {
+          "capabilities": [
+            "structured-output",
+            "tools"
+          ],
+          "verified_for": [
+            "fusion",
+            "import",
+            "entity-generation"
+          ],
+          "context_tokens": 1048576
+        },
+        "gemini-4-argon": {
+          "capabilities": [
+            "structured-output",
+            "tools"
+          ],
+          "verified_for": [
+            "fusion",
+            "import",
+            "entity-generation"
+          ],
+          "context_tokens": 1048576
         }
       }
     },
@@ -948,6 +1022,21 @@
           "image",
           "video"
         ]
+      },
+      "model_metadata": {
+        "grok-4.7": {
+          "capabilities": [
+            "structured-output",
+            "tools",
+            "image-input"
+          ],
+          "verified_for": [
+            "fusion",
+            "import",
+            "entity-generation"
+          ],
+          "context_tokens": 500000
+        }
       }
     },
     {
@@ -1747,6 +1836,30 @@
           ],
           "context_tokens": 400000,
           "max_output_tokens": 128000
+        },
+        "gpt-6.2-sol": {
+          "capabilities": [
+            "structured-output",
+            "tools"
+          ],
+          "verified_for": [
+            "fusion",
+            "import",
+            "entity-generation"
+          ],
+          "context_tokens": 1050000
+        },
+        "gpt-6.2-astra": {
+          "capabilities": [
+            "structured-output",
+            "tools"
+          ],
+          "verified_for": [
+            "fusion",
+            "import",
+            "entity-generation"
+          ],
+          "context_tokens": 1050000
         },
         "gpt-4o-mini-tts": {
           "capabilities": [
