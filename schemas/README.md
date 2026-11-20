@@ -28,6 +28,7 @@ or installed (see [Adding a new entity type](#adding-a-new-entity-type)).
 | `views.json` | Browse views (`default`, `enabled`, `roles`, `table`, `board`, `calendar`, `gallery`, `sort`, `facets`, `plugin:*`), `$ref`'d from `layout.json`, `template.json` and `_base.json` | browse page (cards/list/table/gallery/carousel/board/calendar; cloud adds map/timeline) |
 | `registry/widget-ids.json` | Not a schema: the export of core's registered widget, component-block and view ids plus the alias table. Keep in sync with studiobrain-core | `scripts/validate.py` widget lint, `loadWidgetIds()` |
 | `pack.json` | `templates/Packs/<id>/pack.json` — template pack manifests | pack installer, marketplace |
+| `rules.json` | Structured rule collections in pack Markdown frontmatter and YAML | `scripts/validate.py` checks the declared levels, rule IDs and blocking checks during pack validation |
 | `plugin.json` | RETIRED (SBAI-12438). Historical Python plugin manifests (`full` / `frontend-only` / `protocol-adapter`). Not the plugin SDK. Do not add plugins here. | fixture tests only |
 | `skill.yaml.json` | `skills/Standard/*.yaml` and `skills/User/*.yaml` — AI skill frontmatter (parsed YAML mapping) | skill picker |
 | `taxonomy.json` | `taxonomies/*.yaml` — controlled vocabularies (axes of prompt-bearing terms) with a `content_hash` stamp | on-device zero-shot tagger (SBAI-7726), server tag normalisation |
