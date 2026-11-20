@@ -609,6 +609,125 @@ def check_layouts(registry: dict[str, Any] | None = None) -> list[str]:
     return errors
 
 
+# Templates #110 preserves these three assembly rig policies verbatim.
+# A different declaration using the same id still needs a check.
+_RETAINED_ASSEMBLY_CHECKS = {
+    "pack_asm_001": (
+        "inheritance", "critical",
+        "The hierarchy chain for any assembly in this pack must not exceed depth 4 (Template → Profile → Variant → Zombie).",
+    ),
+    "pack_asm_002": (
+        "slots", "high", "All required slots must be filled before the assembly can be exported via any profile.",
+    ),
+    "pack_asm_004": (
+        "zombie_system", "critical", "Zombie overlay assets must only use green, purple, or black. No red blood.",
+    ),
+}
+_NATIVE_RULE_TYPES = {
+    "char_001": "character", "char_002": "character", "char_004": "character",
+    "loc_001": "location", "loc_004": "location", "dial_002": "dialogue",
+}
+
+
+def pack_rule_errors(path: pathlib.Path) -> list[str]:
+    """Check rule collections while preserving the existing generation-guide formats."""
+    if not HAVE_YAML or not HAVE_JSONSCHEMA:
+        return []
+    canonical = path.name.endswith("_RULES.md")
+    if path.suffix.lower() in {".yaml", ".yml"}:
+        try:
+            fm = yaml.safe_load(path.read_text(encoding="utf-8"))
+        except yaml.YAMLError as exc:
+            return [f"{path}: YAML parse error: {exc}"]
+        if not isinstance(fm, dict):
+            return [f"{path}: expected a YAML mapping"]
+    else:
+        fm, error = _frontmatter(path)
+        if error:
+            if not canonical and error == "missing YAML frontmatter delimiter":
+                return []  # Plain Markdown can be a pack guide.
+            return [f"{path}: {error}"]
+        assert fm is not None
+    if not canonical and "rules" not in fm and "mandatory" not in fm:
+        return []  # e.g. a generation guide or format-social-micro's pack-doc.
+    errors = _validate_instance(fm, "rules.json", str(path))
+    if errors:
+        return errors
+    assembly = TEMPLATES_DIR / "Packs/starter-assemblies/rules/assembly-rules.yaml"
+    retained = _RETAINED_ASSEMBLY_CHECKS if path == assembly.resolve() else {}
+    for key in ("mandatory", "rules"):
+        ids: set[str] = set()
+        for index, entry in enumerate(fm.get(key, [])):
+            where = f"{path}: /{key}/{index}"
+            # The native manager assigns a positional id to prose and to objects
+            # without an explicit id. Avoid ambiguous update/delete operations.
+            positional_id = f"rule_{index + 1:03d}"
+            rule_id = entry.get("id", positional_id).strip() if isinstance(entry, dict) else positional_id
+            if rule_id in ids:
+                errors.append(f"{where}: duplicate rule id {rule_id!r}")
+            ids.add(rule_id)
+            if not isinstance(entry, dict):
+                continue
+            level = entry.get("validation_type", "warning")
+            if rule_id in _NATIVE_RULE_TYPES and "validation_type" not in entry:
+                errors.append(f"{where}: set validation_type explicitly for a built-in native rule id")
+            if "severity" in entry and entry["severity"] != level:
+                errors.append(f"{where}: severity disagrees with validation_type {level!r}")
+            if entry.get("enforcement") in ("block", "error") and level != "error":
+                errors.append(f"{where}: blocking enforcement conflicts with validation_type {level!r}")
+            if level == "error":
+                signature = (entry.get("category"), entry.get("priority"), entry.get("rule"))
+                if retained.get(rule_id) != signature and not _declares_rule_check(entry, fm.get("entity_type")):
+                    errors.append(f"{where}: an error rule needs a declared check or an explicit agent judge")
+    return errors
+
+
+def _declares_rule_check(entry: dict[str, Any], entity_type: str | None) -> bool:
+    # This is a declaration check. Runtime evaluators own the execution and billing.
+    if any(key in entry for key in (
+        "required_fields", "required_field", "forbidden", "forbidden_terms",
+        "forbidden_phrases", "forbidden_tech", "forbidden_elements", "references", "allowed_values",
+    )):
+        return True
+    if entry.get("category") == "entity_validation":
+        return True
+    if entity_type and _NATIVE_RULE_TYPES.get(entry.get("id")) == entity_type:
+        return True  # Existing native rule for the matching entity type.
+    verify = entry.get("verify")
+    return isinstance(verify, dict) and verify.get("via") == "agent"
+
+
+def check_pack_rule_files(pack_dir: pathlib.Path, manifest: dict[str, Any]) -> list[str]:
+    """Check supported rule files under rules/ and additional paths in the pack manifest."""
+    errors: list[str] = []
+    suffixes = {".md", ".yaml", ".yml"}
+    files = {p for p in (pack_dir / "rules").rglob("*") if p.suffix.lower() in suffixes}
+    entries = manifest.get("rules")
+    if isinstance(entries, list):
+        for entry in entries:
+            if not isinstance(entry, str):
+                continue  # pack.json validates the manifest's types.
+            if pathlib.Path(entry).suffix.lower() not in suffixes:
+                errors.append(f"{pack_dir / 'pack.json'}: unsupported rule file {entry!r}, expected Markdown or YAML")
+                continue
+            if pathlib.Path(entry).is_absolute():
+                errors.append(f"{pack_dir / 'pack.json'}: expected a relative rule path, got {entry!r}")
+                continue
+            files.add(pack_dir / entry)
+    seen: set[pathlib.Path] = set()
+    for path in sorted(files):
+        try:
+            resolved = path.resolve()
+            if not resolved.is_relative_to(pack_dir.resolve()):
+                errors.append(f"{path}: rule path outside this pack")
+            elif resolved not in seen:
+                seen.add(resolved)
+                errors.extend(pack_rule_errors(resolved))
+        except (OSError, RuntimeError, UnicodeError) as exc:
+            errors.append(f"{path}: cannot read pack rule: {exc}")
+    return errors
+
+
 def check_packs() -> list[str]:
     errors: list[str] = []
     packs_dir = TEMPLATES_DIR / "Packs"
@@ -621,6 +740,8 @@ def check_packs() -> list[str]:
             errors.append(f"{pack_file}: JSON parse error: {exc}")
             continue
         errors.extend(_validate_instance(data, "pack.json", str(pack_file)))
+        if isinstance(data, dict):
+            errors.extend(check_pack_rule_files(pack_file.parent, data))
     return errors
 
 

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.biloxistudios.com/schemas/rules.json",
+  "title": "Structured entity rules in a template pack",
+  "description": "Authoring checks for structured pack rules in Markdown frontmatter and YAML. The four validation levels are independent of prompt priority. An omitted level defaults to warning for a new custom rule.",
+  "type": "object",
+  "oneOf": [{"required": ["rules"]}, {"required": ["mandatory"]}],
+  "properties": {
+    "entity_type": {"$ref": "./_base.json#/$defs/entityTypeSlug"},
+    "rules": {"$ref": "#/$defs/ruleList"},
+    "mandatory": {"$ref": "#/$defs/ruleList"}
+  },
+  "$defs": {
+    "text": {"type": "string", "pattern": "\\S"},
+    "textList": {
+      "oneOf": [
+        {"$ref": "#/$defs/text"},
+        {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/text"}}
+      ]
+    },
+    "level": {"enum": ["error", "warning", "info", "suggestion"]},
+    "ruleList": {
+      "type": "array",
+      "items": {
+        "if": {"type": "string"},
+        "then": {"$ref": "#/$defs/text"},
+        "else": {"$ref": "#/$defs/entry"}
+      }
+    },
+    "entry": {
+      "type": "object",
+      "properties": {
+        "id": {"$ref": "#/$defs/text"},
+        "rule": {"$ref": "#/$defs/text"},
+        "content": {"$ref": "#/$defs/text"},
+        "validation_type": {"$ref": "#/$defs/level"},
+        "severity": {"$ref": "#/$defs/level"},
+        "enforcement": {"enum": ["error", "block", "warning", "info", "suggestion"]},
+        "field": {"$ref": "#/$defs/textList"},
+        "fields": {"$ref": "#/$defs/textList"},
+        "required_field": {"$ref": "#/$defs/text"},
+        "required_fields": {"$ref": "#/$defs/textList"},
+        "forbidden_terms": {"$ref": "#/$defs/textList"},
+        "forbidden": {"$ref": "#/$defs/textList"},
+        "forbidden_phrases": {"$ref": "#/$defs/textList"},
+        "forbidden_elements": {"$ref": "#/$defs/textList"},
+        "forbidden_tech": {"$ref": "#/$defs/textList"},
+        "allowed_phrases": {"$ref": "#/$defs/textList"},
+        "allowed_values": {"$ref": "#/$defs/textList"},
+        "references": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"$ref": "#/$defs/text"},
+          "additionalProperties": {"$ref": "#/$defs/textList"}
+        }
+      },
+      "anyOf": [
+        {"required": ["rule"]},
+        {"required": ["content"]},
+        {"properties": {"stage": {"const": "precontext"}, "action": {"$ref": "#/$defs/text"}}, "required": ["stage", "action"]}
+      ],
+      "dependentRequired": {"severity": ["validation_type"]},
+      "dependentSchemas": {
+        "allowed_values": {"required": ["field"], "properties": {"field": {"$ref": "#/$defs/text"}}}
+      }
+    }
+  }
+}
