@@ -36,6 +36,11 @@ chat:
   nativeChatPath: v1/chat/completions
   defaultModel: '@cf/google/gemma-4-26b-a4b-it'
 model_metadata:
+  # https://developers.cloudflare.com/workers-ai/models/gemma-4-26b-a4b-it/
+  '@cf/google/gemma-4-26b-a4b-it':
+    modalities: [text]
+    capabilities: [tools, image-input]
+    context_tokens: 256000
   # Cloudflare lists text generation and function calling for this exact model.
   # https://developers.cloudflare.com/workers-ai/models/llama-3.3-70b-instruct-fp8-fast/
   '@cf/meta/llama-3.3-70b-instruct-fp8-fast':

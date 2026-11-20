@@ -2039,6 +2039,16 @@
         ]
       },
       "model_metadata": {
+        "@cf/google/gemma-4-26b-a4b-it": {
+          "modalities": [
+            "text"
+          ],
+          "capabilities": [
+            "tools",
+            "image-input"
+          ],
+          "context_tokens": 256000
+        },
         "@cf/meta/llama-3.3-70b-instruct-fp8-fast": {
           "modalities": [
             "text"
