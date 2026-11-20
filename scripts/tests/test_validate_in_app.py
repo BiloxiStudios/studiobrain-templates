@@ -585,7 +585,15 @@ class ShippedCatalogTests(unittest.TestCase):
             self.assertIn(row["context_length"], (8192, 2048), row["id"])
             self.assertNotIn("tools", row)
             self.assertNotIn("thinking", row)
-            self.assertEqual(row.get("provenance"), "pending", row["id"])
+        # SBAI-15185: the owner witnessed the WebGPU q4 and LiteRT GPU rows; the
+        # wasm q8 row stays pending until it is witnessed too.
+        witnessed = {
+            "on-device/embeddinggemma-2-q4-webgpu",
+            "on-device/embeddinggemma-2-text-litert-gpu",
+        }
+        for row in embeddings:
+            want = None if row["id"] in witnessed else "pending"
+            self.assertEqual(row.get("provenance"), want, row["id"])
 
 
 @unittest.skipUnless(validate.HAVE_YAML, "pyyaml required")
