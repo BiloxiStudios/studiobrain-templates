@@ -1,0 +1,51 @@
+{
+  "id": "sample-vegan-kitchen",
+  "name": "Sample: Vegan Kitchen",
+  "description": "Plan a vegan kitchen service with recipes, menus and pantry stock. Includes ingredient and preparation tables, recipe approval guidance, stock counts and a sample chickpea taco recipe.",
+  "author": "StudioBrain",
+  "license": "Apache-2.0",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.5.0"
+  },
+  "entity_types": [
+    "vegan_recipe",
+    "menu",
+    "pantry_item"
+  ],
+  "categories": [
+    "food",
+    "hospitality"
+  ],
+  "tags": [
+    "sample",
+    "recipe",
+    "restaurant",
+    "vegan",
+    "kitchen",
+    "optional"
+  ],
+  "icon": null,
+  "is_default": false,
+  "auto_install": false,
+  "is_meta_pack": false,
+  "includes": [],
+  "templates": [
+    "templates/VEGAN_RECIPE_TEMPLATE.md",
+    "templates/MENU_TEMPLATE.md",
+    "templates/PANTRY_ITEM_TEMPLATE.md"
+  ],
+  "rules": [
+    "rules/VEGAN_RECIPE_RULES.md",
+    "rules/MENU_RULES.md",
+    "rules/PANTRY_ITEM_RULES.md"
+  ],
+  "layouts": [
+    "layouts/vegan_recipe.layout.json",
+    "layouts/menu.layout.json",
+    "layouts/pantry_item.layout.json"
+  ],
+  "examples": [
+    "examples/smoky_chickpea_tacos.md"
+  ]
+}

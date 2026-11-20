@@ -2,6 +2,7 @@
   { "id": "core-essentials", "path": "templates/Packs/core-essentials" },
   { "id": "format-social-micro", "path": "templates/Packs/format-social-micro" },
   { "id": "full-starter", "path": "templates/Packs/full-starter" },
+  { "id": "sample-vegan-kitchen", "path": "templates/Packs/sample-vegan-kitchen" },
   { "id": "starter-assemblies", "path": "templates/Packs/starter-assemblies" },
   { "id": "starter-brands", "path": "templates/Packs/starter-brands" },
   { "id": "starter-characters", "path": "templates/Packs/starter-characters" },

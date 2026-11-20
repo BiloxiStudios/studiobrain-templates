@@ -1,0 +1,191 @@
+{
+  "entity_type": "pantry_item",
+  "version": "1.0",
+  "compat": {
+    "min_core_version": "0.5.0",
+    "target_api_version": "layout/v1"
+  },
+  "sections": [
+    {
+      "id": "item",
+      "title": "Item",
+      "icon": "Package",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "id",
+          "label": "ID",
+          "ui_component": "read-only",
+          "required": true,
+          "auto_generate_from": "name"
+        },
+        {
+          "key": "name",
+          "label": "Name",
+          "ui_component": "text",
+          "required": true
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {
+              "value": "active",
+              "label": "In use"
+            },
+            {
+              "value": "to_order",
+              "label": "To order"
+            },
+            {
+              "value": "retired",
+              "label": "Retired"
+            }
+          ]
+        },
+        {
+          "key": "ingredient_group",
+          "label": "Ingredient group",
+          "ui_component": "text",
+          "help": "For example, pulse, grain, spice or chilled ingredient."
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "ui_component": "textarea",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "stock",
+      "title": "Stock count",
+      "icon": "Scale",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "quantity_on_hand",
+          "label": "Quantity on hand",
+          "ui_component": "number",
+          "min": 0,
+          "step": 0.01
+        },
+        {
+          "key": "stock_unit",
+          "label": "Stock unit",
+          "ui_component": "text",
+          "help": "For example, kg, litres or tins."
+        },
+        {
+          "key": "reorder_level",
+          "label": "Reorder level",
+          "ui_component": "number",
+          "min": 0,
+          "step": 0.01
+        },
+        {
+          "key": "storage_location",
+          "label": "Storage location",
+          "ui_component": "text"
+        }
+      ]
+    },
+    {
+      "id": "receiving",
+      "title": "Receiving",
+      "icon": "Truck",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "supplier",
+          "label": "Supplier",
+          "ui_component": "text"
+        },
+        {
+          "key": "lot_code",
+          "label": "Supplier lot code",
+          "ui_component": "text"
+        },
+        {
+          "key": "received_date",
+          "label": "Received date",
+          "ui_component": "date"
+        },
+        {
+          "key": "best_before",
+          "label": "Best before",
+          "ui_component": "date"
+        },
+        {
+          "key": "label_allergens",
+          "label": "Allergens listed on the label",
+          "ui_component": "tag-input",
+          "column_span": 2,
+          "allow_custom": true
+        },
+        {
+          "key": "handling_notes",
+          "label": "Handling notes",
+          "ui_component": "textarea",
+          "column_span": 2
+        }
+      ]
+    }
+  ],
+  "view_config": {
+    "layout_driven": true
+  },
+  "views": {
+    "default": "table",
+    "enabled": [
+      "table",
+      "board",
+      "calendar",
+      "cards"
+    ],
+    "roles": {
+      "title": "name",
+      "subtitle": "storage_location",
+      "badges": [
+        "ingredient_group",
+        "status"
+      ],
+      "card_fields": [
+        "quantity_on_hand",
+        "stock_unit",
+        "best_before"
+      ]
+    },
+    "table": {
+      "columns": [
+        {
+          "key": "name"
+        },
+        {
+          "key": "quantity_on_hand"
+        },
+        {
+          "key": "stock_unit"
+        },
+        {
+          "key": "reorder_level"
+        },
+        {
+          "key": "storage_location"
+        }
+      ]
+    },
+    "board": {
+      "group_by": "status"
+    },
+    "calendar": {
+      "date_field": "best_before"
+    },
+    "facets": [
+      "status",
+      "ingredient_group",
+      "storage_location"
+    ]
+  }
+}
