@@ -140,7 +140,7 @@ primary_npcs:
     role: "vendor"
     schedule: "night_shift"
 background_npcs:
-  - type: "survivor"
+  - type: "resident"
     count: 5
     behavior: "passive"
 npc_density: "low"  # none, low, medium, high
@@ -179,8 +179,6 @@ hazards:
   - type: "structural"
     frequency: "constant"
     severity: "low"
-zombie_risk: "none"  # none, low, medium, high, extreme. Set only if this project uses that threat.
-infection_status: "clean"  # clean, contaminated, infected, quarantined. Set from this project.
 
 # CONTENT FIELDS
 description: null  # Brief description (also in markdown below for details)

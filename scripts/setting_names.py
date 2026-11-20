@@ -43,6 +43,14 @@ SETTING_NAME_PATTERNS: tuple[str, ...] = (
     r"payphone",
     r"\bVHS\b",
     r"Orbitron",
+    # Fields and examples specific to the sample setting, rather than general
+    # words such as "infection" that are also useful in other project domains.
+    r"\bzombie[ _](?:risk|density)\b",
+    r"\b(?:infection[ _]status|outbreak[ _]impact|survivor[ _]population)\b",
+    r"\binfected_(?:researcher|scientist)\b",
+    r'"(?:value|key)"\s*:\s*"(?:infected|zombie)"',
+    r"""\binfected:\s*["']?\d+%""",
+    r"\binfection (?:vector|connection)\b",
 )
 
 DEFAULT_RELATIVE_ROOTS: tuple[str, ...] = (

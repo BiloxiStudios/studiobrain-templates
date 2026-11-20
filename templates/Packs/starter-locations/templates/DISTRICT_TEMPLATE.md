@@ -113,8 +113,7 @@ age_demographics:
   elderly: "25%"
 species_demographics:
   human: "70%"
-  infected: "25%"
-  other: "5%"
+  other: "30%"
 cultural_groups:
   - "locals"
   - "refugees"
@@ -144,11 +143,8 @@ landmark_locations:
   - "central_park"
   - "megamart_headquarters"
 
-# POST-OUTBREAK STATUS
-outbreak_impact: "none"  # none, minimal, moderate, severe, catastrophic. Set only if this project records a disruption.
+# DISTRICT STATUS
 current_status: "partially controlled"  # safe, contested, dangerous, lost
-survivor_population: 12000
-zombie_density: "none"  # none, low, moderate, high, extreme. Set only if this project uses that threat.
 
 # STORY INTEGRATION
 narrative_importance: "major"  # minor, moderate, major, central
