@@ -92,6 +92,34 @@ status: approved
         self.write("layouts/observatory.json", json.dumps(layout))
         self.assertEqual(validate.check_layouts(), [])
 
+    def test_pack_layout_uses_fields_from_its_own_template(self):
+        self.write("templates/KILN_REFERENCE_TEMPLATE.md", """---
+entity_type: kiln_reference
+id: blue_bowl
+name: Blue bowl
+glaze: {}
+field_config:
+  finish: {type: string}
+---
+""")
+        other = self.templates / "Packs" / "other" / "templates"
+        other.mkdir(parents=True)
+        (other / "KILN_REFERENCE_TEMPLATE.md").write_text("---\nentity_type: kiln_reference\nfinish: matte\n---\n")
+        layout = {"entity_type": "kiln_reference", "version": "1.0",
+                  "sections": [{"id": "edit", "fields": [{"key": "glaze.color", "ui_component": "text"}]}],
+                  "view_config": {"view_only_sections": [{"id": "view", "fields": [{"key": "finish", "ui_component": "text"}]}]},
+                  "views": {"roles": {"title": "finish"}}}
+        self.write("pack.json", json.dumps({"layouts": ["forms/reference.json"]}))
+        self.write("forms/reference.json", json.dumps(layout))
+        errors = validate.check_layouts()
+        self.assertTrue(any("view_config.view_only_sections" in e and "finish" in e for e in errors), errors)
+        self.assertTrue(any("views.roles.title" in e and "finish" in e for e in errors), errors)
+        self.assertFalse(any("glaze.color" in e for e in errors), errors)
+        layout["view_config"]["view_only_sections"][0]["fields"][0]["key"] = "glaze"
+        layout["views"]["roles"]["title"] = "name"
+        self.write("forms/reference.json", json.dumps(layout))
+        self.assertEqual(validate.check_layouts(), [])
+
     def test_pack_layout_paths_and_invalid_json(self):
         self.write("pack.json", json.dumps({"layouts": ["missing.json", "../../../outside.json"]}))
         self.write("layouts/broken.json", "{")

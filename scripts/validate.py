@@ -460,16 +460,25 @@ def _iter_template_files() -> Iterable[pathlib.Path]:
     return sorted(TEMPLATES_DIR.rglob("*_TEMPLATE.md"))
 
 
-def _template_keys_by_type() -> dict[str, set[str]]:
-    """entity_type -> union of field keys across shipped templates of that type."""
-    by_type: dict[str, set[str]] = {}
+def _layout_pack(path: pathlib.Path) -> str | None:
+    parts = path.relative_to(TEMPLATES_DIR).parts
+    return parts[1] if len(parts) > 2 and parts[0] == "Packs" else None
+
+
+def _template_keys_by_type() -> dict[tuple[str | None, str], set[str]]:
+    """Index fields by type across the catalog and within each individual pack."""
+    by_type: dict[tuple[str | None, str], set[str]] = {}
     if not HAVE_YAML:
         return by_type
     for md in _iter_template_files():
         fm, problem = _frontmatter(md)
         if problem or not fm or not isinstance(fm.get("entity_type"), str):
             continue
-        by_type.setdefault(fm["entity_type"], set()).update(_template_field_keys(fm))
+        fields = _template_field_keys(fm)
+        by_type.setdefault((None, fm["entity_type"]), set()).update(fields)
+        pack = _layout_pack(md)
+        if pack is not None:
+            by_type.setdefault((pack, fm["entity_type"]), set()).update(fields)
     return by_type
 
 
@@ -494,10 +503,13 @@ def layout_errors(
     label: str,
     registry: dict[str, Any],
     template_keys: Iterable[str] = (),
+    *,
+    has_pack_template: bool = False,
 ) -> list[str]:
     """Widget/component lint and views cross-checks for one layout."""
     errors: list[str] = []
     layout_keys: set[str] = set()
+    template_fields = set(template_keys) - registry["meta_keys"]
     for slot in ("editor_component", "viewer_component"):
         errors.extend(lint_component_id(data.get(slot), registry, f"{label}: {slot}"))
 
@@ -530,9 +542,12 @@ def layout_errors(
             for f_idx, field in enumerate(fields):
                 if not isinstance(field, dict):
                     continue
-                if isinstance(field.get("key"), str):
-                    layout_keys.add(field["key"].split(".", 1)[0])
                 f_label = f"{sec_label}.fields[{f_idx}]({field.get('key')})"
+                if isinstance(field.get("key"), str):
+                    root = field["key"].split(".", 1)[0]
+                    layout_keys.add(root)
+                    if has_pack_template and root not in template_fields:
+                        errors.append(f"{f_label}: unknown field {field['key']!r} in this pack's template")
                 if "ui_component" in field:
                     errors.extend(lint_widget_id(field["ui_component"], registry, f"{f_label}.ui_component"))
                 sub_fields = field.get("sub_fields")
@@ -546,7 +561,8 @@ def layout_errors(
                         ))
     if "views" in data:
         errors.extend(check_views_semantics(
-            data["views"], layout_keys | set(template_keys), label, registry
+            data["views"], template_fields if has_pack_template else layout_keys | template_fields,
+            label, registry,
         ))
     return errors
 
@@ -602,9 +618,13 @@ def check_layouts(registry: dict[str, Any] | None = None) -> list[str]:
             continue
         errors.extend(_validate_instance(data, "layout.json", str(layout_file)))
         if isinstance(data, dict):
+            entity_type = str(data.get("entity_type"))
+            pack = _layout_pack(layout_file)
+            pack_fields = keys_by_type.get((pack, entity_type)) if pack is not None else None
             errors.extend(layout_errors(
                 data, str(layout_file), registry,
-                keys_by_type.get(str(data.get("entity_type")), set()),
+                pack_fields if pack_fields is not None else keys_by_type.get((None, entity_type), set()),
+                has_pack_template=pack_fields is not None,
             ))
     return errors
 
