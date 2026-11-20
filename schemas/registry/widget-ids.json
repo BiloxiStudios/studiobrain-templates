@@ -158,6 +158,7 @@
     "sections",
     "grid_fields",
     "list_layout",
+    "layout_preset",
     "views"
   ],
   "view_virtual_keys": [
