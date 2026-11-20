@@ -1,0 +1,49 @@
+{
+  "id": "sample-crm",
+  "name": "Sample: Customer Relationships",
+  "description": "Keep contact and company records, follow deals through their stages and schedule the next conversation.",
+  "author": "StudioBrain",
+  "license": "Apache-2.0",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.5.0"
+  },
+  "entity_types": [
+    "contact",
+    "company",
+    "deal",
+    "interaction"
+  ],
+  "categories": [
+    "sales",
+    "agency"
+  ],
+  "tags": [
+    "sample",
+    "optional",
+    "sales",
+    "agency",
+    "crm"
+  ],
+  "is_default": false,
+  "auto_install": false,
+  "is_meta_pack": false,
+  "includes": [],
+  "templates": [
+    "templates/CONTACT_TEMPLATE.md",
+    "templates/COMPANY_TEMPLATE.md",
+    "templates/DEAL_TEMPLATE.md",
+    "templates/INTERACTION_TEMPLATE.md"
+  ],
+  "rules": [
+    "rules/CONTACT_RULES.md",
+    "rules/DEAL_RULES.md",
+    "rules/INTERACTION_RULES.md"
+  ],
+  "layouts": [
+    "layouts/contact.layout.json",
+    "layouts/company.layout.json",
+    "layouts/deal.layout.json",
+    "layouts/interaction.layout.json"
+  ]
+}

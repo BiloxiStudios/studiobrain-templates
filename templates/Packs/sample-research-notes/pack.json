@@ -1,0 +1,45 @@
+{
+  "id": "sample-research-notes",
+  "name": "Sample: Research Notes",
+  "description": "Keep a record of source material, link findings to their evidence and track unresolved research questions.",
+  "author": "StudioBrain",
+  "license": "Apache-2.0",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.5.0"
+  },
+  "entity_types": [
+    "source",
+    "finding",
+    "open_question"
+  ],
+  "categories": [
+    "research",
+    "discovery"
+  ],
+  "tags": [
+    "sample",
+    "optional",
+    "research",
+    "discovery",
+    "evidence"
+  ],
+  "is_default": false,
+  "auto_install": false,
+  "is_meta_pack": false,
+  "includes": [],
+  "templates": [
+    "templates/SOURCE_TEMPLATE.md",
+    "templates/FINDING_TEMPLATE.md",
+    "templates/OPEN_QUESTION_TEMPLATE.md"
+  ],
+  "rules": [
+    "rules/SOURCE_RULES.md",
+    "rules/FINDING_RULES.md"
+  ],
+  "layouts": [
+    "layouts/source.layout.json",
+    "layouts/finding.layout.json",
+    "layouts/open_question.layout.json"
+  ]
+}

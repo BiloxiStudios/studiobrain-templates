@@ -1,0 +1,108 @@
+{
+  "entity_type": "open_question",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "question",
+      "title": "Question",
+      "icon": "CircleHelp",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Research question", "ui_component": "text", "required": true},
+        {
+          "key": "status",
+          "label": "Question status",
+          "ui_component": "select",
+          "options": [
+            {"value": "open", "label": "Open"},
+            {"value": "investigating", "label": "Investigating"},
+            {"value": "answered", "label": "Answered"},
+            {"value": "parked", "label": "Parked"}
+          ]
+        },
+        {"key": "context", "label": "Why it matters", "ui_component": "textarea", "column_span": 2},
+        {"key": "research_owner", "label": "Research owner", "ui_component": "text"},
+        {
+          "key": "priority_level",
+          "label": "Priority",
+          "ui_component": "select",
+          "options": [
+            {"value": "low", "label": "Low"},
+            {"value": "normal", "label": "Normal"},
+            {"value": "high", "label": "High"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "investigation",
+      "title": "Investigation",
+      "icon": "Search",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "working_hypothesis",
+          "label": "Working hypothesis",
+          "ui_component": "textarea",
+          "column_span": 2
+        },
+        {"key": "method", "label": "Proposed method", "ui_component": "textarea", "column_span": 2},
+        {
+          "key": "source_refs",
+          "label": "Sources to examine",
+          "ui_component": "entity-multiselect",
+          "reference_type": "source",
+          "column_span": 2
+        },
+        {
+          "key": "finding_refs",
+          "label": "Related findings",
+          "ui_component": "entity-multiselect",
+          "reference_type": "finding",
+          "column_span": 2
+        },
+        {
+          "key": "resolution_criteria",
+          "label": "Resolution criteria",
+          "ui_component": "textarea",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Review",
+      "icon": "CalendarDays",
+      "columns": 2,
+      "fields": [
+        {"key": "next_review", "label": "Next review date", "ui_component": "date"},
+        {"key": "opened_on", "label": "Date opened", "ui_component": "date"},
+        {"key": "topics", "label": "Topics", "ui_component": "tag-input", "allow_custom": true}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "board",
+    "enabled": ["board", "cards", "table", "calendar"],
+    "roles": {
+      "title": "name",
+      "subtitle": "research_owner",
+      "badges": ["status", "priority_level"],
+      "card_fields": ["method", "next_review", "finding_refs"]
+    },
+    "board": {"group_by": "status"},
+    "calendar": {"date_field": "next_review"},
+    "table": {
+      "columns": [
+        {"key": "name"},
+        {"key": "status"},
+        {"key": "priority_level"},
+        {"key": "research_owner"},
+        {"key": "next_review"}
+      ]
+    },
+    "facets": ["status", "priority_level"]
+  }
+}

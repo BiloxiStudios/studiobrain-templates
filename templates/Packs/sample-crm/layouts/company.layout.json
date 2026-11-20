@@ -1,0 +1,79 @@
+{
+  "entity_type": "company",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "company",
+      "title": "Company",
+      "icon": "Building2",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Company name", "ui_component": "text", "required": true},
+        {
+          "key": "status",
+          "label": "Account status",
+          "ui_component": "select",
+          "options": [
+            {"value": "prospect", "label": "Prospect"},
+            {"value": "customer", "label": "Customer"},
+            {"value": "former", "label": "Former"}
+          ]
+        },
+        {"key": "description", "label": "Business overview", "ui_component": "textarea", "column_span": 2},
+        {"key": "industry", "label": "Industry", "ui_component": "text"},
+        {"key": "website", "label": "Company website", "ui_component": "url"}
+      ]
+    },
+    {
+      "id": "account",
+      "title": "Account",
+      "icon": "Contact",
+      "columns": 2,
+      "fields": [
+        {"key": "account_owner", "label": "Account owner", "ui_component": "text"},
+        {
+          "key": "primary_contact",
+          "label": "Primary contact",
+          "ui_component": "entity-selector",
+          "reference_type": "contact"
+        },
+        {"key": "headquarters", "label": "Headquarters", "ui_component": "text"},
+        {"key": "territory", "label": "Sales territory", "ui_component": "text"},
+        {"key": "account_tier", "label": "Account tier", "ui_component": "text"}
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Review",
+      "icon": "CalendarDays",
+      "columns": 2,
+      "fields": [
+        {"key": "next_review", "label": "Next account review", "ui_component": "date"},
+        {"key": "priorities", "label": "Business priorities", "ui_component": "tag-input", "allow_custom": true},
+        {"key": "account_notes", "label": "Account notes", "ui_component": "textarea", "column_span": 2}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "table",
+    "enabled": ["table", "cards", "calendar"],
+    "roles": {
+      "title": "name",
+      "subtitle": "industry",
+      "badges": ["status", "account_tier"],
+      "card_fields": ["primary_contact", "account_owner", "territory"]
+    },
+    "calendar": {"date_field": "next_review"},
+    "table": {
+      "columns": [
+        {"key": "name"},
+        {"key": "industry"},
+        {"key": "account_owner"},
+        {"key": "primary_contact"},
+        {"key": "next_review"}
+      ]
+    }
+  }
+}

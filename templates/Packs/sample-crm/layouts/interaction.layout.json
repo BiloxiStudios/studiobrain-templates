@@ -1,0 +1,83 @@
+{
+  "entity_type": "interaction",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "conversation",
+      "title": "Conversation",
+      "icon": "MessagesSquare",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Conversation subject", "ui_component": "text", "required": true},
+        {
+          "key": "interaction_kind",
+          "label": "Channel",
+          "ui_component": "select",
+          "options": [
+            {"value": "call", "label": "Call"},
+            {"value": "email", "label": "Email"},
+            {"value": "meeting", "label": "Meeting"},
+            {"value": "message", "label": "Message"}
+          ]
+        },
+        {"key": "occurred_on", "label": "Date of interaction", "ui_component": "date"},
+        {
+          "key": "company_ref",
+          "label": "Company",
+          "ui_component": "entity-selector",
+          "reference_type": "company"
+        },
+        {
+          "key": "participant_refs",
+          "label": "Contacts involved",
+          "ui_component": "entity-multiselect",
+          "reference_type": "contact",
+          "column_span": 2
+        },
+        {
+          "key": "deal_ref",
+          "label": "Related deal",
+          "ui_component": "entity-selector",
+          "reference_type": "deal"
+        }
+      ]
+    },
+    {
+      "id": "outcome",
+      "title": "Outcome",
+      "icon": "NotebookText",
+      "columns": 2,
+      "fields": [
+        {"key": "notes", "label": "Conversation notes", "ui_component": "textarea", "column_span": 2},
+        {"key": "outcome", "label": "Outcome", "ui_component": "textarea", "column_span": 2},
+        {"key": "recorded_by", "label": "Recorded by", "ui_component": "text"},
+        {"key": "commitments", "label": "Commitments", "ui_component": "tag-input", "allow_custom": true}
+      ]
+    },
+    {
+      "id": "follow_up",
+      "title": "Follow-up",
+      "icon": "CalendarDays",
+      "columns": 2,
+      "fields": [
+        {"key": "next_step", "label": "Next step", "ui_component": "textarea", "column_span": 2},
+        {"key": "next_contact_date", "label": "Next contact", "ui_component": "date"},
+        {"key": "follow_up_owner", "label": "Follow-up owner", "ui_component": "text"}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "calendar",
+    "enabled": ["calendar", "cards", "table"],
+    "roles": {
+      "title": "name",
+      "subtitle": "recorded_by",
+      "badges": ["interaction_kind"],
+      "card_fields": ["company_ref", "next_step", "follow_up_owner"]
+    },
+    "calendar": {"date_field": "next_contact_date"},
+    "table": {"columns": [{"key": "name"}, {"key": "occurred_on"}, {"key": "company_ref"}, {"key": "next_contact_date"}]}
+  }
+}

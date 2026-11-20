@@ -1,0 +1,74 @@
+{
+  "entity_type": "supplier",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "supplier",
+      "title": "Supplier",
+      "icon": "Truck",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Supplier name", "ui_component": "text", "required": true},
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "active", "label": "Active"},
+            {"value": "on_hold", "label": "On hold"},
+            {"value": "retired", "label": "Retired"}
+          ]
+        },
+        {"key": "description", "label": "What they supply", "ui_component": "textarea", "column_span": 2},
+        {"key": "supplier_code", "label": "Supplier code", "ui_component": "text"},
+        {"key": "website", "label": "Website", "ui_component": "url"}
+      ]
+    },
+    {
+      "id": "ordering",
+      "title": "Ordering",
+      "icon": "ClipboardList",
+      "columns": 2,
+      "fields": [
+        {"key": "ordering_contact", "label": "Ordering contact", "ui_component": "text"},
+        {"key": "ordering_email", "label": "Ordering email", "ui_component": "email"},
+        {"key": "ordering_phone", "label": "Ordering phone", "ui_component": "text"},
+        {"key": "lead_days", "label": "Typical lead time in days", "ui_component": "number", "min": 0},
+        {"key": "min_order", "label": "Minimum order details", "ui_component": "text"}
+      ]
+    },
+    {
+      "id": "terms_and_delivery",
+      "title": "Terms and delivery",
+      "icon": "Package",
+      "columns": 2,
+      "fields": [
+        {"key": "payment_terms", "label": "Payment terms", "ui_component": "text"},
+        {"key": "delivery_region", "label": "Delivery region", "ui_component": "text"},
+        {"key": "ordering_notes", "label": "Ordering notes", "ui_component": "textarea", "column_span": 2}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "table",
+    "enabled": ["table", "cards", "board"],
+    "roles": {
+      "title": "name",
+      "subtitle": "supplier_code",
+      "badges": ["status"],
+      "card_fields": ["ordering_contact", "lead_days", "delivery_region"]
+    },
+    "board": {"group_by": "status"},
+    "table": {
+      "columns": [
+        {"key": "name"},
+        {"key": "supplier_code"},
+        {"key": "ordering_contact"},
+        {"key": "lead_days"},
+        {"key": "status"}
+      ]
+    }
+  }
+}

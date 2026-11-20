@@ -1,0 +1,44 @@
+{
+  "id": "sample-editorial-calendar",
+  "name": "Sample: Editorial Calendar",
+  "description": "Draft articles, assign authors and plan publication across channels. Use the publishing calendar and the workflow board to review upcoming work.",
+  "author": "StudioBrain",
+  "license": "Apache-2.0",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.5.0"
+  },
+  "entity_types": [
+    "article",
+    "channel",
+    "author"
+  ],
+  "categories": [
+    "content",
+    "editorial"
+  ],
+  "tags": [
+    "sample",
+    "optional",
+    "content",
+    "editorial",
+    "marketing"
+  ],
+  "is_default": false,
+  "auto_install": false,
+  "is_meta_pack": false,
+  "includes": [],
+  "templates": [
+    "templates/ARTICLE_TEMPLATE.md",
+    "templates/CHANNEL_TEMPLATE.md",
+    "templates/AUTHOR_TEMPLATE.md"
+  ],
+  "rules": [
+    "rules/ARTICLE_RULES.md"
+  ],
+  "layouts": [
+    "layouts/article.layout.json",
+    "layouts/channel.layout.json",
+    "layouts/author.layout.json"
+  ]
+}

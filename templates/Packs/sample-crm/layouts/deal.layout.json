@@ -1,0 +1,82 @@
+{
+  "entity_type": "deal",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "opportunity",
+      "title": "Opportunity",
+      "icon": "Handshake",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Deal name", "ui_component": "text", "required": true},
+        {
+          "key": "stage",
+          "label": "Deal stage",
+          "ui_component": "select",
+          "options": [
+            {"value": "discovery", "label": "Discovery"},
+            {"value": "proposal", "label": "Proposal"},
+            {"value": "negotiation", "label": "Negotiation"},
+            {"value": "won", "label": "Won"},
+            {"value": "lost", "label": "Lost"}
+          ]
+        },
+        {"key": "description", "label": "Opportunity summary", "ui_component": "textarea", "column_span": 2},
+        {
+          "key": "company_ref",
+          "label": "Company",
+          "ui_component": "entity-selector",
+          "reference_type": "company"
+        },
+        {
+          "key": "contact_ref",
+          "label": "Customer contact",
+          "ui_component": "entity-selector",
+          "reference_type": "contact"
+        }
+      ]
+    },
+    {
+      "id": "forecast",
+      "title": "Forecast",
+      "icon": "CircleDollarSign",
+      "columns": 2,
+      "fields": [
+        {"key": "amount", "label": "Proposed amount", "ui_component": "number", "min": 0, "step": 0.01},
+        {"key": "currency", "label": "Deal currency", "ui_component": "text"},
+        {"key": "expected_close", "label": "Expected close date", "ui_component": "date"},
+        {"key": "deal_owner", "label": "Deal owner", "ui_component": "text"},
+        {"key": "decision_criteria", "label": "Decision criteria", "ui_component": "textarea", "column_span": 2}
+      ]
+    },
+    {
+      "id": "follow_up",
+      "title": "Follow-up",
+      "icon": "CalendarDays",
+      "columns": 2,
+      "fields": [
+        {"key": "next_step", "label": "Next step", "ui_component": "textarea", "column_span": 2},
+        {"key": "next_contact_date", "label": "Next contact", "ui_component": "date"},
+        {"key": "deal_notes", "label": "Deal notes", "ui_component": "textarea", "column_span": 2}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "board",
+    "enabled": ["board", "cards", "table", "calendar"],
+    "roles": {
+      "title": "name",
+      "subtitle": "deal_owner",
+      "badges": ["stage"],
+      "card_fields": ["company_ref", "amount", "currency", "expected_close"]
+    },
+    "board": {"group_by": "stage"},
+    "calendar": {"date_field": "next_contact_date"},
+    "table": {
+      "columns": [{"key": "name"}, {"key": "company_ref"}, {"key": "stage"}, {"key": "amount"}, {"key": "expected_close"}]
+    },
+    "facets": ["stage", "deal_owner"]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "entity_type": "article",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "article_copy",
+      "title": "Article copy",
+      "icon": "Newspaper",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Headline", "ui_component": "text", "required": true},
+        {"key": "summary", "label": "Summary", "ui_component": "textarea", "column_span": 2},
+        {"key": "article_copy", "label": "Article body", "ui_component": "rich-text", "column_span": 2},
+        {"key": "primary_image", "label": "Lead image", "ui_component": "image-ref", "column_span": 2}
+      ]
+    },
+    {
+      "id": "publication",
+      "title": "Publication",
+      "icon": "CalendarDays",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "status",
+          "label": "Editorial status",
+          "ui_component": "select",
+          "options": [
+            {"value": "pitch", "label": "Pitch"},
+            {"value": "drafting", "label": "Drafting"},
+            {"value": "editing", "label": "Editing"},
+            {"value": "scheduled", "label": "Scheduled"},
+            {"value": "published", "label": "Published"}
+          ]
+        },
+        {"key": "publish_date", "label": "Publish date", "ui_component": "date"},
+        {
+          "key": "channel_ref",
+          "label": "Channel",
+          "ui_component": "entity-selector",
+          "reference_type": "channel"
+        },
+        {"key": "author_ref", "label": "Author", "ui_component": "entity-selector", "reference_type": "author"},
+        {"key": "editor_name", "label": "Editor", "ui_component": "text"}
+      ]
+    },
+    {
+      "id": "brief_and_handoff",
+      "title": "Brief and handoff",
+      "icon": "NotebookText",
+      "columns": 2,
+      "fields": [
+        {"key": "audience", "label": "Intended reader", "ui_component": "text"},
+        {"key": "topic_tags", "label": "Topics", "ui_component": "tag-input", "allow_custom": true},
+        {"key": "source_links", "label": "Sources to verify", "ui_component": "textarea", "column_span": 2},
+        {"key": "call_to_action", "label": "Call to action", "ui_component": "textarea", "column_span": 2},
+        {"key": "review_notes", "label": "Review notes", "ui_component": "textarea", "column_span": 2}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "calendar",
+    "enabled": ["calendar", "cards", "table", "gallery", "board"],
+    "roles": {
+      "title": "name",
+      "subtitle": "summary",
+      "badges": ["status", "topic_tags"],
+      "card_fields": ["publish_date", "channel_ref", "author_ref"],
+      "image": "primary_image"
+    },
+    "board": {"group_by": "status"},
+    "calendar": {"date_field": "publish_date"},
+    "gallery": {"aspect": "landscape"},
+    "table": {
+      "columns": [
+        {"key": "name"},
+        {"key": "status"},
+        {"key": "channel_ref"},
+        {"key": "author_ref"},
+        {"key": "publish_date"}
+      ]
+    },
+    "facets": ["status", "topic_tags"]
+  }
+}

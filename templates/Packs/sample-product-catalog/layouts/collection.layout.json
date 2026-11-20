@@ -1,0 +1,74 @@
+{
+  "entity_type": "collection",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "collection",
+      "title": "Collection",
+      "icon": "Layers",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Collection name", "ui_component": "text", "required": true},
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "draft", "label": "Draft"},
+            {"value": "featured", "label": "Featured"},
+            {"value": "archived", "label": "Archived"}
+          ]
+        },
+        {"key": "description", "label": "Collection copy", "ui_component": "textarea", "column_span": 2},
+        {"key": "cover_image", "label": "Collection image", "ui_component": "image-ref", "column_span": 2},
+        {"key": "collection_code", "label": "Collection code", "ui_component": "text"}
+      ]
+    },
+    {
+      "id": "product_selection",
+      "title": "Product selection",
+      "icon": "ShoppingBag",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "product_refs",
+          "label": "Included products",
+          "ui_component": "entity-multiselect",
+          "reference_type": "product",
+          "column_span": 2
+        },
+        {"key": "audience", "label": "Intended audience", "ui_component": "text"},
+        {"key": "season", "label": "Season or event", "ui_component": "text"},
+        {"key": "featured_from", "label": "Feature start", "ui_component": "date"},
+        {"key": "featured_until", "label": "Feature end", "ui_component": "date"}
+      ]
+    },
+    {
+      "id": "display",
+      "title": "Display",
+      "icon": "Store",
+      "columns": 2,
+      "fields": [
+        {"key": "display_location", "label": "Display location", "ui_component": "text"},
+        {"key": "curator", "label": "Curator", "ui_component": "text"},
+        {"key": "display_notes", "label": "Display notes", "ui_component": "textarea", "column_span": 2}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "gallery",
+    "enabled": ["gallery", "cards", "table", "calendar"],
+    "roles": {
+      "title": "name",
+      "subtitle": "audience",
+      "badges": ["status", "season"],
+      "card_fields": ["featured_from", "featured_until", "curator"],
+      "image": "cover_image"
+    },
+    "calendar": {"date_field": "featured_from"},
+    "gallery": {"aspect": "landscape"},
+    "facets": ["status", "season"]
+  }
+}

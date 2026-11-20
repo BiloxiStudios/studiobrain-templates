@@ -1,0 +1,87 @@
+{
+  "entity_type": "source",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "source",
+      "title": "Source",
+      "icon": "Library",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Source title", "ui_component": "text", "required": true},
+        {
+          "key": "source_kind",
+          "label": "Source format",
+          "ui_component": "select",
+          "options": [
+            {"value": "interview", "label": "Interview"},
+            {"value": "document", "label": "Document"},
+            {"value": "dataset", "label": "Dataset"},
+            {"value": "observation", "label": "Observation"},
+            {"value": "publication", "label": "Publication"}
+          ]
+        },
+        {"key": "summary", "label": "Source summary", "ui_component": "textarea", "column_span": 2},
+        {"key": "source_url", "label": "Source URL", "ui_component": "url"},
+        {
+          "key": "citation",
+          "label": "Citation or archive reference",
+          "ui_component": "textarea",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "provenance",
+      "title": "Provenance",
+      "icon": "History",
+      "columns": 2,
+      "fields": [
+        {"key": "creator_name", "label": "Creator or speaker", "ui_component": "text"},
+        {"key": "published_on", "label": "Publication or interview date", "ui_component": "date"},
+        {"key": "accessed_on", "label": "Date accessed", "ui_component": "date"},
+        {"key": "collected_by", "label": "Collected by", "ui_component": "text"},
+        {"key": "topics", "label": "Topics", "ui_component": "tag-input", "allow_custom": true}
+      ]
+    },
+    {
+      "id": "use_and_limits",
+      "title": "Use and limits",
+      "icon": "NotebookText",
+      "columns": 2,
+      "fields": [
+        {"key": "locator", "label": "Page, timestamp or location", "ui_component": "text"},
+        {
+          "key": "access_notes",
+          "label": "Access and use conditions",
+          "ui_component": "textarea",
+          "column_span": 2
+        },
+        {"key": "source_notes", "label": "Research notes", "ui_component": "textarea", "column_span": 2}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "table",
+    "enabled": ["table", "cards", "calendar"],
+    "roles": {
+      "title": "name",
+      "subtitle": "creator_name",
+      "badges": ["source_kind", "topics"],
+      "card_fields": ["accessed_on", "citation"]
+    },
+    "calendar": {"date_field": "accessed_on"},
+    "table": {
+      "columns": [
+        {"key": "name"},
+        {"key": "source_kind"},
+        {"key": "creator_name"},
+        {"key": "published_on"},
+        {"key": "accessed_on"}
+      ]
+    },
+    "facets": ["source_kind", "topics"]
+  }
+}

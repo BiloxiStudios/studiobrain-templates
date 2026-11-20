@@ -1,0 +1,96 @@
+{
+  "entity_type": "finding",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "finding",
+      "title": "Finding",
+      "icon": "Lightbulb",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Finding title", "ui_component": "text", "required": true},
+        {"key": "summary", "label": "Finding statement", "ui_component": "textarea", "column_span": 2},
+        {
+          "key": "status",
+          "label": "Review status",
+          "ui_component": "select",
+          "options": [
+            {"value": "proposed", "label": "Proposed"},
+            {"value": "reviewed", "label": "Reviewed"},
+            {"value": "superseded", "label": "Superseded"}
+          ]
+        },
+        {
+          "key": "source_refs",
+          "label": "Supporting sources",
+          "ui_component": "entity-multiselect",
+          "reference_type": "source",
+          "column_span": 2
+        },
+        {"key": "evidence_excerpt", "label": "Evidence excerpt", "ui_component": "textarea", "column_span": 2}
+      ]
+    },
+    {
+      "id": "assessment",
+      "title": "Assessment",
+      "icon": "Search",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "confidence",
+          "label": "Confidence",
+          "ui_component": "select",
+          "options": [
+            {"value": "low", "label": "Low"},
+            {"value": "moderate", "label": "Moderate"},
+            {"value": "high", "label": "High"}
+          ]
+        },
+        {"key": "limitations", "label": "Limitations", "ui_component": "textarea", "column_span": 2},
+        {"key": "counterevidence", "label": "Contrary evidence", "ui_component": "textarea", "column_span": 2},
+        {
+          "key": "question_refs",
+          "label": "Related questions",
+          "ui_component": "entity-multiselect",
+          "reference_type": "open_question",
+          "column_span": 2
+        },
+        {"key": "topics", "label": "Topics", "ui_component": "tag-input", "allow_custom": true}
+      ]
+    },
+    {
+      "id": "review",
+      "title": "Review",
+      "icon": "CalendarDays",
+      "columns": 2,
+      "fields": [
+        {"key": "researcher", "label": "Researcher", "ui_component": "text"},
+        {"key": "reviewed_on", "label": "Review date", "ui_component": "date"},
+        {"key": "next_action", "label": "Next research action", "ui_component": "textarea", "column_span": 2}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "cards",
+    "enabled": ["cards", "table", "board"],
+    "roles": {
+      "title": "name",
+      "subtitle": "summary",
+      "badges": ["confidence", "status"],
+      "card_fields": ["source_refs", "researcher", "reviewed_on"]
+    },
+    "board": {"group_by": "status"},
+    "table": {
+      "columns": [
+        {"key": "name"},
+        {"key": "confidence"},
+        {"key": "source_refs"},
+        {"key": "researcher"},
+        {"key": "reviewed_on"}
+      ]
+    },
+    "facets": ["status", "confidence", "topics"]
+  }
+}
