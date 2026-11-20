@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-11-20T21:26:22Z",
+  "generated_at": "2026-11-20T23:14:08Z",
   "entries": [
     {
       "id": "character-bio",
@@ -1495,8 +1495,7 @@
             "image",
             "audio"
           ],
-          "default": true,
-          "provenance": "pending"
+          "default": true
         },
         {
           "id": "on-device/embeddinggemma-2-q8-wasm",
@@ -1574,8 +1573,7 @@
           "context_length": 2048,
           "modality": [
             "text"
-          ],
-          "provenance": "pending"
+          ]
         },
         {
           "id": "on-device/siglip2-base-256-vision-q4f16-webgpu",

@@ -1,6 +1,6 @@
 {
   "manifest_schema_version": 1,
-  "generated_at": "2026-11-20T21:26:22Z",
+  "generated_at": "2026-11-20T23:14:08Z",
   "objects": [
     {
       "id": "on-device/embeddinggemma-2-q4-webgpu",
