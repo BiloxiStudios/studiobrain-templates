@@ -498,25 +498,38 @@ def layout_errors(
     """Widget/component lint and views cross-checks for one layout."""
     errors: list[str] = []
     layout_keys: set[str] = set()
-    for s_idx, section in enumerate(data.get("sections") or []):
-        if not isinstance(section, dict):
+    section_groups = [("sections", data.get("sections"))]
+    view_config = data.get("view_config")
+    if isinstance(view_config, dict):
+        section_groups.append(("view_config.view_only_sections", view_config.get("view_only_sections")))
+    for path, sections in section_groups:
+        if not isinstance(sections, list):
             continue
-        sec_label = f"{label}: sections[{s_idx}]({section.get('id')})"
-        errors.extend(lint_component_id(section.get("component"), registry, f"{sec_label}.component"))
-        for f_idx, field in enumerate(section.get("fields") or []):
-            if not isinstance(field, dict):
+        for s_idx, section in enumerate(sections):
+            if not isinstance(section, dict):
                 continue
-            if isinstance(field.get("key"), str):
-                layout_keys.add(field["key"].split(".", 1)[0])
-            f_label = f"{sec_label}.fields[{f_idx}]({field.get('key')})"
-            if "ui_component" in field:
-                errors.extend(lint_widget_id(field["ui_component"], registry, f"{f_label}.ui_component"))
-            for sf_idx, sub in enumerate(field.get("sub_fields") or []):
-                if isinstance(sub, dict) and sub.get("ui_component") is not None:
-                    errors.extend(lint_widget_id(
-                        sub["ui_component"], registry,
-                        f"{f_label}.sub_fields[{sf_idx}]({sub.get('key')}).ui_component",
-                    ))
+            sec_label = f"{label}: {path}[{s_idx}]({section.get('id')})"
+            errors.extend(lint_component_id(section.get("component"), registry, f"{sec_label}.component"))
+            fields = section.get("fields")
+            if not isinstance(fields, list):
+                continue
+            for f_idx, field in enumerate(fields):
+                if not isinstance(field, dict):
+                    continue
+                if isinstance(field.get("key"), str):
+                    layout_keys.add(field["key"].split(".", 1)[0])
+                f_label = f"{sec_label}.fields[{f_idx}]({field.get('key')})"
+                if "ui_component" in field:
+                    errors.extend(lint_widget_id(field["ui_component"], registry, f"{f_label}.ui_component"))
+                sub_fields = field.get("sub_fields")
+                if not isinstance(sub_fields, list):
+                    continue
+                for sf_idx, sub in enumerate(sub_fields):
+                    if isinstance(sub, dict) and sub.get("ui_component") is not None:
+                        errors.extend(lint_widget_id(
+                            sub["ui_component"], registry,
+                            f"{f_label}.sub_fields[{sf_idx}]({sub.get('key')}).ui_component",
+                        ))
     if "views" in data:
         errors.extend(check_views_semantics(
             data["views"], layout_keys | set(template_keys), label, registry
@@ -524,18 +537,54 @@ def layout_errors(
     return errors
 
 
-def check_layouts(registry: dict[str, Any] | None = None) -> list[str]:
+def _layout_files() -> tuple[list[pathlib.Path], list[str]]:
+    """Find global and pack layouts, including custom filenames in pack manifests."""
+    root = TEMPLATES_DIR.resolve()
+    layouts: set[pathlib.Path] = set()
     errors: list[str] = []
-    layout_dir = TEMPLATES_DIR / "Layouts"
-    if not layout_dir.exists():
-        return errors
+
+    def add_layout(path: pathlib.Path) -> None:
+        try:
+            resolved = path.resolve()
+            if not resolved.is_relative_to(root):
+                errors.append(f"{path}: layout path outside the templates directory")
+            elif not resolved.is_file():
+                errors.append(f"{path}: missing layout file")
+            else:
+                layouts.add(resolved)
+        except (OSError, RuntimeError, ValueError) as exc:
+            errors.append(f"{path}: invalid layout path: {exc}")
+
+    for path in (TEMPLATES_DIR / "Layouts").glob("*.layout.json"):
+        add_layout(path)
+    for path in (TEMPLATES_DIR / "Packs").glob("*/layouts/**/*.json"):
+        add_layout(path)
+    for manifest in sorted((TEMPLATES_DIR / "Packs").glob("*/pack.json")):
+        try:
+            pack = json.loads(manifest.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue  # check_packs reports malformed manifests.
+        if not isinstance(pack, dict) or not isinstance(pack.get("layouts"), list):
+            continue
+        for entry in pack["layouts"]:
+            if not isinstance(entry, str):
+                continue  # Checked by pack.json.
+            if pathlib.Path(entry).is_absolute():
+                errors.append(f"{manifest}: expected a relative layout path, got {entry!r}")
+            else:
+                add_layout(manifest.parent / entry)
+    return sorted(layouts), errors
+
+
+def check_layouts(registry: dict[str, Any] | None = None) -> list[str]:
+    layouts, errors = _layout_files()
     registry = registry or load_widget_registry()
     keys_by_type = _template_keys_by_type()
-    for layout_file in sorted(layout_dir.glob("*.layout.json")):
+    for layout_file in layouts:
         try:
             data = json.loads(layout_file.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as exc:
-            errors.append(f"{layout_file}: JSON parse error: {exc}")
+        except (ValueError, OSError) as exc:
+            errors.append(f"{layout_file}: could not read layout JSON: {exc}")
             continue
         errors.extend(_validate_instance(data, "layout.json", str(layout_file)))
         if isinstance(data, dict):
@@ -712,43 +761,38 @@ def check_entity_frontmatter() -> list[str]:
         _info("NOTE: pyyaml or jsonschema not installed -- skipping entity YAML frontmatter validation.")
         return []
     errors: list[str] = []
-    skip_files = {"README.md"}
-    # Template / example files use placeholder values ([snake_case_name], YYYY-MM-DD)
-    # by design -- they are not real entity instances and must not be schema-validated.
-    skip_suffixes = ("_TEMPLATE.md",)
-    skip_path_parts = {"templates", "examples"}
+    checked = 0
+    base = load_schema("_base.json")
+    slug_pattern = base["$defs"]["entityTypeSlug"]["pattern"]
     for md in sorted(TEMPLATES_DIR.rglob("*.md")):
-        if md.name in skip_files:
+        directories = md.relative_to(TEMPLATES_DIR).parts[:-1]
+        if md.name == "README.md" or md.name.endswith("_TEMPLATE.md") or "rules" in directories:
             continue
-        if any(md.name.endswith(suffix) for suffix in skip_suffixes):
+        data, problem = _frontmatter(md)
+        if problem:
+            errors.append(f"{md}: {problem}")
             continue
-        # Skip files inside a pack's templates/ or examples/ directory.
-        if skip_path_parts & set(md.parts):
-            continue
-        text = md.read_text(encoding="utf-8")
-        if not text.startswith("---"):
-            errors.append(f"{md}: missing YAML frontmatter delimiter")
-            continue
-        parts = split_frontmatter(text)
-        if parts is None:
-            errors.append(f"{md}: malformed frontmatter (no closing ---)")
-            continue
-        try:
-            data = yaml.safe_load(parts[0])
-        except yaml.YAMLError as exc:
-            errors.append(f"{md}: YAML parse error: {exc}")
-            continue
-        if not isinstance(data, dict):
-            errors.append(f"{md}: frontmatter is not a YAML mapping")
-            continue
+        if "entity_type" not in data and "examples" not in directories:
+            continue  # Untyped legacy documents do not declare an entity schema.
         entity_type = data.get("entity_type")
-        if not entity_type:
+        if not isinstance(entity_type, str) or not re.fullmatch(slug_pattern, entity_type):
+            errors.append(f"{md}: expected a lowercase entity_type slug")
             continue
-        schema_file = SCHEMAS_DIR / f"{entity_type}.json"
-        if not schema_file.exists():
-            errors.append(f"{md}: no schema for entity_type={entity_type!r}")
-            continue
-        errors.extend(_validate_instance(data, f"{entity_type}.json", str(md)))
+
+        # Core defaults a missing category to entity, including in older starter packs.
+        instance = {"template_category": "entity", **data}
+        schema_name = f"{entity_type}.json"
+        schema = load_schema(schema_name) if (SCHEMAS_DIR / schema_name).is_file() else {}
+        discriminator = schema.get("properties", {}).get("entity_type", {})
+        if discriminator.get("const") == entity_type:
+            errors.extend(_validate_instance(instance, schema_name, str(md)))
+        else:
+            # Custom types own their fields (including status and its choices).
+            # Validate their shared identity and version metadata in the catalog.
+            metadata = {key: instance[key] for key in base["required"] if key in instance}
+            errors.extend(_validate_instance(metadata, "_base.json", str(md)))
+        checked += 1
+    _info(f"Validated {checked} entity frontmatter files.")
     return errors
 
 
@@ -1725,13 +1769,14 @@ def check_mirror_manifest() -> list[str]:
 
 def _walk_compat_objects() -> Iterable[tuple[pathlib.Path, dict[str, Any], str]]:
     """Yield (path, parsed_dict, kind) for every asset that should carry compat metadata."""
-    layout_dir = TEMPLATES_DIR / "Layouts"
-    if layout_dir.exists():
-        for f in layout_dir.glob("*.layout.json"):
-            try:
-                yield f, json.loads(f.read_text(encoding="utf-8")), "layout"
-            except json.JSONDecodeError:
-                continue
+    layouts, _ = _layout_files()  # Discovery errors are reported by check_layouts.
+    for path in layouts:
+        try:
+            layout = json.loads(path.read_text(encoding="utf-8"))
+        except (ValueError, OSError):
+            continue
+        if isinstance(layout, dict):
+            yield path, layout, "layout"
     packs_dir = TEMPLATES_DIR / "Packs"
     if packs_dir.exists():
         for f in packs_dir.glob("*/pack.json"):
