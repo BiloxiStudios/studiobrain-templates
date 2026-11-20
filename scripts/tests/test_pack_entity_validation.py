@@ -92,6 +92,62 @@ status: approved
         self.write("layouts/observatory.json", json.dumps(layout))
         self.assertEqual(validate.check_layouts(), [])
 
+    def test_pack_layout_uses_fields_from_its_own_template(self):
+        self.write("templates/KILN_REFERENCE_TEMPLATE.md", """---
+entity_type: kiln_reference
+id: blue_bowl
+name: Blue bowl
+glaze: {}
+field_config:
+  finish: {type: string}
+---
+""")
+        other = self.templates / "Packs" / "other" / "templates"
+        other.mkdir(parents=True)
+        (other / "KILN_REFERENCE_TEMPLATE.md").write_text("---\nentity_type: kiln_reference\nfinish: matte\n---\n")
+        layout = {"entity_type": "kiln_reference", "version": "1.0",
+                  "sections": [{"id": "edit", "fields": [{"key": "glaze.color", "ui_component": "text"}]}],
+                  "view_config": {"view_only_sections": [{"id": "view", "fields": [{"key": "finish", "ui_component": "text"}]}]},
+                  "views": {"roles": {"title": "finish"}}}
+        self.write("pack.json", json.dumps({"layouts": ["forms/reference.json"]}))
+        self.write("forms/reference.json", json.dumps(layout))
+        errors = validate.check_layouts()
+        self.assertTrue(any("view_config.view_only_sections" in e and "finish" in e for e in errors), errors)
+        self.assertTrue(any("views.roles.title" in e and "finish" in e for e in errors), errors)
+        self.assertFalse(any("glaze.color" in e for e in errors), errors)
+        layout["view_config"]["view_only_sections"][0]["fields"][0]["key"] = "glaze"
+        layout["views"]["roles"]["title"] = "name"
+        self.write("forms/reference.json", json.dumps(layout))
+        self.assertEqual(validate.check_layouts(), [])
+
+    def test_standard_item_pack_can_edit_its_declared_category(self):
+        stock = validate.ROOT / "templates"
+        self.write("templates/ITEM_TEMPLATE.md", (stock / "Standard/ITEM_TEMPLATE.md").read_text())
+        layout = json.loads((stock / "Layouts/item.layout.json").read_text())
+        self.write("layouts/item.layout.json", json.dumps(layout))
+        self.assertEqual(validate.check_layouts(), [])
+
+        # Browse roles are derived from schema fields; category is editor frontmatter.
+        layout["views"] = {"roles": {"title": "category"}}
+        self.write("layouts/item.layout.json", json.dumps(layout))
+        errors = validate.check_layouts()
+        self.assertTrue(any("views.roles.title" in error and "category" in error for error in errors), errors)
+
+    def test_pack_layout_uses_the_same_pack_under_a_symlinked_catalog_root(self):
+        self.write("templates/KILN_TEMPLATE.md", "---\nentity_type: kiln\nfinish: matte\n---\n")
+        layout = {"entity_type": "kiln", "version": "1.0", "sections": [
+            {"id": "glaze", "fields": [{"key": "finsh", "ui_component": "text"}]},
+        ]}
+        self.write("layouts/kiln.layout.json", json.dumps(layout))
+        alias = self.templates.with_name("linked-templates")
+        try:
+            alias.symlink_to(self.templates, target_is_directory=True)
+        except OSError as error:
+            self.skipTest(f"directory symlinks unavailable: {error}")
+        with patch.object(validate, "TEMPLATES_DIR", alias):
+            errors = validate.check_layouts()
+        self.assertTrue(any("unknown field 'finsh'" in error for error in errors), errors)
+
     def test_pack_layout_paths_and_invalid_json(self):
         self.write("pack.json", json.dumps({"layouts": ["missing.json", "../../../outside.json"]}))
         self.write("layouts/broken.json", "{")
