@@ -1,0 +1,214 @@
+{
+  "entity_type": "vegan_recipe",
+  "version": "1.0",
+  "compat": {
+    "min_core_version": "0.5.0",
+    "max_core_version": null,
+    "target_api_version": "layout/v1",
+    "tested_core_versions": []
+  },
+  "sections": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "icon": "Leaf",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "id",
+          "label": "Recipe ID",
+          "ui_component": "read-only",
+          "required": true,
+          "auto_generate_from": "name",
+          "placeholder": "auto-generated from name"
+        },
+        {
+          "key": "name",
+          "label": "Recipe name",
+          "ui_component": "text",
+          "required": true,
+          "placeholder": "Smoky chickpea tacos"
+        },
+        {
+          "key": "course",
+          "label": "Course",
+          "ui_component": "select",
+          "options": [
+            { "value": "starter", "label": "Starter" },
+            { "value": "main", "label": "Main" },
+            { "value": "side", "label": "Side" },
+            { "value": "dessert", "label": "Dessert" },
+            { "value": "drink", "label": "Drink" },
+            { "value": "sauce", "label": "Sauce or condiment" }
+          ]
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            { "value": "draft", "label": "Draft" },
+            { "value": "testing", "label": "In testing" },
+            { "value": "approved", "label": "Approved for the menu" },
+            { "value": "retired", "label": "Retired" }
+          ]
+        },
+        {
+          "key": "cuisine",
+          "label": "Cuisine",
+          "ui_component": "text",
+          "placeholder": "Oaxacan"
+        },
+        {
+          "key": "protein_source",
+          "label": "Main plant protein",
+          "ui_component": "text",
+          "placeholder": "chickpeas"
+        },
+        {
+          "key": "description",
+          "label": "Menu description",
+          "ui_component": "textarea",
+          "column_span": 2,
+          "rows": 3,
+          "help": "Two or three sentences a server could read to a guest."
+        }
+      ]
+    },
+    {
+      "id": "block_primary_image",
+      "title": null,
+      "component": "primary-image",
+      "component_config": { "image_field": "primary_image" },
+      "fields": null
+    },
+    {
+      "id": "timing",
+      "title": "Yield and timing",
+      "icon": "Clock",
+      "columns": 4,
+      "collapsed_default": false,
+      "fields": [
+        { "key": "servings", "label": "Servings", "ui_component": "number", "min": 1, "max": 500 },
+        { "key": "prep_minutes", "label": "Prep (min)", "ui_component": "number", "min": 0 },
+        { "key": "cook_minutes", "label": "Cook (min)", "ui_component": "number", "min": 0 },
+        {
+          "key": "difficulty",
+          "label": "Difficulty",
+          "ui_component": "select",
+          "options": [
+            { "value": "easy", "label": "Easy" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "hard", "label": "Hard" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ingredients_section",
+      "title": "Ingredients",
+      "icon": "ListChecks",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "ingredients",
+          "label": "Ingredients",
+          "ui_component": "object-array",
+          "help": "One row per ingredient. Name the plant-based product exactly, for example oat milk, not milk.",
+          "sub_fields": [
+            { "key": "item", "label": "Ingredient", "ui_component": "text", "placeholder": "cooked chickpeas" },
+            { "key": "quantity", "label": "Quantity", "ui_component": "number" },
+            { "key": "unit", "label": "Unit", "ui_component": "text", "placeholder": "g" },
+            { "key": "note", "label": "Prep note", "ui_component": "text", "placeholder": "drained and rinsed" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "method",
+      "title": "Method",
+      "icon": "ListOrdered",
+      "columns": 1,
+      "collapsed_default": false,
+      "fields": [
+        {
+          "key": "steps",
+          "label": "Steps",
+          "ui_component": "ordered-list",
+          "help": "One action per step, in cooking order."
+        }
+      ]
+    },
+    {
+      "id": "dietary",
+      "title": "Allergens and dietary tags",
+      "icon": "ShieldAlert",
+      "columns": 2,
+      "collapsed_default": false,
+      "fields": [
+        { "key": "allergens", "label": "Allergens", "ui_component": "tag-input" },
+        { "key": "dietary_tags", "label": "Dietary tags", "ui_component": "tag-input" }
+      ]
+    },
+    {
+      "id": "costing",
+      "title": "Nutrition and cost",
+      "icon": "Calculator",
+      "columns": 2,
+      "collapsed_default": true,
+      "fields": [
+        { "key": "calories_per_serving", "label": "Calories per serving (kcal)", "ui_component": "number", "min": 0 },
+        { "key": "cost_per_serving", "label": "Cost per serving", "ui_component": "number", "min": 0, "step": 0.01 }
+      ]
+    },
+    {
+      "id": "kitchen_notes",
+      "title": "Kitchen notes",
+      "icon": "NotebookPen",
+      "columns": 2,
+      "collapsed_default": true,
+      "fields": [
+        { "key": "last_tested", "label": "Last tested", "ui_component": "date" },
+        {
+          "key": "related_recipes",
+          "label": "Related recipes",
+          "ui_component": "entity-multiselect",
+          "reference_type": "vegan_recipe",
+          "max_selections": 8
+        },
+        { "key": "chef_notes", "label": "Chef notes", "ui_component": "textarea", "column_span": 2, "rows": 4 }
+      ]
+    },
+    {
+      "id": "block_body",
+      "title": "Write-up",
+      "component": "markdown-content",
+      "fields": null
+    },
+    {
+      "id": "block_assets",
+      "title": "Photos and video",
+      "component": "entity-assets",
+      "fields": null
+    }
+  ],
+  "view_config": {
+    "layout_driven": true
+  },
+  "views": {
+    "default": "cards",
+    "enabled": ["cards", "gallery", "table", "board", "calendar"],
+    "roles": {
+      "title": "name",
+      "subtitle": "cuisine",
+      "image": "primary_image",
+      "badges": ["course", "status", "difficulty"],
+      "card_fields": ["servings", "prep_minutes", "cook_minutes", "protein_source"]
+    },
+    "board": { "group_by": "status" },
+    "calendar": { "date_field": "last_tested" },
+    "facets": ["course", "status", "difficulty", "allergens", "dietary_tags"]
+  }
+}

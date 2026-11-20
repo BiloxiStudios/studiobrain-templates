@@ -1,0 +1,184 @@
+{
+  "entity_type": "menu",
+  "version": "1.0",
+  "compat": {
+    "min_core_version": "0.5.0",
+    "target_api_version": "layout/v1"
+  },
+  "sections": [
+    {
+      "id": "service",
+      "title": "Service",
+      "icon": "CalendarDays",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "id",
+          "label": "ID",
+          "ui_component": "read-only",
+          "required": true,
+          "auto_generate_from": "name"
+        },
+        {
+          "key": "name",
+          "label": "Name",
+          "ui_component": "text",
+          "required": true
+        },
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {
+              "value": "draft",
+              "label": "Draft"
+            },
+            {
+              "value": "ready",
+              "label": "Ready for service"
+            },
+            {
+              "value": "served",
+              "label": "Served"
+            }
+          ]
+        },
+        {
+          "key": "service_date",
+          "label": "Service date",
+          "ui_component": "date"
+        },
+        {
+          "key": "service_period",
+          "label": "Service period",
+          "ui_component": "select",
+          "options": [
+            {
+              "value": "breakfast",
+              "label": "Breakfast"
+            },
+            {
+              "value": "lunch",
+              "label": "Lunch"
+            },
+            {
+              "value": "dinner",
+              "label": "Dinner"
+            },
+            {
+              "value": "event",
+              "label": "Special event"
+            }
+          ]
+        },
+        {
+          "key": "venue",
+          "label": "Venue",
+          "ui_component": "text"
+        },
+        {
+          "key": "lead_cook",
+          "label": "Lead cook",
+          "ui_component": "text"
+        },
+        {
+          "key": "expected_guests",
+          "label": "Expected guests",
+          "ui_component": "number",
+          "min": 0
+        }
+      ]
+    },
+    {
+      "id": "dishes",
+      "title": "Dishes and pricing",
+      "icon": "Utensils",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "description",
+          "label": "Description",
+          "ui_component": "textarea",
+          "column_span": 2
+        },
+        {
+          "key": "recipe_ids",
+          "label": "Approved recipes",
+          "ui_component": "entity-multiselect",
+          "column_span": 2,
+          "reference_type": "vegan_recipe",
+          "help": "Select the approved recipes being served."
+        },
+        {
+          "key": "menu_price",
+          "label": "Price per guest",
+          "ui_component": "number",
+          "min": 0,
+          "step": 0.01
+        },
+        {
+          "key": "currency",
+          "label": "Price currency",
+          "ui_component": "text",
+          "help": "Use the three-letter currency code for the menu price."
+        },
+        {
+          "key": "allergen_notes",
+          "label": "Allergen notes",
+          "ui_component": "textarea",
+          "column_span": 2
+        }
+      ]
+    },
+    {
+      "id": "handover",
+      "title": "Kitchen handover",
+      "icon": "NotebookText",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "service_notes",
+          "label": "Service notes",
+          "ui_component": "textarea",
+          "column_span": 2
+        }
+      ]
+    }
+  ],
+  "view_config": {
+    "layout_driven": true
+  },
+  "views": {
+    "default": "board",
+    "enabled": [
+      "board",
+      "table",
+      "calendar",
+      "cards"
+    ],
+    "roles": {
+      "title": "name",
+      "subtitle": "venue",
+      "badges": [
+        "service_period",
+        "status"
+      ],
+      "card_fields": [
+        "service_date",
+        "expected_guests",
+        "lead_cook"
+      ]
+    },
+    "board": {
+      "group_by": "status"
+    },
+    "calendar": {
+      "date_field": "service_date"
+    },
+    "facets": [
+      "status",
+      "service_period"
+    ]
+  }
+}
