@@ -120,6 +120,34 @@ field_config:
         self.write("forms/reference.json", json.dumps(layout))
         self.assertEqual(validate.check_layouts(), [])
 
+    def test_standard_item_pack_can_edit_its_declared_category(self):
+        stock = validate.ROOT / "templates"
+        self.write("templates/ITEM_TEMPLATE.md", (stock / "Standard/ITEM_TEMPLATE.md").read_text())
+        layout = json.loads((stock / "Layouts/item.layout.json").read_text())
+        self.write("layouts/item.layout.json", json.dumps(layout))
+        self.assertEqual(validate.check_layouts(), [])
+
+        # Browse roles are derived from schema fields; category is editor frontmatter.
+        layout["views"] = {"roles": {"title": "category"}}
+        self.write("layouts/item.layout.json", json.dumps(layout))
+        errors = validate.check_layouts()
+        self.assertTrue(any("views.roles.title" in error and "category" in error for error in errors), errors)
+
+    def test_pack_layout_uses_the_same_pack_under_a_symlinked_catalog_root(self):
+        self.write("templates/KILN_TEMPLATE.md", "---\nentity_type: kiln\nfinish: matte\n---\n")
+        layout = {"entity_type": "kiln", "version": "1.0", "sections": [
+            {"id": "glaze", "fields": [{"key": "finsh", "ui_component": "text"}]},
+        ]}
+        self.write("layouts/kiln.layout.json", json.dumps(layout))
+        alias = self.templates.with_name("linked-templates")
+        try:
+            alias.symlink_to(self.templates, target_is_directory=True)
+        except OSError as error:
+            self.skipTest(f"directory symlinks unavailable: {error}")
+        with patch.object(validate, "TEMPLATES_DIR", alias):
+            errors = validate.check_layouts()
+        self.assertTrue(any("unknown field 'finsh'" in error for error in errors), errors)
+
     def test_pack_layout_paths_and_invalid_json(self):
         self.write("pack.json", json.dumps({"layouts": ["missing.json", "../../../outside.json"]}))
         self.write("layouts/broken.json", "{")

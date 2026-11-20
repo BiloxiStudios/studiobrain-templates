@@ -457,11 +457,11 @@ def template_errors(fm: dict[str, Any], label: str, registry: dict[str, Any]) ->
 
 
 def _iter_template_files() -> Iterable[pathlib.Path]:
-    return sorted(TEMPLATES_DIR.rglob("*_TEMPLATE.md"))
+    return sorted(TEMPLATES_DIR.resolve().rglob("*_TEMPLATE.md"))
 
 
 def _layout_pack(path: pathlib.Path) -> str | None:
-    parts = path.relative_to(TEMPLATES_DIR).parts
+    parts = path.relative_to(TEMPLATES_DIR.resolve()).parts
     return parts[1] if len(parts) > 2 and parts[0] == "Packs" else None
 
 
@@ -509,7 +509,7 @@ def layout_errors(
     """Widget/component lint and views cross-checks for one layout."""
     errors: list[str] = []
     layout_keys: set[str] = set()
-    template_fields = set(template_keys) - registry["meta_keys"]
+    declared_keys = set(template_keys)
     for slot in ("editor_component", "viewer_component"):
         errors.extend(lint_component_id(data.get(slot), registry, f"{label}: {slot}"))
 
@@ -546,7 +546,7 @@ def layout_errors(
                 if isinstance(field.get("key"), str):
                     root = field["key"].split(".", 1)[0]
                     layout_keys.add(root)
-                    if has_pack_template and root not in template_fields:
+                    if has_pack_template and root not in declared_keys:
                         errors.append(f"{f_label}: unknown field {field['key']!r} in this pack's template")
                 if "ui_component" in field:
                     errors.extend(lint_widget_id(field["ui_component"], registry, f"{f_label}.ui_component"))
@@ -561,7 +561,7 @@ def layout_errors(
                         ))
     if "views" in data:
         errors.extend(check_views_semantics(
-            data["views"], template_fields if has_pack_template else layout_keys | template_fields,
+            data["views"], declared_keys if has_pack_template else layout_keys | declared_keys,
             label, registry,
         ))
     return errors
