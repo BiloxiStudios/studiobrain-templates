@@ -498,10 +498,24 @@ def layout_errors(
     """Widget/component lint and views cross-checks for one layout."""
     errors: list[str] = []
     layout_keys: set[str] = set()
+    for slot in ("editor_component", "viewer_component"):
+        errors.extend(lint_component_id(data.get(slot), registry, f"{label}: {slot}"))
+
     section_groups = [("sections", data.get("sections"))]
+    tab_groups = [("tabs", data.get("tabs"))]
     view_config = data.get("view_config")
     if isinstance(view_config, dict):
         section_groups.append(("view_config.view_only_sections", view_config.get("view_only_sections")))
+        tab_groups.append(("view_config.tabs", view_config.get("tabs")))
+    for path, tabs in tab_groups:
+        if not isinstance(tabs, list):
+            continue
+        for index, tab in enumerate(tabs):
+            content = tab.get("content") if isinstance(tab, dict) else None
+            if isinstance(content, dict) and content.get("type") == "component_block":
+                block = content.get("block_id", "")
+                errors.extend(lint_component_id(block, registry, f"{label}: {path}[{index}].content.block_id"))
+
     for path, sections in section_groups:
         if not isinstance(sections, list):
             continue

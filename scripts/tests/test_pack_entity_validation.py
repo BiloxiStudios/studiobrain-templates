@@ -78,6 +78,20 @@ status: approved
         self.assertEqual(len([e for e in errors if "unknown widget" in e]), 2, errors)
         self.assertTrue(any("view_only_sections" in e and "detail.json" in e for e in errors))
 
+    def test_pack_custom_view_components_resolve(self):
+        tab = {"id": "summary", "content": {"type": "component_block", "block_id": "missing-panel"}}
+        layout = {"entity_type": "observatory", "version": "1.0", "sections": [],
+                  "viewer_component": "missing-viewer", "editor_component": "entity-assets",
+                  "view_config": {"tabs": [tab]}, "tabs": [tab]}
+        self.write("layouts/observatory.json", json.dumps(layout))
+        errors = validate.check_layouts()
+        self.assertEqual(sum("missing-panel" in e for e in errors), 2)
+        self.assertEqual(sum("missing-viewer" in e for e in errors), 1)
+        layout["viewer_component"] = "plugin:charts:viewer"
+        tab["content"]["block_id"] = "static-content"
+        self.write("layouts/observatory.json", json.dumps(layout))
+        self.assertEqual(validate.check_layouts(), [])
+
     def test_pack_layout_paths_and_invalid_json(self):
         self.write("pack.json", json.dumps({"layouts": ["missing.json", "../../../outside.json"]}))
         self.write("layouts/broken.json", "{")
