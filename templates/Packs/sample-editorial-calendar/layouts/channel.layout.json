@@ -1,0 +1,90 @@
+{
+  "entity_type": "channel",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "channel",
+      "title": "Channel",
+      "icon": "Radio",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Channel name", "ui_component": "text", "required": true},
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "active", "label": "Active"},
+            {"value": "paused", "label": "Paused"},
+            {"value": "retired", "label": "Retired"}
+          ]
+        },
+        {"key": "description", "label": "Channel remit", "ui_component": "textarea", "column_span": 2},
+        {
+          "key": "channel_kind",
+          "label": "Channel format",
+          "ui_component": "select",
+          "options": [
+            {"value": "website", "label": "Website"},
+            {"value": "newsletter", "label": "Newsletter"},
+            {"value": "social", "label": "Social"},
+            {"value": "print", "label": "Print"},
+            {"value": "audio", "label": "Audio"}
+          ]
+        },
+        {"key": "public_url", "label": "Public URL", "ui_component": "url"}
+      ]
+    },
+    {
+      "id": "audience_and_voice",
+      "title": "Audience and voice",
+      "icon": "Users",
+      "columns": 2,
+      "fields": [
+        {"key": "audience", "label": "Audience", "ui_component": "text"},
+        {"key": "voice_notes", "label": "Voice and tone", "ui_component": "textarea", "column_span": 2},
+        {"key": "cadence", "label": "Publishing cadence", "ui_component": "text"},
+        {"key": "channel_owner", "label": "Channel owner", "ui_component": "text"}
+      ]
+    },
+    {
+      "id": "submission",
+      "title": "Submission",
+      "icon": "ClipboardList",
+      "columns": 2,
+      "fields": [
+        {"key": "headline_limit", "label": "Headline character limit", "ui_component": "number", "min": 0},
+        {
+          "key": "submission_notes",
+          "label": "Submission requirements",
+          "ui_component": "textarea",
+          "column_span": 2
+        },
+        {"key": "next_review", "label": "Next channel review", "ui_component": "date"},
+        {"key": "topics", "label": "Core topics", "ui_component": "tag-input", "allow_custom": true}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "table",
+    "enabled": ["table", "cards"],
+    "roles": {
+      "title": "name",
+      "subtitle": "audience",
+      "badges": ["channel_kind", "status"],
+      "card_fields": ["cadence", "channel_owner"]
+    },
+    "table": {
+      "columns": [
+        {"key": "name"},
+        {"key": "channel_kind"},
+        {"key": "audience"},
+        {"key": "cadence"},
+        {"key": "channel_owner"}
+      ]
+    },
+    "facets": ["status", "channel_kind"]
+  }
+}

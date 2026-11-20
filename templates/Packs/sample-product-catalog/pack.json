@@ -1,0 +1,44 @@
+{
+  "id": "sample-product-catalog",
+  "name": "Sample: Product Catalog",
+  "description": "Manage a shop’s products, suppliers and curated collections. Track variant rows, stock and pricing alongside the images and copy customers see.",
+  "author": "StudioBrain",
+  "license": "Apache-2.0",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.5.0"
+  },
+  "entity_types": [
+    "product",
+    "supplier",
+    "collection"
+  ],
+  "categories": [
+    "retail",
+    "commerce"
+  ],
+  "tags": [
+    "sample",
+    "optional",
+    "retail",
+    "commerce",
+    "catalog"
+  ],
+  "is_default": false,
+  "auto_install": false,
+  "is_meta_pack": false,
+  "includes": [],
+  "templates": [
+    "templates/PRODUCT_TEMPLATE.md",
+    "templates/SUPPLIER_TEMPLATE.md",
+    "templates/COLLECTION_TEMPLATE.md"
+  ],
+  "rules": [
+    "rules/PRODUCT_RULES.md"
+  ],
+  "layouts": [
+    "layouts/product.layout.json",
+    "layouts/supplier.layout.json",
+    "layouts/collection.layout.json"
+  ]
+}

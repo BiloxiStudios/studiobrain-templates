@@ -1,0 +1,100 @@
+{
+  "entity_type": "product",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "product",
+      "title": "Product",
+      "icon": "ShoppingBag",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Product name", "ui_component": "text", "required": true},
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "draft", "label": "Draft"},
+            {"value": "active", "label": "Active"},
+            {"value": "retired", "label": "Retired"}
+          ]
+        },
+        {"key": "primary_image", "label": "Product image", "ui_component": "image-ref", "column_span": 2},
+        {"key": "description", "label": "Product description", "ui_component": "textarea", "column_span": 2}
+      ]
+    },
+    {
+      "id": "price_and_stock",
+      "title": "Price and stock",
+      "icon": "Boxes",
+      "columns": 2,
+      "fields": [
+        {"key": "sku", "label": "SKU", "ui_component": "text"},
+        {"key": "unit_price", "label": "Price per unit", "ui_component": "number", "min": 0, "step": 0.01},
+        {"key": "currency", "label": "Price currency", "ui_component": "text"},
+        {"key": "stock_on_hand", "label": "Units in stock", "ui_component": "number", "min": 0},
+        {"key": "stock_unit", "label": "Selling unit", "ui_component": "text"},
+        {
+          "key": "supplier_ref",
+          "label": "Supplier",
+          "ui_component": "entity-selector",
+          "reference_type": "supplier"
+        }
+      ]
+    },
+    {
+      "id": "variants_and_presentation",
+      "title": "Variants and presentation",
+      "icon": "List",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "variant_rows",
+          "label": "Variants",
+          "ui_component": "object-array",
+          "sub_fields": [
+            {"key": "name", "label": "Variant", "ui_component": "text"},
+            {"key": "sku", "label": "Variant SKU", "ui_component": "text"},
+            {"key": "stock", "label": "Units in stock", "ui_component": "number"},
+            {"key": "price", "label": "Unit price", "ui_component": "number"}
+          ],
+          "column_span": 2
+        },
+        {"key": "materials", "label": "Materials", "ui_component": "tag-input", "allow_custom": true},
+        {"key": "care_notes", "label": "Care instructions", "ui_component": "textarea", "column_span": 2},
+        {
+          "key": "merchandising_notes",
+          "label": "Merchandising notes",
+          "ui_component": "textarea",
+          "column_span": 2
+        }
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "gallery",
+    "enabled": ["gallery", "cards", "table", "board"],
+    "roles": {
+      "title": "name",
+      "subtitle": "sku",
+      "badges": ["status"],
+      "card_fields": ["unit_price", "currency", "stock_on_hand", "stock_unit"],
+      "image": "primary_image"
+    },
+    "board": {"group_by": "status"},
+    "gallery": {"aspect": "landscape"},
+    "table": {
+      "columns": [
+        {"key": "name"},
+        {"key": "sku"},
+        {"key": "unit_price"},
+        {"key": "currency"},
+        {"key": "stock_on_hand"},
+        {"key": "supplier_ref"}
+      ]
+    },
+    "facets": ["status", "materials"]
+  }
+}

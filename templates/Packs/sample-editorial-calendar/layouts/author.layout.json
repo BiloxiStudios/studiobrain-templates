@@ -1,0 +1,76 @@
+{
+  "entity_type": "author",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "byline",
+      "title": "Byline",
+      "icon": "PenLine",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Author name", "ui_component": "text", "required": true},
+        {
+          "key": "status",
+          "label": "Status",
+          "ui_component": "select",
+          "options": [
+            {"value": "active", "label": "Active"},
+            {"value": "on_leave", "label": "On leave"},
+            {"value": "alumni", "label": "Alumni"}
+          ]
+        },
+        {"key": "byline", "label": "Published byline", "ui_component": "text"},
+        {"key": "biography", "label": "Approved biography", "ui_component": "textarea", "column_span": 2},
+        {"key": "portrait", "label": "Author portrait", "ui_component": "image-ref", "column_span": 2}
+      ]
+    },
+    {
+      "id": "assignments",
+      "title": "Assignments",
+      "icon": "NotebookPen",
+      "columns": 2,
+      "fields": [
+        {"key": "beats", "label": "Editorial beats", "ui_component": "tag-input", "allow_custom": true},
+        {
+          "key": "channel_refs",
+          "label": "Assigned channels",
+          "ui_component": "entity-multiselect",
+          "reference_type": "channel",
+          "column_span": 2
+        },
+        {"key": "editor_name", "label": "Assigning editor", "ui_component": "text"},
+        {"key": "availability", "label": "Availability", "ui_component": "text"},
+        {"key": "next_available", "label": "Next available date", "ui_component": "date"}
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "Contact",
+      "icon": "Contact",
+      "columns": 2,
+      "fields": [
+        {"key": "contact_email", "label": "Editorial email", "ui_component": "email"},
+        {"key": "portfolio_url", "label": "Portfolio URL", "ui_component": "url"},
+        {"key": "assignment_notes", "label": "Assignment notes", "ui_component": "textarea", "column_span": 2}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "cards",
+    "enabled": ["cards", "table", "gallery", "calendar"],
+    "roles": {
+      "title": "name",
+      "subtitle": "byline",
+      "badges": ["status", "beats"],
+      "card_fields": ["editor_name", "availability", "next_available"],
+      "image": "portrait"
+    },
+    "calendar": {"date_field": "next_available"},
+    "gallery": {"aspect": "landscape"},
+    "table": {
+      "columns": [{"key": "name"}, {"key": "byline"}, {"key": "beats"}, {"key": "editor_name"}, {"key": "availability"}]
+    }
+  }
+}

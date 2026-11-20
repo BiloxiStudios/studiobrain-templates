@@ -1,0 +1,95 @@
+{
+  "entity_type": "contact",
+  "version": "1.0",
+  "compat": {"min_core_version": "0.5.0", "target_api_version": "layout/v1"},
+  "sections": [
+    {
+      "id": "contact",
+      "title": "Contact",
+      "icon": "Contact",
+      "columns": 2,
+      "fields": [
+        {"key": "name", "label": "Contact name", "ui_component": "text", "required": true},
+        {
+          "key": "status",
+          "label": "Relationship",
+          "ui_component": "select",
+          "options": [
+            {"value": "prospect", "label": "Prospect"},
+            {"value": "active", "label": "Active"},
+            {"value": "inactive", "label": "Inactive"}
+          ]
+        },
+        {"key": "job_title", "label": "Job title", "ui_component": "text"},
+        {
+          "key": "company_ref",
+          "label": "Company",
+          "ui_component": "entity-selector",
+          "reference_type": "company"
+        },
+        {"key": "email_address", "label": "Work email", "ui_component": "email"},
+        {"key": "phone_number", "label": "Work phone", "ui_component": "text"}
+      ]
+    },
+    {
+      "id": "follow_up",
+      "title": "Follow-up",
+      "icon": "CalendarDays",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "contact_preference",
+          "label": "Preferred contact method",
+          "ui_component": "select",
+          "options": [
+            {"value": "email", "label": "Email"},
+            {"value": "phone", "label": "Phone"},
+            {"value": "meeting", "label": "Meeting"}
+          ]
+        },
+        {"key": "relationship_owner", "label": "Relationship owner", "ui_component": "text"},
+        {"key": "last_contact_date", "label": "Last contact", "ui_component": "date"},
+        {"key": "next_contact_date", "label": "Next contact", "ui_component": "date"},
+        {"key": "next_step", "label": "Next step", "ui_component": "textarea", "column_span": 2}
+      ]
+    },
+    {
+      "id": "notes",
+      "title": "Notes",
+      "icon": "NotebookText",
+      "columns": 2,
+      "fields": [
+        {
+          "key": "business_interests",
+          "label": "Business interests",
+          "ui_component": "tag-input",
+          "allow_custom": true
+        },
+        {"key": "contact_notes", "label": "Contact notes", "ui_component": "textarea", "column_span": 2}
+      ]
+    }
+  ],
+  "view_config": {"layout_driven": true},
+  "views": {
+    "default": "table",
+    "enabled": ["table", "cards", "board", "calendar"],
+    "roles": {
+      "title": "name",
+      "subtitle": "job_title",
+      "badges": ["status"],
+      "card_fields": ["company_ref", "relationship_owner", "next_contact_date"]
+    },
+    "board": {"group_by": "status"},
+    "calendar": {"date_field": "next_contact_date"},
+    "table": {
+      "columns": [
+        {"key": "name"},
+        {"key": "company_ref"},
+        {"key": "email_address"},
+        {"key": "phone_number"},
+        {"key": "next_contact_date"}
+      ]
+    },
+    "facets": ["status", "relationship_owner"]
+  }
+}
