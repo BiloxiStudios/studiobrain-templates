@@ -1,4 +1,5 @@
 ---
+system_prompt: "Generate an item for this project. Follow the item template. State what the item is, what it does, who makes or uses it, and its rarity and value. Use only places, factions, brands, and people that exist in the project. Match the project's recorded era, technology, and tone. Do not invent a setting."
 rules:
 - id: inv_001
   category: naming
