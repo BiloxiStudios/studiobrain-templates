@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-11-20T23:14:08Z",
+  "generated_at": "2026-11-21T06:05:06Z",
   "entries": [
     {
       "id": "character-bio",
@@ -1752,6 +1752,37 @@
             "audio"
           ],
           "experimental": true
+        },
+        {
+          "id": "on-device/pyannote-diarization-3.1",
+          "source": "huggingface://litert-community/Speaker-Diarization-LiteRT",
+          "runtime": "pyannote-litert",
+          "dtype": "fp32",
+          "device": "any",
+          "min_ram_gb": 2,
+          "approx_download_mb": 19,
+          "revision": "e42b3797b1f517063b05b84997926d27bede7628",
+          "mirror_path": "on-device/litert-community__Speaker-Diarization-LiteRT/e42b3797b1f517063b05b84997926d27bede7628/",
+          "license": "cc-by-4.0",
+          "license_artifact": "licenses/cc-by-4.0.txt",
+          "size": 19276713,
+          "files": [
+            {
+              "name": "pyannote_seg30.onnx",
+              "sha256": "4c96c9adfae4ef83c07909cac98630c886255f8866b5807db39cf3e46572a8a2",
+              "size": 5924521
+            },
+            {
+              "name": "wespeaker_emb_fp16.tflite",
+              "sha256": "4853c284fdb3e39bd41f692d0bc3fd5068bf78782792d8ef02a3283c9d97554d",
+              "size": 13352192
+            }
+          ],
+          "capability": "diarization",
+          "modality": [
+            "audio"
+          ],
+          "default": true
         },
         {
           "id": "on-device/pocket-tts-en-int8",

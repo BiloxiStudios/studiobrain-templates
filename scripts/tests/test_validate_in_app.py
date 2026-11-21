@@ -321,6 +321,7 @@ class ShippedCatalogTests(unittest.TestCase):
                 "on-device/kokoro-82m-int8",
                 "on-device/pocket-tts-en-int8",
                 "on-device/pocket-tts-multilingual-int8",
+                "on-device/pyannote-diarization-3.1",
                 "on-device/qwen3-0.6b-q4-any",
                 "on-device/qwen3-0.6b-q8-wasm",
                 "on-device/siglip2-base-256-vision-q4-webgpu",
@@ -887,6 +888,30 @@ GOOD_MEDIAPIPE_TTS_ROW = """\
 """
 
 
+GOOD_DIARIZATION_ROW = """\
+  - id: on-device/pyannote-diarization-3.1
+    source: huggingface://litert-community/Speaker-Diarization-LiteRT
+    runtime: pyannote-litert
+    dtype: fp32
+    device: any
+    revision: e42b3797b1f517063b05b84997926d27bede7628
+    mirror_path: on-device/litert-community__Speaker-Diarization-LiteRT/e42b3797b1f517063b05b84997926d27bede7628/
+    license: cc-by-4.0
+    license_artifact: licenses/cc-by-4.0.txt
+    size: 2
+    files:
+      - name: pyannote_seg30.onnx
+        sha256: 0000000000000000000000000000000000000000000000000000000000000000
+        size: 1
+      - name: wespeaker_emb_fp16.tflite
+        sha256: 0000000000000000000000000000000000000000000000000000000000000000
+        size: 1
+    capability: diarization
+    modality: [audio]
+    default: true
+"""
+
+
 @unittest.skipUnless(validate.HAVE_YAML, "pyyaml required")
 class LitertRowTests(unittest.TestCase):
     """runtime: litert-lm invariants (SBAI-7844).
@@ -971,6 +996,20 @@ class LitertRowTests(unittest.TestCase):
             GOOD_LITERT + GOOD_MEDIAPIPE_TTS_ROW.replace("capability: tts", "capability: embeddings")
         )
         self.assert_error_matching(errors, "only synthesizes speech")
+
+    def test_good_diarization_row_is_clean(self):
+        errors, _ = self.check(GOOD_LITERT + GOOD_DIARIZATION_ROW)
+        self.assertEqual(errors, [])
+
+    def test_diarization_row_missing_a_graph_is_an_error(self):
+        body = GOOD_DIARIZATION_ROW.replace("wespeaker_emb_fp16.tflite", "wespeaker_emb_fp16.onnx")
+        errors, _ = self.check(GOOD_LITERT + body)
+        self.assert_error_matching(errors, "one segmentation .onnx and one embedding .tflite")
+
+    def test_diarization_row_with_other_capability_is_an_error(self):
+        body = GOOD_DIARIZATION_ROW.replace("capability: diarization", "capability: tts")
+        errors, _ = self.check(GOOD_LITERT + body)
+        self.assert_error_matching(errors, "only diarizes speech")
 
     def test_provider_level_litert_runtime_applies_to_unmarked_rows(self):
         # A provider whose header says litert-lm makes its rows litert rows.

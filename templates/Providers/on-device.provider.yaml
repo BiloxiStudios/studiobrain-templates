@@ -604,6 +604,45 @@ weights:
   # distil-large-v3 were checked and DO NOT EXIST -- the HF API 401s on all
   # three. The real distil ONNX id is onnx-community/distil-small.en.)
   # ---------------------------------------------------------------------------
+  # capability: diarization -- "who spoke when", up to five speakers (SBAI-15222).
+  #
+  # pyannote/speaker-diarization-3.1's recipe as packaged by litert-community:
+  # pyannote segmentation-3.0 (ONNX, onnxruntime-web, MIT) and WeSpeaker
+  # ResNet34 (LiteRT .tflite, LiteRT.js, weights CC-BY-4.0). The two files are
+  # one row because neither is useful alone; ai-sdk ondevice/diarize.ts runs
+  # the pipeline and clusters per solo-speech run.
+  #
+  # dtype is fp32 on purpose: the embedding file stores fp16 weights, but it
+  # runs on the XNNPACK CPU path and never needs WebGPU shader-f16, so an
+  # fp16 tier label would gate it off machines it runs on.
+  #
+  # Witness, 2026-11-21, headless Chromium, CPU only: pyannote's own
+  # two-speaker sample came out as 2 speakers, DER 0.067; a three-voice
+  # PocketTTS conversation came out as 3 speakers with no confusion. 30 s of
+  # audio took about 21 s.
+  - id: on-device/pyannote-diarization-3.1
+    source: huggingface://litert-community/Speaker-Diarization-LiteRT
+    runtime: pyannote-litert
+    dtype: fp32
+    device: any
+    min_ram_gb: 2
+    approx_download_mb: 19
+    revision: e42b3797b1f517063b05b84997926d27bede7628
+    mirror_path: on-device/litert-community__Speaker-Diarization-LiteRT/e42b3797b1f517063b05b84997926d27bede7628/
+    license: cc-by-4.0
+    license_artifact: licenses/cc-by-4.0.txt
+    size: 19276713
+    files:
+      - name: pyannote_seg30.onnx
+        sha256: 4c96c9adfae4ef83c07909cac98630c886255f8866b5807db39cf3e46572a8a2
+        size: 5924521
+      - name: wespeaker_emb_fp16.tflite
+        sha256: 4853c284fdb3e39bd41f692d0bc3fd5068bf78782792d8ef02a3283c9d97554d
+        size: 13352192
+    capability: diarization
+    modality: [audio]
+    default: true
+  # ---------------------------------------------------------------------------
   # capability: tts -- the assistant speaks back (SBAI-15222).
   #
   # runtime: mediapipe-tts is the MediaPipe TextToSpeech task
