@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-11-21T15:15:18Z",
+  "generated_at": "2026-11-21T20:19:01Z",
   "entries": [
     {
       "id": "character-bio",
@@ -1242,7 +1242,8 @@
         "stt",
         "tts",
         "background-removal",
-        "depth-estimation"
+        "depth-estimation",
+        "image-upscale"
       ],
       "slots": {
         "accepts": [
@@ -1883,6 +1884,31 @@
           "modality": [
             "image"
           ]
+        },
+        {
+          "id": "on-device/swin2sr-realworld-x4-fp32-any",
+          "source": "huggingface://Xenova/swin2SR-realworld-sr-x4-64-bsrgan-psnr",
+          "dtype": "fp32",
+          "device": "any",
+          "min_ram_gb": 4,
+          "approx_download_mb": 53,
+          "revision": "d0e9926970c93e472ce2392373d72597fc849027",
+          "mirror_path": "on-device/xenova__swin2SR-realworld-sr-x4-64-bsrgan-psnr/d0e9926970c93e472ce2392373d72597fc849027/",
+          "license": "apache-2.0",
+          "license_artifact": "licenses/apache-2.0.txt",
+          "size": 52772645,
+          "files": [
+            {
+              "name": "model.onnx",
+              "sha256": "f496dc73dcc01d778b1a12eb4c4038d6b27cd1c0b5bcd4258455ed6d7816c835",
+              "size": 52772645
+            }
+          ],
+          "capability": "image-upscale",
+          "modality": [
+            "image"
+          ],
+          "default": true
         },
         {
           "id": "on-device/pocket-tts-en-int8",

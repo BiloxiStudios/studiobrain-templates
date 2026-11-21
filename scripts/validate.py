@@ -1150,6 +1150,8 @@ _KNOWN_PROVIDES = {
     "stt",
     # SBAI-15228: on-demand image tools run on device (BiRefNet, Depth Anything V2).
     "background-removal", "depth-estimation",
+    # SBAI-15228: on-demand 4x upscaling on device (Swin2SR real-world x4).
+    "image-upscale",
 }
 
 # model-manager engines.schema.json v2 taxonomy_category. Keep byte-identical

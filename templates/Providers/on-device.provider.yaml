@@ -79,7 +79,7 @@ engine:
   requirement: preferred
   framework: transformers.js
 runtime: transformers.js
-provides: [llm-chat, embeddings, asset-tagging, stt, tts, background-removal, depth-estimation]
+provides: [llm-chat, embeddings, asset-tagging, stt, tts, background-removal, depth-estimation, image-upscale]
 slots:
   accepts: [text, image, audio]
   emits: [text, tool, json]
@@ -727,6 +727,34 @@ weights:
         size: 27258801
     capability: depth-estimation
     modality: [image]
+  # capability: image-upscale -- Swin2SR real-world x4 (Apache-2.0, the
+  # caidas/swin2SR-realworld-sr-x4-64-bsrgan-psnr weights as Xenova's
+  # transformers.js export): 4x super-resolution for low-res concept art,
+  # sprites and textures. transformers.js task `image-to-image`.
+  #
+  # One fp32 row on purpose. Witness, 2026-11-21, transformers.js 4.3.1 on the
+  # Node CPU backend at this revision: fp32 upscaled 48x40 -> 192x160 in 3.7 s
+  # and 256x256 -> 1024x1024 in 14 s; the q8 graph was 3.5x slower on CPU for
+  # PSNR 40.7 dB against fp32, and the fp16 graph failed to run (Slice node
+  # error), so neither is listed. The client caps input at 1024 px.
+  - id: on-device/swin2sr-realworld-x4-fp32-any
+    source: huggingface://Xenova/swin2SR-realworld-sr-x4-64-bsrgan-psnr
+    dtype: fp32
+    device: any
+    min_ram_gb: 4
+    approx_download_mb: 53
+    revision: d0e9926970c93e472ce2392373d72597fc849027
+    mirror_path: on-device/xenova__swin2SR-realworld-sr-x4-64-bsrgan-psnr/d0e9926970c93e472ce2392373d72597fc849027/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 52772645
+    files:
+      - name: model.onnx
+        sha256: f496dc73dcc01d778b1a12eb4c4038d6b27cd1c0b5bcd4258455ed6d7816c835
+        size: 52772645
+    capability: image-upscale
+    modality: [image]
+    default: true
   # ---------------------------------------------------------------------------
   # capability: tts -- the assistant speaks back (SBAI-15222).
   #
