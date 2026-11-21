@@ -310,6 +310,10 @@ class ShippedCatalogTests(unittest.TestCase):
         self.assertEqual(
             sorted(rows),
             [
+                "on-device/birefnet-lite-fp16-webgpu",
+                "on-device/birefnet-lite-fp32-any",
+                "on-device/depth-anything-v2-small-q4f16-webgpu",
+                "on-device/depth-anything-v2-small-q8-wasm",
                 "on-device/embeddinggemma-2-q4-webgpu",
                 "on-device/embeddinggemma-2-q8-wasm",
                 "on-device/embeddinggemma-2-text-litert-gpu",
@@ -347,6 +351,8 @@ class ShippedCatalogTests(unittest.TestCase):
                 # the llm-chat default; the ONNX q4f16-webgpu row is the fallback.
                 "llm-chat": ["on-device/gemma-4-e2b-it-litert-web"],
                 "asset-tagging": ["on-device/siglip2-base-256-vision-q4f16-webgpu"],
+                "background-removal": ["on-device/birefnet-lite-fp16-webgpu"],
+                "depth-estimation": ["on-device/depth-anything-v2-small-q4f16-webgpu"],
                 "diarization": ["on-device/pyannote-diarization-3.1"],
                 # SBAI-LAUNCH: EmbeddingGemma 2 is the only embedder.
                 "embeddings": ["on-device/embeddinggemma-2-q4-webgpu"],
