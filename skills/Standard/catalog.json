@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "entries": {
+    "character_voice": {
+      "name": "Character Voice Generator",
+      "description": "Generates dialogue and internal monologue in a character's unique voice.",
+      "tags": [
+        "dialogue",
+        "voice",
+        "generation",
+        "writing"
+      ]
+    },
+    "narrative_helper": {
+      "name": "Narrative Connection Suggester",
+      "description": "Analyzes existing entities in a project and suggests plot connections, narrative threads, and story opportunities between them.",
+      "tags": [
+        "narrative",
+        "plot",
+        "connections",
+        "story",
+        "suggestions"
+      ]
+    },
+    "world_consistency": {
+      "name": "World Consistency Checker",
+      "description": "Analyzes entities across a project for internal contradictions, broken references, timeline conflicts, and lore inconsistencies.",
+      "tags": [
+        "consistency",
+        "validation",
+        "lore",
+        "cross-reference",
+        "quality"
+      ]
+    }
+  }
+}
