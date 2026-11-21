@@ -77,7 +77,7 @@
     },
     "runtime": {
       "type": "string",
-      "enum": ["transformers.js", "litert-lm", "mediapipe-tts"],
+      "enum": ["transformers.js", "litert-lm", "mediapipe-tts", "pyannote-litert"],
       "description": "in-app only -- the DEFAULT engine the in-app executor uses to run this provider's weights on-device. A weights row may override it with its own 'runtime' (SBAI-7844): one in-app provider can hold tiers for more than one engine, and the executor loads the row it selected, not the provider header."
     },
     "models": {
@@ -120,7 +120,7 @@
           },
           "runtime": {
             "type": "string",
-            "enum": ["transformers.js", "litert-lm", "mediapipe-tts"],
+            "enum": ["transformers.js", "litert-lm", "mediapipe-tts", "pyannote-litert"],
             "description": "Which in-app engine loads THIS row, overriding the provider-level runtime (SBAI-7844). Per row rather than per provider because the on-device provider now holds transformers.js tiers and litert-lm tiers side by side. Omitted, the row is a transformers.js row -- which is what every row that predates this field is, so absence must never be reinterpreted."
           },
           "file": {

@@ -1,6 +1,6 @@
 {
   "manifest_schema_version": 1,
-  "generated_at": "2026-11-20T23:14:08Z",
+  "generated_at": "2026-11-21T06:05:06Z",
   "objects": [
     {
       "id": "on-device/embeddinggemma-2-q4-webgpu",
@@ -297,6 +297,29 @@
           "name": "pocket_tts_int8.litertlm",
           "sha256": "9c5427cf3fe2d6680f8268e1c06537496be52d818ef12233a461bf193f314b3c",
           "size": 760061960
+        }
+      ]
+    },
+    {
+      "id": "on-device/pyannote-diarization-3.1",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://litert-community/Speaker-Diarization-LiteRT",
+      "revision": "e42b3797b1f517063b05b84997926d27bede7628",
+      "mirror_path": "on-device/litert-community__Speaker-Diarization-LiteRT/e42b3797b1f517063b05b84997926d27bede7628/",
+      "license": "cc-by-4.0",
+      "license_artifact": "licenses/cc-by-4.0.txt",
+      "size": 19276713,
+      "files": [
+        {
+          "name": "pyannote_seg30.onnx",
+          "sha256": "4c96c9adfae4ef83c07909cac98630c886255f8866b5807db39cf3e46572a8a2",
+          "size": 5924521
+        },
+        {
+          "name": "wespeaker_emb_fp16.tflite",
+          "sha256": "4853c284fdb3e39bd41f692d0bc3fd5068bf78782792d8ef02a3283c9d97554d",
+          "size": 13352192
         }
       ]
     },

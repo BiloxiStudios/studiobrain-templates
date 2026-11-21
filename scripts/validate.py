@@ -1605,6 +1605,23 @@ def check_requires() -> tuple[list[str], list[str]]:
                             "'mediapipe-tts' but capability "
                             f"{row.get('capability')!r} -- that engine only synthesizes speech"
                         )
+                elif row_runtime == "pyannote-litert":
+                    # SBAI-15222: speaker diarization needs BOTH graphs -- the
+                    # pyannote segmentation ONNX and the WeSpeaker .tflite --
+                    # and is not a chat, embedding or speech engine.
+                    names = [str(f.get("name") or "") for f in (row.get("files") or []) if isinstance(f, dict)]
+                    if sum(n.endswith(".onnx") for n in names) != 1 or sum(n.endswith(".tflite") for n in names) != 1:
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} has runtime "
+                            f"'pyannote-litert' but files {names!r} -- it needs exactly one "
+                            "segmentation .onnx and one embedding .tflite"
+                        )
+                    if (row.get("capability") or "llm-chat") != "diarization":
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} has runtime "
+                            "'pyannote-litert' but capability "
+                            f"{row.get('capability')!r} -- that engine only diarizes speech"
+                        )
                 elif row.get("file"):
                     warnings.append(
                         f"{path}: provider '{pid}' weights row {rid!r} declares 'file' "
