@@ -709,6 +709,12 @@
           "help": "Used for voice generation and dialogue consistency"
         },
         {
+          "key": "voice",
+          "label": "Voice",
+          "ui_component": "voice",
+          "help": "Which voice reads this character's lines aloud, and how fast"
+        },
+        {
           "key": "ai_bio_summary",
           "label": "Bio Summary",
           "ui_component": "textarea",

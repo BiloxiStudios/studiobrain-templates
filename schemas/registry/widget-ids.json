@@ -23,6 +23,7 @@
     "duration",
     "year",
     "select",
+    "voice",
     "multi-select",
     "checkbox",
     "checkbox-group",

@@ -131,6 +131,8 @@ field_config:
     widget: year
     min: 1900
     max: 9999
+  voice:
+    widget: voice
 
 # BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
 views:
@@ -288,6 +290,9 @@ narrative_importance: "[main/major/minor - story significance]"
 # AI GENERATION HELPERS
 ai_profile_description: "[Visual description from profile image for AI vision-to-text generation]"
 ai_voice_style: "[Brief 1-2 line description of speaking style/vocal characteristics]"
+# Speaking voice for read-aloud and dialogue (SBAI-15228). Picked in the Voice
+# field: voice_id, plus optional speaking_rate (0.1-4.0, default 1.0) and locale.
+voice: {}
 ai_bio_summary: "[Concise 2-3 sentence character bio for AI context]"
 
 # DIALOGUE SAMPLES (for AI quick reference and voice consistency)
