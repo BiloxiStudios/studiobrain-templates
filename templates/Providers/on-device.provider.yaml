@@ -79,7 +79,7 @@ engine:
   requirement: preferred
   framework: transformers.js
 runtime: transformers.js
-provides: [llm-chat, embeddings, asset-tagging, stt, tts]
+provides: [llm-chat, embeddings, asset-tagging, stt, tts, background-removal, depth-estimation]
 slots:
   accepts: [text, image, audio]
   emits: [text, tool, json]
@@ -642,6 +642,87 @@ weights:
     capability: diarization
     modality: [audio]
     default: true
+  # ---------------------------------------------------------------------------
+  # Image tools (SBAI-15228 on-demand models): optional, downloaded the first
+  # time the user runs the action on an image asset. Both run in transformers.js
+  # (`pipeline('background-removal' | 'depth-estimation')`), so they add no new
+  # engine. The WebGPU f16 tier is the default; the other tier runs on any
+  # adapter or on the WASM CPU path.
+  #
+  # capability: background-removal -- BiRefNet lite (MIT): a cut-out PNG with
+  # an alpha mask, for sprites, portraits and concept art.
+  - id: on-device/birefnet-lite-fp16-webgpu
+    source: huggingface://onnx-community/BiRefNet_lite-ONNX
+    dtype: fp16
+    device: webgpu
+    min_ram_gb: 4
+    approx_download_mb: 115
+    revision: de15b22ba131738a16dff04aab8bdf8dc32e3ac1
+    mirror_path: on-device/onnx-community__BiRefNet_lite-ONNX/de15b22ba131738a16dff04aab8bdf8dc32e3ac1/
+    license: mit
+    license_artifact: licenses/mit.txt
+    size: 114538221
+    files:
+      - name: model_fp16.onnx
+        sha256: d39b897ceb16ae654c1731f3dba0cf9b368d9cae74b5a57459b455cc8bfec402
+        size: 114538221
+    capability: background-removal
+    modality: [image]
+    default: true
+  - id: on-device/birefnet-lite-fp32-any
+    source: huggingface://onnx-community/BiRefNet_lite-ONNX
+    dtype: fp32
+    device: any
+    min_ram_gb: 6
+    approx_download_mb: 224
+    revision: de15b22ba131738a16dff04aab8bdf8dc32e3ac1
+    mirror_path: on-device/onnx-community__BiRefNet_lite-ONNX/de15b22ba131738a16dff04aab8bdf8dc32e3ac1/
+    license: mit
+    license_artifact: licenses/mit.txt
+    size: 224005088
+    files:
+      - name: model.onnx
+        sha256: 5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333
+        size: 224005088
+    capability: background-removal
+    modality: [image]
+  # capability: depth-estimation -- Depth Anything V2 small (Apache-2.0): a
+  # grayscale depth map, for parallax, 3D blockout and heightmap starts.
+  - id: on-device/depth-anything-v2-small-q4f16-webgpu
+    source: huggingface://onnx-community/depth-anything-v2-small
+    dtype: q4f16
+    device: webgpu
+    min_ram_gb: 2
+    approx_download_mb: 19
+    revision: 4472b7362082ad9968fee890ca0f1e5aca36b93d
+    mirror_path: on-device/onnx-community__depth-anything-v2-small/4472b7362082ad9968fee890ca0f1e5aca36b93d/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 19126267
+    files:
+      - name: model_q4f16.onnx
+        sha256: eca72971aea64216d767c70c534160de53b5435b588d362bac6dbd5a73f9bf1e
+        size: 19126267
+    capability: depth-estimation
+    modality: [image]
+    default: true
+  - id: on-device/depth-anything-v2-small-q8-wasm
+    source: huggingface://onnx-community/depth-anything-v2-small
+    dtype: q8
+    device: wasm
+    min_ram_gb: 2
+    approx_download_mb: 27
+    revision: 4472b7362082ad9968fee890ca0f1e5aca36b93d
+    mirror_path: on-device/onnx-community__depth-anything-v2-small/4472b7362082ad9968fee890ca0f1e5aca36b93d/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 27258801
+    files:
+      - name: model_quantized.onnx
+        sha256: fcf51f1b230362b28690bb9d1809bf0431f29cad20534e3f589bd7285547f20d
+        size: 27258801
+    capability: depth-estimation
+    modality: [image]
   # ---------------------------------------------------------------------------
   # capability: tts -- the assistant speaks back (SBAI-15222).
   #

@@ -1148,6 +1148,8 @@ _KNOWN_PROVIDES = {
     # from `asset-caption` (which describes an asset rather than transcribing
     # what was said in it).
     "stt",
+    # SBAI-15228: on-demand image tools run on device (BiRefNet, Depth Anything V2).
+    "background-removal", "depth-estimation",
 }
 
 # model-manager engines.schema.json v2 taxonomy_category. Keep byte-identical

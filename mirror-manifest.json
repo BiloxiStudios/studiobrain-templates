@@ -1,7 +1,79 @@
 {
   "manifest_schema_version": 1,
-  "generated_at": "2026-11-21T06:05:06Z",
+  "generated_at": "2026-11-21T08:36:27Z",
   "objects": [
+    {
+      "id": "on-device/birefnet-lite-fp16-webgpu",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://onnx-community/BiRefNet_lite-ONNX",
+      "revision": "de15b22ba131738a16dff04aab8bdf8dc32e3ac1",
+      "mirror_path": "on-device/onnx-community__BiRefNet_lite-ONNX/de15b22ba131738a16dff04aab8bdf8dc32e3ac1/",
+      "license": "mit",
+      "license_artifact": "licenses/mit.txt",
+      "size": 114538221,
+      "files": [
+        {
+          "name": "model_fp16.onnx",
+          "sha256": "d39b897ceb16ae654c1731f3dba0cf9b368d9cae74b5a57459b455cc8bfec402",
+          "size": 114538221
+        }
+      ]
+    },
+    {
+      "id": "on-device/birefnet-lite-fp32-any",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://onnx-community/BiRefNet_lite-ONNX",
+      "revision": "de15b22ba131738a16dff04aab8bdf8dc32e3ac1",
+      "mirror_path": "on-device/onnx-community__BiRefNet_lite-ONNX/de15b22ba131738a16dff04aab8bdf8dc32e3ac1/",
+      "license": "mit",
+      "license_artifact": "licenses/mit.txt",
+      "size": 224005088,
+      "files": [
+        {
+          "name": "model.onnx",
+          "sha256": "5600024376f572a557870a5eb0afb1e5961636bef4e1e22132025467d0f03333",
+          "size": 224005088
+        }
+      ]
+    },
+    {
+      "id": "on-device/depth-anything-v2-small-q4f16-webgpu",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://onnx-community/depth-anything-v2-small",
+      "revision": "4472b7362082ad9968fee890ca0f1e5aca36b93d",
+      "mirror_path": "on-device/onnx-community__depth-anything-v2-small/4472b7362082ad9968fee890ca0f1e5aca36b93d/",
+      "license": "apache-2.0",
+      "license_artifact": "licenses/apache-2.0.txt",
+      "size": 19126267,
+      "files": [
+        {
+          "name": "model_q4f16.onnx",
+          "sha256": "eca72971aea64216d767c70c534160de53b5435b588d362bac6dbd5a73f9bf1e",
+          "size": 19126267
+        }
+      ]
+    },
+    {
+      "id": "on-device/depth-anything-v2-small-q8-wasm",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://onnx-community/depth-anything-v2-small",
+      "revision": "4472b7362082ad9968fee890ca0f1e5aca36b93d",
+      "mirror_path": "on-device/onnx-community__depth-anything-v2-small/4472b7362082ad9968fee890ca0f1e5aca36b93d/",
+      "license": "apache-2.0",
+      "license_artifact": "licenses/apache-2.0.txt",
+      "size": 27258801,
+      "files": [
+        {
+          "name": "model_quantized.onnx",
+          "sha256": "fcf51f1b230362b28690bb9d1809bf0431f29cad20534e3f589bd7285547f20d",
+          "size": 27258801
+        }
+      ]
+    },
     {
       "id": "on-device/embeddinggemma-2-q4-webgpu",
       "provider": "on-device",
