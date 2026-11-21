@@ -77,25 +77,10 @@ local_models:
       - transcription
     requires_engine: llama-server
 
-  # Nomic Embed Text v1.5 — fleet embedding model (768-dim, CPU, no VRAM).
-  # Provides /v1/embeddings for local RAG. gpu_layers=0 keeps it on CPU.
-  - key: nomic-embed-text-v1.5
-    source: nomic-ai/nomic-embed-text-v1.5-GGUF
-    quant: F16
-    type: embedding
-    backend: bundled/llama-server
-    tier: always_on
-    vram_estimate_gb: 0.0
-    ctx_size: 8192
-    gpu_layers: 0
-    extra_args:
-      - "--embeddings"
-      - "--pooling"
-      - "mean"
-      - "--n-gpu-layers"
-      - "0"
-    capabilities:
-      - embedding
+  # No gateway embedder. Desktop embeds in the webview with the LiteRT
+  # EmbeddingGemma 2 model (the fleet 768-dim space) and stores vectors in the
+  # project SQLite (SBAI-15185). The retired nomic-embed-text-v1.5 entry was
+  # removed; it produced vectors in a different space than the cloud index.
 
 # ---------------------------------------------------------------------------
 # Model aliases — gateway alias→id routing for product models
