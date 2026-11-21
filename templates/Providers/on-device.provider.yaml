@@ -630,6 +630,10 @@ weights:
   # on Model Manager's pocket-tts backend (pocket-tts.provider.yaml,
   # provides: [tts, voice-clone]).
   #
+  # device: any — the MediaPipe task runs on its CPU (WASM) delegate whatever
+  # the browser offers, so a WebGPU machine must still find these rows. A
+  # `device: wasm` row is invisible to selectWeights on a WebGPU device.
+  #
   # PocketTTS weights are CC-BY-4.0 (Kyutai, kyutai/tts-voices); attribution:
   # "PocketTTS by Kyutai, CC-BY-4.0", converted by litert-community.
   - id: on-device/pocket-tts-en-int8
@@ -637,7 +641,7 @@ weights:
     file: pocket_tts_en_int8.litertlm
     runtime: mediapipe-tts
     dtype: q8
-    device: wasm
+    device: any
     min_ram_gb: 2
     approx_download_mb: 163
     revision: 00c866f2397788f514ab6bbcb931be22afc3b58f
@@ -659,7 +663,7 @@ weights:
     file: pocket_tts_int8.litertlm
     runtime: mediapipe-tts
     dtype: q8
-    device: wasm
+    device: any
     min_ram_gb: 2
     approx_download_mb: 760
     revision: 00c866f2397788f514ab6bbcb931be22afc3b58f
@@ -679,7 +683,7 @@ weights:
     file: kokoro_int8_fp16.litertlm
     runtime: mediapipe-tts
     dtype: q8
-    device: wasm
+    device: any
     min_ram_gb: 2
     approx_download_mb: 295
     revision: bf1c2405642aa310bd210205c22d3ae1abc253fb
