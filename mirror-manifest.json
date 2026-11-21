@@ -1,6 +1,6 @@
 {
   "manifest_schema_version": 1,
-  "generated_at": "2026-11-21T15:15:18Z",
+  "generated_at": "2026-11-21T20:19:01Z",
   "objects": [
     {
       "id": "on-device/birefnet-lite-fp16-webgpu",
@@ -500,6 +500,24 @@
           "name": "vision_model_q4f16.onnx",
           "sha256": "00cb4b8e4ee8a5cb2d1d5ec7283f3bbc294388cba0073b5988589821be22d8ed",
           "size": 245782484
+        }
+      ]
+    },
+    {
+      "id": "on-device/swin2sr-realworld-x4-fp32-any",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://Xenova/swin2SR-realworld-sr-x4-64-bsrgan-psnr",
+      "revision": "d0e9926970c93e472ce2392373d72597fc849027",
+      "mirror_path": "on-device/xenova__swin2SR-realworld-sr-x4-64-bsrgan-psnr/d0e9926970c93e472ce2392373d72597fc849027/",
+      "license": "apache-2.0",
+      "license_artifact": "licenses/apache-2.0.txt",
+      "size": 52772645,
+      "files": [
+        {
+          "name": "model.onnx",
+          "sha256": "f496dc73dcc01d778b1a12eb4c4038d6b27cd1c0b5bcd4258455ed6d7816c835",
+          "size": 52772645
         }
       ]
     },

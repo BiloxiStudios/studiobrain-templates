@@ -332,6 +332,7 @@ class ShippedCatalogTests(unittest.TestCase):
                 "on-device/siglip2-base-256-vision-q4f16-webgpu",
                 "on-device/siglip2-base-256-vision-q8-wasm",
                 "on-device/siglip2-so400m-256-vision-q4f16-webgpu",
+                "on-device/swin2sr-realworld-x4-fp32-any",
                 "on-device/whisper-base-q4-webgpu",
                 "on-device/whisper-base-q8-wasm",
             ],
@@ -356,6 +357,7 @@ class ShippedCatalogTests(unittest.TestCase):
                 "diarization": ["on-device/pyannote-diarization-3.1"],
                 # SBAI-LAUNCH: EmbeddingGemma 2 is the only embedder.
                 "embeddings": ["on-device/embeddinggemma-2-q4-webgpu"],
+                "image-upscale": ["on-device/swin2sr-realworld-x4-fp32-any"],
                 "stt": ["on-device/whisper-base-q4-webgpu"],
                 "tts": ["on-device/pocket-tts-en-int8"],
             },
