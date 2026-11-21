@@ -347,6 +347,7 @@ class ShippedCatalogTests(unittest.TestCase):
                 # the llm-chat default; the ONNX q4f16-webgpu row is the fallback.
                 "llm-chat": ["on-device/gemma-4-e2b-it-litert-web"],
                 "asset-tagging": ["on-device/siglip2-base-256-vision-q4f16-webgpu"],
+                "diarization": ["on-device/pyannote-diarization-3.1"],
                 # SBAI-LAUNCH: EmbeddingGemma 2 is the only embedder.
                 "embeddings": ["on-device/embeddinggemma-2-q4-webgpu"],
                 "stt": ["on-device/whisper-base-q4-webgpu"],
