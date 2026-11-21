@@ -247,6 +247,60 @@
       ]
     },
     {
+      "id": "on-device/kokoro-82m-int8",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://litert-community/Kokoro-82M",
+      "revision": "bf1c2405642aa310bd210205c22d3ae1abc253fb",
+      "mirror_path": "on-device/litert-community__Kokoro-82M/bf1c2405642aa310bd210205c22d3ae1abc253fb/",
+      "license": "apache-2.0",
+      "license_artifact": "licenses/apache-2.0.txt",
+      "size": 294783298,
+      "files": [
+        {
+          "name": "kokoro_int8_fp16.litertlm",
+          "sha256": "e7b931ee5d4b7104012a838c9eee240d19ea69cb3ca269041a3274f83dbb7fa1",
+          "size": 294783298
+        }
+      ]
+    },
+    {
+      "id": "on-device/pocket-tts-en-int8",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://litert-community/pocket-tts",
+      "revision": "00c866f2397788f514ab6bbcb931be22afc3b58f",
+      "mirror_path": "on-device/litert-community__pocket-tts/00c866f2397788f514ab6bbcb931be22afc3b58f/",
+      "license": "cc-by-4.0",
+      "license_artifact": "licenses/cc-by-4.0.txt",
+      "size": 162766856,
+      "files": [
+        {
+          "name": "pocket_tts_en_int8.litertlm",
+          "sha256": "465e0083cd61188772aed76160b07af0dcf59057497d7659f43f3f2b13a174a1",
+          "size": 162766856
+        }
+      ]
+    },
+    {
+      "id": "on-device/pocket-tts-multilingual-int8",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://litert-community/pocket-tts",
+      "revision": "00c866f2397788f514ab6bbcb931be22afc3b58f",
+      "mirror_path": "on-device/litert-community__pocket-tts/00c866f2397788f514ab6bbcb931be22afc3b58f/",
+      "license": "cc-by-4.0",
+      "license_artifact": "licenses/cc-by-4.0.txt",
+      "size": 760061960,
+      "files": [
+        {
+          "name": "pocket_tts_int8.litertlm",
+          "sha256": "9c5427cf3fe2d6680f8268e1c06537496be52d818ef12233a461bf193f314b3c",
+          "size": 760061960
+        }
+      ]
+    },
+    {
       "id": "on-device/qwen3-0.6b-q4-any",
       "provider": "on-device",
       "provider_path": "templates/Providers/on-device.provider.yaml",

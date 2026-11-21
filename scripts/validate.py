@@ -1586,6 +1586,25 @@ def check_requires() -> tuple[list[str], list[str]]:
                             f"'litert-lm' and declares context_length {row_ctx} -- the "
                             "ceiling is 32768 and the engine clamps to it"
                         )
+                elif row_runtime == "mediapipe-tts":
+                    # SBAI-15222: the MediaPipe TextToSpeech task loads ONE
+                    # self-contained .litertlm bundle (acoustic model, codec,
+                    # tokenizer and voices). It is a speech engine only, so a
+                    # non-tts row on it would route chat or embeddings to an
+                    # engine that cannot run them.
+                    row_file = str(row.get("file") or "")
+                    if not row_file.endswith(".litertlm"):
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} has runtime "
+                            f"'mediapipe-tts' but file {row_file!r} -- the TextToSpeech "
+                            "task loads one .litertlm bundle"
+                        )
+                    if (row.get("capability") or "llm-chat") != "tts":
+                        errors.append(
+                            f"{path}: provider '{pid}' weights row {rid!r} has runtime "
+                            "'mediapipe-tts' but capability "
+                            f"{row.get('capability')!r} -- that engine only synthesizes speech"
+                        )
                 elif row.get("file"):
                     warnings.append(
                         f"{path}: provider '{pid}' weights row {rid!r} declares 'file' "
