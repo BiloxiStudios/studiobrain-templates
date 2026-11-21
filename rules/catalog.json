@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "entries": {
+    "3D_LEVEL_RULES": {
+      "name": "3D Level Rules",
+      "description": "Standard rules and system prompt for the 3D Level type. Installing it makes it that type's default.",
+      "tags": [
+        "3d_level",
+        "standard"
+      ]
+    },
+    "ALIEN_WORLD_BIOMES": {
+      "name": "Alien World Biomes",
+      "description": "Ecosystems for other planets: unfamiliar life that still obeys its own physics and food chain.",
+      "tags": [
+        "biome",
+        "theme",
+        "sci-fi",
+        "aliens"
+      ]
+    },
+    "ANIMAL_CHARACTERS": {
+      "name": "Animal Characters",
+      "description": "Talking or anthropomorphic animals: pick the species, pick how human they are, and stay consistent.",
+      "tags": [
+        "character",
+        "theme",
+        "animals",
+        "anthropomorphic"
+      ]
+    },
+    "ANIMATED_CARTOON_CHARACTERS": {
+      "name": "Animated Cartoon Characters",
+      "description": "Characters built for animation: readable silhouette, limited palette, one clear personality hook.",
+      "tags": [
+        "character",
+        "theme",
+        "animation",
+        "cartoon",
+        "style"
+      ]
+    },
+    "ASSEMBLY_RULES": {
+      "name": "Assembly Rules",
+      "description": "Standard rules and system prompt for the Assembly type. Installing it makes it that type's default.",
+      "tags": [
+        "assembly",
+        "standard"
+      ]
+    },
+    "BIOME_RULES": {
+      "name": "Biome Rules",
+      "description": "Standard rules and system prompt for the Biome type. Installing it makes it that type's default.",
+      "tags": [
+        "biome",
+        "standard"
+      ]
+    },
+    "BRAND_RULES": {
+      "name": "Brand Rules",
+      "description": "Standard rules and system prompt for the Brand type. Installing it makes it that type's default.",
+      "tags": [
+        "brand",
+        "standard"
+      ]
+    },
+    "CAMPAIGN_RULES": {
+      "name": "Campaign Rules",
+      "description": "Standard rules and system prompt for the Campaign type. Installing it makes it that type's default.",
+      "tags": [
+        "campaign",
+        "standard"
+      ]
+    },
+    "CHARACTER_RULES": {
+      "name": "Character Rules",
+      "description": "Standard rules and system prompt for the Character type. Installing it makes it that type's default.",
+      "tags": [
+        "character",
+        "standard"
+      ]
+    },
+    "COLOR_GUIDE_RULES": {
+      "name": "Color Guide Rules",
+      "description": "Standard rules and system prompt for the Color Guide type. Installing it makes it that type's default.",
+      "tags": [
+        "color_guide",
+        "standard"
+      ]
+    },
+    "CONTENT_RULES": {
+      "name": "Content Rules",
+      "description": "Standard rules and system prompt for the Content type. Installing it makes it that type's default.",
+      "tags": [
+        "content",
+        "standard"
+      ]
+    },
+    "COZY_TONE": {
+      "name": "Cozy Tone",
+      "description": "A gentle, low-stakes tone for any entity type: warmth, small problems, no grim content.",
+      "tags": [
+        "tone",
+        "theme",
+        "cozy",
+        "any-type"
+      ]
+    },
+    "DIALOGUE_RULES": {
+      "name": "Dialogue Rules",
+      "description": "Standard rules and system prompt for the Dialogue type. Installing it makes it that type's default.",
+      "tags": [
+        "dialogue",
+        "standard"
+      ]
+    },
+    "DISTRICT_RULES": {
+      "name": "District Rules",
+      "description": "Standard rules and system prompt for the District type. Installing it makes it that type's default.",
+      "tags": [
+        "district",
+        "standard"
+      ]
+    },
+    "DUNGEON_GRID_RULES": {
+      "name": "Dungeon Grid Rules",
+      "description": "Standard rules and system prompt for the Dungeon Grid type. Installing it makes it that type's default.",
+      "tags": [
+        "dungeon_grid",
+        "standard"
+      ]
+    },
+    "EVENT_RULES": {
+      "name": "Event Rules",
+      "description": "Standard rules and system prompt for the Event type. Installing it makes it that type's default.",
+      "tags": [
+        "event",
+        "standard"
+      ]
+    },
+    "FACTION_RULES": {
+      "name": "Faction Rules",
+      "description": "Standard rules and system prompt for the Faction type. Installing it makes it that type's default.",
+      "tags": [
+        "faction",
+        "standard"
+      ]
+    },
+    "FANTASY_CHARACTERS": {
+      "name": "Fantasy Characters",
+      "description": "Heroes, villains and townsfolk for a fantasy world with a consistent magic and ancestry system.",
+      "tags": [
+        "character",
+        "theme",
+        "fantasy"
+      ]
+    },
+    "FANTASY_LOCATIONS": {
+      "name": "Fantasy Locations",
+      "description": "Villages, keeps, ruins and wild places that feel lived in and fit the world's history.",
+      "tags": [
+        "location",
+        "theme",
+        "fantasy"
+      ]
+    },
+    "GAME_DESIGN_DOCUMENT_RULES": {
+      "name": "Game Design Document Rules",
+      "description": "Standard rules and system prompt for the Game Design Document type. Installing it makes it that type's default.",
+      "tags": [
+        "game_design_document",
+        "standard"
+      ]
+    },
+    "GENERATION_RULES": {
+      "name": "Generation Rules",
+      "description": "Standard rules and system prompt for the Generation type. Installing it makes it that type's default.",
+      "tags": [
+        "generation",
+        "standard"
+      ]
+    },
+    "IMAGE_GENERATION_RULES": {
+      "name": "Image Generation Rules",
+      "description": "Standard rules and system prompt for the Image Generation type. Installing it makes it that type's default.",
+      "tags": [
+        "image_generation",
+        "standard"
+      ]
+    },
+    "ITEM_RULES": {
+      "name": "Item Rules",
+      "description": "Standard rules and system prompt for the Item type. Installing it makes it that type's default.",
+      "tags": [
+        "item",
+        "standard"
+      ]
+    },
+    "JOB_RULES": {
+      "name": "Job Rules",
+      "description": "Standard rules and system prompt for the Job type. Installing it makes it that type's default.",
+      "tags": [
+        "job",
+        "standard"
+      ]
+    },
+    "LOCATION_RULES": {
+      "name": "Location Rules",
+      "description": "Standard rules and system prompt for the Location type. Installing it makes it that type's default.",
+      "tags": [
+        "location",
+        "standard"
+      ]
+    },
+    "LOCATION_SCOUT_RULES": {
+      "name": "Location Scout Rules",
+      "description": "Standard rules and system prompt for the Location Scout type. Installing it makes it that type's default.",
+      "tags": [
+        "location_scout",
+        "standard"
+      ]
+    },
+    "LORE_COMPENDIUM_RULES": {
+      "name": "Lore Compendium Rules",
+      "description": "Standard rules and system prompt for the Lore Compendium type. Installing it makes it that type's default.",
+      "tags": [
+        "lore_compendium",
+        "standard"
+      ]
+    },
+    "MAGIC_ITEMS": {
+      "name": "Magic Items",
+      "description": "Enchanted objects with an origin, a limit and a price for using them.",
+      "tags": [
+        "item",
+        "theme",
+        "fantasy",
+        "magic"
+      ]
+    },
+    "NOIR_TONE": {
+      "name": "Noir Tone",
+      "description": "A hard-boiled noir tone for any entity type: moral grey, secrets, rain and consequences.",
+      "tags": [
+        "tone",
+        "theme",
+        "noir",
+        "any-type"
+      ]
+    },
+    "PROMPT_ENGINE_RULES": {
+      "name": "Prompt Engine Rules",
+      "description": "Standard rules and system prompt for the Prompt Engine type. Installing it makes it that type's default.",
+      "tags": [
+        "prompt_engine",
+        "standard"
+      ]
+    },
+    "PROMPT_RULES": {
+      "name": "Prompt Rules",
+      "description": "Standard rules and system prompt for the Prompt type. Installing it makes it that type's default.",
+      "tags": [
+        "prompt",
+        "standard"
+      ]
+    },
+    "QUEST_RULES": {
+      "name": "Quest Rules",
+      "description": "Standard rules and system prompt for the Quest type. Installing it makes it that type's default.",
+      "tags": [
+        "quest",
+        "standard"
+      ]
+    },
+    "SCI_FI_LOCATIONS": {
+      "name": "Sci-Fi Locations",
+      "description": "Stations, ships, colonies and alien worlds with a stated environment and technology level.",
+      "tags": [
+        "location",
+        "theme",
+        "sci-fi"
+      ]
+    },
+    "SPACE_ALIEN_CHARACTERS": {
+      "name": "Space Alien Characters",
+      "description": "Non-human species from other worlds: biology first, culture second, no humans in costume.",
+      "tags": [
+        "character",
+        "theme",
+        "sci-fi",
+        "aliens"
+      ]
+    },
+    "STORY_BIBLE_RULES": {
+      "name": "Story Bible Rules",
+      "description": "Standard rules and system prompt for the Story Bible type. Installing it makes it that type's default.",
+      "tags": [
+        "story_bible",
+        "standard"
+      ]
+    },
+    "STORY_RULES": {
+      "name": "Story Rules",
+      "description": "Standard rules and system prompt for the Story type. Installing it makes it that type's default.",
+      "tags": [
+        "story",
+        "standard"
+      ]
+    },
+    "STYLE_BIBLE_RULES": {
+      "name": "Style Bible Rules",
+      "description": "Standard rules and system prompt for the Style Bible type. Installing it makes it that type's default.",
+      "tags": [
+        "style_bible",
+        "standard"
+      ]
+    },
+    "TIMELINE_RULES": {
+      "name": "Timeline Rules",
+      "description": "Standard rules and system prompt for the Timeline type. Installing it makes it that type's default.",
+      "tags": [
+        "timeline",
+        "standard"
+      ]
+    },
+    "UNIVERSE_RULES": {
+      "name": "Universe Rules",
+      "description": "Standard rules and system prompt for the Universe type. Installing it makes it that type's default.",
+      "tags": [
+        "universe",
+        "standard"
+      ]
+    },
+    "VOICE_GENERATION_RULES": {
+      "name": "Voice Generation Rules",
+      "description": "Standard rules and system prompt for the Voice Generation type. Installing it makes it that type's default.",
+      "tags": [
+        "voice_generation",
+        "standard"
+      ]
+    },
+    "WORKFLOW_RULES": {
+      "name": "Workflow Rules",
+      "description": "Standard rules and system prompt for the Workflow type. Installing it makes it that type's default.",
+      "tags": [
+        "workflow",
+        "standard"
+      ]
+    },
+    "WORLD_LORE_RULES": {
+      "name": "World Lore Rules",
+      "description": "Standard rules and system prompt for the World Lore type. Installing it makes it that type's default.",
+      "tags": [
+        "world_lore",
+        "standard"
+      ]
+    }
+  }
+}

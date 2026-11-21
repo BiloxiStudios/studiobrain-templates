@@ -1,4 +1,5 @@
 ---
+system_prompt: "Generate a timeline entry for this project. Follow the timeline template. Give the entry a clear date or period, the people and places involved, and what changed as a result. Use only events, places, and people that exist in the project, and do not contradict entries already on the timeline."
 rule_category: "timeline"
 rule_version: "1.0"
 priority: "high"
