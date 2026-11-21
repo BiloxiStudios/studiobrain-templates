@@ -669,11 +669,15 @@ weights:
     capability: background-removal
     modality: [image]
     default: true
+  # Same RAM floor as the fp16 default on purpose: selectWeights ranks by
+  # min_ram_gb first, so a higher floor here would pick this 224 MB fp32 graph
+  # over the 115 MB fp16 one on every WebGPU device. Equal floors let the
+  # default win; a device without WebGPU or shader-f16 still lands here.
   - id: on-device/birefnet-lite-fp32-any
     source: huggingface://onnx-community/BiRefNet_lite-ONNX
     dtype: fp32
     device: any
-    min_ram_gb: 6
+    min_ram_gb: 4
     approx_download_mb: 224
     revision: de15b22ba131738a16dff04aab8bdf8dc32e3ac1
     mirror_path: on-device/onnx-community__BiRefNet_lite-ONNX/de15b22ba131738a16dff04aab8bdf8dc32e3ac1/
