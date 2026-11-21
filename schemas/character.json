@@ -323,6 +323,33 @@
         "null"
       ]
     },
+    "voice": {
+      "type": [
+        "object",
+        "string",
+        "null"
+      ],
+      "description": "Speaking voice for read-aloud and dialogue (SBAI-15228). Object {voice_id, speaking_rate?, locale?, engine?, reference_audio?}; a bare string is shorthand for voice_id.",
+      "properties": {
+        "voice_id": {
+          "type": "string"
+        },
+        "speaking_rate": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 4
+        },
+        "locale": {
+          "type": "string"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "reference_audio": {
+          "type": "string"
+        }
+      }
+    },
     "ai_bio_summary": {
       "type": [
         "string",
