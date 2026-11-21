@@ -318,6 +318,9 @@ class ShippedCatalogTests(unittest.TestCase):
                 "on-device/gemma-4-e2b-it-q4f16-webgpu",
                 "on-device/gemma-4-e4b-it-litert-web",
                 "on-device/gemma-4-e4b-it-q4f16-webgpu",
+                "on-device/kokoro-82m-int8",
+                "on-device/pocket-tts-en-int8",
+                "on-device/pocket-tts-multilingual-int8",
                 "on-device/qwen3-0.6b-q4-any",
                 "on-device/qwen3-0.6b-q8-wasm",
                 "on-device/siglip2-base-256-vision-q4-webgpu",
@@ -346,6 +349,7 @@ class ShippedCatalogTests(unittest.TestCase):
                 # SBAI-LAUNCH: EmbeddingGemma 2 is the only embedder.
                 "embeddings": ["on-device/embeddinggemma-2-q4-webgpu"],
                 "stt": ["on-device/whisper-base-q4-webgpu"],
+                "tts": ["on-device/pocket-tts-en-int8"],
             },
         )
         # SBAI-7844 → SBAI-8406: the litert-lm rows were promoted by owner ruling
@@ -861,6 +865,28 @@ def _drop_line(body: str, needle: str) -> str:
     return "".join(line for line in body.splitlines(keepends=True) if needle not in line)
 
 
+GOOD_MEDIAPIPE_TTS_ROW = """\
+  - id: on-device/pocket-tts-en-int8
+    source: huggingface://litert-community/pocket-tts
+    file: pocket_tts_en_int8.litertlm
+    runtime: mediapipe-tts
+    dtype: q8
+    device: wasm
+    revision: 00c866f2397788f514ab6bbcb931be22afc3b58f
+    mirror_path: on-device/litert-community__pocket-tts/00c866f2397788f514ab6bbcb931be22afc3b58f/
+    license: cc-by-4.0
+    license_artifact: licenses/cc-by-4.0.txt
+    size: 1
+    files:
+      - name: pocket_tts_en_int8.litertlm
+        sha256: 0000000000000000000000000000000000000000000000000000000000000000
+        size: 1
+    capability: tts
+    modality: [text]
+    default: true
+"""
+
+
 @unittest.skipUnless(validate.HAVE_YAML, "pyyaml required")
 class LitertRowTests(unittest.TestCase):
     """runtime: litert-lm invariants (SBAI-7844).
@@ -929,6 +955,22 @@ class LitertRowTests(unittest.TestCase):
             any("model_file_name" in w for w in warnings),
             f"expected a model_file_name warning, got {warnings!r}",
         )
+
+    def test_good_mediapipe_tts_row_is_clean(self):
+        errors, _ = self.check(GOOD_LITERT + GOOD_MEDIAPIPE_TTS_ROW)
+        self.assertEqual(errors, [])
+
+    def test_mediapipe_tts_row_without_litertlm_file_is_an_error(self):
+        errors, _ = self.check(
+            GOOD_LITERT + GOOD_MEDIAPIPE_TTS_ROW.replace("pocket_tts_en_int8.litertlm", "pocket.tflite")
+        )
+        self.assert_error_matching(errors, "loads one .litertlm bundle")
+
+    def test_mediapipe_tts_row_with_non_tts_capability_is_an_error(self):
+        errors, _ = self.check(
+            GOOD_LITERT + GOOD_MEDIAPIPE_TTS_ROW.replace("capability: tts", "capability: embeddings")
+        )
+        self.assert_error_matching(errors, "only synthesizes speech")
 
     def test_provider_level_litert_runtime_applies_to_unmarked_rows(self):
         # A provider whose header says litert-lm makes its rows litert rows.

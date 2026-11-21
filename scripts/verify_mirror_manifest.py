@@ -58,7 +58,10 @@ from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
-_ALLOWED_LICENSES = {"apache-2.0", "mit"}
+# cc-by-4.0 (SBAI-15222): redistributable with attribution. Admitted for the
+# PocketTTS voice weights (kyutai/tts-voices); licenses/cc-by-4.0.txt travels
+# with the weights, and the row's source/license headers carry the attribution.
+_ALLOWED_LICENSES = {"apache-2.0", "mit", "cc-by-4.0"}
 _REVISION_RE = __import__("re").compile(r"^[0-9a-f]{40}$")
 _SHA256_RE = __import__("re").compile(r"^[0-9a-f]{64}$")
 

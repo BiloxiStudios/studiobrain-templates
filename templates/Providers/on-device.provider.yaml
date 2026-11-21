@@ -79,7 +79,7 @@ engine:
   requirement: preferred
   framework: transformers.js
 runtime: transformers.js
-provides: [llm-chat, embeddings, asset-tagging, stt]
+provides: [llm-chat, embeddings, asset-tagging, stt, tts]
 slots:
   accepts: [text, image, audio]
   emits: [text, tool, json]
@@ -603,6 +603,98 @@ weights:
   # (onnx-community/distil-whisper-small.en, distil-medium.en and
   # distil-large-v3 were checked and DO NOT EXIST -- the HF API 401s on all
   # three. The real distil ONNX id is onnx-community/distil-small.en.)
+  # ---------------------------------------------------------------------------
+  # capability: tts -- the assistant speaks back (SBAI-15222).
+  #
+  # runtime: mediapipe-tts is the MediaPipe TextToSpeech task
+  # (@mediapipe/tasks-audio, LiteRT under the hood). It loads ONE
+  # self-contained .litertlm bundle holding the acoustic model, the codec, the
+  # tokenizer, text normalisation and the pre-encoded voices -- no phonemizer,
+  # no sidecars. It runs on the WASM CPU delegate, so these rows are
+  # device: wasm and work wherever the WASM tier does.
+  #
+  # Witness, 2026-11-21, headless Chromium (no GPU), @mediapipe/tasks-audio
+  # 1.2.3, delegate CPU, model fetched straight from the pinned HF revision:
+  #   pocket_tts_en_int8   load 3.6 s; 4.0 s of 24 kHz audio in 3.3 s;
+  #                        14 voices listed; synthesizeStream gave 8 chunks;
+  #                        9 word timestamps for a 9-word sentence.
+  #   kokoro_int8_fp16     load 5.5 s; 4.45 s of audio in 38.6 s; 54 voices.
+  # PocketTTS is therefore the DEFAULT: faster than real time on CPU, half
+  # Kokoro's download, and it streams (TTFA ~50 ms per its card), which is what
+  # speaking an LLM reply as it arrives needs. Kokoro stays an OPTIONAL voice
+  # pack for its 54 voices / 9 languages; on CPU it is ~9x slower than real
+  # time, hence experimental until a GPU-delegate witness exists.
+  #
+  # Voice CLONING is not here: neither bundle exposes a reference-audio input
+  # through the TextToSpeech API. Custom voices for a project's characters stay
+  # on Model Manager's pocket-tts backend (pocket-tts.provider.yaml,
+  # provides: [tts, voice-clone]).
+  #
+  # PocketTTS weights are CC-BY-4.0 (Kyutai, kyutai/tts-voices); attribution:
+  # "PocketTTS by Kyutai, CC-BY-4.0", converted by litert-community.
+  - id: on-device/pocket-tts-en-int8
+    source: huggingface://litert-community/pocket-tts
+    file: pocket_tts_en_int8.litertlm
+    runtime: mediapipe-tts
+    dtype: q8
+    device: wasm
+    min_ram_gb: 2
+    approx_download_mb: 163
+    revision: 00c866f2397788f514ab6bbcb931be22afc3b58f
+    mirror_path: on-device/litert-community__pocket-tts/00c866f2397788f514ab6bbcb931be22afc3b58f/
+    license: cc-by-4.0
+    license_artifact: licenses/cc-by-4.0.txt
+    size: 162766856
+    files:
+      - name: pocket_tts_en_int8.litertlm
+        sha256: 465e0083cd61188772aed76160b07af0dcf59057497d7659f43f3f2b13a174a1
+        size: 162766856
+    capability: tts
+    modality: [text]
+    default: true
+  # All seven PocketTTS languages in one file (en, fr, de, es, it, pt, nl).
+  # Offered, never auto-selected: 4.7x the English download.
+  - id: on-device/pocket-tts-multilingual-int8
+    source: huggingface://litert-community/pocket-tts
+    file: pocket_tts_int8.litertlm
+    runtime: mediapipe-tts
+    dtype: q8
+    device: wasm
+    min_ram_gb: 2
+    approx_download_mb: 760
+    revision: 00c866f2397788f514ab6bbcb931be22afc3b58f
+    mirror_path: on-device/litert-community__pocket-tts/00c866f2397788f514ab6bbcb931be22afc3b58f/
+    license: cc-by-4.0
+    license_artifact: licenses/cc-by-4.0.txt
+    size: 760061960
+    files:
+      - name: pocket_tts_int8.litertlm
+        sha256: 9c5427cf3fe2d6680f8268e1c06537496be52d818ef12233a461bf193f314b3c
+        size: 760061960
+    capability: tts
+    modality: [text]
+    fallback: true
+  - id: on-device/kokoro-82m-int8
+    source: huggingface://litert-community/Kokoro-82M
+    file: kokoro_int8_fp16.litertlm
+    runtime: mediapipe-tts
+    dtype: q8
+    device: wasm
+    min_ram_gb: 2
+    approx_download_mb: 295
+    revision: bf1c2405642aa310bd210205c22d3ae1abc253fb
+    mirror_path: on-device/litert-community__Kokoro-82M/bf1c2405642aa310bd210205c22d3ae1abc253fb/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 294783298
+    files:
+      - name: kokoro_int8_fp16.litertlm
+        sha256: e7b931ee5d4b7104012a838c9eee240d19ea69cb3ca269041a3274f83dbb7fa1
+        size: 294783298
+    capability: tts
+    modality: [text]
+    fallback: true
+    experimental: true
   # ---------------------------------------------------------------------------
   # runtime: litert-lm -- Google's LiteRT-LM WebGPU engine (SBAI-7844 §2).
   #
