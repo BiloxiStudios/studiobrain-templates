@@ -40,6 +40,26 @@
         "style"
       ]
     },
+    "ANIME_MANGA_CHARACTERS": {
+      "name": "Anime and Manga Characters",
+      "description": "Characters in an anime or manga style: line-led design, signature hair and eyes, clear archetype with a twist.",
+      "tags": [
+        "character",
+        "theme",
+        "style",
+        "animation"
+      ]
+    },
+    "ANIME_MANGA_LOCATIONS": {
+      "name": "Anime and Manga Locations",
+      "description": "Backgrounds in an anime or manga style: precise perspective, everyday detail and strong skies and light.",
+      "tags": [
+        "location",
+        "theme",
+        "style",
+        "animation"
+      ]
+    },
     "ASSEMBLY_RULES": {
       "name": "Assembly Rules",
       "description": "Standard rules and system prompt for the Assembly type. Installing it makes it that type's default.",
@@ -72,6 +92,26 @@
         "standard"
       ]
     },
+    "CG_ANIMATED_FEATURE_CHARACTERS": {
+      "name": "3D Animated Feature Characters",
+      "description": "Stylised 3D characters for an animated feature: appealing proportions, rich materials, cinematic light.",
+      "tags": [
+        "character",
+        "theme",
+        "style",
+        "animation"
+      ]
+    },
+    "CG_ANIMATED_FEATURE_LOCATIONS": {
+      "name": "3D Animated Feature Locations",
+      "description": "Stylised 3D sets for an animated feature: caricatured architecture, tactile surfaces and a clear light plan.",
+      "tags": [
+        "location",
+        "theme",
+        "style",
+        "animation"
+      ]
+    },
     "CHARACTER_RULES": {
       "name": "Character Rules",
       "description": "Standard rules and system prompt for the Character type. Installing it makes it that type's default.",
@@ -86,6 +126,33 @@
       "tags": [
         "color_guide",
         "standard"
+      ]
+    },
+    "COMIC_BOOK_CHARACTERS": {
+      "name": "Comic Book Characters",
+      "description": "Characters drawn for comics: bold ink, a costume that reads in one panel, a silhouette you know in shadow.",
+      "tags": [
+        "character",
+        "theme",
+        "style"
+      ]
+    },
+    "COMIC_BOOK_LOCATIONS": {
+      "name": "Comic Book Locations",
+      "description": "Settings drawn for comics: an establishing panel, heavy shadow, and a few landmarks that anchor every page.",
+      "tags": [
+        "location",
+        "theme",
+        "style"
+      ]
+    },
+    "COMIC_SERIES_ARCS": {
+      "name": "Comic Series Arcs",
+      "description": "Use the campaign type to plan a comic series: a story arc split into issues, each ending on a page-turn hook.",
+      "tags": [
+        "campaign",
+        "theme",
+        "format"
       ]
     },
     "CONTENT_RULES": {
@@ -104,6 +171,16 @@
         "theme",
         "cozy",
         "any-type"
+      ]
+    },
+    "CYBERPUNK_LOCATIONS": {
+      "name": "Cyberpunk Locations",
+      "description": "Dense near-future city spaces: corporate towers above, improvised street life below, screens everywhere.",
+      "tags": [
+        "location",
+        "theme",
+        "genre",
+        "sci-fi"
       ]
     },
     "DIALOGUE_RULES": {
@@ -128,6 +205,24 @@
       "tags": [
         "dungeon_grid",
         "standard"
+      ]
+    },
+    "EIGHTIES_FILM_CHARACTERS": {
+      "name": "1980s Film Characters",
+      "description": "Characters who look and talk like a 1980s movie: period wardrobe, period hair, period problems.",
+      "tags": [
+        "character",
+        "theme",
+        "style"
+      ]
+    },
+    "EIGHTIES_FILM_LOCATIONS": {
+      "name": "1980s Film Locations",
+      "description": "Sets dressed for a 1980s movie: neon, wood panelling, analogue technology and haze in the light.",
+      "tags": [
+        "location",
+        "theme",
+        "style"
       ]
     },
     "EVENT_RULES": {
@@ -164,6 +259,33 @@
         "fantasy"
       ]
     },
+    "FILM_CREW_ROLES": {
+      "name": "Film Crew Roles",
+      "description": "Use the job type for production crew: department, who they answer to, and what they deliver each shooting day.",
+      "tags": [
+        "job",
+        "theme",
+        "format"
+      ]
+    },
+    "FILM_SCENES": {
+      "name": "Film Scenes",
+      "description": "Use the event type for a film scene: who wants what, the beats in order, and how it will be shot.",
+      "tags": [
+        "event",
+        "theme",
+        "format"
+      ]
+    },
+    "FILM_SETS": {
+      "name": "Film Sets",
+      "description": "Locations written as shootable sets: what the camera sees, where the light is, and what the crew needs to know.",
+      "tags": [
+        "location",
+        "theme",
+        "format"
+      ]
+    },
     "GAME_DESIGN_DOCUMENT_RULES": {
       "name": "Game Design Document Rules",
       "description": "Standard rules and system prompt for the Game Design Document type. Installing it makes it that type's default.",
@@ -178,6 +300,44 @@
       "tags": [
         "generation",
         "standard"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_CHARACTERS": {
+      "name": "Hand-Drawn Animation Characters",
+      "description": "Characters for traditional 2D animation: clean outlines, flat colour, shapes an artist can redraw a thousand times.",
+      "tags": [
+        "character",
+        "theme",
+        "style",
+        "animation"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_LOCATIONS": {
+      "name": "Hand-Drawn Animation Locations",
+      "description": "Painted 2D backgrounds: clear staging space, simplified shapes and a colour script that never fights the characters.",
+      "tags": [
+        "location",
+        "theme",
+        "style",
+        "animation"
+      ]
+    },
+    "HORROR_CHARACTERS": {
+      "name": "Horror Characters",
+      "description": "Victims, survivors and monsters for horror: a private fear, a fatal blind spot, a threat with rules.",
+      "tags": [
+        "character",
+        "theme",
+        "genre"
+      ]
+    },
+    "HORROR_LOCATIONS": {
+      "name": "Horror Locations",
+      "description": "Places that frighten: isolation, a history of harm, limited exits and one thing that is not right.",
+      "tags": [
+        "location",
+        "theme",
+        "genre"
       ]
     },
     "IMAGE_GENERATION_RULES": {
@@ -238,6 +398,42 @@
         "magic"
       ]
     },
+    "MEAL_EVENTS": {
+      "name": "Meals and Menus",
+      "description": "Use the event type to plan a meal: the occasion, the courses in order, the timing and who is at the table.",
+      "tags": [
+        "event",
+        "theme",
+        "format"
+      ]
+    },
+    "MUSIC_ARTISTS": {
+      "name": "Music Artists and Bands",
+      "description": "Use the brand type for a music act: sound, members, look, audience and the releases that define them.",
+      "tags": [
+        "brand",
+        "theme",
+        "format"
+      ]
+    },
+    "MUSIC_VIDEO_SHOOTS": {
+      "name": "Music Video Shoots",
+      "description": "Use the campaign type to plan a music video: concept, visual treatment and a shot plan cut to the song.",
+      "tags": [
+        "campaign",
+        "theme",
+        "format"
+      ]
+    },
+    "MYSTERY_CHARACTERS": {
+      "name": "Mystery Characters",
+      "description": "Detectives, suspects and witnesses: a method, a motive, a secret, and an alibi that can be checked.",
+      "tags": [
+        "character",
+        "theme",
+        "genre"
+      ]
+    },
     "NOIR_TONE": {
       "name": "Noir Tone",
       "description": "A hard-boiled noir tone for any entity type: moral grey, secrets, rain and consequences.",
@@ -246,6 +442,96 @@
         "theme",
         "noir",
         "any-type"
+      ]
+    },
+    "NOVEL_CHARACTERS": {
+      "name": "Novel Characters",
+      "description": "Characters built for prose fiction: a want, a need, a wound and an arc that changes them by the last chapter.",
+      "tags": [
+        "character",
+        "theme",
+        "format"
+      ]
+    },
+    "NOVEL_PLOT_TIMELINE": {
+      "name": "Novel Plot Timeline",
+      "description": "Use the timeline type to outline a novel: each entry is a scene or beat with a cause, a change and a cost.",
+      "tags": [
+        "timeline",
+        "theme",
+        "format"
+      ]
+    },
+    "PERIOD_DRAMA_CHARACTERS": {
+      "name": "Period Drama Characters",
+      "description": "People bound by a real historical era: rank, money, manners, and what their time would never let them say.",
+      "tags": [
+        "character",
+        "theme",
+        "genre"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_CHARACTERS": {
+      "name": "Photoreal Live-Action Characters",
+      "description": "People who could be cast and filmed: plausible bodies, real wardrobe, natural light on real skin.",
+      "tags": [
+        "character",
+        "theme",
+        "style"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_LOCATIONS": {
+      "name": "Photoreal Live-Action Locations",
+      "description": "Places that could be scouted and filmed: real materials, motivated light, the mess of actual use.",
+      "tags": [
+        "location",
+        "theme",
+        "style"
+      ]
+    },
+    "PIXEL_ART_CHARACTERS": {
+      "name": "Pixel Art Characters",
+      "description": "Sprite characters for retro-style games: tiny canvas, limited palette, readable in a handful of pixels.",
+      "tags": [
+        "character",
+        "theme",
+        "style"
+      ]
+    },
+    "PIXEL_ART_LOCATIONS": {
+      "name": "Pixel Art Locations",
+      "description": "Tile-based game scenes in pixel art: one projection, a tight palette, tiles that repeat cleanly.",
+      "tags": [
+        "location",
+        "theme",
+        "style"
+      ]
+    },
+    "PODCAST_AND_WEB_SERIES": {
+      "name": "Podcast and Web Series",
+      "description": "Use the campaign type to plan a season of a podcast or web series: a format, an episode list and a reason to come back.",
+      "tags": [
+        "campaign",
+        "theme",
+        "format"
+      ]
+    },
+    "POST_APOCALYPTIC_LOCATIONS": {
+      "name": "Post-Apocalyptic Locations",
+      "description": "Ruins and refuges after the collapse: what it was, what broke the world, what people fight over now.",
+      "tags": [
+        "location",
+        "theme",
+        "genre"
+      ]
+    },
+    "PRESCHOOL_CHARACTERS": {
+      "name": "Preschool Show Characters",
+      "description": "Friendly characters for ages two to five: simple shapes, one feeling at a time, problems a small child knows.",
+      "tags": [
+        "character",
+        "theme",
+        "genre"
       ]
     },
     "PROMPT_ENGINE_RULES": {
@@ -272,6 +558,24 @@
         "standard"
       ]
     },
+    "RECIPE_DISHES": {
+      "name": "Recipe Dishes",
+      "description": "Turn the item type into a cookbook: each item is a dish with ingredients, quantities, steps and a serving note.",
+      "tags": [
+        "item",
+        "theme",
+        "format"
+      ]
+    },
+    "ROMANCE_CHARACTERS": {
+      "name": "Romance Characters",
+      "description": "Leads and rivals for romance and romantic comedy: what they want, what they fear, why it cannot be easy.",
+      "tags": [
+        "character",
+        "theme",
+        "genre"
+      ]
+    },
     "SCI_FI_LOCATIONS": {
       "name": "Sci-Fi Locations",
       "description": "Stations, ships, colonies and alien worlds with a stated environment and technology level.",
@@ -279,6 +583,24 @@
         "location",
         "theme",
         "sci-fi"
+      ]
+    },
+    "SITCOM_CHARACTERS": {
+      "name": "Sitcom Characters",
+      "description": "Cast members for a multi-camera sitcom: one comic flaw, one want, and relationships that never fully resolve.",
+      "tags": [
+        "character",
+        "theme",
+        "style"
+      ]
+    },
+    "SITCOM_LOCATIONS": {
+      "name": "Sitcom Sets",
+      "description": "Standing sets for a multi-camera sitcom: three walls, clear entrances, a sofa or counter to play scenes around.",
+      "tags": [
+        "location",
+        "theme",
+        "style"
       ]
     },
     "SPACE_ALIEN_CHARACTERS": {
@@ -289,6 +611,35 @@
         "theme",
         "sci-fi",
         "aliens"
+      ]
+    },
+    "SPORTS_CHARACTERS": {
+      "name": "Sports Characters",
+      "description": "Athletes, coaches and rivals: a position, a strength, a weakness in their game, and what they play for.",
+      "tags": [
+        "character",
+        "theme",
+        "genre"
+      ]
+    },
+    "STOP_MOTION_CHARACTERS": {
+      "name": "Stop-Motion Characters",
+      "description": "Puppet characters for stop-motion and claymation: handmade materials, simple faces, visible touch of the maker.",
+      "tags": [
+        "character",
+        "theme",
+        "style",
+        "animation"
+      ]
+    },
+    "STOP_MOTION_LOCATIONS": {
+      "name": "Stop-Motion Locations",
+      "description": "Miniature tabletop sets for stop-motion: real materials at small scale, practical lights, handmade charm.",
+      "tags": [
+        "location",
+        "theme",
+        "style",
+        "animation"
       ]
     },
     "STORY_BIBLE_RULES": {
@@ -315,6 +666,24 @@
         "standard"
       ]
     },
+    "SUPERHERO_CHARACTERS": {
+      "name": "Superhero Characters",
+      "description": "Heroes and villains with powers: one clear power set, a real weakness, a costume and a life behind the mask.",
+      "tags": [
+        "character",
+        "theme",
+        "genre"
+      ]
+    },
+    "TABLETOP_RPG_CAMPAIGNS": {
+      "name": "Tabletop RPG Campaigns",
+      "description": "Campaigns a game master can run at the table: a hook, sessions, choices that matter and room to improvise.",
+      "tags": [
+        "campaign",
+        "theme",
+        "format"
+      ]
+    },
     "TIMELINE_RULES": {
       "name": "Timeline Rules",
       "description": "Standard rules and system prompt for the Timeline type. Installing it makes it that type's default.",
@@ -337,6 +706,42 @@
       "tags": [
         "voice_generation",
         "standard"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_CHARACTERS": {
+      "name": "Watercolour Storybook Characters",
+      "description": "Gentle picture-book characters: soft washes, loose pencil line, simple shapes and kind faces.",
+      "tags": [
+        "character",
+        "theme",
+        "style"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_LOCATIONS": {
+      "name": "Watercolour Storybook Locations",
+      "description": "Picture-book places painted in watercolour: soft light, room to breathe, small things to find on each page.",
+      "tags": [
+        "location",
+        "theme",
+        "style"
+      ]
+    },
+    "WESTERN_CHARACTERS": {
+      "name": "Western Characters",
+      "description": "Frontier people for a western: a trade, a past they left behind, and a code they will or will not break.",
+      "tags": [
+        "character",
+        "theme",
+        "genre"
+      ]
+    },
+    "WESTERN_LOCATIONS": {
+      "name": "Western Locations",
+      "description": "Frontier towns, ranches and trails: who owns the water, who keeps the law, how far the next town is.",
+      "tags": [
+        "location",
+        "theme",
+        "genre"
       ]
     },
     "WORKFLOW_RULES": {
