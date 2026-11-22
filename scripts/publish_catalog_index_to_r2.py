@@ -27,6 +27,7 @@ import urllib.error
 import urllib.request
 
 
+ROOT = pathlib.Path(__file__).resolve().parent.parent
 DEFAULT_KEY = "catalog/catalog-index.json"
 CDN_USER_AGENT = "studiobrain-catalog-publish/1.0"
 
@@ -138,7 +139,17 @@ def main(argv: list[str] | None = None) -> int:
         default=os.environ.get("R2_PUBLIC_BASE_URL", ""),
         help="CDN origin for GET witness (or R2_PUBLIC_BASE_URL)",
     )
+    parser.add_argument("--pack-revision", help="Expected source commit for a complete official pack snapshot")
+    parser.add_argument("--pack-generation", type=int, help="Monotonic run number of the protected catalog publication")
     args = parser.parse_args(argv)
+    snapshot = None
+    if args.pack_revision is not None or args.pack_generation is not None:
+        if not args.pack_revision or not args.pack_generation or args.pack_generation < 1 or args.key != DEFAULT_KEY:
+            parser.error("pack publication requires --pack-revision, a positive --pack-generation and the standard destination")
+        from template_pack_snapshot import build
+        snapshot = pathlib.Path(args.file).read_bytes()
+        if snapshot != build(ROOT, args.pack_revision):
+            raise ValueError("Pack snapshot differs from the expected Git source. The current publication was retained.")
 
     account_id = os.environ.get("R2_ACCOUNT_ID")
     access_key = os.environ.get("R2_ACCESS_KEY_ID")
@@ -156,6 +167,12 @@ def main(argv: list[str] | None = None) -> int:
         _err(f"missing required env var(s): {', '.join(missing)}")
         return 1
 
+    if snapshot is not None:
+        from template_pack_snapshot import stage_and_promote
+        result = stage_and_promote(make_client(account_id, access_key, secret_key), args.bucket,
+                                   snapshot, args.pack_revision, args.pack_generation)
+        _info(f"pack snapshot {result}: {args.pack_revision}")
+        return 0
     return publish(
         pathlib.Path(args.file),
         args.key,
