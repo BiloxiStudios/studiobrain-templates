@@ -60,6 +60,11 @@ def collect(index, paths, read):
             text = read(path)
             if not isinstance(text, str) or not text.strip():
                 raise ValueError(f"Missing or empty pack file: {path}")
+            if path.endswith(".json"):
+                try:
+                    json.loads(text)
+                except json.JSONDecodeError as err:
+                    raise ValueError(f"Invalid JSON in pack file: {path}") from err
             files[path] = text
         return files[path]
 
@@ -77,6 +82,17 @@ def collect(index, paths, read):
         if not all(isinstance(manifest.get(k), str) and manifest[k].strip() for k in ("name", "version")):
             raise ValueError(f"{pack_id}: missing name or version")
         included[pack_id] = names(manifest, "includes")
+        # Existing install compares untracked system rules with the stock copy
+        # from the same source revision. Optional stock must remain distinguishable
+        # from a pack's own rules/NAME_RULES.md, even when both have the same name.
+        stock_names = {kind.upper() + "_RULES.md" for kind in names(manifest, "entity_types")
+                       if re.fullmatch(r"[a-z0-9_-]+", kind)}
+        stock_names.update(ref.split("/", 1)[1] for ref in names(manifest, "rules")
+                           if re.fullmatch(r"rules/[A-Z][A-Z0-9_-]*_RULES\.md", ref))
+        for name in stock_names:
+            path = f"rules/{name}"
+            if path in paths:
+                add(path)
         for field, suffixes in MEMBER_TYPES.items():
             for ref in names(manifest, field):
                 # Workflow IDs name independently published graphs, just as provider

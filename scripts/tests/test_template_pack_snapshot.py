@@ -63,6 +63,7 @@ class OfficialPackSnapshotTests(unittest.TestCase):
         self.manifest = {
             "id": "kitchen", "name": "Kitchen", "version": "1.0.0",
             "templates": ["../../Standard/RECIPE_TEMPLATE.md"], "rulesets": ["RECIPE"],
+            "entity_types": ["recipe"], "rules": ["rules/RECIPE_RULES.md"],
             "layouts": ["../../Layouts/recipe.json"], "presets": ["PORTRAIT"],
         }
         self.base_path = f"{packs.PACKS}/kitchen/pack.json"
@@ -72,6 +73,8 @@ class OfficialPackSnapshotTests(unittest.TestCase):
                                                      "is_meta_pack": True, "includes": ["kitchen"]})
         self.put("templates/Standard/RECIPE_TEMPLATE.md", b"original\r\n")
         self.put("rules/RECIPE.md", b"published rule\n")
+        self.put("rules/RECIPE_RULES.md", b"original stock rule")
+        self.put(f"{packs.PACKS}/kitchen/rules/RECIPE_RULES.md", b"distinct pack override")
         self.put("templates/Layouts/recipe.json", b'{"field":"title"}')
         self.put("presets/PORTRAIT.preset.json", b'{"id":"PORTRAIT"}')
         self.put(f"{packs.PACKS}/kitchen/rules/kitchen.md", b"pack-local rule")
@@ -107,6 +110,8 @@ class OfficialPackSnapshotTests(unittest.TestCase):
         self.assertEqual(record["index"], self.index)
         self.assertEqual(record["files"]["templates/Standard/RECIPE_TEMPLATE.md"], "original\r\n")
         self.assertIn("presets/PORTRAIT.preset.json", record["files"])
+        self.assertEqual(record["files"]["rules/RECIPE_RULES.md"], "original stock rule")
+        self.assertEqual(record["files"][f"{packs.PACKS}/kitchen/rules/RECIPE_RULES.md"], "distinct pack override")
         self.assertIn(f"{packs.PACKS}/kitchen/rules/kitchen.md", record["files"])
         self.assertNotIn(f"{packs.PACKS}/kitchen/examples/unlisted.md", record["files"])
         self.assertEqual(record["files"][self.base_path], json.dumps(self.manifest))
@@ -137,6 +142,15 @@ class OfficialPackSnapshotTests(unittest.TestCase):
         self.put(self.base_path, self.manifest)
         with self.assertRaisesRegex(ValueError, "invalid templates member"):
             packs.build(self.root, self.commit())
+
+    def test_malformed_declared_layout_preserves_the_last_complete_snapshot(self):
+        out = self.root / "snapshot.json"
+        packs.write_snapshot(self.root, self.revision, out)
+        original = out.read_bytes()
+        self.put("templates/Layouts/recipe.json", b'{"truncated":')
+        with self.assertRaisesRegex(ValueError, "Invalid JSON in pack file: templates/Layouts/recipe.json"):
+            packs.write_snapshot(self.root, self.commit(), out)
+        self.assertEqual(out.read_bytes(), original)
 
     def test_publish_cli_refuses_modified_artifact_before_client_creation(self):
         out = self.root / "snapshot.json"
