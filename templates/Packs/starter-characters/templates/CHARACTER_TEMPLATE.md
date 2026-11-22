@@ -12,9 +12,16 @@ last_updated: "[YYYY-MM-DD]"
 # FIELD WIDGET CONFIGURATION
 field_config:
   birth_year:
+    type: integer
+    optional: true
     widget: year
   death_year:
+    type: integer
+    optional: true
     widget: year
+  current_age_reference_year:
+    type: integer
+    optional: true
 
 # BROWSE VIEWS (SBAI-15043): browse-page views; missing keys are inferred
 views:

@@ -124,13 +124,20 @@ field_config:
       - { value: "sponsor", label: "Sponsor" }
       - { value: "ambassador", label: "Ambassador" }
   birth_year:
+    type: integer
+    optional: true
     widget: year
     min: 1900
     max: 9999
   death_year:
+    type: integer
+    optional: true
     widget: year
     min: 1900
     max: 9999
+  current_age_reference_year:
+    type: integer
+    optional: true
   voice:
     widget: voice
 

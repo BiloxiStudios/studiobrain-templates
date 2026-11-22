@@ -341,18 +341,21 @@ class ShippedDataTests(unittest.TestCase):
             self.assertEqual(views(name)["default"], "cards", name)
         self.assertEqual(views("DIALOGUE")["default"], "list")
 
-    def test_character_year_fields_keep_their_existing_shape(self) -> None:
-        # Existing characters store age as a string ("18", "mid-30s") and the
-        # years as null. Core honours field_config.<k>.type and validates on
-        # write without coercion, so declaring integer here 422s every save of
-        # an untouched existing character. Keep them undeclared until a
-        # migration or coercion ships.
+    def test_character_templates_declare_the_nullable_year_contract(self) -> None:
+        schema = json.loads((ROOT / "schemas" / "character.json").read_text())
         for rel in ("templates/Standard/CHARACTER_TEMPLATE.md",
                     "templates/Packs/starter-characters/templates/CHARACTER_TEMPLATE.md"):
             fm = _fm((ROOT / rel).read_text())
+            # Age also accepts descriptions such as "mid-30s".
             self.assertIsInstance(fm["age"], str, rel)
-            for key in ("age", "birth_year", "death_year"):
-                self.assertNotIn("type", (fm.get("field_config") or {}).get(key) or {}, f"{rel} {key}")
+            self.assertNotIn("type", fm["field_config"].get("age", {}), rel)
+            for key in ("birth_year", "death_year", "current_age_reference_year"):
+                with self.subTest(template=rel, field=key):
+                    self.assertIsNone(fm[key])
+                    declaration = fm["field_config"].get(key, {})
+                    self.assertEqual(declaration.get("type"), "integer")
+                    self.assertIs(declaration.get("optional"), True)
+                    self.assertCountEqual(schema["properties"][key]["type"], ["integer", "null"])
 
 
 if __name__ == "__main__":
