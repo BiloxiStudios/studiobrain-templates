@@ -1,0 +1,20 @@
+{
+  "name": "Anime and Manga: Location Exterior",
+  "description": "Image preset for a location exterior in the Anime and Manga look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Anime and Manga",
+  "system_prompt": "Write one image prompt for an exterior establishing shot. Name the location's defining structure, surroundings, time of day, and weather from the entity, then apply the style.",
+  "context_prompt": "wide exterior establishing view of the location, clear foreground, midground and background, a sense of scale from a figure or doorway, anime key visual, thin clean line art, large detailed eyes with layered highlights, hair drawn as bold separate clumps, hard-edged cel shading with one shadow tone, saturated flat colour, crisp rim light, painted sky gradients",
+  "negative_prompt": "photorealistic, 3d render, western cartoon, heavy outlines, extra fingers, blurry, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "anime"
+  ]
+}

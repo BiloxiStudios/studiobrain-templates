@@ -1,0 +1,21 @@
+{
+  "name": "Pixel Art: Music",
+  "description": "Music preset: a score that fits the Pixel Art look.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "music",
+  "style": "Pixel Art",
+  "system_prompt": "Write one music prompt. Name the mood of the scene or entity first, then the instrumentation and tempo from this preset. Instrumental unless lyrics are asked for.",
+  "context_prompt": "chiptune, square and triangle wave leads, arpeggiated chords, noise-channel drums, looping 16-bar melody",
+  "negative_prompt": "vocals, lyrics, spoken word, low quality, clipping",
+  "technical_params": {
+    "duration_seconds": 30,
+    "instrumental": true
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "music",
+    "pixel-art"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Anime and Manga: Location Establishing Clip",
+  "description": "Video preset for a location clip in the Anime and Manga look.",
+  "media_type": "video",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Anime and Manga",
+  "system_prompt": "Write one video prompt for a 5 second establishing shot. State the camera move, time of day, and two things moving in the scene. Keep the architecture consistent with the entity.",
+  "context_prompt": "short establishing clip of the location with one slow camera move and ambient life in the frame, anime key visual, thin clean line art, large detailed eyes with layered highlights, hair drawn as bold separate clumps, hard-edged cel shading with one shadow tone, saturated flat colour, crisp rim light, painted sky gradients, limited animation on twos, held poses with hair and cloth follow-through, speed lines on fast moves, quick camera push-ins",
+  "negative_prompt": "photorealistic, 3d render, western cartoon, heavy outlines, extra fingers, blurry, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "location",
+    "anime"
+  ]
+}

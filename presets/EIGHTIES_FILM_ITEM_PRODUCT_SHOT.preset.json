@@ -1,0 +1,20 @@
+{
+  "name": "80s Film: Item Product Shot",
+  "description": "Image preset for a item product shot in the 80s Film look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "80s Film",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, 1980s movie still shot on 35mm film, anamorphic lens, practical effects, feathered hair and period wardrobe, visible film grain, neon pink and cyan against deep shadow, backlit haze, lens flares, tungsten interiors",
+  "negative_prompt": "modern clothing, smartphone, digital sharpness, cgi, hdr, clean skin smoothing, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "80s"
+  ]
+}

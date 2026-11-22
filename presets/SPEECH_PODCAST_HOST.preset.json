@@ -1,0 +1,20 @@
+{
+  "name": "Speech: Podcast Host",
+  "description": "A relaxed close-mic host voice.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "speech",
+  "style": "Podcast Host",
+  "system_prompt": "Use this delivery for the supplied text. Do not rewrite the words. Add pauses only where punctuation calls for them.",
+  "context_prompt": "relaxed close-mic host voice, conversational, medium pace, natural breaths left in, slight emphasis on names and key terms",
+  "negative_prompt": "robotic monotone, mispronounced names, background music, echo",
+  "technical_params": {
+    "speed": 1.0
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "speech",
+    "podcast"
+  ]
+}

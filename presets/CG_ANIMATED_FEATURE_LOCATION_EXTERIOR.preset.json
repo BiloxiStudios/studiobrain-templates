@@ -1,0 +1,20 @@
+{
+  "name": "CG Animated Feature: Location Exterior",
+  "description": "Image preset for a location exterior in the CG Animated Feature look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "CG Animated Feature",
+  "system_prompt": "Write one image prompt for an exterior establishing shot. Name the location's defining structure, surroundings, time of day, and weather from the entity, then apply the style.",
+  "context_prompt": "wide exterior establishing view of the location, clear foreground, midground and background, a sense of scale from a figure or doorway, stylized 3D animated feature film still, appealing simplified proportions, large expressive eyes, sculpted hair shapes, soft subsurface skin, tactile cloth and fur, cinematic three-point lighting, warm key and cool fill, soft global illumination, shallow depth of field",
+  "negative_prompt": "photorealistic human, uncanny, flat 2d, low-poly, harsh shadows, extra fingers, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "3d"
+  ]
+}

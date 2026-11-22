@@ -63,6 +63,7 @@ studiobrain-templates/
 │   ├── Packs/                          # Template packs (starter-characters, starter-locations, etc.)
 │   ├── Providers/                      # Provider catalog YAML
 │   └── ExampleImplementation/          # Example entities using the templates
+├── presets/                            # Generation presets (*.preset.json) + catalog.json (SBAI-15331)
 ├── rules/
 │   ├── *.md                            # Rule files (CHARACTER_RULES, LOCATION_RULES, etc.)
 │   ├── Core/                           # Core rules (assembly_constraints.yaml, dialogue_flow.yaml)

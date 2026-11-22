@@ -1,0 +1,21 @@
+{
+  "name": "Stop Motion: Music",
+  "description": "Music preset: a score that fits the Stop Motion look.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "music",
+  "style": "Stop Motion",
+  "system_prompt": "Write one music prompt. Name the mood of the scene or entity first, then the instrumentation and tempo from this preset. Instrumental unless lyrics are asked for.",
+  "context_prompt": "quirky chamber ensemble, pizzicato strings, toy piano, clarinet, light hand percussion",
+  "negative_prompt": "vocals, lyrics, spoken word, low quality, clipping",
+  "technical_params": {
+    "duration_seconds": 30,
+    "instrumental": true
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "music",
+    "stop-motion"
+  ]
+}

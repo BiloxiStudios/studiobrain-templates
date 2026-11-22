@@ -1,0 +1,20 @@
+{
+  "name": "Photoreal Live Action: Character Headshot",
+  "description": "Image preset for a character headshot in the Photoreal Live Action look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "headshot",
+  "style": "Photoreal Live Action",
+  "system_prompt": "Write one image prompt for a headshot. Lead with the character's defining facial features, hair, and expression from the entity, then apply the style. Keep the background plain.",
+  "context_prompt": "head-and-shoulders portrait of the character, face fills the frame, eyes sharp, neutral background that does not compete, photorealistic live-action film still, natural skin texture with pores, real fabric and material detail, true-to-life proportions, 50mm lens, motivated natural light, soft key from a window or practical lamp, neutral colour grade, gentle film grain",
+  "negative_prompt": "cartoon, illustration, 3d render, plastic skin, oversaturated, extra fingers, distorted face, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "realistic"
+  ]
+}

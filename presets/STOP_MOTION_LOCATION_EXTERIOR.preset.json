@@ -1,0 +1,20 @@
+{
+  "name": "Stop Motion: Location Exterior",
+  "description": "Image preset for a location exterior in the Stop Motion look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Stop Motion",
+  "system_prompt": "Write one image prompt for an exterior establishing shot. Name the location's defining structure, surroundings, time of day, and weather from the entity, then apply the style.",
+  "context_prompt": "wide exterior establishing view of the location, clear foreground, midground and background, a sense of scale from a figure or doorway, stop-motion puppet animation still, handmade clay and felt puppets with visible fingerprints and stitching, miniature set built from real materials, small practical lamps, shallow depth of field of a macro lens, warm tabletop lighting",
+  "negative_prompt": "smooth cgi, photorealistic human, flat 2d, digital gloss, motion blur, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "stop-motion"
+  ]
+}

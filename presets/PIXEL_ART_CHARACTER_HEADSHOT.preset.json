@@ -1,0 +1,20 @@
+{
+  "name": "Pixel Art: Character Headshot",
+  "description": "Image preset for a character headshot in the Pixel Art look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "headshot",
+  "style": "Pixel Art",
+  "system_prompt": "Write one image prompt for a headshot. Lead with the character's defining facial features, hair, and expression from the entity, then apply the style. Keep the background plain.",
+  "context_prompt": "head-and-shoulders portrait of the character, face fills the frame, eyes sharp, neutral background that does not compete, pixel art, crisp hard-edged pixels, limited 16 to 32 colour palette, readable silhouette at low resolution, no anti-aliasing, deliberate dithering, single consistent light direction, high-contrast outline against the background",
+  "negative_prompt": "smooth gradients, anti-aliasing, blur, photorealistic, 3d render, mixed pixel sizes, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "pixel-art"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studiobrain.ai/schemas/preset.json",
+  "title": "Generation preset",
+  "description": "A reusable generation preset (presets/<ID>.preset.json): the prompt scaffold, negative prompt and settings for one kind of image, video or audio output. Fields mirror the app's project presets. A preset names no provider or model, so it works with whichever model the project has enabled (SBAI-15331).",
+  "type": "object",
+  "required": ["name", "description", "media_type", "context_prompt", "tags"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {"type": "string", "minLength": 1},
+    "description": {"type": "string", "minLength": 1},
+    "media_type": {"enum": ["image", "video", "audio", "3d"]},
+    "entity_type": {"type": "string", "description": "Entity type the preset is written for; empty when it applies to any type."},
+    "image_type": {"type": "string", "description": "Shot or sub-kind: headshot, full_body, exterior, interior, product_shot, action_pose; for audio: music, speech, sfx."},
+    "style": {"type": "string"},
+    "system_prompt": {"type": "string", "description": "Instruction to the model that writes the final prompt."},
+    "context_prompt": {"type": "string", "minLength": 1, "description": "The prompt scaffold: framing, look, lighting, motion or sound."},
+    "negative_prompt": {"type": "string"},
+    "technical_params": {"type": "object", "description": "Model-neutral settings such as aspect_ratio or duration_seconds."},
+    "tags": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+  }
+}

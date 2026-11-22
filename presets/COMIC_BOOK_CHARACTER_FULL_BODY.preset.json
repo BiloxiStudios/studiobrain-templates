@@ -1,0 +1,20 @@
+{
+  "name": "Comic Book: Character Full Body",
+  "description": "Image preset for a character full body in the Comic Book look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Comic Book",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, American comic book art, bold black ink outlines with heavy spot blacks, dynamic foreshortening, halftone dot shading, flat four-colour palette, strong complementary colours, dramatic single light source",
+  "negative_prompt": "photorealistic, soft painterly shading, anime, 3d render, blurry, extra limbs, speech bubbles, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "comics"
+  ]
+}

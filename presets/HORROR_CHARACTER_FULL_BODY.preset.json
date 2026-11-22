@@ -1,0 +1,20 @@
+{
+  "name": "Horror: Character Full Body",
+  "description": "Image preset for a character full body in the Horror look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Horror",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, horror film still, subject half lost in shadow, something wrong at the edge of the frame, decayed textures, uneasy off-centre composition, low-key lighting, single cold practical light, desaturated palette with one sickly accent colour, fog",
+  "negative_prompt": "bright cheerful lighting, cartoon, comedy, clean new surfaces, gore close-up, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "horror"
+  ]
+}

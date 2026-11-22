@@ -1,0 +1,20 @@
+{
+  "name": "Photoreal Live Action: Item Product Shot",
+  "description": "Image preset for a item product shot in the Photoreal Live Action look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "Photoreal Live Action",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, photorealistic live-action film still, natural skin texture with pores, real fabric and material detail, true-to-life proportions, 50mm lens, motivated natural light, soft key from a window or practical lamp, neutral colour grade, gentle film grain",
+  "negative_prompt": "cartoon, illustration, 3d render, plastic skin, oversaturated, extra fingers, distorted face, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "realistic"
+  ]
+}

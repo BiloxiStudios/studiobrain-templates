@@ -1,0 +1,20 @@
+{
+  "name": "Fantasy: Character Full Body",
+  "description": "Image preset for a character full body in the Fantasy look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Fantasy",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, epic fantasy concept painting, painterly brushwork, ornate hand-crafted armour and cloth, ancient architecture with real scale, golden light through mist, rich jewel-tone palette, volumetric god rays, atmospheric depth",
+  "negative_prompt": "modern clothing, guns, cars, sci-fi technology, photographic snapshot look, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "fantasy"
+  ]
+}

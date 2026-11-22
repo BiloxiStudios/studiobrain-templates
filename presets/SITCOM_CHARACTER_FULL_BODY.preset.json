@@ -1,0 +1,20 @@
+{
+  "name": "Sitcom: Character Full Body",
+  "description": "Image preset for a character full body in the Sitcom look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Sitcom",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, multi-camera sitcom still, bright even studio lighting, three-wall standing set dressed with lived-in detail, medium shot at eye level, high-key lighting with soft shadows, warm saturated colour, everything in focus",
+  "negative_prompt": "dark moody lighting, cinematic shallow focus, horror, gritty grain, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "sitcom"
+  ]
+}

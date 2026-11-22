@@ -1,0 +1,20 @@
+{
+  "name": "Anime and Manga: Item Product Shot",
+  "description": "Image preset for a item product shot in the Anime and Manga look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "Anime and Manga",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, anime key visual, thin clean line art, large detailed eyes with layered highlights, hair drawn as bold separate clumps, hard-edged cel shading with one shadow tone, saturated flat colour, crisp rim light, painted sky gradients",
+  "negative_prompt": "photorealistic, 3d render, western cartoon, heavy outlines, extra fingers, blurry, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "anime"
+  ]
+}

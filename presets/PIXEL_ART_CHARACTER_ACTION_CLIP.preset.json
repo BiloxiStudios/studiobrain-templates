@@ -1,0 +1,21 @@
+{
+  "name": "Pixel Art: Character Action Clip",
+  "description": "Video preset for a character clip in the Pixel Art look.",
+  "media_type": "video",
+  "entity_type": "character",
+  "image_type": "action_pose",
+  "style": "Pixel Art",
+  "system_prompt": "Write one video prompt for a 5 second character clip. State the single action, the camera move, and the mood. Keep the character's design identical to the entity's description.",
+  "context_prompt": "short clip of the character performing one clear action that shows personality, start and end pose readable, pixel art, crisp hard-edged pixels, limited 16 to 32 colour palette, readable silhouette at low resolution, no anti-aliasing, deliberate dithering, single consistent light direction, high-contrast outline against the background, sprite animation in few frames, looping idle and walk cycles, tile-aligned scrolling, no sub-pixel motion",
+  "negative_prompt": "smooth gradients, anti-aliasing, blur, photorealistic, 3d render, mixed pixel sizes, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "character",
+    "pixel-art"
+  ]
+}

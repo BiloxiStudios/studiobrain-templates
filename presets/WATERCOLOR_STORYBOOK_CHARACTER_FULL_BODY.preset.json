@@ -1,0 +1,20 @@
+{
+  "name": "Watercolor Storybook: Character Full Body",
+  "description": "Image preset for a character full body in the Watercolor Storybook look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Watercolor Storybook",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, watercolour picture-book illustration, soft pencil line, loose washes that bleed past the line, visible paper texture, gentle rounded shapes, pastel palette, soft daylight, white paper showing through the highlights",
+  "negative_prompt": "photorealistic, 3d render, harsh black outlines, neon colours, dark horror mood, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "storybook"
+  ]
+}

@@ -3,7 +3,7 @@
   "name": "Theme: Comic Book",
   "description": "Comic book characters, locations and series arcs: bold design, panel-ready settings, and stories paced by the issue.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -25,5 +25,15 @@
     "COMIC_BOOK_LOCATIONS",
     "COMIC_SERIES_ARCS",
     "SUPERHERO_CHARACTERS"
+  ],
+  "presets": [
+    "COMIC_BOOK_CHARACTER_HEADSHOT",
+    "COMIC_BOOK_CHARACTER_FULL_BODY",
+    "COMIC_BOOK_LOCATION_EXTERIOR",
+    "COMIC_BOOK_LOCATION_INTERIOR",
+    "COMIC_BOOK_ITEM_PRODUCT_SHOT",
+    "COMIC_BOOK_CHARACTER_ACTION_CLIP",
+    "COMIC_BOOK_LOCATION_ESTABLISHING_CLIP",
+    "COMIC_BOOK_MUSIC"
   ]
 }

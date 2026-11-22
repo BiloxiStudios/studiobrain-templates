@@ -3,7 +3,7 @@
   "name": "Theme: 80s Film",
   "description": "The feel of an eighties movie: big archetypes, practical-effects texture, neon and suburbia.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -24,5 +24,16 @@
   "rulesets": [
     "EIGHTIES_FILM_CHARACTERS",
     "EIGHTIES_FILM_LOCATIONS"
+  ],
+  "presets": [
+    "EIGHTIES_FILM_CHARACTER_HEADSHOT",
+    "EIGHTIES_FILM_CHARACTER_FULL_BODY",
+    "EIGHTIES_FILM_LOCATION_EXTERIOR",
+    "EIGHTIES_FILM_LOCATION_INTERIOR",
+    "EIGHTIES_FILM_ITEM_PRODUCT_SHOT",
+    "EIGHTIES_FILM_CHARACTER_ACTION_CLIP",
+    "EIGHTIES_FILM_LOCATION_ESTABLISHING_CLIP",
+    "EIGHTIES_FILM_MUSIC",
+    "SPEECH_TRAILER_VOICE"
   ]
 }

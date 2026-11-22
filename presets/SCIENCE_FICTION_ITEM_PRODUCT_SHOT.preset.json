@@ -1,0 +1,20 @@
+{
+  "name": "Science Fiction: Item Product Shot",
+  "description": "Image preset for a item product shot in the Science Fiction look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "Science Fiction",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, science fiction concept art, functional industrial design with panel lines and wear, believable scale cues, alien forms with consistent biology, cool blue and teal palette with warm indicator lights, hard rim light, atmospheric haze and depth",
+  "negative_prompt": "medieval, fantasy magic, rustic wood, cartoon, clean toy-like surfaces, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "sci-fi"
+  ]
+}

@@ -3,7 +3,7 @@
   "name": "Theme: Writing a Novel",
   "description": "Characters with interior lives and a plot timeline that holds together across chapters.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -23,5 +23,11 @@
   "rulesets": [
     "NOVEL_CHARACTERS",
     "NOVEL_PLOT_TIMELINE"
+  ],
+  "presets": [
+    "SPEECH_WARM_NARRATOR",
+    "WATERCOLOR_STORYBOOK_CHARACTER_HEADSHOT",
+    "PHOTOREAL_LIVE_ACTION_CHARACTER_HEADSHOT",
+    "SFX_AMBIENCE_BED"
   ]
 }

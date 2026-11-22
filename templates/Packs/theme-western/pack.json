@@ -3,7 +3,7 @@
   "name": "Theme: Western",
   "description": "Frontier characters and locations: dust, distance, and codes of honor.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -23,5 +23,15 @@
   "rulesets": [
     "WESTERN_CHARACTERS",
     "WESTERN_LOCATIONS"
+  ],
+  "presets": [
+    "WESTERN_CHARACTER_HEADSHOT",
+    "WESTERN_CHARACTER_FULL_BODY",
+    "WESTERN_LOCATION_EXTERIOR",
+    "WESTERN_LOCATION_INTERIOR",
+    "WESTERN_ITEM_PRODUCT_SHOT",
+    "WESTERN_CHARACTER_ACTION_CLIP",
+    "WESTERN_LOCATION_ESTABLISHING_CLIP",
+    "WESTERN_MUSIC"
   ]
 }

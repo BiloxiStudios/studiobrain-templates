@@ -1,0 +1,20 @@
+{
+  "name": "Photoreal Live Action: Character Full Body",
+  "description": "Image preset for a character full body in the Photoreal Live Action look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Photoreal Live Action",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, photorealistic live-action film still, natural skin texture with pores, real fabric and material detail, true-to-life proportions, 50mm lens, motivated natural light, soft key from a window or practical lamp, neutral colour grade, gentle film grain",
+  "negative_prompt": "cartoon, illustration, 3d render, plastic skin, oversaturated, extra fingers, distorted face, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "realistic"
+  ]
+}

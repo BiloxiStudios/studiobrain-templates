@@ -1,0 +1,21 @@
+{
+  "name": "Sitcom: Location Establishing Clip",
+  "description": "Video preset for a location clip in the Sitcom look.",
+  "media_type": "video",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Sitcom",
+  "system_prompt": "Write one video prompt for a 5 second establishing shot. State the camera move, time of day, and two things moving in the scene. Keep the architecture consistent with the entity.",
+  "context_prompt": "short establishing clip of the location with one slow camera move and ambient life in the frame, multi-camera sitcom still, bright even studio lighting, three-wall standing set dressed with lived-in detail, medium shot at eye level, high-key lighting with soft shadows, warm saturated colour, everything in focus, locked-off multi-camera coverage, cuts between medium shots, actors move within the set, no handheld",
+  "negative_prompt": "dark moody lighting, cinematic shallow focus, horror, gritty grain, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "location",
+    "sitcom"
+  ]
+}

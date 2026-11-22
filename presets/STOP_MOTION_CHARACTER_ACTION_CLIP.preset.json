@@ -1,0 +1,21 @@
+{
+  "name": "Stop Motion: Character Action Clip",
+  "description": "Video preset for a character clip in the Stop Motion look.",
+  "media_type": "video",
+  "entity_type": "character",
+  "image_type": "action_pose",
+  "style": "Stop Motion",
+  "system_prompt": "Write one video prompt for a 5 second character clip. State the single action, the camera move, and the mood. Keep the character's design identical to the entity's description.",
+  "context_prompt": "short clip of the character performing one clear action that shows personality, start and end pose readable, stop-motion puppet animation still, handmade clay and felt puppets with visible fingerprints and stitching, miniature set built from real materials, small practical lamps, shallow depth of field of a macro lens, warm tabletop lighting, animated on twos with slight frame-to-frame jitter, tactile material boil, small deliberate camera moves on a miniature rig",
+  "negative_prompt": "smooth cgi, photorealistic human, flat 2d, digital gloss, motion blur, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "character",
+    "stop-motion"
+  ]
+}

@@ -762,6 +762,48 @@ def check_pack_rulesets(pack_file: pathlib.Path, manifest: dict[str, Any]) -> li
     return errors
 
 
+def check_pack_presets(pack_file: pathlib.Path, manifest: dict[str, Any]) -> list[str]:
+    """Every id in a pack's ``presets`` must be a catalog preset (SBAI-15331)."""
+    errors: list[str] = []
+    entries = manifest.get("presets")
+    if not isinstance(entries, list):
+        return errors
+    for entry in entries:
+        if not isinstance(entry, str):
+            continue  # pack.json validates the manifest's types.
+        if not (ROOT / "presets" / f"{entry}.preset.json").is_file():
+            errors.append(f"{pack_file}: preset {entry!r} is not in the catalog (no presets/{entry}.preset.json)")
+    return errors
+
+
+def check_presets() -> list[str]:
+    """Validate presets/*.preset.json and keep presets/catalog.json in step (SBAI-15331)."""
+    errors: list[str] = []
+    presets_dir = ROOT / "presets"
+    if not presets_dir.exists():
+        return errors
+    ids: set[str] = set()
+    for preset_file in sorted(presets_dir.glob("*.preset.json")):
+        preset_id = preset_file.name[: -len(".preset.json")]
+        ids.add(preset_id)
+        try:
+            data = json.loads(preset_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"{preset_file}: JSON parse error: {exc}")
+            continue
+        errors.extend(_validate_instance(data, "preset.json", str(preset_file)))
+    catalog_file = presets_dir / "catalog.json"
+    try:
+        entries = json.loads(catalog_file.read_text(encoding="utf-8")).get("entries", {})
+    except (OSError, json.JSONDecodeError, AttributeError) as exc:
+        return errors + [f"{catalog_file}: cannot read preset catalog: {exc}"]
+    for missing in sorted(ids - set(entries)):
+        errors.append(f"{catalog_file}: no entry for presets/{missing}.preset.json")
+    for extra in sorted(set(entries) - ids):
+        errors.append(f"{catalog_file}: entry {extra!r} has no presets/{extra}.preset.json")
+    return errors
+
+
 def check_packs() -> list[str]:
     errors: list[str] = []
     packs_dir = TEMPLATES_DIR / "Packs"
@@ -777,6 +819,7 @@ def check_packs() -> list[str]:
         if isinstance(data, dict):
             errors.extend(check_pack_rule_files(pack_file.parent, data))
             errors.extend(check_pack_rulesets(pack_file, data))
+            errors.extend(check_pack_presets(pack_file, data))
     return errors
 
 
@@ -2188,6 +2231,7 @@ def main(argv: list[str] | None = None) -> int:
 
     _info("== Validating packs ==")
     all_errors.extend(check_packs())
+    all_errors.extend(check_presets())
 
     _info("== Validating plugins ==")
     all_errors.extend(check_plugins())

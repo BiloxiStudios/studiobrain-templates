@@ -1,0 +1,20 @@
+{
+  "name": "Hand-Drawn Animation: Character Full Body",
+  "description": "Image preset for a character full body in the Hand-Drawn Animation look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Hand-Drawn Animation",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, classic hand-drawn 2D animation cel, confident tapered ink line, simple rounded shapes built to move, flat colour with one soft shadow pass, gouache painted background, warm storybook palette, soft ambient light",
+  "negative_prompt": "photorealistic, 3d render, anime, gritty texture, extra limbs, blurry, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "2d"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Sitcom: Item Product Shot",
+  "description": "Image preset for a item product shot in the Sitcom look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "Sitcom",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, multi-camera sitcom still, bright even studio lighting, three-wall standing set dressed with lived-in detail, medium shot at eye level, high-key lighting with soft shadows, warm saturated colour, everything in focus",
+  "negative_prompt": "dark moody lighting, cinematic shallow focus, horror, gritty grain, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "sitcom"
+  ]
+}

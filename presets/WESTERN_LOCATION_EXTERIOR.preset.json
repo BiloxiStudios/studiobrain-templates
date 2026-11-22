@@ -1,0 +1,20 @@
+{
+  "name": "Western: Location Exterior",
+  "description": "Image preset for a location exterior in the Western look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Western",
+  "system_prompt": "Write one image prompt for an exterior establishing shot. Name the location's defining structure, surroundings, time of day, and weather from the entity, then apply the style.",
+  "context_prompt": "wide exterior establishing view of the location, clear foreground, midground and background, a sense of scale from a figure or doorway, classic western film still, wide anamorphic frame, weathered faces, dust-caked leather and denim, sun-bleached timber, hard midday sun or golden-hour backlight, ochre and rust palette, long shadows, heat haze",
+  "negative_prompt": "modern vehicles, power lines, clean clothes, neon, lush green forest, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "western"
+  ]
+}

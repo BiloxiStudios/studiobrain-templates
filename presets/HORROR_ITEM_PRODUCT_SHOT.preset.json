@@ -1,0 +1,20 @@
+{
+  "name": "Horror: Item Product Shot",
+  "description": "Image preset for a item product shot in the Horror look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "Horror",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, horror film still, subject half lost in shadow, something wrong at the edge of the frame, decayed textures, uneasy off-centre composition, low-key lighting, single cold practical light, desaturated palette with one sickly accent colour, fog",
+  "negative_prompt": "bright cheerful lighting, cartoon, comedy, clean new surfaces, gore close-up, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "horror"
+  ]
+}

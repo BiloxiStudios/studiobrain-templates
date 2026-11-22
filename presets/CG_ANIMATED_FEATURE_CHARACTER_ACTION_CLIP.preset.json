@@ -1,0 +1,21 @@
+{
+  "name": "CG Animated Feature: Character Action Clip",
+  "description": "Video preset for a character clip in the CG Animated Feature look.",
+  "media_type": "video",
+  "entity_type": "character",
+  "image_type": "action_pose",
+  "style": "CG Animated Feature",
+  "system_prompt": "Write one video prompt for a 5 second character clip. State the single action, the camera move, and the mood. Keep the character's design identical to the entity's description.",
+  "context_prompt": "short clip of the character performing one clear action that shows personality, start and end pose readable, stylized 3D animated feature film still, appealing simplified proportions, large expressive eyes, sculpted hair shapes, soft subsurface skin, tactile cloth and fur, cinematic three-point lighting, warm key and cool fill, soft global illumination, shallow depth of field, smooth feature-quality character animation, readable poses, subtle facial acting, slow cinematic camera moves with depth of field",
+  "negative_prompt": "photorealistic human, uncanny, flat 2d, low-poly, harsh shadows, extra fingers, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "character",
+    "3d"
+  ]
+}

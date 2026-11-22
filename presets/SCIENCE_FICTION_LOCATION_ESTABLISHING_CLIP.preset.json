@@ -1,0 +1,21 @@
+{
+  "name": "Science Fiction: Location Establishing Clip",
+  "description": "Video preset for a location clip in the Science Fiction look.",
+  "media_type": "video",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Science Fiction",
+  "system_prompt": "Write one video prompt for a 5 second establishing shot. State the camera move, time of day, and two things moving in the scene. Keep the architecture consistent with the entity.",
+  "context_prompt": "short establishing clip of the location with one slow camera move and ambient life in the frame, science fiction concept art, functional industrial design with panel lines and wear, believable scale cues, alien forms with consistent biology, cool blue and teal palette with warm indicator lights, hard rim light, atmospheric haze and depth, slow weighty camera drifts, parallax between foreground hardware and distant planets, holographic UI flicker",
+  "negative_prompt": "medieval, fantasy magic, rustic wood, cartoon, clean toy-like surfaces, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "location",
+    "sci-fi"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Photoreal Live Action: Location Interior",
+  "description": "Image preset for a location interior in the Photoreal Live Action look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "interior",
+  "style": "Photoreal Live Action",
+  "system_prompt": "Write one image prompt for an interior. List the room's purpose, three props that say who uses it, and the light source from the entity, then apply the style.",
+  "context_prompt": "interior view of the location from a doorway or corner, key furniture and props in place, light source visible, room for characters to stand, photorealistic live-action film still, natural skin texture with pores, real fabric and material detail, true-to-life proportions, 50mm lens, motivated natural light, soft key from a window or practical lamp, neutral colour grade, gentle film grain",
+  "negative_prompt": "cartoon, illustration, 3d render, plastic skin, oversaturated, extra fingers, distorted face, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "realistic"
+  ]
+}

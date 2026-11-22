@@ -1,0 +1,21 @@
+{
+  "name": "Watercolor Storybook: Character Action Clip",
+  "description": "Video preset for a character clip in the Watercolor Storybook look.",
+  "media_type": "video",
+  "entity_type": "character",
+  "image_type": "action_pose",
+  "style": "Watercolor Storybook",
+  "system_prompt": "Write one video prompt for a 5 second character clip. State the single action, the camera move, and the mood. Keep the character's design identical to the entity's description.",
+  "context_prompt": "short clip of the character performing one clear action that shows personality, start and end pose readable, watercolour picture-book illustration, soft pencil line, loose washes that bleed past the line, visible paper texture, gentle rounded shapes, pastel palette, soft daylight, white paper showing through the highlights, gentle page-turn pacing, slow pans across a painted spread, washes blooming in, minimal character movement",
+  "negative_prompt": "photorealistic, 3d render, harsh black outlines, neon colours, dark horror mood, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "character",
+    "storybook"
+  ]
+}

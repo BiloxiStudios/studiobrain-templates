@@ -1,0 +1,20 @@
+{
+  "name": "Pixel Art: Location Exterior",
+  "description": "Image preset for a location exterior in the Pixel Art look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Pixel Art",
+  "system_prompt": "Write one image prompt for an exterior establishing shot. Name the location's defining structure, surroundings, time of day, and weather from the entity, then apply the style.",
+  "context_prompt": "wide exterior establishing view of the location, clear foreground, midground and background, a sense of scale from a figure or doorway, pixel art, crisp hard-edged pixels, limited 16 to 32 colour palette, readable silhouette at low resolution, no anti-aliasing, deliberate dithering, single consistent light direction, high-contrast outline against the background",
+  "negative_prompt": "smooth gradients, anti-aliasing, blur, photorealistic, 3d render, mixed pixel sizes, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "pixel-art"
+  ]
+}

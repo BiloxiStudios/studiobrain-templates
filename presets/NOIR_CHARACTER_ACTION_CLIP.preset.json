@@ -1,0 +1,21 @@
+{
+  "name": "Noir Mystery: Character Action Clip",
+  "description": "Video preset for a character clip in the Noir Mystery look.",
+  "media_type": "video",
+  "entity_type": "character",
+  "image_type": "action_pose",
+  "style": "Noir Mystery",
+  "system_prompt": "Write one video prompt for a 5 second character clip. State the single action, the camera move, and the mood. Keep the character's design identical to the entity's description.",
+  "context_prompt": "short clip of the character performing one clear action that shows personality, start and end pose readable, film noir still, hard chiaroscuro, venetian-blind shadows across the face, rain-slick streets, fedoras and trench coats, cigarette smoke, black and white or heavily desaturated, single hard key light, deep blacks, wet reflective surfaces, slow tracking shots through shadow, smoke curling in a light shaft, rain streaking past street lamps",
+  "negative_prompt": "bright saturated colour, sunny daylight, modern technology, cartoon, cheerful mood, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "character",
+    "noir"
+  ]
+}

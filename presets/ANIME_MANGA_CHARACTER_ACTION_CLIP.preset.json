@@ -1,0 +1,21 @@
+{
+  "name": "Anime and Manga: Character Action Clip",
+  "description": "Video preset for a character clip in the Anime and Manga look.",
+  "media_type": "video",
+  "entity_type": "character",
+  "image_type": "action_pose",
+  "style": "Anime and Manga",
+  "system_prompt": "Write one video prompt for a 5 second character clip. State the single action, the camera move, and the mood. Keep the character's design identical to the entity's description.",
+  "context_prompt": "short clip of the character performing one clear action that shows personality, start and end pose readable, anime key visual, thin clean line art, large detailed eyes with layered highlights, hair drawn as bold separate clumps, hard-edged cel shading with one shadow tone, saturated flat colour, crisp rim light, painted sky gradients, limited animation on twos, held poses with hair and cloth follow-through, speed lines on fast moves, quick camera push-ins",
+  "negative_prompt": "photorealistic, 3d render, western cartoon, heavy outlines, extra fingers, blurry, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "character",
+    "anime"
+  ]
+}
