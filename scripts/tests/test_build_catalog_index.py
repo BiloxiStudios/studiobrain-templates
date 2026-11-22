@@ -16,6 +16,7 @@ rather than polluting the real catalog with fixture pricing data.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import pathlib
 import sys
@@ -202,6 +203,38 @@ def _write_tree(tmp: pathlib.Path, providers: dict[str, str], canvases: dict[str
     canvas_dir.mkdir(parents=True, exist_ok=True)
     for name, body in canvases.items():
         (canvas_dir / name).write_text(body, encoding="utf-8")
+
+
+class StandaloneLayoutTests(unittest.TestCase):
+    def test_catalog_keeps_source_identity_and_indexes_only_standalone_layouts(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            layout_path = root / "templates/Layouts/style_bible.layout.json"
+            layout_path.parent.mkdir(parents=True)
+            body = b'{"entity_type":"style_bible","version":"1.0","sections":[]}\n'
+            layout_path.write_bytes(body)
+            for other in ("templates/Packs/example/layouts/style_bible.layout.json",
+                          "templates/Layouts/Custom/style_bible.layout.json"):
+                path = root / other
+                path.parent.mkdir(parents=True)
+                path.write_bytes(body)
+            self.assertEqual(bci.build_entries(root), [{
+                "id": "style_bible",
+                "kind": "layout",
+                "name": "Style Bible",
+                "path": "templates/Layouts/style_bible.layout.json",
+                "entity_types": ["style_bible"],
+                "sha256": hashlib.sha256(body).hexdigest(),
+            }])
+
+    def test_layout_filename_must_target_its_declared_entity_type(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = pathlib.Path(td)
+            layout_path = root / "templates/Layouts/character.layout.json"
+            layout_path.parent.mkdir(parents=True)
+            layout_path.write_text('{"entity_type":"location","version":"1.0","sections":[]}')
+            with self.assertRaisesRegex(ValueError, "entity_type must match"):
+                bci.build_entries(root)
 
 
 @unittest.skipUnless(bci.yaml is not None, "pyyaml required")

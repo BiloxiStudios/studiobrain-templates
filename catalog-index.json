@@ -1,6 +1,6 @@
 {
   "index_schema_version": 1,
-  "generated_at": "2026-11-21T20:19:01Z",
+  "generated_at": "2026-11-22T01:28:24Z",
   "entries": [
     {
       "id": "character-bio",
@@ -644,6 +644,166 @@
         "item"
       ],
       "step_count": 2
+    },
+    {
+      "id": "assembly",
+      "kind": "layout",
+      "name": "Assembly",
+      "path": "templates/Layouts/assembly.layout.json",
+      "entity_types": [
+        "assembly"
+      ],
+      "sha256": "d00a2757908a54b85c81b714d7682d0a2c2a23e6e3e4a610506150830b892df7"
+    },
+    {
+      "id": "biome",
+      "kind": "layout",
+      "name": "Biome",
+      "path": "templates/Layouts/biome.layout.json",
+      "entity_types": [
+        "biome"
+      ],
+      "sha256": "3f342686b1439f6baa39d645a8e9216dd9a5107ede6b2b5ffec1f983591ebf68"
+    },
+    {
+      "id": "brand",
+      "kind": "layout",
+      "name": "Brand",
+      "path": "templates/Layouts/brand.layout.json",
+      "entity_types": [
+        "brand"
+      ],
+      "sha256": "b29fc5ab9608943b26b35cbf1d74e649c94bff82f2d1cccab88bdd95687f9d22"
+    },
+    {
+      "id": "campaign",
+      "kind": "layout",
+      "name": "Campaign",
+      "path": "templates/Layouts/campaign.layout.json",
+      "entity_types": [
+        "campaign"
+      ],
+      "sha256": "64a38a187b646e772e52857078371133bd6f209b738d4813bb4f369925c3075d"
+    },
+    {
+      "id": "character",
+      "kind": "layout",
+      "name": "Character",
+      "path": "templates/Layouts/character.layout.json",
+      "entity_types": [
+        "character"
+      ],
+      "sha256": "53b0143f2779703789c48e6a1d7205899720f638ae41c4cdcffa51ab5dc87492"
+    },
+    {
+      "id": "dialogue",
+      "kind": "layout",
+      "name": "Dialogue",
+      "path": "templates/Layouts/dialogue.layout.json",
+      "entity_types": [
+        "dialogue"
+      ],
+      "sha256": "bce08504b0633e71ba0fa91d033030dafe701a2e85f098a4daca5ef316f20f2a"
+    },
+    {
+      "id": "district",
+      "kind": "layout",
+      "name": "District",
+      "path": "templates/Layouts/district.layout.json",
+      "entity_types": [
+        "district"
+      ],
+      "sha256": "bb9dd18bad6a469b827cfdc29f8ce1af4bf80878f26286757ce6dd58b5a70043"
+    },
+    {
+      "id": "event",
+      "kind": "layout",
+      "name": "Event",
+      "path": "templates/Layouts/event.layout.json",
+      "entity_types": [
+        "event"
+      ],
+      "sha256": "45edafcee5a199259a867f510d01a92b8daef5ba570b41e1f68a2cf003f779f4"
+    },
+    {
+      "id": "faction",
+      "kind": "layout",
+      "name": "Faction",
+      "path": "templates/Layouts/faction.layout.json",
+      "entity_types": [
+        "faction"
+      ],
+      "sha256": "eb3195e08a7eb3afa7a88ec2753f6248003e3d745b2bab6062209840dd248d22"
+    },
+    {
+      "id": "item",
+      "kind": "layout",
+      "name": "Item",
+      "path": "templates/Layouts/item.layout.json",
+      "entity_types": [
+        "item"
+      ],
+      "sha256": "8537f45ebd3741535fb04788870eb79d26e119c8cc9ba2cbda397dc48f51e967"
+    },
+    {
+      "id": "job",
+      "kind": "layout",
+      "name": "Job",
+      "path": "templates/Layouts/job.layout.json",
+      "entity_types": [
+        "job"
+      ],
+      "sha256": "551a92ee59582fd4dafa7fa16235c6cdbfacef776527ebc264c97026cb9fdcfb"
+    },
+    {
+      "id": "location",
+      "kind": "layout",
+      "name": "Location",
+      "path": "templates/Layouts/location.layout.json",
+      "entity_types": [
+        "location"
+      ],
+      "sha256": "761d9a3c2e30a7eb739d07c6c70fe193ec13386d2787c961ef21c5a99bbbce0e"
+    },
+    {
+      "id": "quest",
+      "kind": "layout",
+      "name": "Quest",
+      "path": "templates/Layouts/quest.layout.json",
+      "entity_types": [
+        "quest"
+      ],
+      "sha256": "95d992cf5fc5d0677e89fa64a18f7a4c0e234bebe1682e42d671016b970b57bf"
+    },
+    {
+      "id": "style_bible",
+      "kind": "layout",
+      "name": "Style Bible",
+      "path": "templates/Layouts/style_bible.layout.json",
+      "entity_types": [
+        "style_bible"
+      ],
+      "sha256": "97598bda993b9f0b1aa05f9e4600c5c24135098e8b0d3cb0409c26d84f11c211"
+    },
+    {
+      "id": "timeline",
+      "kind": "layout",
+      "name": "Timeline",
+      "path": "templates/Layouts/timeline.layout.json",
+      "entity_types": [
+        "timeline"
+      ],
+      "sha256": "b41957314e33158482f1985022d1a4d4092021f17e33365c6e778efb6a7df3fd"
+    },
+    {
+      "id": "universe",
+      "kind": "layout",
+      "name": "Universe",
+      "path": "templates/Layouts/universe.layout.json",
+      "entity_types": [
+        "universe"
+      ],
+      "sha256": "06c974f6ad363df6d0b7f02cae58a32ee2734d47e9f4c52815c37cf152e3a267"
     },
     {
       "id": "anthropic",
