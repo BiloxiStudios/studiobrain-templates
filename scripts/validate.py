@@ -748,6 +748,20 @@ def check_pack_rule_files(pack_dir: pathlib.Path, manifest: dict[str, Any]) -> l
     return errors
 
 
+def check_pack_rulesets(pack_file: pathlib.Path, manifest: dict[str, Any]) -> list[str]:
+    """Every id in a pack's ``rulesets`` must be a catalog ruleset (SBAI-15328)."""
+    errors: list[str] = []
+    entries = manifest.get("rulesets")
+    if not isinstance(entries, list):
+        return errors
+    for entry in entries:
+        if not isinstance(entry, str):
+            continue  # pack.json validates the manifest's types.
+        if not (ROOT / "rules" / f"{entry}.md").is_file():
+            errors.append(f"{pack_file}: ruleset {entry!r} is not in the catalog (no rules/{entry}.md)")
+    return errors
+
+
 def check_packs() -> list[str]:
     errors: list[str] = []
     packs_dir = TEMPLATES_DIR / "Packs"
@@ -762,6 +776,7 @@ def check_packs() -> list[str]:
         errors.extend(_validate_instance(data, "pack.json", str(pack_file)))
         if isinstance(data, dict):
             errors.extend(check_pack_rule_files(pack_file.parent, data))
+            errors.extend(check_pack_rulesets(pack_file, data))
     return errors
 
 

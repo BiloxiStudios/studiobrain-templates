@@ -1,0 +1,30 @@
+{
+  "id": "theme-fantasy",
+  "name": "Theme: Fantasy",
+  "description": "Fantasy characters, locations and magic items with consistent rules for how the world works.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "narrative",
+    "game-dev",
+    "world-building"
+  ],
+  "tags": [
+    "theme",
+    "fantasy",
+    "magic",
+    "genre"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "FANTASY_CHARACTERS",
+    "FANTASY_LOCATIONS",
+    "MAGIC_ITEMS"
+  ]
+}

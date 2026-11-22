@@ -1,0 +1,27 @@
+{
+  "id": "theme-music-and-music-videos",
+  "name": "Theme: Music and Music Videos",
+  "description": "Artists, their sound and image, and the shoots for their music videos.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "music"
+  ],
+  "tags": [
+    "theme",
+    "music",
+    "music-video",
+    "use"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "MUSIC_ARTISTS",
+    "MUSIC_VIDEO_SHOOTS"
+  ]
+}

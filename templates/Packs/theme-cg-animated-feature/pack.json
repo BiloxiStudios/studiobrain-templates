@@ -1,0 +1,29 @@
+{
+  "id": "theme-cg-animated-feature",
+  "name": "Theme: CG Animated Feature",
+  "description": "The look of a computer-animated family feature: appealing stylized characters and richly lit worlds.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "animation",
+    "film-tv"
+  ],
+  "tags": [
+    "theme",
+    "animation",
+    "3d",
+    "cg",
+    "style"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "CG_ANIMATED_FEATURE_CHARACTERS",
+    "CG_ANIMATED_FEATURE_LOCATIONS"
+  ]
+}

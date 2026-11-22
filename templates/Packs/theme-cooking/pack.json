@@ -1,0 +1,27 @@
+{
+  "id": "theme-cooking",
+  "name": "Theme: Cooking",
+  "description": "Recipes as dishes with ingredients and method, and the meals and events they are served at.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "food"
+  ],
+  "tags": [
+    "theme",
+    "cooking",
+    "recipes",
+    "use"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "RECIPE_DISHES",
+    "MEAL_EVENTS"
+  ]
+}

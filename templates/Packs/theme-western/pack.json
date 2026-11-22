@@ -1,0 +1,27 @@
+{
+  "id": "theme-western",
+  "name": "Theme: Western",
+  "description": "Frontier characters and locations: dust, distance, and codes of honor.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "film-tv",
+    "narrative"
+  ],
+  "tags": [
+    "theme",
+    "western",
+    "genre"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "WESTERN_CHARACTERS",
+    "WESTERN_LOCATIONS"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "theme-anime-manga",
+  "name": "Theme: Anime and Manga",
+  "description": "Characters and locations in an anime and manga style: expressive faces, strong silhouettes, and backgrounds drawn for the frame.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "animation",
+    "comics"
+  ],
+  "tags": [
+    "theme",
+    "anime",
+    "manga",
+    "style"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "ANIME_MANGA_CHARACTERS",
+    "ANIME_MANGA_LOCATIONS"
+  ]
+}
