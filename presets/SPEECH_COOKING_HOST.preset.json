@@ -1,0 +1,20 @@
+{
+  "name": "Speech: Cooking Host",
+  "description": "A friendly host talking through a recipe.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "speech",
+  "style": "Cooking Host",
+  "system_prompt": "Use this delivery for the supplied text. Do not rewrite the words. Add pauses only where punctuation calls for them.",
+  "context_prompt": "friendly upbeat host, smiling tone, steady instructional pace, numbers and quantities spoken slowly and clearly",
+  "negative_prompt": "robotic monotone, mispronounced names, background music, echo",
+  "technical_params": {
+    "speed": 1.0
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "speech",
+    "cooking"
+  ]
+}

@@ -3,7 +3,7 @@
   "name": "Theme: Science Fiction",
   "description": "Science fiction locations, alien characters and alien biomes, plus cyberpunk cities.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -28,5 +28,15 @@
     "SPACE_ALIEN_CHARACTERS",
     "ALIEN_WORLD_BIOMES",
     "CYBERPUNK_LOCATIONS"
+  ],
+  "presets": [
+    "SCIENCE_FICTION_CHARACTER_HEADSHOT",
+    "SCIENCE_FICTION_CHARACTER_FULL_BODY",
+    "SCIENCE_FICTION_LOCATION_EXTERIOR",
+    "SCIENCE_FICTION_LOCATION_INTERIOR",
+    "SCIENCE_FICTION_ITEM_PRODUCT_SHOT",
+    "SCIENCE_FICTION_CHARACTER_ACTION_CLIP",
+    "SCIENCE_FICTION_LOCATION_ESTABLISHING_CLIP",
+    "SCIENCE_FICTION_MUSIC"
   ]
 }

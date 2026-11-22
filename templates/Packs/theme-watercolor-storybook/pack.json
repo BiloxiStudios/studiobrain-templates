@@ -3,7 +3,7 @@
   "name": "Theme: Watercolor Storybook",
   "description": "Soft illustrated characters and places for picture books and gentle stories, with a cozy tone.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -26,5 +26,16 @@
     "WATERCOLOR_STORYBOOK_CHARACTERS",
     "WATERCOLOR_STORYBOOK_LOCATIONS",
     "COZY_TONE"
+  ],
+  "presets": [
+    "WATERCOLOR_STORYBOOK_CHARACTER_HEADSHOT",
+    "WATERCOLOR_STORYBOOK_CHARACTER_FULL_BODY",
+    "WATERCOLOR_STORYBOOK_LOCATION_EXTERIOR",
+    "WATERCOLOR_STORYBOOK_LOCATION_INTERIOR",
+    "WATERCOLOR_STORYBOOK_ITEM_PRODUCT_SHOT",
+    "WATERCOLOR_STORYBOOK_CHARACTER_ACTION_CLIP",
+    "WATERCOLOR_STORYBOOK_LOCATION_ESTABLISHING_CLIP",
+    "WATERCOLOR_STORYBOOK_MUSIC",
+    "SPEECH_WARM_NARRATOR"
   ]
 }

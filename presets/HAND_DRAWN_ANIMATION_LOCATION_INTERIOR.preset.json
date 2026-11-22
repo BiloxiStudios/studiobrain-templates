@@ -1,0 +1,20 @@
+{
+  "name": "Hand-Drawn Animation: Location Interior",
+  "description": "Image preset for a location interior in the Hand-Drawn Animation look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "interior",
+  "style": "Hand-Drawn Animation",
+  "system_prompt": "Write one image prompt for an interior. List the room's purpose, three props that say who uses it, and the light source from the entity, then apply the style.",
+  "context_prompt": "interior view of the location from a doorway or corner, key furniture and props in place, light source visible, room for characters to stand, classic hand-drawn 2D animation cel, confident tapered ink line, simple rounded shapes built to move, flat colour with one soft shadow pass, gouache painted background, warm storybook palette, soft ambient light",
+  "negative_prompt": "photorealistic, 3d render, anime, gritty texture, extra limbs, blurry, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "2d"
+  ]
+}

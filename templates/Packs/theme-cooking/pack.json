@@ -3,7 +3,7 @@
   "name": "Theme: Cooking",
   "description": "Recipes as dishes with ingredients and method, and the meals and events they are served at.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -23,5 +23,10 @@
   "rulesets": [
     "RECIPE_DISHES",
     "MEAL_EVENTS"
+  ],
+  "presets": [
+    "SPEECH_COOKING_HOST",
+    "PHOTOREAL_LIVE_ACTION_ITEM_PRODUCT_SHOT",
+    "WATERCOLOR_STORYBOOK_ITEM_PRODUCT_SHOT"
   ]
 }

@@ -1,0 +1,20 @@
+{
+  "name": "Hand-Drawn Animation: Character Headshot",
+  "description": "Image preset for a character headshot in the Hand-Drawn Animation look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "headshot",
+  "style": "Hand-Drawn Animation",
+  "system_prompt": "Write one image prompt for a headshot. Lead with the character's defining facial features, hair, and expression from the entity, then apply the style. Keep the background plain.",
+  "context_prompt": "head-and-shoulders portrait of the character, face fills the frame, eyes sharp, neutral background that does not compete, classic hand-drawn 2D animation cel, confident tapered ink line, simple rounded shapes built to move, flat colour with one soft shadow pass, gouache painted background, warm storybook palette, soft ambient light",
+  "negative_prompt": "photorealistic, 3d render, anime, gritty texture, extra limbs, blurry, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "2d"
+  ]
+}

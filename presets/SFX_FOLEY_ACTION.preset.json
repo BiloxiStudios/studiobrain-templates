@@ -1,0 +1,20 @@
+{
+  "name": "Sound: Foley Action",
+  "description": "A single close-up sound effect for one action.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "sfx",
+  "style": "Foley Action",
+  "system_prompt": "Write one sound prompt. Name the source of the sound and the space it is in from the entity, then apply this preset.",
+  "context_prompt": "one isolated close-mic sound for the named action, clean start and natural decay, no music, no voices, no background",
+  "negative_prompt": "music, speech, distortion, clipping",
+  "technical_params": {
+    "duration_seconds": 3
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "sound",
+    "foley"
+  ]
+}

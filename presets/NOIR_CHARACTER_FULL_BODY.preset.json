@@ -1,0 +1,20 @@
+{
+  "name": "Noir Mystery: Character Full Body",
+  "description": "Image preset for a character full body in the Noir Mystery look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Noir Mystery",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, film noir still, hard chiaroscuro, venetian-blind shadows across the face, rain-slick streets, fedoras and trench coats, cigarette smoke, black and white or heavily desaturated, single hard key light, deep blacks, wet reflective surfaces",
+  "negative_prompt": "bright saturated colour, sunny daylight, modern technology, cartoon, cheerful mood, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "noir"
+  ]
+}

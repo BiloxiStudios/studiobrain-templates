@@ -1,0 +1,20 @@
+{
+  "name": "Stop Motion: Character Headshot",
+  "description": "Image preset for a character headshot in the Stop Motion look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "headshot",
+  "style": "Stop Motion",
+  "system_prompt": "Write one image prompt for a headshot. Lead with the character's defining facial features, hair, and expression from the entity, then apply the style. Keep the background plain.",
+  "context_prompt": "head-and-shoulders portrait of the character, face fills the frame, eyes sharp, neutral background that does not compete, stop-motion puppet animation still, handmade clay and felt puppets with visible fingerprints and stitching, miniature set built from real materials, small practical lamps, shallow depth of field of a macro lens, warm tabletop lighting",
+  "negative_prompt": "smooth cgi, photorealistic human, flat 2d, digital gloss, motion blur, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "stop-motion"
+  ]
+}

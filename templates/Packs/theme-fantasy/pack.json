@@ -3,7 +3,7 @@
   "name": "Theme: Fantasy",
   "description": "Fantasy characters, locations and magic items with consistent rules for how the world works.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -26,5 +26,15 @@
     "FANTASY_CHARACTERS",
     "FANTASY_LOCATIONS",
     "MAGIC_ITEMS"
+  ],
+  "presets": [
+    "FANTASY_CHARACTER_HEADSHOT",
+    "FANTASY_CHARACTER_FULL_BODY",
+    "FANTASY_LOCATION_EXTERIOR",
+    "FANTASY_LOCATION_INTERIOR",
+    "FANTASY_ITEM_PRODUCT_SHOT",
+    "FANTASY_CHARACTER_ACTION_CLIP",
+    "FANTASY_LOCATION_ESTABLISHING_CLIP",
+    "FANTASY_MUSIC"
   ]
 }

@@ -1,0 +1,20 @@
+{
+  "name": "Speech: Trailer Voice",
+  "description": "A big cinematic announcer for trailers and promos.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "speech",
+  "style": "Trailer Voice",
+  "system_prompt": "Use this delivery for the supplied text. Do not rewrite the words. Add pauses only where punctuation calls for them.",
+  "context_prompt": "deep resonant announcer voice, slow and weighty, strong emphasis on the last word of each line, long dramatic pauses",
+  "negative_prompt": "robotic monotone, mispronounced names, background music, echo",
+  "technical_params": {
+    "speed": 1.0
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "speech",
+    "trailer"
+  ]
+}

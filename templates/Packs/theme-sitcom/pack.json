@@ -3,7 +3,7 @@
   "name": "Theme: Sitcom",
   "description": "An ensemble cast and the handful of standing sets a sitcom lives in.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -24,5 +24,16 @@
   "rulesets": [
     "SITCOM_CHARACTERS",
     "SITCOM_LOCATIONS"
+  ],
+  "presets": [
+    "SITCOM_CHARACTER_HEADSHOT",
+    "SITCOM_CHARACTER_FULL_BODY",
+    "SITCOM_LOCATION_EXTERIOR",
+    "SITCOM_LOCATION_INTERIOR",
+    "SITCOM_ITEM_PRODUCT_SHOT",
+    "SITCOM_CHARACTER_ACTION_CLIP",
+    "SITCOM_LOCATION_ESTABLISHING_CLIP",
+    "SITCOM_MUSIC",
+    "SPEECH_SITCOM_DIALOGUE"
   ]
 }

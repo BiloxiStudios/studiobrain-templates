@@ -1,0 +1,20 @@
+{
+  "name": "Sitcom: Location Interior",
+  "description": "Image preset for a location interior in the Sitcom look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "interior",
+  "style": "Sitcom",
+  "system_prompt": "Write one image prompt for an interior. List the room's purpose, three props that say who uses it, and the light source from the entity, then apply the style.",
+  "context_prompt": "interior view of the location from a doorway or corner, key furniture and props in place, light source visible, room for characters to stand, multi-camera sitcom still, bright even studio lighting, three-wall standing set dressed with lived-in detail, medium shot at eye level, high-key lighting with soft shadows, warm saturated colour, everything in focus",
+  "negative_prompt": "dark moody lighting, cinematic shallow focus, horror, gritty grain, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "sitcom"
+  ]
+}

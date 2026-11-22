@@ -1,0 +1,20 @@
+{
+  "name": "Sound: Stinger",
+  "description": "A short musical or tonal hit for a reveal or transition.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "sfx",
+  "style": "Stinger",
+  "system_prompt": "Write one sound prompt. Name the source of the sound and the space it is in from the entity, then apply this preset.",
+  "context_prompt": "short tonal stinger under two seconds, single rise or hit with a soft tail, matches the project's music palette",
+  "negative_prompt": "music, speech, distortion, clipping",
+  "technical_params": {
+    "duration_seconds": 2
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "sound",
+    "stinger"
+  ]
+}

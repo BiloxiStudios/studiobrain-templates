@@ -3,7 +3,7 @@
   "name": "Theme: Hand-Drawn Animation",
   "description": "Classic 2D animation: characters built to move, painted backgrounds, and cartoon logic that stays consistent.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -25,5 +25,16 @@
     "HAND_DRAWN_ANIMATION_CHARACTERS",
     "HAND_DRAWN_ANIMATION_LOCATIONS",
     "ANIMATED_CARTOON_CHARACTERS"
+  ],
+  "presets": [
+    "HAND_DRAWN_ANIMATION_CHARACTER_HEADSHOT",
+    "HAND_DRAWN_ANIMATION_CHARACTER_FULL_BODY",
+    "HAND_DRAWN_ANIMATION_LOCATION_EXTERIOR",
+    "HAND_DRAWN_ANIMATION_LOCATION_INTERIOR",
+    "HAND_DRAWN_ANIMATION_ITEM_PRODUCT_SHOT",
+    "HAND_DRAWN_ANIMATION_CHARACTER_ACTION_CLIP",
+    "HAND_DRAWN_ANIMATION_LOCATION_ESTABLISHING_CLIP",
+    "HAND_DRAWN_ANIMATION_MUSIC",
+    "SPEECH_ANIMATED_CHARACTER"
   ]
 }

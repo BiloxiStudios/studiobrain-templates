@@ -3,7 +3,7 @@
   "name": "Theme: CG Animated Feature",
   "description": "The look of a computer-animated family feature: appealing stylized characters and richly lit worlds.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -25,5 +25,16 @@
   "rulesets": [
     "CG_ANIMATED_FEATURE_CHARACTERS",
     "CG_ANIMATED_FEATURE_LOCATIONS"
+  ],
+  "presets": [
+    "CG_ANIMATED_FEATURE_CHARACTER_HEADSHOT",
+    "CG_ANIMATED_FEATURE_CHARACTER_FULL_BODY",
+    "CG_ANIMATED_FEATURE_LOCATION_EXTERIOR",
+    "CG_ANIMATED_FEATURE_LOCATION_INTERIOR",
+    "CG_ANIMATED_FEATURE_ITEM_PRODUCT_SHOT",
+    "CG_ANIMATED_FEATURE_CHARACTER_ACTION_CLIP",
+    "CG_ANIMATED_FEATURE_LOCATION_ESTABLISHING_CLIP",
+    "CG_ANIMATED_FEATURE_MUSIC",
+    "SPEECH_ANIMATED_CHARACTER"
   ]
 }

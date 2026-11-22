@@ -1,0 +1,20 @@
+{
+  "name": "Comic Book: Item Product Shot",
+  "description": "Image preset for a item product shot in the Comic Book look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "Comic Book",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, American comic book art, bold black ink outlines with heavy spot blacks, dynamic foreshortening, halftone dot shading, flat four-colour palette, strong complementary colours, dramatic single light source",
+  "negative_prompt": "photorealistic, soft painterly shading, anime, 3d render, blurry, extra limbs, speech bubbles, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "comics"
+  ]
+}

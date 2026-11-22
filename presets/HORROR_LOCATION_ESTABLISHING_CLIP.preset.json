@@ -1,0 +1,21 @@
+{
+  "name": "Horror: Location Establishing Clip",
+  "description": "Video preset for a location clip in the Horror look.",
+  "media_type": "video",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Horror",
+  "system_prompt": "Write one video prompt for a 5 second establishing shot. State the camera move, time of day, and two things moving in the scene. Keep the architecture consistent with the entity.",
+  "context_prompt": "short establishing clip of the location with one slow camera move and ambient life in the frame, horror film still, subject half lost in shadow, something wrong at the edge of the frame, decayed textures, uneasy off-centre composition, low-key lighting, single cold practical light, desaturated palette with one sickly accent colour, fog, slow creeping push-in, long static holds, flicker in practical lights, movement glimpsed in the background",
+  "negative_prompt": "bright cheerful lighting, cartoon, comedy, clean new surfaces, gore close-up, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "location",
+    "horror"
+  ]
+}

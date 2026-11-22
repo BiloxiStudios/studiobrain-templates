@@ -1,0 +1,20 @@
+{
+  "name": "80s Film: Location Exterior",
+  "description": "Image preset for a location exterior in the 80s Film look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "80s Film",
+  "system_prompt": "Write one image prompt for an exterior establishing shot. Name the location's defining structure, surroundings, time of day, and weather from the entity, then apply the style.",
+  "context_prompt": "wide exterior establishing view of the location, clear foreground, midground and background, a sense of scale from a figure or doorway, 1980s movie still shot on 35mm film, anamorphic lens, practical effects, feathered hair and period wardrobe, visible film grain, neon pink and cyan against deep shadow, backlit haze, lens flares, tungsten interiors",
+  "negative_prompt": "modern clothing, smartphone, digital sharpness, cgi, hdr, clean skin smoothing, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "80s"
+  ]
+}

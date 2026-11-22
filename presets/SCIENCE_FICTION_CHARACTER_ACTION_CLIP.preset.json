@@ -1,0 +1,21 @@
+{
+  "name": "Science Fiction: Character Action Clip",
+  "description": "Video preset for a character clip in the Science Fiction look.",
+  "media_type": "video",
+  "entity_type": "character",
+  "image_type": "action_pose",
+  "style": "Science Fiction",
+  "system_prompt": "Write one video prompt for a 5 second character clip. State the single action, the camera move, and the mood. Keep the character's design identical to the entity's description.",
+  "context_prompt": "short clip of the character performing one clear action that shows personality, start and end pose readable, science fiction concept art, functional industrial design with panel lines and wear, believable scale cues, alien forms with consistent biology, cool blue and teal palette with warm indicator lights, hard rim light, atmospheric haze and depth, slow weighty camera drifts, parallax between foreground hardware and distant planets, holographic UI flicker",
+  "negative_prompt": "medieval, fantasy magic, rustic wood, cartoon, clean toy-like surfaces, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "character",
+    "sci-fi"
+  ]
+}

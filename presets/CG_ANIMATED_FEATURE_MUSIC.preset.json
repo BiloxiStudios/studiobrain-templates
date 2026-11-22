@@ -1,0 +1,21 @@
+{
+  "name": "CG Animated Feature: Music",
+  "description": "Music preset: a score that fits the CG Animated Feature look.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "music",
+  "style": "CG Animated Feature",
+  "system_prompt": "Write one music prompt. Name the mood of the scene or entity first, then the instrumentation and tempo from this preset. Instrumental unless lyrics are asked for.",
+  "context_prompt": "warm family-film orchestral score, piano and strings theme, light percussion, hopeful swell",
+  "negative_prompt": "vocals, lyrics, spoken word, low quality, clipping",
+  "technical_params": {
+    "duration_seconds": 30,
+    "instrumental": true
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "music",
+    "3d"
+  ]
+}

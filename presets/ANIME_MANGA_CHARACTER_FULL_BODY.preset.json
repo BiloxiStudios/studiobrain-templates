@@ -1,0 +1,20 @@
+{
+  "name": "Anime and Manga: Character Full Body",
+  "description": "Image preset for a character full body in the Anime and Manga look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Anime and Manga",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, anime key visual, thin clean line art, large detailed eyes with layered highlights, hair drawn as bold separate clumps, hard-edged cel shading with one shadow tone, saturated flat colour, crisp rim light, painted sky gradients",
+  "negative_prompt": "photorealistic, 3d render, western cartoon, heavy outlines, extra fingers, blurry, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "anime"
+  ]
+}

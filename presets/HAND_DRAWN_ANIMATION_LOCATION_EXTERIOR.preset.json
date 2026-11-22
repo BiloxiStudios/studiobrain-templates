@@ -1,0 +1,20 @@
+{
+  "name": "Hand-Drawn Animation: Location Exterior",
+  "description": "Image preset for a location exterior in the Hand-Drawn Animation look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Hand-Drawn Animation",
+  "system_prompt": "Write one image prompt for an exterior establishing shot. Name the location's defining structure, surroundings, time of day, and weather from the entity, then apply the style.",
+  "context_prompt": "wide exterior establishing view of the location, clear foreground, midground and background, a sense of scale from a figure or doorway, classic hand-drawn 2D animation cel, confident tapered ink line, simple rounded shapes built to move, flat colour with one soft shadow pass, gouache painted background, warm storybook palette, soft ambient light",
+  "negative_prompt": "photorealistic, 3d render, anime, gritty texture, extra limbs, blurry, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "2d"
+  ]
+}

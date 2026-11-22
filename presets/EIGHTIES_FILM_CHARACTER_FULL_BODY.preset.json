@@ -1,0 +1,20 @@
+{
+  "name": "80s Film: Character Full Body",
+  "description": "Image preset for a character full body in the 80s Film look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "80s Film",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, 1980s movie still shot on 35mm film, anamorphic lens, practical effects, feathered hair and period wardrobe, visible film grain, neon pink and cyan against deep shadow, backlit haze, lens flares, tungsten interiors",
+  "negative_prompt": "modern clothing, smartphone, digital sharpness, cgi, hdr, clean skin smoothing, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "80s"
+  ]
+}

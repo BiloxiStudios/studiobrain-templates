@@ -1,0 +1,20 @@
+{
+  "name": "Speech: Noir Narrator",
+  "description": "A world-weary first-person voice-over.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "speech",
+  "style": "Noir Narrator",
+  "system_prompt": "Use this delivery for the supplied text. Do not rewrite the words. Add pauses only where punctuation calls for them.",
+  "context_prompt": "low, dry, world-weary voice, close to the microphone, slow deliberate pace, slight rasp, flat delivery with the irony left unspoken",
+  "negative_prompt": "robotic monotone, mispronounced names, background music, echo",
+  "technical_params": {
+    "speed": 1.0
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "speech",
+    "noir"
+  ]
+}

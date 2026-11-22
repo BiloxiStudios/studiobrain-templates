@@ -1,0 +1,20 @@
+{
+  "name": "Fantasy: Character Headshot",
+  "description": "Image preset for a character headshot in the Fantasy look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "headshot",
+  "style": "Fantasy",
+  "system_prompt": "Write one image prompt for a headshot. Lead with the character's defining facial features, hair, and expression from the entity, then apply the style. Keep the background plain.",
+  "context_prompt": "head-and-shoulders portrait of the character, face fills the frame, eyes sharp, neutral background that does not compete, epic fantasy concept painting, painterly brushwork, ornate hand-crafted armour and cloth, ancient architecture with real scale, golden light through mist, rich jewel-tone palette, volumetric god rays, atmospheric depth",
+  "negative_prompt": "modern clothing, guns, cars, sci-fi technology, photographic snapshot look, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "fantasy"
+  ]
+}

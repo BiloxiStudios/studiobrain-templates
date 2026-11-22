@@ -1,0 +1,20 @@
+{
+  "name": "Comic Book: Character Headshot",
+  "description": "Image preset for a character headshot in the Comic Book look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "headshot",
+  "style": "Comic Book",
+  "system_prompt": "Write one image prompt for a headshot. Lead with the character's defining facial features, hair, and expression from the entity, then apply the style. Keep the background plain.",
+  "context_prompt": "head-and-shoulders portrait of the character, face fills the frame, eyes sharp, neutral background that does not compete, American comic book art, bold black ink outlines with heavy spot blacks, dynamic foreshortening, halftone dot shading, flat four-colour palette, strong complementary colours, dramatic single light source",
+  "negative_prompt": "photorealistic, soft painterly shading, anime, 3d render, blurry, extra limbs, speech bubbles, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "comics"
+  ]
+}

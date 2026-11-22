@@ -90,6 +90,12 @@
       "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
       "uniqueItems": true
     },
+    "presets": {
+      "type": "array",
+      "description": "Catalog generation preset ids this pack installs together; each resolves to presets/<ID>.preset.json at the catalog root (SBAI-15331).",
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
+      "uniqueItems": true
+    },
     "layouts": {
       "type": "array",
       "description": "Layout JSON files (paths relative to the pack root). Empty for meta-packs.",

@@ -1,0 +1,20 @@
+{
+  "name": "Watercolor Storybook: Location Exterior",
+  "description": "Image preset for a location exterior in the Watercolor Storybook look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Watercolor Storybook",
+  "system_prompt": "Write one image prompt for an exterior establishing shot. Name the location's defining structure, surroundings, time of day, and weather from the entity, then apply the style.",
+  "context_prompt": "wide exterior establishing view of the location, clear foreground, midground and background, a sense of scale from a figure or doorway, watercolour picture-book illustration, soft pencil line, loose washes that bleed past the line, visible paper texture, gentle rounded shapes, pastel palette, soft daylight, white paper showing through the highlights",
+  "negative_prompt": "photorealistic, 3d render, harsh black outlines, neon colours, dark horror mood, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "storybook"
+  ]
+}

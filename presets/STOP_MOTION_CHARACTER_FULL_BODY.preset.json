@@ -1,0 +1,20 @@
+{
+  "name": "Stop Motion: Character Full Body",
+  "description": "Image preset for a character full body in the Stop Motion look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "Stop Motion",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, stop-motion puppet animation still, handmade clay and felt puppets with visible fingerprints and stitching, miniature set built from real materials, small practical lamps, shallow depth of field of a macro lens, warm tabletop lighting",
+  "negative_prompt": "smooth cgi, photorealistic human, flat 2d, digital gloss, motion blur, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "stop-motion"
+  ]
+}

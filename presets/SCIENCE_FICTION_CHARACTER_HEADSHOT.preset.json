@@ -1,0 +1,20 @@
+{
+  "name": "Science Fiction: Character Headshot",
+  "description": "Image preset for a character headshot in the Science Fiction look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "headshot",
+  "style": "Science Fiction",
+  "system_prompt": "Write one image prompt for a headshot. Lead with the character's defining facial features, hair, and expression from the entity, then apply the style. Keep the background plain.",
+  "context_prompt": "head-and-shoulders portrait of the character, face fills the frame, eyes sharp, neutral background that does not compete, science fiction concept art, functional industrial design with panel lines and wear, believable scale cues, alien forms with consistent biology, cool blue and teal palette with warm indicator lights, hard rim light, atmospheric haze and depth",
+  "negative_prompt": "medieval, fantasy magic, rustic wood, cartoon, clean toy-like surfaces, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "sci-fi"
+  ]
+}

@@ -7,6 +7,7 @@
   "files": [
     "templates/",
     "rules/",
+    "presets/",
     "schemas/",
     "skills/",
     "taxonomies/",

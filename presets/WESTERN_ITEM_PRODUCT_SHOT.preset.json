@@ -1,0 +1,20 @@
+{
+  "name": "Western: Item Product Shot",
+  "description": "Image preset for a item product shot in the Western look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "Western",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, classic western film still, wide anamorphic frame, weathered faces, dust-caked leather and denim, sun-bleached timber, hard midday sun or golden-hour backlight, ochre and rust palette, long shadows, heat haze",
+  "negative_prompt": "modern vehicles, power lines, clean clothes, neon, lush green forest, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "western"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Photoreal Live Action: Location Establishing Clip",
+  "description": "Video preset for a location clip in the Photoreal Live Action look.",
+  "media_type": "video",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Photoreal Live Action",
+  "system_prompt": "Write one video prompt for a 5 second establishing shot. State the camera move, time of day, and two things moving in the scene. Keep the architecture consistent with the entity.",
+  "context_prompt": "short establishing clip of the location with one slow camera move and ambient life in the frame, photorealistic live-action film still, natural skin texture with pores, real fabric and material detail, true-to-life proportions, 50mm lens, motivated natural light, soft key from a window or practical lamp, neutral colour grade, gentle film grain, handheld or dolly camera with natural motion blur, subtle breathing and micro-expressions, realistic physics",
+  "negative_prompt": "cartoon, illustration, 3d render, plastic skin, oversaturated, extra fingers, distorted face, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "location",
+    "realistic"
+  ]
+}

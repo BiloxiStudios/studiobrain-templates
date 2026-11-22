@@ -1,0 +1,21 @@
+{
+  "name": "Sitcom: Character Action Clip",
+  "description": "Video preset for a character clip in the Sitcom look.",
+  "media_type": "video",
+  "entity_type": "character",
+  "image_type": "action_pose",
+  "style": "Sitcom",
+  "system_prompt": "Write one video prompt for a 5 second character clip. State the single action, the camera move, and the mood. Keep the character's design identical to the entity's description.",
+  "context_prompt": "short clip of the character performing one clear action that shows personality, start and end pose readable, multi-camera sitcom still, bright even studio lighting, three-wall standing set dressed with lived-in detail, medium shot at eye level, high-key lighting with soft shadows, warm saturated colour, everything in focus, locked-off multi-camera coverage, cuts between medium shots, actors move within the set, no handheld",
+  "negative_prompt": "dark moody lighting, cinematic shallow focus, horror, gritty grain, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "character",
+    "sitcom"
+  ]
+}

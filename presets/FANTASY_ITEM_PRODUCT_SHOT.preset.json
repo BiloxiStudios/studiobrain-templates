@@ -1,0 +1,20 @@
+{
+  "name": "Fantasy: Item Product Shot",
+  "description": "Image preset for a item product shot in the Fantasy look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "Fantasy",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, epic fantasy concept painting, painterly brushwork, ornate hand-crafted armour and cloth, ancient architecture with real scale, golden light through mist, rich jewel-tone palette, volumetric god rays, atmospheric depth",
+  "negative_prompt": "modern clothing, guns, cars, sci-fi technology, photographic snapshot look, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "fantasy"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Watercolor Storybook: Location Establishing Clip",
+  "description": "Video preset for a location clip in the Watercolor Storybook look.",
+  "media_type": "video",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Watercolor Storybook",
+  "system_prompt": "Write one video prompt for a 5 second establishing shot. State the camera move, time of day, and two things moving in the scene. Keep the architecture consistent with the entity.",
+  "context_prompt": "short establishing clip of the location with one slow camera move and ambient life in the frame, watercolour picture-book illustration, soft pencil line, loose washes that bleed past the line, visible paper texture, gentle rounded shapes, pastel palette, soft daylight, white paper showing through the highlights, gentle page-turn pacing, slow pans across a painted spread, washes blooming in, minimal character movement",
+  "negative_prompt": "photorealistic, 3d render, harsh black outlines, neon colours, dark horror mood, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "location",
+    "storybook"
+  ]
+}

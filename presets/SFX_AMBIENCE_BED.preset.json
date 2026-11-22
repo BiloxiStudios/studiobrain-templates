@@ -1,0 +1,21 @@
+{
+  "name": "Sound: Ambience Bed",
+  "description": "A looping background atmosphere for a location.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "sfx",
+  "style": "Ambience Bed",
+  "system_prompt": "Write one sound prompt. Name the source of the sound and the space it is in from the entity, then apply this preset.",
+  "context_prompt": "continuous ambience of the location with no foreground events, three layered elements (air or room tone, a distant recurring sound, a close texture), seamless loop",
+  "negative_prompt": "music, speech, distortion, clipping",
+  "technical_params": {
+    "duration_seconds": 20,
+    "loop": true
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "sound",
+    "ambience"
+  ]
+}

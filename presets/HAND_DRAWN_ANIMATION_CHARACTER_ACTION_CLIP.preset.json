@@ -1,0 +1,21 @@
+{
+  "name": "Hand-Drawn Animation: Character Action Clip",
+  "description": "Video preset for a character clip in the Hand-Drawn Animation look.",
+  "media_type": "video",
+  "entity_type": "character",
+  "image_type": "action_pose",
+  "style": "Hand-Drawn Animation",
+  "system_prompt": "Write one video prompt for a 5 second character clip. State the single action, the camera move, and the mood. Keep the character's design identical to the entity's description.",
+  "context_prompt": "short clip of the character performing one clear action that shows personality, start and end pose readable, classic hand-drawn 2D animation cel, confident tapered ink line, simple rounded shapes built to move, flat colour with one soft shadow pass, gouache painted background, warm storybook palette, soft ambient light, full animation with squash and stretch, clear anticipation and overshoot, arcs on every move, multiplane parallax in the background",
+  "negative_prompt": "photorealistic, 3d render, anime, gritty texture, extra limbs, blurry, text, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "character",
+    "2d"
+  ]
+}

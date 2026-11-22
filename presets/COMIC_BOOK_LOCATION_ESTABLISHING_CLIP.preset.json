@@ -1,0 +1,21 @@
+{
+  "name": "Comic Book: Location Establishing Clip",
+  "description": "Video preset for a location clip in the Comic Book look.",
+  "media_type": "video",
+  "entity_type": "location",
+  "image_type": "exterior",
+  "style": "Comic Book",
+  "system_prompt": "Write one video prompt for a 5 second establishing shot. State the camera move, time of day, and two things moving in the scene. Keep the architecture consistent with the entity.",
+  "context_prompt": "short establishing clip of the location with one slow camera move and ambient life in the frame, American comic book art, bold black ink outlines with heavy spot blacks, dynamic foreshortening, halftone dot shading, flat four-colour palette, strong complementary colours, dramatic single light source, motion-comic movement, parallax between ink layers, snap zooms, impact frames with action lines",
+  "negative_prompt": "photorealistic, soft painterly shading, anime, 3d render, blurry, extra limbs, speech bubbles, watermark, flicker, morphing, warped faces",
+  "technical_params": {
+    "aspect_ratio": "16:9",
+    "duration_seconds": 5
+  },
+  "tags": [
+    "preset",
+    "video",
+    "location",
+    "comics"
+  ]
+}

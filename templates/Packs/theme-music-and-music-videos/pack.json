@@ -3,7 +3,7 @@
   "name": "Theme: Music and Music Videos",
   "description": "Artists, their sound and image, and the shoots for their music videos.",
   "author": "StudioBrain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "compat": {
     "min_core_version": "0.1.0"
   },
@@ -23,5 +23,11 @@
   "rulesets": [
     "MUSIC_ARTISTS",
     "MUSIC_VIDEO_SHOOTS"
+  ],
+  "presets": [
+    "EIGHTIES_FILM_CHARACTER_ACTION_CLIP",
+    "EIGHTIES_FILM_MUSIC",
+    "CG_ANIMATED_FEATURE_CHARACTER_ACTION_CLIP",
+    "SFX_UI_STINGER"
   ]
 }

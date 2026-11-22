@@ -1,0 +1,20 @@
+{
+  "name": "Horror: Character Headshot",
+  "description": "Image preset for a character headshot in the Horror look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "headshot",
+  "style": "Horror",
+  "system_prompt": "Write one image prompt for a headshot. Lead with the character's defining facial features, hair, and expression from the entity, then apply the style. Keep the background plain.",
+  "context_prompt": "head-and-shoulders portrait of the character, face fills the frame, eyes sharp, neutral background that does not compete, horror film still, subject half lost in shadow, something wrong at the edge of the frame, decayed textures, uneasy off-centre composition, low-key lighting, single cold practical light, desaturated palette with one sickly accent colour, fog",
+  "negative_prompt": "bright cheerful lighting, cartoon, comedy, clean new surfaces, gore close-up, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "horror"
+  ]
+}

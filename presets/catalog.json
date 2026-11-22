@@ -1,0 +1,1306 @@
+{
+  "schema_version": 1,
+  "entries": {
+    "ANIME_MANGA_CHARACTER_ACTION_CLIP": {
+      "name": "Anime and Manga: Character Action Clip",
+      "description": "Video preset for a character clip in the Anime and Manga look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "anime"
+      ]
+    },
+    "ANIME_MANGA_CHARACTER_FULL_BODY": {
+      "name": "Anime and Manga: Character Full Body",
+      "description": "Image preset for a character full body in the Anime and Manga look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "anime"
+      ]
+    },
+    "ANIME_MANGA_CHARACTER_HEADSHOT": {
+      "name": "Anime and Manga: Character Headshot",
+      "description": "Image preset for a character headshot in the Anime and Manga look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "anime"
+      ]
+    },
+    "ANIME_MANGA_ITEM_PRODUCT_SHOT": {
+      "name": "Anime and Manga: Item Product Shot",
+      "description": "Image preset for a item product shot in the Anime and Manga look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "anime"
+      ]
+    },
+    "ANIME_MANGA_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Anime and Manga: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Anime and Manga look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "anime"
+      ]
+    },
+    "ANIME_MANGA_LOCATION_EXTERIOR": {
+      "name": "Anime and Manga: Location Exterior",
+      "description": "Image preset for a location exterior in the Anime and Manga look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "anime"
+      ]
+    },
+    "ANIME_MANGA_LOCATION_INTERIOR": {
+      "name": "Anime and Manga: Location Interior",
+      "description": "Image preset for a location interior in the Anime and Manga look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "anime"
+      ]
+    },
+    "ANIME_MANGA_MUSIC": {
+      "name": "Anime and Manga: Music",
+      "description": "Music preset: a score that fits the Anime and Manga look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "anime"
+      ]
+    },
+    "CG_ANIMATED_FEATURE_CHARACTER_ACTION_CLIP": {
+      "name": "CG Animated Feature: Character Action Clip",
+      "description": "Video preset for a character clip in the CG Animated Feature look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "3d"
+      ]
+    },
+    "CG_ANIMATED_FEATURE_CHARACTER_FULL_BODY": {
+      "name": "CG Animated Feature: Character Full Body",
+      "description": "Image preset for a character full body in the CG Animated Feature look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "3d"
+      ]
+    },
+    "CG_ANIMATED_FEATURE_CHARACTER_HEADSHOT": {
+      "name": "CG Animated Feature: Character Headshot",
+      "description": "Image preset for a character headshot in the CG Animated Feature look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "3d"
+      ]
+    },
+    "CG_ANIMATED_FEATURE_ITEM_PRODUCT_SHOT": {
+      "name": "CG Animated Feature: Item Product Shot",
+      "description": "Image preset for a item product shot in the CG Animated Feature look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "3d"
+      ]
+    },
+    "CG_ANIMATED_FEATURE_LOCATION_ESTABLISHING_CLIP": {
+      "name": "CG Animated Feature: Location Establishing Clip",
+      "description": "Video preset for a location clip in the CG Animated Feature look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "3d"
+      ]
+    },
+    "CG_ANIMATED_FEATURE_LOCATION_EXTERIOR": {
+      "name": "CG Animated Feature: Location Exterior",
+      "description": "Image preset for a location exterior in the CG Animated Feature look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "3d"
+      ]
+    },
+    "CG_ANIMATED_FEATURE_LOCATION_INTERIOR": {
+      "name": "CG Animated Feature: Location Interior",
+      "description": "Image preset for a location interior in the CG Animated Feature look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "3d"
+      ]
+    },
+    "CG_ANIMATED_FEATURE_MUSIC": {
+      "name": "CG Animated Feature: Music",
+      "description": "Music preset: a score that fits the CG Animated Feature look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "3d"
+      ]
+    },
+    "COMIC_BOOK_CHARACTER_ACTION_CLIP": {
+      "name": "Comic Book: Character Action Clip",
+      "description": "Video preset for a character clip in the Comic Book look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "comics"
+      ]
+    },
+    "COMIC_BOOK_CHARACTER_FULL_BODY": {
+      "name": "Comic Book: Character Full Body",
+      "description": "Image preset for a character full body in the Comic Book look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "comics"
+      ]
+    },
+    "COMIC_BOOK_CHARACTER_HEADSHOT": {
+      "name": "Comic Book: Character Headshot",
+      "description": "Image preset for a character headshot in the Comic Book look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "comics"
+      ]
+    },
+    "COMIC_BOOK_ITEM_PRODUCT_SHOT": {
+      "name": "Comic Book: Item Product Shot",
+      "description": "Image preset for a item product shot in the Comic Book look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "comics"
+      ]
+    },
+    "COMIC_BOOK_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Comic Book: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Comic Book look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "comics"
+      ]
+    },
+    "COMIC_BOOK_LOCATION_EXTERIOR": {
+      "name": "Comic Book: Location Exterior",
+      "description": "Image preset for a location exterior in the Comic Book look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "comics"
+      ]
+    },
+    "COMIC_BOOK_LOCATION_INTERIOR": {
+      "name": "Comic Book: Location Interior",
+      "description": "Image preset for a location interior in the Comic Book look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "comics"
+      ]
+    },
+    "COMIC_BOOK_MUSIC": {
+      "name": "Comic Book: Music",
+      "description": "Music preset: a score that fits the Comic Book look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "comics"
+      ]
+    },
+    "EIGHTIES_FILM_CHARACTER_ACTION_CLIP": {
+      "name": "80s Film: Character Action Clip",
+      "description": "Video preset for a character clip in the 80s Film look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "80s"
+      ]
+    },
+    "EIGHTIES_FILM_CHARACTER_FULL_BODY": {
+      "name": "80s Film: Character Full Body",
+      "description": "Image preset for a character full body in the 80s Film look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "80s"
+      ]
+    },
+    "EIGHTIES_FILM_CHARACTER_HEADSHOT": {
+      "name": "80s Film: Character Headshot",
+      "description": "Image preset for a character headshot in the 80s Film look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "80s"
+      ]
+    },
+    "EIGHTIES_FILM_ITEM_PRODUCT_SHOT": {
+      "name": "80s Film: Item Product Shot",
+      "description": "Image preset for a item product shot in the 80s Film look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "80s"
+      ]
+    },
+    "EIGHTIES_FILM_LOCATION_ESTABLISHING_CLIP": {
+      "name": "80s Film: Location Establishing Clip",
+      "description": "Video preset for a location clip in the 80s Film look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "80s"
+      ]
+    },
+    "EIGHTIES_FILM_LOCATION_EXTERIOR": {
+      "name": "80s Film: Location Exterior",
+      "description": "Image preset for a location exterior in the 80s Film look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "80s"
+      ]
+    },
+    "EIGHTIES_FILM_LOCATION_INTERIOR": {
+      "name": "80s Film: Location Interior",
+      "description": "Image preset for a location interior in the 80s Film look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "80s"
+      ]
+    },
+    "EIGHTIES_FILM_MUSIC": {
+      "name": "80s Film: Music",
+      "description": "Music preset: a score that fits the 80s Film look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "80s"
+      ]
+    },
+    "FANTASY_CHARACTER_ACTION_CLIP": {
+      "name": "Fantasy: Character Action Clip",
+      "description": "Video preset for a character clip in the Fantasy look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "fantasy"
+      ]
+    },
+    "FANTASY_CHARACTER_FULL_BODY": {
+      "name": "Fantasy: Character Full Body",
+      "description": "Image preset for a character full body in the Fantasy look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "fantasy"
+      ]
+    },
+    "FANTASY_CHARACTER_HEADSHOT": {
+      "name": "Fantasy: Character Headshot",
+      "description": "Image preset for a character headshot in the Fantasy look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "fantasy"
+      ]
+    },
+    "FANTASY_ITEM_PRODUCT_SHOT": {
+      "name": "Fantasy: Item Product Shot",
+      "description": "Image preset for a item product shot in the Fantasy look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "fantasy"
+      ]
+    },
+    "FANTASY_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Fantasy: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Fantasy look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "fantasy"
+      ]
+    },
+    "FANTASY_LOCATION_EXTERIOR": {
+      "name": "Fantasy: Location Exterior",
+      "description": "Image preset for a location exterior in the Fantasy look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "fantasy"
+      ]
+    },
+    "FANTASY_LOCATION_INTERIOR": {
+      "name": "Fantasy: Location Interior",
+      "description": "Image preset for a location interior in the Fantasy look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "fantasy"
+      ]
+    },
+    "FANTASY_MUSIC": {
+      "name": "Fantasy: Music",
+      "description": "Music preset: a score that fits the Fantasy look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "fantasy"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_CHARACTER_ACTION_CLIP": {
+      "name": "Hand-Drawn Animation: Character Action Clip",
+      "description": "Video preset for a character clip in the Hand-Drawn Animation look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "2d"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_CHARACTER_FULL_BODY": {
+      "name": "Hand-Drawn Animation: Character Full Body",
+      "description": "Image preset for a character full body in the Hand-Drawn Animation look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "2d"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_CHARACTER_HEADSHOT": {
+      "name": "Hand-Drawn Animation: Character Headshot",
+      "description": "Image preset for a character headshot in the Hand-Drawn Animation look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "2d"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_ITEM_PRODUCT_SHOT": {
+      "name": "Hand-Drawn Animation: Item Product Shot",
+      "description": "Image preset for a item product shot in the Hand-Drawn Animation look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "2d"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Hand-Drawn Animation: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Hand-Drawn Animation look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "2d"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_LOCATION_EXTERIOR": {
+      "name": "Hand-Drawn Animation: Location Exterior",
+      "description": "Image preset for a location exterior in the Hand-Drawn Animation look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "2d"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_LOCATION_INTERIOR": {
+      "name": "Hand-Drawn Animation: Location Interior",
+      "description": "Image preset for a location interior in the Hand-Drawn Animation look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "2d"
+      ]
+    },
+    "HAND_DRAWN_ANIMATION_MUSIC": {
+      "name": "Hand-Drawn Animation: Music",
+      "description": "Music preset: a score that fits the Hand-Drawn Animation look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "2d"
+      ]
+    },
+    "HORROR_CHARACTER_ACTION_CLIP": {
+      "name": "Horror: Character Action Clip",
+      "description": "Video preset for a character clip in the Horror look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "horror"
+      ]
+    },
+    "HORROR_CHARACTER_FULL_BODY": {
+      "name": "Horror: Character Full Body",
+      "description": "Image preset for a character full body in the Horror look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "horror"
+      ]
+    },
+    "HORROR_CHARACTER_HEADSHOT": {
+      "name": "Horror: Character Headshot",
+      "description": "Image preset for a character headshot in the Horror look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "horror"
+      ]
+    },
+    "HORROR_ITEM_PRODUCT_SHOT": {
+      "name": "Horror: Item Product Shot",
+      "description": "Image preset for a item product shot in the Horror look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "horror"
+      ]
+    },
+    "HORROR_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Horror: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Horror look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "horror"
+      ]
+    },
+    "HORROR_LOCATION_EXTERIOR": {
+      "name": "Horror: Location Exterior",
+      "description": "Image preset for a location exterior in the Horror look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "horror"
+      ]
+    },
+    "HORROR_LOCATION_INTERIOR": {
+      "name": "Horror: Location Interior",
+      "description": "Image preset for a location interior in the Horror look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "horror"
+      ]
+    },
+    "HORROR_MUSIC": {
+      "name": "Horror: Music",
+      "description": "Music preset: a score that fits the Horror look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "horror"
+      ]
+    },
+    "NOIR_CHARACTER_ACTION_CLIP": {
+      "name": "Noir Mystery: Character Action Clip",
+      "description": "Video preset for a character clip in the Noir Mystery look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "noir"
+      ]
+    },
+    "NOIR_CHARACTER_FULL_BODY": {
+      "name": "Noir Mystery: Character Full Body",
+      "description": "Image preset for a character full body in the Noir Mystery look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "noir"
+      ]
+    },
+    "NOIR_CHARACTER_HEADSHOT": {
+      "name": "Noir Mystery: Character Headshot",
+      "description": "Image preset for a character headshot in the Noir Mystery look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "noir"
+      ]
+    },
+    "NOIR_ITEM_PRODUCT_SHOT": {
+      "name": "Noir Mystery: Item Product Shot",
+      "description": "Image preset for a item product shot in the Noir Mystery look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "noir"
+      ]
+    },
+    "NOIR_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Noir Mystery: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Noir Mystery look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "noir"
+      ]
+    },
+    "NOIR_LOCATION_EXTERIOR": {
+      "name": "Noir Mystery: Location Exterior",
+      "description": "Image preset for a location exterior in the Noir Mystery look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "noir"
+      ]
+    },
+    "NOIR_LOCATION_INTERIOR": {
+      "name": "Noir Mystery: Location Interior",
+      "description": "Image preset for a location interior in the Noir Mystery look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "noir"
+      ]
+    },
+    "NOIR_MUSIC": {
+      "name": "Noir Mystery: Music",
+      "description": "Music preset: a score that fits the Noir Mystery look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "noir"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_CHARACTER_ACTION_CLIP": {
+      "name": "Photoreal Live Action: Character Action Clip",
+      "description": "Video preset for a character clip in the Photoreal Live Action look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "realistic"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_CHARACTER_FULL_BODY": {
+      "name": "Photoreal Live Action: Character Full Body",
+      "description": "Image preset for a character full body in the Photoreal Live Action look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "realistic"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_CHARACTER_HEADSHOT": {
+      "name": "Photoreal Live Action: Character Headshot",
+      "description": "Image preset for a character headshot in the Photoreal Live Action look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "realistic"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_ITEM_PRODUCT_SHOT": {
+      "name": "Photoreal Live Action: Item Product Shot",
+      "description": "Image preset for a item product shot in the Photoreal Live Action look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "realistic"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Photoreal Live Action: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Photoreal Live Action look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "realistic"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_LOCATION_EXTERIOR": {
+      "name": "Photoreal Live Action: Location Exterior",
+      "description": "Image preset for a location exterior in the Photoreal Live Action look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "realistic"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_LOCATION_INTERIOR": {
+      "name": "Photoreal Live Action: Location Interior",
+      "description": "Image preset for a location interior in the Photoreal Live Action look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "realistic"
+      ]
+    },
+    "PHOTOREAL_LIVE_ACTION_MUSIC": {
+      "name": "Photoreal Live Action: Music",
+      "description": "Music preset: a score that fits the Photoreal Live Action look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "realistic"
+      ]
+    },
+    "PIXEL_ART_CHARACTER_ACTION_CLIP": {
+      "name": "Pixel Art: Character Action Clip",
+      "description": "Video preset for a character clip in the Pixel Art look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "pixel-art"
+      ]
+    },
+    "PIXEL_ART_CHARACTER_FULL_BODY": {
+      "name": "Pixel Art: Character Full Body",
+      "description": "Image preset for a character full body in the Pixel Art look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "pixel-art"
+      ]
+    },
+    "PIXEL_ART_CHARACTER_HEADSHOT": {
+      "name": "Pixel Art: Character Headshot",
+      "description": "Image preset for a character headshot in the Pixel Art look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "pixel-art"
+      ]
+    },
+    "PIXEL_ART_ITEM_PRODUCT_SHOT": {
+      "name": "Pixel Art: Item Product Shot",
+      "description": "Image preset for a item product shot in the Pixel Art look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "pixel-art"
+      ]
+    },
+    "PIXEL_ART_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Pixel Art: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Pixel Art look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "pixel-art"
+      ]
+    },
+    "PIXEL_ART_LOCATION_EXTERIOR": {
+      "name": "Pixel Art: Location Exterior",
+      "description": "Image preset for a location exterior in the Pixel Art look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "pixel-art"
+      ]
+    },
+    "PIXEL_ART_LOCATION_INTERIOR": {
+      "name": "Pixel Art: Location Interior",
+      "description": "Image preset for a location interior in the Pixel Art look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "pixel-art"
+      ]
+    },
+    "PIXEL_ART_MUSIC": {
+      "name": "Pixel Art: Music",
+      "description": "Music preset: a score that fits the Pixel Art look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "pixel-art"
+      ]
+    },
+    "SCIENCE_FICTION_CHARACTER_ACTION_CLIP": {
+      "name": "Science Fiction: Character Action Clip",
+      "description": "Video preset for a character clip in the Science Fiction look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "sci-fi"
+      ]
+    },
+    "SCIENCE_FICTION_CHARACTER_FULL_BODY": {
+      "name": "Science Fiction: Character Full Body",
+      "description": "Image preset for a character full body in the Science Fiction look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "sci-fi"
+      ]
+    },
+    "SCIENCE_FICTION_CHARACTER_HEADSHOT": {
+      "name": "Science Fiction: Character Headshot",
+      "description": "Image preset for a character headshot in the Science Fiction look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "sci-fi"
+      ]
+    },
+    "SCIENCE_FICTION_ITEM_PRODUCT_SHOT": {
+      "name": "Science Fiction: Item Product Shot",
+      "description": "Image preset for a item product shot in the Science Fiction look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "sci-fi"
+      ]
+    },
+    "SCIENCE_FICTION_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Science Fiction: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Science Fiction look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "sci-fi"
+      ]
+    },
+    "SCIENCE_FICTION_LOCATION_EXTERIOR": {
+      "name": "Science Fiction: Location Exterior",
+      "description": "Image preset for a location exterior in the Science Fiction look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "sci-fi"
+      ]
+    },
+    "SCIENCE_FICTION_LOCATION_INTERIOR": {
+      "name": "Science Fiction: Location Interior",
+      "description": "Image preset for a location interior in the Science Fiction look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "sci-fi"
+      ]
+    },
+    "SCIENCE_FICTION_MUSIC": {
+      "name": "Science Fiction: Music",
+      "description": "Music preset: a score that fits the Science Fiction look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "sci-fi"
+      ]
+    },
+    "SFX_AMBIENCE_BED": {
+      "name": "Sound: Ambience Bed",
+      "description": "A looping background atmosphere for a location.",
+      "tags": [
+        "preset",
+        "audio",
+        "sound",
+        "ambience"
+      ]
+    },
+    "SFX_FOLEY_ACTION": {
+      "name": "Sound: Foley Action",
+      "description": "A single close-up sound effect for one action.",
+      "tags": [
+        "preset",
+        "audio",
+        "sound",
+        "foley"
+      ]
+    },
+    "SFX_UI_STINGER": {
+      "name": "Sound: Stinger",
+      "description": "A short musical or tonal hit for a reveal or transition.",
+      "tags": [
+        "preset",
+        "audio",
+        "sound",
+        "stinger"
+      ]
+    },
+    "SITCOM_CHARACTER_ACTION_CLIP": {
+      "name": "Sitcom: Character Action Clip",
+      "description": "Video preset for a character clip in the Sitcom look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "sitcom"
+      ]
+    },
+    "SITCOM_CHARACTER_FULL_BODY": {
+      "name": "Sitcom: Character Full Body",
+      "description": "Image preset for a character full body in the Sitcom look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "sitcom"
+      ]
+    },
+    "SITCOM_CHARACTER_HEADSHOT": {
+      "name": "Sitcom: Character Headshot",
+      "description": "Image preset for a character headshot in the Sitcom look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "sitcom"
+      ]
+    },
+    "SITCOM_ITEM_PRODUCT_SHOT": {
+      "name": "Sitcom: Item Product Shot",
+      "description": "Image preset for a item product shot in the Sitcom look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "sitcom"
+      ]
+    },
+    "SITCOM_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Sitcom: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Sitcom look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "sitcom"
+      ]
+    },
+    "SITCOM_LOCATION_EXTERIOR": {
+      "name": "Sitcom: Location Exterior",
+      "description": "Image preset for a location exterior in the Sitcom look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "sitcom"
+      ]
+    },
+    "SITCOM_LOCATION_INTERIOR": {
+      "name": "Sitcom: Location Interior",
+      "description": "Image preset for a location interior in the Sitcom look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "sitcom"
+      ]
+    },
+    "SITCOM_MUSIC": {
+      "name": "Sitcom: Music",
+      "description": "Music preset: a score that fits the Sitcom look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "sitcom"
+      ]
+    },
+    "SPEECH_ANIMATED_CHARACTER": {
+      "name": "Speech: Animated Character",
+      "description": "An energetic, expressive character voice for animation.",
+      "tags": [
+        "preset",
+        "audio",
+        "speech",
+        "animation"
+      ]
+    },
+    "SPEECH_COOKING_HOST": {
+      "name": "Speech: Cooking Host",
+      "description": "A friendly host talking through a recipe.",
+      "tags": [
+        "preset",
+        "audio",
+        "speech",
+        "cooking"
+      ]
+    },
+    "SPEECH_NOIR_NARRATOR": {
+      "name": "Speech: Noir Narrator",
+      "description": "A world-weary first-person voice-over.",
+      "tags": [
+        "preset",
+        "audio",
+        "speech",
+        "noir"
+      ]
+    },
+    "SPEECH_PODCAST_HOST": {
+      "name": "Speech: Podcast Host",
+      "description": "A relaxed close-mic host voice.",
+      "tags": [
+        "preset",
+        "audio",
+        "speech",
+        "podcast"
+      ]
+    },
+    "SPEECH_SITCOM_DIALOGUE": {
+      "name": "Speech: Sitcom Dialogue",
+      "description": "Quick conversational delivery with room for the laugh.",
+      "tags": [
+        "preset",
+        "audio",
+        "speech",
+        "sitcom",
+        "comedy"
+      ]
+    },
+    "SPEECH_TRAILER_VOICE": {
+      "name": "Speech: Trailer Voice",
+      "description": "A big cinematic announcer for trailers and promos.",
+      "tags": [
+        "preset",
+        "audio",
+        "speech",
+        "trailer"
+      ]
+    },
+    "SPEECH_WARM_NARRATOR": {
+      "name": "Speech: Warm Narrator",
+      "description": "A calm storyteller for narration and audiobooks.",
+      "tags": [
+        "preset",
+        "audio",
+        "speech",
+        "narration"
+      ]
+    },
+    "STOP_MOTION_CHARACTER_ACTION_CLIP": {
+      "name": "Stop Motion: Character Action Clip",
+      "description": "Video preset for a character clip in the Stop Motion look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "stop-motion"
+      ]
+    },
+    "STOP_MOTION_CHARACTER_FULL_BODY": {
+      "name": "Stop Motion: Character Full Body",
+      "description": "Image preset for a character full body in the Stop Motion look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "stop-motion"
+      ]
+    },
+    "STOP_MOTION_CHARACTER_HEADSHOT": {
+      "name": "Stop Motion: Character Headshot",
+      "description": "Image preset for a character headshot in the Stop Motion look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "stop-motion"
+      ]
+    },
+    "STOP_MOTION_ITEM_PRODUCT_SHOT": {
+      "name": "Stop Motion: Item Product Shot",
+      "description": "Image preset for a item product shot in the Stop Motion look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "stop-motion"
+      ]
+    },
+    "STOP_MOTION_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Stop Motion: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Stop Motion look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "stop-motion"
+      ]
+    },
+    "STOP_MOTION_LOCATION_EXTERIOR": {
+      "name": "Stop Motion: Location Exterior",
+      "description": "Image preset for a location exterior in the Stop Motion look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "stop-motion"
+      ]
+    },
+    "STOP_MOTION_LOCATION_INTERIOR": {
+      "name": "Stop Motion: Location Interior",
+      "description": "Image preset for a location interior in the Stop Motion look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "stop-motion"
+      ]
+    },
+    "STOP_MOTION_MUSIC": {
+      "name": "Stop Motion: Music",
+      "description": "Music preset: a score that fits the Stop Motion look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "stop-motion"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_CHARACTER_ACTION_CLIP": {
+      "name": "Watercolor Storybook: Character Action Clip",
+      "description": "Video preset for a character clip in the Watercolor Storybook look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "storybook"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_CHARACTER_FULL_BODY": {
+      "name": "Watercolor Storybook: Character Full Body",
+      "description": "Image preset for a character full body in the Watercolor Storybook look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "storybook"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_CHARACTER_HEADSHOT": {
+      "name": "Watercolor Storybook: Character Headshot",
+      "description": "Image preset for a character headshot in the Watercolor Storybook look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "storybook"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_ITEM_PRODUCT_SHOT": {
+      "name": "Watercolor Storybook: Item Product Shot",
+      "description": "Image preset for a item product shot in the Watercolor Storybook look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "storybook"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Watercolor Storybook: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Watercolor Storybook look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "storybook"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_LOCATION_EXTERIOR": {
+      "name": "Watercolor Storybook: Location Exterior",
+      "description": "Image preset for a location exterior in the Watercolor Storybook look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "storybook"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_LOCATION_INTERIOR": {
+      "name": "Watercolor Storybook: Location Interior",
+      "description": "Image preset for a location interior in the Watercolor Storybook look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "storybook"
+      ]
+    },
+    "WATERCOLOR_STORYBOOK_MUSIC": {
+      "name": "Watercolor Storybook: Music",
+      "description": "Music preset: a score that fits the Watercolor Storybook look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "storybook"
+      ]
+    },
+    "WESTERN_CHARACTER_ACTION_CLIP": {
+      "name": "Western: Character Action Clip",
+      "description": "Video preset for a character clip in the Western look.",
+      "tags": [
+        "preset",
+        "video",
+        "character",
+        "western"
+      ]
+    },
+    "WESTERN_CHARACTER_FULL_BODY": {
+      "name": "Western: Character Full Body",
+      "description": "Image preset for a character full body in the Western look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "western"
+      ]
+    },
+    "WESTERN_CHARACTER_HEADSHOT": {
+      "name": "Western: Character Headshot",
+      "description": "Image preset for a character headshot in the Western look.",
+      "tags": [
+        "preset",
+        "image",
+        "character",
+        "western"
+      ]
+    },
+    "WESTERN_ITEM_PRODUCT_SHOT": {
+      "name": "Western: Item Product Shot",
+      "description": "Image preset for a item product shot in the Western look.",
+      "tags": [
+        "preset",
+        "image",
+        "item",
+        "western"
+      ]
+    },
+    "WESTERN_LOCATION_ESTABLISHING_CLIP": {
+      "name": "Western: Location Establishing Clip",
+      "description": "Video preset for a location clip in the Western look.",
+      "tags": [
+        "preset",
+        "video",
+        "location",
+        "western"
+      ]
+    },
+    "WESTERN_LOCATION_EXTERIOR": {
+      "name": "Western: Location Exterior",
+      "description": "Image preset for a location exterior in the Western look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "western"
+      ]
+    },
+    "WESTERN_LOCATION_INTERIOR": {
+      "name": "Western: Location Interior",
+      "description": "Image preset for a location interior in the Western look.",
+      "tags": [
+        "preset",
+        "image",
+        "location",
+        "western"
+      ]
+    },
+    "WESTERN_MUSIC": {
+      "name": "Western: Music",
+      "description": "Music preset: a score that fits the Western look.",
+      "tags": [
+        "preset",
+        "audio",
+        "music",
+        "western"
+      ]
+    }
+  }
+}

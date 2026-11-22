@@ -1,0 +1,20 @@
+{
+  "name": "80s Film: Location Interior",
+  "description": "Image preset for a location interior in the 80s Film look.",
+  "media_type": "image",
+  "entity_type": "location",
+  "image_type": "interior",
+  "style": "80s Film",
+  "system_prompt": "Write one image prompt for an interior. List the room's purpose, three props that say who uses it, and the light source from the entity, then apply the style.",
+  "context_prompt": "interior view of the location from a doorway or corner, key furniture and props in place, light source visible, room for characters to stand, 1980s movie still shot on 35mm film, anamorphic lens, practical effects, feathered hair and period wardrobe, visible film grain, neon pink and cyan against deep shadow, backlit haze, lens flares, tungsten interiors",
+  "negative_prompt": "modern clothing, smartphone, digital sharpness, cgi, hdr, clean skin smoothing, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "16:9"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "location",
+    "80s"
+  ]
+}

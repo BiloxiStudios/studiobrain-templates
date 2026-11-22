@@ -1,0 +1,20 @@
+{
+  "name": "Speech: Warm Narrator",
+  "description": "A calm storyteller for narration and audiobooks.",
+  "media_type": "audio",
+  "entity_type": "",
+  "image_type": "speech",
+  "style": "Warm Narrator",
+  "system_prompt": "Use this delivery for the supplied text. Do not rewrite the words. Add pauses only where punctuation calls for them.",
+  "context_prompt": "warm, unhurried narrator, medium-low pitch, clear diction, gentle rise and fall, short pauses at commas and full pauses between sentences",
+  "negative_prompt": "robotic monotone, mispronounced names, background music, echo",
+  "technical_params": {
+    "speed": 1.0
+  },
+  "tags": [
+    "preset",
+    "audio",
+    "speech",
+    "narration"
+  ]
+}

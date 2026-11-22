@@ -1,0 +1,20 @@
+{
+  "name": "Noir Mystery: Item Product Shot",
+  "description": "Image preset for a item product shot in the Noir Mystery look.",
+  "media_type": "image",
+  "entity_type": "item",
+  "image_type": "product_shot",
+  "style": "Noir Mystery",
+  "system_prompt": "Write one image prompt for a prop or item shot. Describe material, wear, size cue, and the one detail that makes it recognisable from the entity, then apply the style.",
+  "context_prompt": "single item centred on a plain surface, three-quarter angle, whole object visible with its key detail facing the viewer, film noir still, hard chiaroscuro, venetian-blind shadows across the face, rain-slick streets, fedoras and trench coats, cigarette smoke, black and white or heavily desaturated, single hard key light, deep blacks, wet reflective surfaces",
+  "negative_prompt": "bright saturated colour, sunny daylight, modern technology, cartoon, cheerful mood, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "item",
+    "noir"
+  ]
+}

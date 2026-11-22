@@ -1,0 +1,20 @@
+{
+  "name": "80s Film: Character Headshot",
+  "description": "Image preset for a character headshot in the 80s Film look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "headshot",
+  "style": "80s Film",
+  "system_prompt": "Write one image prompt for a headshot. Lead with the character's defining facial features, hair, and expression from the entity, then apply the style. Keep the background plain.",
+  "context_prompt": "head-and-shoulders portrait of the character, face fills the frame, eyes sharp, neutral background that does not compete, 1980s movie still shot on 35mm film, anamorphic lens, practical effects, feathered hair and period wardrobe, visible film grain, neon pink and cyan against deep shadow, backlit haze, lens flares, tungsten interiors",
+  "negative_prompt": "modern clothing, smartphone, digital sharpness, cgi, hdr, clean skin smoothing, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "1:1"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "80s"
+  ]
+}

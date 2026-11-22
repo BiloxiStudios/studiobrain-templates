@@ -1,0 +1,20 @@
+{
+  "name": "CG Animated Feature: Character Full Body",
+  "description": "Image preset for a character full body in the CG Animated Feature look.",
+  "media_type": "image",
+  "entity_type": "character",
+  "image_type": "full_body",
+  "style": "CG Animated Feature",
+  "system_prompt": "Write one image prompt for a full-body design view. Describe build, default outfit, signature accessory, and stance from the entity, then apply the style. Nothing cropped.",
+  "context_prompt": "full-body view of the character head to toe, standing pose that shows silhouette and costume, feet on a simple ground plane, stylized 3D animated feature film still, appealing simplified proportions, large expressive eyes, sculpted hair shapes, soft subsurface skin, tactile cloth and fur, cinematic three-point lighting, warm key and cool fill, soft global illumination, shallow depth of field",
+  "negative_prompt": "photorealistic human, uncanny, flat 2d, low-poly, harsh shadows, extra fingers, text, watermark",
+  "technical_params": {
+    "aspect_ratio": "2:3"
+  },
+  "tags": [
+    "preset",
+    "image",
+    "character",
+    "3d"
+  ]
+}
