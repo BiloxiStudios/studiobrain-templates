@@ -8,6 +8,7 @@ Scans the catalog drop-in locations:
   templates/Standard/*.ability.yaml     -> kind "ability"
   templates/Workflows/*.workflow.yaml   -> kind "canvas" (one-release alias)
   templates/Canvas/*.canvas.yaml        -> kind "canvas" (canonical, SBAI-7650)
+  templates/Layouts/*.layout.json       -> kind "layout" (standalone entity form)
 
 and emits catalog-index.json at the repo root:
 
@@ -16,8 +17,9 @@ and emits catalog-index.json at the repo root:
 Each entry carries badges only -- id, kind, name/display, description, path,
 plus per-kind badge metadata (providers: wire/runtime/provides/requires/
 billing/slots/pricing; canvas entries: requires/slots/domains/entity_types/
-step_count; abilities: provider). Full file bodies stay in the YAML; the
-index stays small. wire/runtime badge the marketplace on execution mode,
+step_count; abilities: provider; layouts: entity_types and SHA-256).
+The index leaves full definitions in their source files.
+wire/runtime badge the marketplace on execution mode,
 e.g. "on-device" for wire: in-app.
 
 A provider's ``pricing`` badge is the typed ``{currency, unit, amount}``
@@ -40,6 +42,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import pathlib
 import subprocess
@@ -169,6 +172,23 @@ def _provider_models(weights: Any) -> list[dict[str, Any]]:
     return models
 
 
+def _layout_entry(path: pathlib.Path, root: pathlib.Path) -> dict[str, Any]:
+    """Use the entity type as the catalog id and retain the canonical source path."""
+    body = path.read_bytes()
+    data = json.loads(body)
+    entity_type = path.name.removesuffix(".layout.json")
+    if not isinstance(data, dict) or data.get("entity_type") != entity_type:
+        raise ValueError(f"{path}: entity_type must match the layout filename")
+    return {
+        "id": entity_type,
+        "kind": "layout",
+        "name": entity_type.replace("_", " ").title(),
+        "path": path.relative_to(root).as_posix(),
+        "entity_types": [entity_type],
+        "sha256": hashlib.sha256(body).hexdigest(),
+    }
+
+
 def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
     """Parse every catalog file and return the sorted entry list."""
     entries: list[dict[str, Any]] = []
@@ -258,6 +278,11 @@ def build_entries(root: pathlib.Path = ROOT) -> list[dict[str, Any]]:
                 entry["provider"] = str(data["provider"])
 
         entries.append(entry)
+
+    # Pack and project layouts are distributed by their owners. Only root-level
+    # official entity forms have standalone install ids.
+    for path in (root / "templates" / "Layouts").glob("*.layout.json"):
+        entries.append(_layout_entry(path, root))
 
     entries.sort(key=lambda e: (e["kind"], e["id"]))
     return entries
