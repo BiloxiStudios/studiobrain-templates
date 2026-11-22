@@ -1,0 +1,27 @@
+{
+  "id": "theme-stop-motion",
+  "name": "Theme: Stop Motion",
+  "description": "Handmade puppets and miniature sets: visible materials, tactile textures, and charm in the imperfections.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "animation"
+  ],
+  "tags": [
+    "theme",
+    "stop-motion",
+    "animation",
+    "style"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "STOP_MOTION_CHARACTERS",
+    "STOP_MOTION_LOCATIONS"
+  ]
+}

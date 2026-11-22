@@ -32,8 +32,8 @@ class SettingNeutralTests(unittest.TestCase):
 
     def test_listed_packs_have_installable_members(self):
         # The picker lists templates/Packs/index.json. A listed pack must
-        # carry templates, rules, includes, a templates/ directory, or
-        # example files. An examples-only pack stays optional: auto_install
+        # carry templates, rules, rulesets, includes, a templates/ directory,
+        # or example files. An examples-only pack stays optional: auto_install
         # and is_default false, so a new project does not receive it.
         # This does not require any one sample pack to remain listed.
         import json
@@ -49,6 +49,7 @@ class SettingNeutralTests(unittest.TestCase):
             cloud_members = bool(
                 pack.get("templates")
                 or pack.get("rules")
+                or pack.get("rulesets")
                 or pack.get("includes")
                 or (tdir.is_dir() and any(tdir.iterdir()))
             )

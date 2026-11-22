@@ -1,0 +1,28 @@
+{
+  "id": "theme-horror",
+  "name": "Theme: Horror",
+  "description": "Characters and locations built for dread: what is wrong, what is hidden, and what it costs.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "film-tv",
+    "narrative",
+    "game-dev"
+  ],
+  "tags": [
+    "theme",
+    "horror",
+    "genre"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "HORROR_CHARACTERS",
+    "HORROR_LOCATIONS"
+  ]
+}

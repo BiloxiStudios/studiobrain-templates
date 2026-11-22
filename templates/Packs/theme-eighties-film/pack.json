@@ -1,0 +1,28 @@
+{
+  "id": "theme-eighties-film",
+  "name": "Theme: 80s Film",
+  "description": "The feel of an eighties movie: big archetypes, practical-effects texture, neon and suburbia.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "film-tv"
+  ],
+  "tags": [
+    "theme",
+    "80s",
+    "retro",
+    "film",
+    "style"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "EIGHTIES_FILM_CHARACTERS",
+    "EIGHTIES_FILM_LOCATIONS"
+  ]
+}

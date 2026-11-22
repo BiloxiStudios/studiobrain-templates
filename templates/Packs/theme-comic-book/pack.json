@@ -1,0 +1,29 @@
+{
+  "id": "theme-comic-book",
+  "name": "Theme: Comic Book",
+  "description": "Comic book characters, locations and series arcs: bold design, panel-ready settings, and stories paced by the issue.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "comics"
+  ],
+  "tags": [
+    "theme",
+    "comics",
+    "superhero",
+    "style"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "COMIC_BOOK_CHARACTERS",
+    "COMIC_BOOK_LOCATIONS",
+    "COMIC_SERIES_ARCS",
+    "SUPERHERO_CHARACTERS"
+  ]
+}

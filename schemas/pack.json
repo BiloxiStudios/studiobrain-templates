@@ -84,6 +84,12 @@
       "description": "Rule files (paths relative to the pack root). Empty for meta-packs.",
       "items": {"type": "string"}
     },
+    "rulesets": {
+      "type": "array",
+      "description": "Catalog ruleset ids this pack installs together; each resolves to rules/<ID>.md at the catalog root. Lets a theme pack bring several rulesets in one install without copying the files into the pack (SBAI-15328).",
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"},
+      "uniqueItems": true
+    },
     "layouts": {
       "type": "array",
       "description": "Layout JSON files (paths relative to the pack root). Empty for meta-packs.",

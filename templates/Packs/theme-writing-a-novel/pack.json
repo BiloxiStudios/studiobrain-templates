@@ -1,0 +1,27 @@
+{
+  "id": "theme-writing-a-novel",
+  "name": "Theme: Writing a Novel",
+  "description": "Characters with interior lives and a plot timeline that holds together across chapters.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "narrative"
+  ],
+  "tags": [
+    "theme",
+    "novel",
+    "writing",
+    "use"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "NOVEL_CHARACTERS",
+    "NOVEL_PLOT_TIMELINE"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "theme-pixel-art",
+  "name": "Theme: Pixel Art",
+  "description": "Characters and locations designed for pixel art: readable at low resolution, limited palettes, tile-friendly spaces.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "game-dev"
+  ],
+  "tags": [
+    "theme",
+    "pixel-art",
+    "retro",
+    "games",
+    "style"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "PIXEL_ART_CHARACTERS",
+    "PIXEL_ART_LOCATIONS"
+  ]
+}

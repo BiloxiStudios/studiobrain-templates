@@ -1,0 +1,28 @@
+{
+  "id": "theme-noir-mystery",
+  "name": "Theme: Noir Mystery",
+  "description": "A noir tone and the suspects, sleuths and secrets a mystery needs.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "narrative",
+    "film-tv"
+  ],
+  "tags": [
+    "theme",
+    "noir",
+    "mystery",
+    "genre"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "NOIR_TONE",
+    "MYSTERY_CHARACTERS"
+  ]
+}

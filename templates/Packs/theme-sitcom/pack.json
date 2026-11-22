@@ -1,0 +1,28 @@
+{
+  "id": "theme-sitcom",
+  "name": "Theme: Sitcom",
+  "description": "An ensemble cast and the handful of standing sets a sitcom lives in.",
+  "author": "StudioBrain",
+  "version": "1.0.0",
+  "compat": {
+    "min_core_version": "0.1.0"
+  },
+  "entity_types": [],
+  "categories": [
+    "film-tv"
+  ],
+  "tags": [
+    "theme",
+    "sitcom",
+    "comedy",
+    "tv",
+    "genre"
+  ],
+  "icon": null,
+  "is_meta_pack": false,
+  "includes": [],
+  "rulesets": [
+    "SITCOM_CHARACTERS",
+    "SITCOM_LOCATIONS"
+  ]
+}
