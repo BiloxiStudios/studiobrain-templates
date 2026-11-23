@@ -85,6 +85,34 @@ class InAppInvariantTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             return _run(pathlib.Path(td), {"x.provider.yaml": body})
 
+    def test_salient_object_row_is_only_available_to_its_cpu_adapter(self):
+        import yaml
+
+        source = ROOT / "templates" / "Providers" / "on-device.provider.yaml"
+        catalog = yaml.safe_load(source.read_text(encoding="utf-8"))
+        row = next(r for r in catalog["weights"] if r["id"] == "on-device/u2netp-fp32-wasm")
+        self.assertEqual(
+            (row["capability"], row["runtime"], row["device"]),
+            ("salient-object-detection", "onnxruntime-web", "wasm"),
+        )
+        self.assertEqual(row["files"], [{
+            "name": row["file"],
+            "size": row["size"],
+            "sha256": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+        }])
+        catalog["weights"] = [row]
+        self.assertEqual(self.check(yaml.safe_dump(catalog))[0], [])
+        for change, error in [
+            ({"capability": "background-removal"}, "cannot use the legacy background-removal"),
+            ({"device": "any"}, "requires fp32 on onnxruntime-web/wasm"),
+            ({"dtype": "fp16"}, "requires fp32 on onnxruntime-web/wasm"),
+            ({"runtime": "transformers.js"}, "requires fp32 on onnxruntime-web/wasm"),
+            ({"file": "unverified.onnx"}, "single checksummed graph"),
+        ]:
+            with self.subTest(change=change):
+                catalog["weights"] = [{**row, **change}]
+                self.assert_error_matching(self.check(yaml.safe_dump(catalog))[0], error)
+
     def test_good_in_app_provider_is_clean(self):
         errors, warnings = self.check(GOOD_IN_APP)
         self.assertEqual(errors, [])
@@ -333,6 +361,7 @@ class ShippedCatalogTests(unittest.TestCase):
                 "on-device/siglip2-base-256-vision-q8-wasm",
                 "on-device/siglip2-so400m-256-vision-q4f16-webgpu",
                 "on-device/swin2sr-realworld-x4-fp32-any",
+                "on-device/u2netp-fp32-wasm",
                 "on-device/whisper-base-q4-webgpu",
                 "on-device/whisper-base-q8-wasm",
             ],

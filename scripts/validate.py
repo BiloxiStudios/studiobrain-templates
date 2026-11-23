@@ -1648,6 +1648,14 @@ def check_requires() -> tuple[list[str], list[str]]:
                             f"'litert-lm' and declares context_length {row_ctx} -- the "
                             "ceiling is 32768 and the engine clamps to it"
                         )
+                elif row_runtime == "onnxruntime-web":
+                    # Released background-removal readers assume a Transformers pipeline.
+                    if row.get("capability") == "background-removal":
+                        errors.append(f"{path}: direct ONNX row {rid!r} cannot use the legacy background-removal capability")
+                    graph = row.get("file")
+                    files = [f.get("name") for f in row.get("files") or [] if isinstance(f, dict)]
+                    if not isinstance(graph, str) or not graph.endswith(".onnx") or files != [graph]:
+                        errors.append(f"{path}: direct ONNX weights row {rid!r} must name its single checksummed graph")
                 elif row_runtime == "mediapipe-tts":
                     # SBAI-15222: the MediaPipe TextToSpeech task loads ONE
                     # self-contained .litertlm bundle (acoustic model, codec,
@@ -1693,6 +1701,9 @@ def check_requires() -> tuple[list[str], list[str]]:
                     )
 
                 row_capability = row.get("capability") or "llm-chat"
+                if row_capability == "salient-object-detection":
+                    if row_runtime != "onnxruntime-web" or row.get("device") != "wasm" or row.get("dtype") != "fp32":
+                        errors.append(f"{path}: salient-object-detection row {rid!r} requires fp32 on onnxruntime-web/wasm")
                 if row_capability == "llm-chat":
                     missing = [
                         field
