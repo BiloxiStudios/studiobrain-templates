@@ -108,6 +108,52 @@
       "viewer_component": null
     },
     {
+      "id": "field_guide",
+      "title": "Field guide",
+      "icon": "BookOpen",
+      "columns": 2,
+      "fields": [
+        {"key": "atmosphere", "label": "Atmosphere", "ui_component": "textarea", "column_span": 2},
+        {"key": "dominant_colors", "label": "Landscape palette", "ui_component": "color-group"},
+        {"key": "light_quality", "label": "Light", "ui_component": "text"},
+        {"key": "parent_location", "label": "Parent location", "ui_component": "entity-selector", "reference_type": "location"},
+        {"key": "connected_biomes", "label": "Neighboring biomes", "ui_component": "entity-multiselect", "reference_type": "biome"},
+        {"key": "story_function", "label": "Role in the story", "ui_component": "textarea-array", "column_span": 2}
+      ]
+    },
+    {
+      "id": "season_spring",
+      "title": "Spring",
+      "collapsed_default": true,
+      "fields": [
+        {"key": "seasonal_changes.spring", "label": "Seasonal changes", "ui_component": "textarea", "column_span": 2}
+      ]
+    },
+    {
+      "id": "season_summer",
+      "title": "Summer",
+      "collapsed_default": true,
+      "fields": [
+        {"key": "seasonal_changes.summer", "label": "Seasonal changes", "ui_component": "textarea", "column_span": 2}
+      ]
+    },
+    {
+      "id": "season_autumn",
+      "title": "Autumn",
+      "collapsed_default": true,
+      "fields": [
+        {"key": "seasonal_changes.autumn", "label": "Seasonal changes", "ui_component": "textarea", "column_span": 2}
+      ]
+    },
+    {
+      "id": "season_winter",
+      "title": "Winter",
+      "collapsed_default": true,
+      "fields": [
+        {"key": "seasonal_changes.winter", "label": "Seasonal changes", "ui_component": "textarea", "column_span": 2}
+      ]
+    },
+    {
       "id": "environment",
       "title": "Environment",
       "icon": "Mountain",
@@ -470,6 +516,36 @@
     }
   ],
   "view_config": {
-    "layout_driven": true
+    "layout_driven": true,
+    "view_only_sections": [
+      {
+        "id": "biome_narrative",
+        "title": "Field notes",
+        "component": "markdown-content",
+        "component_source": "builtin"
+      }
+    ],
+    "tabs": [
+      {
+        "id": "guide",
+        "label": "Field guide",
+        "content": {"type": "section_group", "section_ids": ["field_guide", "biome_narrative"]}
+      },
+      {
+        "id": "seasons",
+        "label": "Seasons",
+        "content": {"type": "section_group", "section_ids": ["season_spring", "season_summer", "season_autumn", "season_winter"]}
+      },
+      {
+        "id": "record",
+        "label": "Biome record",
+        "content": {"type": "section_group", "section_ids": ["basic_information", "environment", "ecology", "hazards_weather", "sensory_details", "connected_locations", "ai_context"]}
+      },
+      {
+        "id": "media",
+        "label": "Media",
+        "content": {"type": "section_group", "section_ids": ["block_primary_image", "comfyui", "block_assets"]}
+      }
+    ]
   }
 }
