@@ -690,6 +690,29 @@ weights:
         size: 224005088
     capability: background-removal
     modality: [image]
+  # U²-Netp predicts a salient foreground object at 320×320. Its soft mask
+  # can lose fine detail or secondary subjects. A compatible CPU image tool
+  # must request this capability explicitly and apply the rembg processor.
+  # Older background-removal clients keep their existing BiRefNet tiers.
+  - id: on-device/u2netp-fp32-wasm
+    source: huggingface://BritishWerewolf/U-2-Netp
+    revision: 7112208dbac3a3642496c8d54e2f0f9bb3dc1dc8
+    runtime: onnxruntime-web
+    dtype: fp32
+    device: wasm
+    approx_download_mb: 5
+    file: model.onnx
+    mirror_path: on-device/britishwerewolf__U-2-Netp/7112208dbac3a3642496c8d54e2f0f9bb3dc1dc8/
+    license: apache-2.0
+    license_artifact: licenses/u2netp-apache-2.0.txt
+    size: 4574861
+    files:
+      - name: model.onnx
+        sha256: 309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8
+        size: 4574861
+    capability: salient-object-detection
+    modality: [image]
+    experimental: true
   # capability: depth-estimation -- Depth Anything V2 small (Apache-2.0): a
   # grayscale depth map, for parallax, 3D blockout and heightmap starts.
   - id: on-device/depth-anything-v2-small-q4f16-webgpu
