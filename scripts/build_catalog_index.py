@@ -317,7 +317,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Build catalog-index.json (marketplace badge index).")
     parser.add_argument(
         "--out",
-        default=str(DEFAULT_OUT),
+        default=None,
         help="Output path (default: catalog-index.json at the repo root).",
     )
     parser.add_argument(
@@ -325,11 +325,18 @@ def main(argv: list[str] | None = None) -> int:
         help="ISO-8601 UTC timestamp for generated_at. Default: HEAD commit "
              "timestamp (deterministic per commit), falling back to wall clock.",
     )
+    parser.add_argument("--pack-revision", help="Build a complete template-pack snapshot from this exact Git commit.")
     args = parser.parse_args(argv)
+    if args.pack_revision is not None:
+        if not args.out:
+            parser.error("--pack-revision requires its own --out file")
+        from template_pack_snapshot import write_snapshot
+        write_snapshot(ROOT, args.pack_revision, args.out)
+        return 0
 
     generated_at = args.generated_at or default_generated_at()
     index = build_index(generated_at)
-    out = pathlib.Path(args.out)
+    out = pathlib.Path(args.out or DEFAULT_OUT)
     # newline="\n" keeps the committed artifact byte-identical across platforms.
     with out.open("w", encoding="utf-8", newline="\n") as fh:
         fh.write(render(index))
