@@ -346,6 +346,7 @@ class ShippedCatalogTests(unittest.TestCase):
                 "on-device/embeddinggemma-2-q8-wasm",
                 "on-device/embeddinggemma-2-text-litert-gpu",
                 "on-device/gemma-4-e2b-it-litert-web",
+                "on-device/gemma-4-e2b-it-native-audio",
                 "on-device/gemma-4-e2b-it-q4",
                 "on-device/gemma-4-e2b-it-q4f16-webgpu",
                 "on-device/gemma-4-e4b-it-litert-web",

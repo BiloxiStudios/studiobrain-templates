@@ -1648,6 +1648,13 @@ def check_requires() -> tuple[list[str], list[str]]:
                             f"'litert-lm' and declares context_length {row_ctx} -- the "
                             "ceiling is 32768 and the engine clamps to it"
                         )
+                elif row_runtime == "litert-lm-native":
+                    if row.get("device") != "native":
+                        errors.append(f"{path}: native LiteRT row {rid!r} requires device 'native'")
+                    if row.get("file") not in [f.get("name") for f in row.get("files", []) if isinstance(f, dict)]:
+                        errors.append(f"{path}: native LiteRT row {rid!r} requires a checksummed model file")
+                    if not str(row.get("file", "")).endswith(".litertlm") or str(row["file"]).endswith("-web.litertlm"):
+                        errors.append(f"{path}: native LiteRT row {rid!r} requires a native .litertlm bundle")
                 elif row_runtime == "onnxruntime-web":
                     # Released background-removal readers assume a Transformers pipeline.
                     if row.get("capability") == "background-removal":

@@ -120,7 +120,7 @@
           },
           "runtime": {
             "type": "string",
-            "enum": ["transformers.js", "litert-lm", "mediapipe-tts", "pyannote-litert", "onnxruntime-web"],
+            "enum": ["transformers.js", "litert-lm", "mediapipe-tts", "pyannote-litert", "onnxruntime-web", "litert-lm-native"],
             "description": "Which in-app engine loads THIS row, overriding the provider-level runtime (SBAI-7844). Per row rather than per provider because the on-device provider now holds transformers.js tiers and litert-lm tiers side by side. Omitted, the row is a transformers.js row -- which is what every row that predates this field is, so absence must never be reinterpreted."
           },
           "file": {
@@ -144,7 +144,7 @@
           },
           "device": {
             "type": "string",
-            "enum": ["webgpu", "wasm", "any"]
+            "enum": ["webgpu", "wasm", "any", "native"]
           },
           "min_ram_gb": { "type": "number", "minimum": 0, "description": "Minimum host RAM in GiB. Same field as schemas/_limits.json; honored by every executor type." },
           "min_vram_gb": { "type": "number", "minimum": 0, "description": "Minimum GPU VRAM in GiB. Same field as schemas/_limits.json; honored by every executor type." },
