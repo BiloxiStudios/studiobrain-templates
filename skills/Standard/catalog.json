@@ -22,6 +22,17 @@
         "suggestions"
       ]
     },
+    "type_author": {
+      "name": "Custom Type Author",
+      "description": "Draft a matching template, rules and shared layout for a custom entity type.",
+      "tags": [
+        "templates",
+        "rules",
+        "layouts",
+        "custom types",
+        "review"
+      ]
+    },
     "world_consistency": {
       "name": "World Consistency Checker",
       "description": "Analyzes entities across a project for internal contradictions, broken references, timeline conflicts, and lore inconsistencies.",
