@@ -1,6 +1,6 @@
 {
   "manifest_schema_version": 1,
-  "generated_at": "2026-11-21T20:19:01Z",
+  "generated_at": "2026-11-23T01:55:58Z",
   "objects": [
     {
       "id": "on-device/birefnet-lite-fp16-webgpu",
@@ -193,6 +193,24 @@
           "name": "gemma-4-E2B-it-web.litertlm",
           "sha256": "3a08e8d94e23b814ae5414469c370c503813949acb8ceaa17e4ebf8a35af35b5",
           "size": 2008432640
+        }
+      ]
+    },
+    {
+      "id": "on-device/gemma-4-e2b-it-native-audio",
+      "provider": "on-device",
+      "provider_path": "templates/Providers/on-device.provider.yaml",
+      "source": "huggingface://litert-community/gemma-4-E2B-it-litert-lm",
+      "revision": "2e12bfd869b2962984f97a1f2a26807316d534cc",
+      "mirror_path": "on-device/litert-community__gemma-4-E2B-it-litert-lm/2e12bfd869b2962984f97a1f2a26807316d534cc/",
+      "license": "apache-2.0",
+      "license_artifact": "licenses/apache-2.0.txt",
+      "size": 2588147712,
+      "files": [
+        {
+          "name": "gemma-4-E2B-it.litertlm",
+          "sha256": "181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c",
+          "size": 2588147712
         }
       ]
     },

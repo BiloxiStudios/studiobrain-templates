@@ -875,6 +875,27 @@ weights:
     fallback: true
     experimental: true
   # ---------------------------------------------------------------------------
+  # General native container with the audio encoder. The browser build is text-only.
+  - id: on-device/gemma-4-e2b-it-native-audio
+    source: huggingface://litert-community/gemma-4-E2B-it-litert-lm
+    file: gemma-4-E2B-it.litertlm
+    runtime: litert-lm-native
+    dtype: q4
+    device: native
+    approx_download_mb: 2588
+    revision: 2e12bfd869b2962984f97a1f2a26807316d534cc
+    mirror_path: on-device/litert-community__gemma-4-E2B-it-litert-lm/2e12bfd869b2962984f97a1f2a26807316d534cc/
+    license: apache-2.0
+    license_artifact: licenses/apache-2.0.txt
+    size: 2588147712
+    files:
+      - name: gemma-4-E2B-it.litertlm
+        sha256: 181938105e0eefd105961417e8da75903eacda102c4fce9ce90f50b97139a63c
+        size: 2588147712
+    capability: audio-question-answering
+    modality: [audio, text]
+    experimental: true
+
   # runtime: litert-lm -- Google's LiteRT-LM WebGPU engine (SBAI-7844 §2).
   #
   # A SECOND in-app engine, not a replacement. `runtime` is declared per ROW
